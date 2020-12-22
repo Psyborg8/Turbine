@@ -19,15 +19,6 @@
     <Filter Include="Engine\GFX\Shaders">
       <UniqueIdentifier>{8f987ecb-66c1-42e9-9219-6fb55f62cddc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\UI">
-      <UniqueIdentifier>{84bf04a2-3417-4122-9cd9-65ca8eb20299}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\UI\Containers">
-      <UniqueIdentifier>{7cf291e6-42d2-478e-bc9e-b6f09aa847b4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\UI\Primitives">
-      <UniqueIdentifier>{9ec6c1f3-ca47-43d6-98db-05951f3ddcc2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Math">
       <UniqueIdentifier>{b31f6836-5dc7-463d-85ad-bd901e554568}</UniqueIdentifier>
     </Filter>
@@ -51,6 +42,9 @@
     </Filter>
     <Filter Include="Source">
       <UniqueIdentifier>{2f621186-3722-4f6a-87c3-e49dc7463bdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GFX\Camera">
+      <UniqueIdentifier>{913eb072-0049-4ae8-8998-9f10e94efe58}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +84,12 @@
     <ClCompile Include="src\DevWorld.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\World.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -119,9 +119,6 @@
     <ClInclude Include="src\Line.h">
       <Filter>Engine\GFX\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="src\World.h">
-      <Filter>Game\Worlds</Filter>
-    </ClInclude>
     <ClInclude Include="src\Wall.h">
       <Filter>Game\Objects\Wall</Filter>
     </ClInclude>
@@ -130,6 +127,12 @@
     </ClInclude>
     <ClInclude Include="src\Object.h">
       <Filter>Engine\GFX\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Camera.h">
+      <Filter>Engine\GFX\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\World.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

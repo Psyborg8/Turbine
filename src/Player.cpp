@@ -5,6 +5,8 @@
 //--------------------------------------------------------------------------------
 
 #include "System.h"
+#include "Camera.h"
+#include "World.h"
 
 //================================================================================
 
@@ -35,10 +37,10 @@ void Player::onStart()
 {
 	// Graphics
 	{
-		m_face->setScale( Vec2( 0.1f, 0.1f ) );
-		m_face->setAnchor( Vec2( 0.5f, 0.5f ) );
-		m_face->setPosition( Vec2( 0.0f, 0.0f ) );
-
+		m_face->setWidth( 1.0f );
+		m_face->setHeight( 1.0f );
+		m_face->setPosition( b2Vec2( 0.0f, 0.0f ) );
+		m_face->setRotation( 0.0f );
 		m_face->setColor( m_color );
 	}
 
@@ -52,24 +54,25 @@ void Player::onStart()
 
 void Player::onUpdate( float deltaTime )
 {
-	Vec2 oldPosition = m_position;
+	b2Vec2 oldPosition = m_position;
+	shared_ptr< Camera > camera = System::getWorld()->getCamera();
 	// Movement
-	Vec2 direction;
-	if( m_target != m_position )
+	b2Vec2 direction;
+	b2Vec2 target = camera->screenToWorld( m_target );
+	if( target != m_position )
 	{
-		const Vec2 difference = m_target - m_position;
-		const Vec2 normal = difference.Normalized();
+		b2Vec2 difference = target - m_position;
+		difference.Normalize();
 		const float length = mathfu::Clamp( abs( difference.Length() ), 0.0f, 0.5f ) * 2;
-		direction = normal * length;
+		direction = b2Vec2( difference.x * length, difference.y * length );
 	}
 	else
 	{
-		direction = Vec2( 0.0f, 0.0f );
+		direction = b2Vec2( 0.0f, 0.0f );
 	}
 	
 	m_velocity.x += direction.x * m_acceleration * deltaTime;
 	m_velocity.y += direction.y * m_acceleration * deltaTime;
-	m_velocity.y += m_gravity * deltaTime;
 
 	if( m_velocity.Length() > m_maxVelocity )
 	{
@@ -89,7 +92,7 @@ void Player::onUpdate( float deltaTime )
 
 		b2RayCastOutput output;
 		int32 childIdx = 0;
-		bool hit = m_face->toCollider().RayCast( &output, input, transform, childIdx );
+		bool hit = m_face->RayCast( &output, input, transform, childIdx );
 
 		if( hit )
 		{
@@ -102,19 +105,16 @@ void Player::onUpdate( float deltaTime )
 	m_position += m_velocity;
 
 	m_face->setPosition( m_position );
-
-	Vec2 position = position.toScreenRatio();
-	m_line->setStart( position );
+	System::getWorld()->getCamera()->setPosition( m_position );
+	m_line->setStart( m_position );
+	m_line->setEnd( target - ( oldPosition - m_position ) );
 }
 
 //--------------------------------------------------------------------------------
 
 void Player::onMouseMove( float x, float y )
 {
-	const Vec2 target = Vec2( x, y );
-	m_target = target;
-
-	m_line->setEnd( target );
+	m_target = b2Vec2( x, y );
 }
 
 //--------------------------------------------------------------------------------

@@ -8,45 +8,37 @@
 
 //================================================================================
 
-class Quad : public Object
+class Quad : public Object, public b2PolygonShape
 {
 public:
 	Quad();
+	Quad( float width, float height, b2Vec2 center, float rotation );
 
 	void onRender() override;
 
 public:
-	inline Vec2 getPosition() { return m_position; }
-	inline void setPosition( Vec2 position ) { m_position = position; }
+	inline float getWidth() { return m_width; }
+	inline void setWidth( float width ) { m_width = width; calculate(); }
 
-	inline Vec2 getScale() { return m_scale; }
-	inline void setScale( Vec2 scale ) { m_scale = scale; }
+	inline float getHeight() { return m_height; }
+	inline void setHeight( float height ) { m_height = height; calculate(); }
 
-	inline Vec2 getAnchor() { return m_anchor; }
-	inline void setAnchor( Vec2 anchor ) { m_anchor = anchor; }
+	inline b2Vec2 getPosition() { return m_position; }
+	inline void setPosition( b2Vec2 position ) { m_position = position; calculate(); }
 
 	inline float getRotation() { return m_rotation; }
-	inline void setRotation( float rotation ) { m_rotation = rotation; }
+	inline void setRotation( float rotation ) { m_rotation = rotation; calculate(); }
 
 	inline Color getColor() { return m_color; }
 	inline void setColor( Color color ) { m_color = color; }
 
-	Shader getShader( ShaderType type ) { return m_shaders[ type ]; }
-	inline void setShader( ShaderType type, string name ) { m_shaders[ type ] = Shader::getShader( type, name ); }
-
-	array< Vec2, 4 > getVertices();
-
-public:
-	bool isPointInside( Vec2 point );
-	bool isInsideQuad( Quad quad );
-
-	b2PolygonShape toCollider();
+protected:
+	void calculate();
 
 protected:
-	unordered_map< ShaderType, Shader > m_shaders;
-	Vec2 m_position;
-	Vec2 m_scale;
-	Vec2 m_anchor;
+	float m_width;
+	float m_height;
+	b2Vec2 m_position;
 	float m_rotation;
 	Color m_color;
 };

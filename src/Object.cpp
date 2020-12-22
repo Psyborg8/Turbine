@@ -6,14 +6,14 @@
 
 //================================================================================
 
-Object::Object() : m_parent( nullptr ), m_name( "" ), m_type( AspectType::Keep )
+Object::Object() : m_parent( nullptr ), m_name( "" )
 {
 	//
 }
 
 //--------------------------------------------------------------------------------
 
-Object::Object( string name ) : m_parent( nullptr ), m_name( name ), m_type( AspectType::Keep )
+Object::Object( string name ) : m_parent( nullptr ), m_name( name )
 {
 	//
 }
@@ -41,21 +41,6 @@ void Object::onDestroy()
 	Observer::removeObserver( m_mouseReleaseObserver );
 	Observer::removeObserver( m_keyboardPressObserver );
 	Observer::removeObserver( m_keyboardReleaseObserver );
-}
-
-
-//--------------------------------------------------------------------------------
-
-bool Object::removeCollisionObject( shared_ptr< Object > object )
-{
-	const auto it = find( m_collisionTargets.begin(), m_collisionTargets.end(), object );
-	if( it != m_collisionTargets.end() )
-	{
-		m_collisionTargets.erase( it );
-		return true;
-	}
-
-	return false;
 }
 
 //================================================================================

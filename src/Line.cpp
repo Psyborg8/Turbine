@@ -8,7 +8,7 @@
 
 //================================================================================
 
-Line::Line() : Object( "Line" ), m_start( Vec2() ), m_end( Vec2() ), m_color( Color() ), m_thickness( 0 )
+Line::Line() : Object( "Line" ), m_start( b2Vec2( 0.0f, 0.0f ) ), m_end( b2Vec2( 0.0f, 0.0f ) ), m_color( Color() ), m_thickness( 0 )
 {
 	//
 }

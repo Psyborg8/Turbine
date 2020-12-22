@@ -28,10 +28,11 @@ shared_ptr< World > world;
 
 //--------------------------------------------------------------------------------
 
-SystemInfo systemInfoObj;
-chronoClockPoint lastFrameTime;
+SystemInfo systemInfo;
 
+chronoClockPoint lastFrameTime;
 chronoClockPoint startTime;
+
 unique_ptr< Random > randomGen;
 
 bool shouldExit{ false };
@@ -47,7 +48,7 @@ bool init( int argc, char** argv )
 	// Init glut
 	glutInit( &argc, argv );
 	glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH );
-	glutInitWindowSize( 600, 480 );
+	glutInitWindowSize( systemInfo.width, systemInfo.height );
 	glutInitWindowPosition( 100, 100 );
 	glutCreateWindow( "Project Bullet" );
 
@@ -86,7 +87,7 @@ bool init( int argc, char** argv )
 
 int start()
 {
-	Object::makeObject< DevWorld >( "DevWorld", nullptr );
+	world = Object::makeObject< DevWorld >( "DevWorld", nullptr );
 
 	lastFrameTime = high_resolution_clock::now();
 
@@ -110,9 +111,16 @@ void exit()
 
 //--------------------------------------------------------------------------------
 
-SystemInfo& systemInfo()
+SystemInfo getSystemInfo()
 {
-	return systemInfoObj;
+	return systemInfo;
+}
+
+//--------------------------------------------------------------------------------
+
+shared_ptr< World > getWorld()
+{
+	return world;
 }
 
 //================================================================================
@@ -134,9 +142,9 @@ void update()
 	}
 
 	// Apply frame limiter if there is one
-	if( systemInfo().fpsLimit > 0u )
+	if( systemInfo.fpsLimit > 0u )
 	{
-		milliseconds frameTime = milliseconds( 1000 / systemInfo().fpsLimit );
+		milliseconds frameTime = milliseconds( 1000 / systemInfo.fpsLimit );
 
 		if( msDeltaTime < frameTime )
 		{
@@ -179,9 +187,12 @@ void onKeyPress( int key )
 
 void onWindowResize( int width, int height )
 {
-	systemInfo().height = height;
-	systemInfo().width = width;
+	systemInfo.height = height;
+	systemInfo.width = width;
+
 	glViewport( 0, 0, width, height );
+
+	world->getCamera()->calculate();
 }
 
 //================================================================================

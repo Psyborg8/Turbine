@@ -4,16 +4,7 @@
 
 //================================================================================
 
-#include "Global.h"
 #include "Observers.h"
-
-//================================================================================
-
-enum class AspectType
-{
-	Keep = 0,
-	Stretch
-};
 
 //================================================================================
 
@@ -45,10 +36,6 @@ public:
 	virtual inline void onKeyboardPress( int key ) {}
 	virtual inline void onKeyboardRelease( int key ) {}
 
-	// Collision
-	virtual inline void onCollision( b2Manifold collision ) {}
-	virtual inline void collisionFunc() {}
-
 // Get/Set
 public:
 	inline Object* getParent() { return m_parent; }
@@ -56,12 +43,6 @@ public:
 
 	inline string getName() { return m_name; }
 	inline void setName( string name ) { m_name = name; }
-
-	inline AspectType getAspectType() { return m_type; }
-	inline void setAspectType( AspectType type ) { m_type = type; }
-
-	inline void addCollisionObject( shared_ptr< Object > object ) { m_collisionTargets.push_back( object ); }
-	bool removeCollisionObject( shared_ptr< Object > object );
 
 // Variables
 protected:
@@ -76,12 +57,6 @@ protected:
 
 	ObserverID m_keyboardPressObserver;
 	ObserverID m_keyboardReleaseObserver;
-
-	// Collision
-	vector< shared_ptr< Object > > m_collisionTargets;
-
-	// Rendering
-	AspectType m_type;
 
 
 /* Static */

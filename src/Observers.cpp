@@ -317,10 +317,11 @@ void mouseMoveCallback( int x, int y )
 			continue;
 		}
 
+		System::SystemInfo systemInfo = System::getSystemInfo();
 		float outX, outY;
-		outX = float( x ) / float( System::systemInfo().width );
+		outX = float( x ) / float( systemInfo.width );
 		outX = outX * 2.0f - 1.0f;
-		outY = float( y ) / float( System::systemInfo().height );
+		outY = float( y ) / float( systemInfo.height );
 		outY = 1.0f - outY;
 		outY = outY * 2.0f - 1.0f;
 

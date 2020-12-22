@@ -206,22 +206,3 @@ Color Color::operator/( const float& rh ) const
 }
 
 //================================================================================
-
-// CLASS - Vec2
-
-//================================================================================
-
-Vec2 Vec2::toScreenRatio()
-{
-	Vec2 out;
-	
-	const int width = System::systemInfo().width;
-	const int height = System::systemInfo().height;
-
-	out.x = ( x / width ) * height;
-	out.y = y;
-
-	return out;
-}
-
-//================================================================================

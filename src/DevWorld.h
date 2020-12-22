@@ -17,8 +17,8 @@ public:
 
 	void onSpawnChildren() override;
 	void onStart() override;
-	void onUpdate( float deltaTime );
-	void onRender();
+	void onUpdate( float deltaTime ) override;
+	void onRender() override;
 
 private:
 	shared_ptr< Player > m_player;

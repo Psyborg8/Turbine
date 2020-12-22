@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{d52dd478-83f2-4212-875e-da86996b624e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Observers">
+      <UniqueIdentifier>{68cef8e6-fd79-43d2-a45e-5b5320135694}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GFX">
+      <UniqueIdentifier>{12a91a57-e64a-478c-b020-ab3bc0465dfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GFX\Primitives">
+      <UniqueIdentifier>{0454ba43-245b-41ed-884f-9c96cee97b7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GFX\Particles">
+      <UniqueIdentifier>{1a267825-fa85-4070-9b0d-d7f66ae62b0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GFX\Shaders">
+      <UniqueIdentifier>{8f987ecb-66c1-42e9-9219-6fb55f62cddc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\UI">
+      <UniqueIdentifier>{84bf04a2-3417-4122-9cd9-65ca8eb20299}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\UI\Containers">
+      <UniqueIdentifier>{7cf291e6-42d2-478e-bc9e-b6f09aa847b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\UI\Primitives">
+      <UniqueIdentifier>{9ec6c1f3-ca47-43d6-98db-05951f3ddcc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Math">
+      <UniqueIdentifier>{b31f6836-5dc7-463d-85ad-bd901e554568}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{df6a2e6a-b11a-4595-ba61-482b230dd1d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Objects">
+      <UniqueIdentifier>{1bbc1b3e-5343-4675-8981-c501fff8ce77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Objects\Player">
+      <UniqueIdentifier>{0c4e8543-e5d6-474a-9f5f-1ee468fc9740}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Worlds">
+      <UniqueIdentifier>{323acd47-e27d-4872-818d-43767c8cadaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Objects\Wall">
+      <UniqueIdentifier>{44edb181-25f5-4ff3-9fa4-0335915ade47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Worlds\DevWorld">
+      <UniqueIdentifier>{57782caa-6d62-4eb2-9f3d-90cd4c8d023c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{2f621186-3722-4f6a-87c3-e49dc7463bdc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ProjectBullet.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Line.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Quad.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shader.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MathTypes.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Random.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Observers.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\System.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Wall.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Player.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DevWorld.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\System.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Observers.h">
+      <Filter>Engine\Observers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shader.h">
+      <Filter>Engine\GFX\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Quad.h">
+      <Filter>Engine\GFX\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Random.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player.h">
+      <Filter>Game\Objects\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Global.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MathTypes.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Line.h">
+      <Filter>Engine\GFX\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\World.h">
+      <Filter>Game\Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Wall.h">
+      <Filter>Game\Objects\Wall</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DevWorld.h">
+      <Filter>Game\Worlds\DevWorld</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object.h">
+      <Filter>Engine\GFX\Primitives</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="src\Shaders\Fragment\Default.fs">
+      <Filter>Engine\GFX\Shaders</Filter>
+    </Text>
+    <Text Include="src\Shaders\Vertex\Default.vs">
+      <Filter>Engine\GFX\Shaders</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

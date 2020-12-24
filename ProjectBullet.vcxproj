@@ -26,12 +26,11 @@
     <ClCompile Include="src\Observers.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\ProjectBullet.cpp" />
-    <ClCompile Include="src\Quad.cpp" />
+    <ClCompile Include="src\Box.cpp" />
     <ClCompile Include="src\Random.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\System.cpp" />
     <ClCompile Include="src\MathTypes.cpp" />
-    <ClCompile Include="src\Wall.cpp" />
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -41,13 +40,12 @@
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\Observers.h" />
     <ClInclude Include="src\Player.h" />
-    <ClInclude Include="src\Quad.h" />
+    <ClInclude Include="src\Box.h" />
     <ClInclude Include="src\Random.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Global.h" />
     <ClInclude Include="src\System.h" />
     <ClInclude Include="src\MathTypes.h" />
-    <ClInclude Include="src\Wall.h" />
     <ClInclude Include="src\World.h" />
   </ItemGroup>
   <ItemGroup>
@@ -135,7 +133,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)deps\box2d\include;$(ProjectDir)deps\mathfu\include;$(ProjectDir)deps\glew\include;$(ProjectDir)deps\glut\include;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)deps\cute-headers\include;$(ProjectDir)deps\glew\include;$(ProjectDir)deps\glut\include;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ShowIncludes>false</ShowIncludes>
@@ -143,8 +141,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(ProjectDir)deps\box2d\lib;$(ProjectDir)deps\glew\lib;$(ProjectDir)deps\glut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>box2d.lib;glew32.lib;freeglutd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)deps\glew\lib;$(ProjectDir)deps\glut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;freeglutd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <PerUserRedirection>true</PerUserRedirection>
     </Link>

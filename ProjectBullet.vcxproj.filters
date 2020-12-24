@@ -54,9 +54,6 @@
     <ClCompile Include="src\Line.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\Quad.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\Shader.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -75,9 +72,6 @@
     <ClCompile Include="src\System.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\Wall.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\Player.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -90,6 +84,9 @@
     <ClCompile Include="src\Camera.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\Box.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -100,9 +97,6 @@
     </ClInclude>
     <ClInclude Include="src\Shader.h">
       <Filter>Engine\GFX\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Quad.h">
-      <Filter>Engine\GFX\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="src\Random.h">
       <Filter>Engine\Math</Filter>
@@ -119,9 +113,6 @@
     <ClInclude Include="src\Line.h">
       <Filter>Engine\GFX\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="src\Wall.h">
-      <Filter>Game\Objects\Wall</Filter>
-    </ClInclude>
     <ClInclude Include="src\DevWorld.h">
       <Filter>Game\Worlds\DevWorld</Filter>
     </ClInclude>
@@ -133,6 +124,9 @@
     </ClInclude>
     <ClInclude Include="src\World.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Box.h">
+      <Filter>Engine\GFX\Primitives</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

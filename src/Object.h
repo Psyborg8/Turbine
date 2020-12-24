@@ -36,6 +36,10 @@ public:
 	virtual inline void onKeyboardPress( int key ) {}
 	virtual inline void onKeyboardRelease( int key ) {}
 
+// Conversion
+public:
+	virtual inline void* toCollider() { return nullptr; }
+
 // Get/Set
 public:
 	inline Object* getParent() { return m_parent; }

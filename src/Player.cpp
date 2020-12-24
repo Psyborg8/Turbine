@@ -48,6 +48,19 @@ void Player::onStart()
 		m_line->setColor( Color( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		m_line->setThickness( 1.0f );
 	}
+
+	// Physics
+	b2BodyDef bodyDef;
+	bodyDef.position.Set( 0.0f, 0.0f );
+	bodyDef.type = b2_dynamicBody;
+	m_body = System::getWorld()->getB2World()->CreateBody( &bodyDef );
+
+	b2FixtureDef fixtureDef;
+	fixtureDef.shape = m_face.get();
+	fixtureDef.density = 1.0f;
+	fixtureDef.friction = 0.0f;
+
+	m_body->CreateFixture( &fixtureDef );
 }
 
 //--------------------------------------------------------------------------------
@@ -104,8 +117,8 @@ void Player::onUpdate( float deltaTime )
 	// Finish movement
 	m_position += m_velocity;
 
-	m_face->setPosition( m_position );
 	System::getWorld()->getCamera()->setPosition( m_position );
+	m_face->setPosition( m_position );
 	m_line->setStart( m_position );
 	m_line->setEnd( target - ( oldPosition - m_position ) );
 }

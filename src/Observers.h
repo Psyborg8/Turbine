@@ -13,6 +13,8 @@ enum class ObserverType
 	MousePress,
 	MouseRelease,
 
+	WindowResize,
+
 	None
 };
 
@@ -55,6 +57,7 @@ void initObservers();
 ObserverID addObserver( ObserverType type, Callback callback );
 ObserverID addObserver( ObserverType type, KeyCallback callback );
 ObserverID addObserver( ObserverType type, AxisCallback callback );
+ObserverID addObserver( ObserverType type, Vec2Callback callback );
 
 void removeObserver( ObserverID ID );
 

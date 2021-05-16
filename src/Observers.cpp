@@ -30,7 +30,14 @@ struct AxisObserver : public ObserverID
 
 //--------------------------------------------------------------------------------
 
-using ObserverVariant = std::variant< BasicObserver, KeyObserver, AxisObserver >;
+struct Vec2Observer : public ObserverID
+{
+	Vec2Callback callback;
+};
+
+//--------------------------------------------------------------------------------
+
+using ObserverVariant = std::variant< BasicObserver, KeyObserver, AxisObserver, Vec2Observer >;
 
 //================================================================================
 
@@ -41,9 +48,12 @@ bool isMarkedForRemoval( const ObserverVariant& observer );
 //--------------------------------------------------------------------------------
 
 void keyPressCallback( unsigned char key, int x, int y );
+void specialKeyPressCallback( int key, int x, int y );
 void keyReleaseCallback( unsigned char key, int x, int y );
+void specialKeyReleaseCallback( int key, int x, int y );
 void mouseCallback( int button, int state, int x, int y );
 void mouseMoveCallback( int x, int y );
+void windowResizeCallback( int width, int height );
 
 //--------------------------------------------------------------------------------
 
@@ -64,10 +74,13 @@ int highestID{ 0 };
 void initObservers()
 {
 	glutKeyboardFunc( keyPressCallback );
+	glutSpecialFunc( specialKeyPressCallback );
 	glutKeyboardUpFunc( keyReleaseCallback );
+	glutSpecialUpFunc( specialKeyReleaseCallback );
 	glutMouseFunc( mouseCallback );
 	glutMotionFunc( mouseMoveCallback );
 	glutPassiveMotionFunc( mouseMoveCallback );
+	glutReshapeFunc( windowResizeCallback );
 }
 
 //--------------------------------------------------------------------------------
@@ -184,6 +197,43 @@ ObserverID addObserver( ObserverType type, AxisCallback callback )
 
 //--------------------------------------------------------------------------------
 
+ObserverID addObserver( ObserverType type, Vec2Callback callback )
+{
+	if( type == ObserverType::None )
+	{
+		return ObserverID();
+	}
+
+	if( callback == nullptr )
+	{
+		return ObserverID();
+	}
+
+	int ID = -1;
+
+	if( freeIDs.empty() )
+	{
+		ID = highestID++;
+	}
+	else
+	{
+		ID = freeIDs.top();
+		freeIDs.pop();
+	}
+
+	Vec2Observer observer;
+	observer.ID = ID;
+	observer.timeStamp = high_resolution_clock::now();
+	observer.callback = callback;
+	observer.type = type;
+
+	observers[ type ].push_back( observer );
+
+	return ObserverID( observer );
+}
+
+//--------------------------------------------------------------------------------
+
 void removeObserver( ObserverID ID )
 {
 	markedForRemoval.push_back( ID );
@@ -230,7 +280,7 @@ bool isMarkedForRemoval( const ObserverVariant& observer )
 {
 	for( ObserverID marked : markedForRemoval )
 	{
-		const auto func = [ marked ]( const auto& observer ) {
+		const auto func = [marked]( const auto& observer ) {
 			return observer.ID == marked.ID && observer.timeStamp == marked.timeStamp;
 		};
 
@@ -268,6 +318,25 @@ void keyPressCallback( unsigned char key, int x, int y )
 
 //--------------------------------------------------------------------------------
 
+void specialKeyPressCallback( int key, int x, int y )
+{
+	for( ObserverVariant observer : observers[ ObserverType::KeyPress ] )
+	{
+		if( isMarkedForRemoval( observer ) )
+		{
+			continue;
+		}
+
+		KeyObserver* keyObserver = std::get_if< KeyObserver >( &observer );
+		if( keyObserver != nullptr )
+		{
+			keyObserver->callback( key + 200 );
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------
+
 void keyReleaseCallback( unsigned char key, int x, int y )
 {
 	for( ObserverVariant observer : observers[ ObserverType::KeyRelease ] )
@@ -281,6 +350,25 @@ void keyReleaseCallback( unsigned char key, int x, int y )
 		if( keyObserver != nullptr )
 		{
 			keyObserver->callback( key );
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------
+
+void specialKeyReleaseCallback( int key, int x, int y )
+{
+	for( ObserverVariant observer : observers[ ObserverType::KeyRelease ] )
+	{
+		if( isMarkedForRemoval( observer ) )
+		{
+			continue;
+		}
+
+		KeyObserver* keyObserver = std::get_if< KeyObserver >( &observer );
+		if( keyObserver != nullptr )
+		{
+			keyObserver->callback( key + 200 );
 		}
 	}
 }
@@ -329,6 +417,25 @@ void mouseMoveCallback( int x, int y )
 		if( axisObserver != nullptr )
 		{
 			axisObserver->callback( outX, outY );
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------
+
+void windowResizeCallback( int width, int height )
+{
+	for( ObserverVariant observer : observers[ ObserverType::WindowResize ] )
+	{
+		if( isMarkedForRemoval( observer ) )
+		{
+			continue;
+		}
+
+		Vec2Observer* vec2Observer = std::get_if< Vec2Observer >( &observer );
+		if( vec2Observer != nullptr )
+		{
+			vec2Observer->callback( width, height );
 		}
 	}
 }

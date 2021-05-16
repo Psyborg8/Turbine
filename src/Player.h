@@ -4,42 +4,34 @@
 
 //================================================================================
 
-#include "Quad.h"
-#include "Line.h"
-#include "Observers.h"
-#include "MathTypes.h"
+#include "Box.h"
 
 //================================================================================
 
-class Player : public Object
+class Player : public Box
 {
 public:
 	Player();
+	Player( Vec2 pos );
 
-private:
-	virtual void onSpawnChildren() override;
-	virtual void onStart() override;
-	virtual void onUpdate( float deltaTime ) override;
-	
-	virtual void onMouseMove( float x, float y ) override;
-
+// Events
 public:
-	inline Color getColor() { return m_color; }
-	void setColor( Color color );
+	void onUpdate( double deltaTime ) override;
+	void onRender() override;
 
-	inline Vec2 getPosition() { return m_position; }
-	inline void setPosition( Vec2 position ) { m_position = position; }
+	void onKeyboardPress( int key ) override;
+	void onKeyboardRelease( int key ) override;
 
+	void onCollision( shared_ptr< Object > target, Vec2 normal ) override;
+
+// Variables
 private:
-	const float m_acceleration{ 0.5f };
-	const float m_maxVelocity{ 1.0f };
-
 	Vec2 m_velocity;
-	Vec2 m_position;
-	Vec2 m_target;
+	Vec2 m_acceleration;
 
-	Color m_color;
-
-	shared_ptr< Box > m_face;
-	shared_ptr< Line > m_line;
+// Constants
+private:
+	const double m_moveSpeed{ 1.0 };
+	const double m_terminalVelocity{ 1.0 };
+	const Vec2 m_size{ 0.1, 0.15 };
 };

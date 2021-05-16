@@ -12,9 +12,9 @@
 
 //================================================================================
 
-Camera::Camera( b2Vec2 position, float distance ) : Object(), m_position( position )
+Camera::Camera( Vec2 position, float distance ) : Object(), m_position( position )
 {
-	m_distance.SetZero();
+	m_distance = Vec2();
 	m_distance.y = distance;
 
 	setName( "Camera" );
@@ -23,9 +23,9 @@ Camera::Camera( b2Vec2 position, float distance ) : Object(), m_position( positi
 
 //--------------------------------------------------------------------------------
 
-b2Vec2 Camera::screenToWorld( b2Vec2 screenPosition )
+Vec2 Camera::screenToWorld( Vec2 screenPosition )
 {
-	b2Vec2 out;
+	Vec2 out;
 
 	out.x = m_position.x + ( m_distance.x * screenPosition.x );
 	out.y = m_position.y + ( m_distance.y * screenPosition.y );
@@ -35,9 +35,9 @@ b2Vec2 Camera::screenToWorld( b2Vec2 screenPosition )
 
 //--------------------------------------------------------------------------------
 
-b2Vec2 Camera::worldToScreen( b2Vec2 worldPosition )
+Vec2 Camera::worldToScreen( Vec2 worldPosition )
 {
-	b2Vec2 out;
+	Vec2 out;
 
 	out.x = ( worldPosition.x - m_position.x ) / m_distance.x;
 	out.y = ( worldPosition.y - m_position.y ) / m_distance.y;

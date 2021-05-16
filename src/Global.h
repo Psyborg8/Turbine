@@ -2,26 +2,6 @@
 
 //================================================================================
 
-// Devlog
-
-// 24-12-20
-// Started devlog. Project was uploaded to github
-// Just removed Box2D and implemented cute-headers library
-// Quad has been replaced with Box, which is an axis-aligned bounding box
-// Rendering for Box has been added but not tested.
-// To do: //
-//		  // Fix all errors from removing Box2D
-//		  // Implement and test walls with Box class
-//		  // Reimplement Player graphics with Box class
-//		  // Implement and test collision with Box class
-
-//================================================================================
-
-/* Preprocessor Definitions */
-#define NOMINMAX // Causes problems in Mathfu
-
-//================================================================================
-
 /* Includes */
 #include <Windows.h>
 
@@ -43,17 +23,6 @@
 #include <stack>
 #include <chrono>
 #include <array>
-
-#pragma warning( push, 0 )
-#define CUTE_PNG_IMPLEMENTATION_ONCE
-#include <cute_png.h>
-#define CUTE_FONT_IMPLEMENTATION_ONCE
-#include <cute_font.h>
-#define CUTE_C2_IMPLEMENTATION_ONCE
-#include <cute_c2.h>
-#define CUTE_MATH2D_IMPLEMENTATION_ONCE
-#include <cute_math2d.h>
-#pragma warning( pop )
 
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -88,11 +57,10 @@ using chronoClockPoint = std::chrono::time_point< std::chrono::high_resolution_c
 using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
 
-using Vec2 = c2v;
-
 using Callback = function< void() >;
 using KeyCallback = function< void( int key ) >;
 using AxisCallback = function< void( float x, float y ) >;
+using Vec2Callback = function< void( int x, int y ) >;
 
 //================================================================================
 
@@ -109,3 +77,34 @@ static const string FRAGMENT_SHADER = SHADER + "Fragment\\";
 static const string ASSETS = DATA + "Assets\\";
 
 } // Folders
+
+//================================================================================
+
+/* Enums */
+
+enum class KeyCode
+{
+	// ASCII
+	Backspace = 10,
+	Tab = 11,
+	Escape = 27,
+	Space = 32,
+	Delete = 127,
+
+	Num_0 = 48,
+	Num_1, Num_2, Num_3, Num_4, Num_5, Num_6, Num_7, Num_8, Num_9,
+
+	A = 65,
+	B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+
+	a = 100,
+	b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z,
+
+	// Special characters
+	F1 = 201, 
+	F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+	Left, Right, Up, Down,
+	PageUp, PageDown,
+	Home,
+	Insert
+};

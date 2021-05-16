@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,14 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Box.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\DevWorld.cpp" />
-    <ClCompile Include="src\Line.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Observers.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\ProjectBullet.cpp" />
-    <ClCompile Include="src\Box.cpp" />
     <ClCompile Include="src\Random.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\System.cpp" />
@@ -34,13 +33,12 @@
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DevWorld.h" />
+    <ClInclude Include="src\Box.h" />
     <ClInclude Include="src\Camera.h" />
-    <ClInclude Include="src\DevWorld.h" />
-    <ClInclude Include="src\Line.h" />
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\Observers.h" />
     <ClInclude Include="src\Player.h" />
-    <ClInclude Include="src\Box.h" />
     <ClInclude Include="src\Random.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Global.h" />
@@ -133,7 +131,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)deps\cute-headers\include;$(ProjectDir)deps\glew\include;$(ProjectDir)deps\glut\include;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)deps\glew\include;$(ProjectDir)deps\glut\include;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ShowIncludes>false</ShowIncludes>

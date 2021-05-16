@@ -12,20 +12,20 @@
 class Camera : public Object
 {
 public:
-	Camera( b2Vec2 position, float distance );
+	Camera( Vec2 position, float distance );
 
 // Get-Set
 public:
-	inline b2Vec2 getPosition() { return m_position; }
-	inline void setPosition( b2Vec2 position ) { m_position = position; calculate(); }
+	inline Vec2 getPosition() { return m_position; }
+	inline void setPosition( Vec2 position ) { m_position = position; calculate(); }
 
-	inline float getDistance() { return m_distance.y; }
+	inline double getDistance() { return m_distance.y; }
 	inline void setDistance( float distance ) { m_distance.y = distance; calculate(); }
 
 // Conversions
 public:
-	b2Vec2 screenToWorld( b2Vec2 screenPosition );
-	b2Vec2 worldToScreen( b2Vec2 worldPosition );
+	Vec2 screenToWorld( Vec2 screenPosition );
+	Vec2 worldToScreen( Vec2 worldPosition );
 
 // Utility
 public:
@@ -33,8 +33,8 @@ public:
 
 // Variables
 protected:
-	b2Vec2 m_position;
-	b2Vec2 m_distance;
+	Vec2 m_position;
+	Vec2 m_distance;
 };
 
 //================================================================================

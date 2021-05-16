@@ -8,7 +8,7 @@
 
 //================================================================================
 
-World::World() : Object(), m_gravity( b2Vec2( 0.0f, 0.0f ) )
+World::World() : Object(), m_gravity( Vec2() )
 {
 
 }
@@ -18,7 +18,7 @@ World::World() : Object(), m_gravity( b2Vec2( 0.0f, 0.0f ) )
 void World::onSpawnChildren()
 {
 	{
-		Camera camera = Camera( b2Vec2( 0.0f, 0.0f ), 1.0f );
+		Camera camera = Camera( Vec2(), 1.0f );
 		m_camera = makeObject< Camera >( camera, this );
 	}
 }

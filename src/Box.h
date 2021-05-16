@@ -1,3 +1,5 @@
+//================================================================================
+
 #pragma once
 
 //================================================================================
@@ -12,24 +14,31 @@ class Box : public Object
 {
 public:
 	Box();
-	Box( c2AABB box, Color color );
+	Box( Vec2 pos, Vec2 size, Color color );
 
 // Events
 public:
-	void onRender() override;
+	virtual void onRender() override;
+	virtual void onCollision( shared_ptr< Object > target, Vec2 normal ) override;
 
 // Get-Set
 public:
-	inline c2AABB getBox() const { return m_box; }
-	inline void setBox( c2AABB box ) { m_box = box; }
+	inline Vec2 getSize() const { return m_size; }
+	inline void setSize( Vec2 size ) { m_size = size; }
 
-	Vec2 getMidpoint();
-	Vec2 getSize();
+	inline Vec2 getPos() const { return m_pos; }
+	inline void setPos( Vec2 pos ) { m_pos = pos; }
 
-// Transform
-public:
-	void moveBox( Vec2 direction );
-	void scaleBox( Vec2 scale );
+	inline Color getColor() const { return m_color; }
+	inline void setColor( Color color ) { m_color = color; }
+
+	Vec2 getMidpoint() const;
+
+// Collision
+	virtual bool isColliding( shared_ptr< Object > target, Vec2& normal ) override;
+
+	bool isColliding( shared_ptr< Box > target, Vec2& normal );
+	bool isColliding( Vec2 target, Vec2& normal );
 
 // Rendering
 protected:
@@ -37,8 +46,7 @@ protected:
 
 // Variables
 protected:
-	c2AABB m_box;
+	Vec2 m_size;
+	Vec2 m_pos;
 	Color m_color;
 };
-
-//================================================================================

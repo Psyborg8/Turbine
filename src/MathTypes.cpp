@@ -52,7 +52,7 @@ float minCol( Color color )
 
 //================================================================================
 
-float Color::saturation()
+float Color::saturation() const
 {
 	float maxC = maxCol( *this );
 	float minC = minCol( *this );
@@ -74,7 +74,7 @@ float Color::saturation()
 
 //--------------------------------------------------------------------------------
 
-float Color::brightness()
+float Color::brightness() const
 {
 	float maxC = maxCol( *this );
 	float minC = minCol( *this );
@@ -84,7 +84,7 @@ float Color::brightness()
 
 //--------------------------------------------------------------------------------
 
-float Color::hue()
+float Color::hue() const
 {
 	float out;
 
@@ -203,6 +203,152 @@ Color Color::operator/( const float& rh ) const
 	out.b /= rh;
 
 	return out;
+}
+
+//================================================================================
+
+// CLASS - Vec2
+
+//================================================================================
+
+double Vec2::length() const
+{
+	return std::sqrt( x * x + y * y );
+}
+
+//--------------------------------------------------------------------------------
+
+double Vec2::dot( const Vec2& rh ) const
+{
+	return x * rh.x + y * rh.y;
+}
+
+//--------------------------------------------------------------------------------
+
+double Vec2::determinant( const Vec2& rh ) const
+{
+	return x * rh.y - y * rh.x;
+}
+
+//--------------------------------------------------------------------------------
+
+
+Vec2 Vec2::normalize() const
+{
+	return *this / length();
+}
+
+//--------------------------------------------------------------------------------
+
+double Vec2::angleTo( const Vec2& rh ) const
+{
+	const double dotProd = normalize().dot( rh.normalize() );
+	const double det = normalize().determinant( rh.normalize() );
+	const double angle = atan2( det, dotProd );
+
+	return angle;
+}
+
+//--------------------------------------------------------------------------------
+
+bool Vec2::operatorbool() const
+{
+	return x && y;
+}
+
+//--------------------------------------------------------------------------------
+
+bool Vec2::operator==( const Vec2& rh ) const
+{
+	return x == rh.x && y == rh.y;
+}
+
+//--------------------------------------------------------------------------------
+
+Vec2 Vec2::operator+( const Vec2& rh ) const
+{
+	Vec2 out;
+
+	out.x = x + rh.x;
+	out.y = y + rh.y;
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+Vec2& Vec2::operator+=( const Vec2& rh )
+{
+	x += rh.x;
+	y += rh.y;
+
+	return *this;
+}
+
+//--------------------------------------------------------------------------------
+
+Vec2 Vec2::operator-( const Vec2& rh ) const
+{
+	Vec2 out;
+
+	out.x = x - rh.x;
+	out.y = y - rh.y;
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+Vec2& Vec2::operator-=( const Vec2& rh )
+{
+	x -= rh.x;
+	y -= rh.y;
+
+	return *this;
+}
+
+//--------------------------------------------------------------------------------
+
+Vec2 Vec2::operator*( const double& rh ) const
+{
+	Vec2 out;
+
+	out.x = x * rh;
+	out.y = y * rh;
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+Vec2& Vec2::operator*=( const double& rh )
+{
+	x *= rh;
+	y *= rh;
+
+	return *this;
+}
+
+//--------------------------------------------------------------------------------
+
+Vec2 Vec2::operator/( const double& rh ) const
+{
+	Vec2 out;
+
+	out.x = x / rh;
+	out.y = y / rh;
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+Vec2& Vec2::operator/=( const double& rh )
+{
+	x /= rh;
+	y /= rh;
+
+	return *this;
 }
 
 //================================================================================

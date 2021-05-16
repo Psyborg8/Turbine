@@ -22,37 +22,25 @@
     <Filter Include="Engine\Math">
       <UniqueIdentifier>{b31f6836-5dc7-463d-85ad-bd901e554568}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game">
-      <UniqueIdentifier>{df6a2e6a-b11a-4595-ba61-482b230dd1d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Objects">
-      <UniqueIdentifier>{1bbc1b3e-5343-4675-8981-c501fff8ce77}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Objects\Player">
-      <UniqueIdentifier>{0c4e8543-e5d6-474a-9f5f-1ee468fc9740}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Worlds">
-      <UniqueIdentifier>{323acd47-e27d-4872-818d-43767c8cadaa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Objects\Wall">
-      <UniqueIdentifier>{44edb181-25f5-4ff3-9fa4-0335915ade47}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Worlds\DevWorld">
-      <UniqueIdentifier>{57782caa-6d62-4eb2-9f3d-90cd4c8d023c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source">
       <UniqueIdentifier>{2f621186-3722-4f6a-87c3-e49dc7463bdc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\GFX\Camera">
       <UniqueIdentifier>{913eb072-0049-4ae8-8998-9f10e94efe58}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{26351a8f-7d6c-4536-9702-2687f7880e10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Worlds">
+      <UniqueIdentifier>{f4c1bc11-48c7-4cd5-9cdc-5ab39a3f8a23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Objects">
+      <UniqueIdentifier>{160e20d3-866a-44ec-98ee-db4952cda7f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ProjectBullet.cpp">
       <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Line.cpp">
-      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Shader.cpp">
       <Filter>Source</Filter>
@@ -72,12 +60,6 @@
     <ClCompile Include="src\System.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\Player.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DevWorld.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\World.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -85,6 +67,12 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Box.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DevWorld.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Player.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,20 +89,11 @@
     <ClInclude Include="src\Random.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\Player.h">
-      <Filter>Game\Objects\Player</Filter>
-    </ClInclude>
     <ClInclude Include="src\Global.h">
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="src\MathTypes.h">
       <Filter>Engine\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Line.h">
-      <Filter>Engine\GFX\Primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="src\DevWorld.h">
-      <Filter>Game\Worlds\DevWorld</Filter>
     </ClInclude>
     <ClInclude Include="src\Object.h">
       <Filter>Engine\GFX\Primitives</Filter>
@@ -127,6 +106,12 @@
     </ClInclude>
     <ClInclude Include="src\Box.h">
       <Filter>Engine\GFX\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="DevWorld.h">
+      <Filter>Game\Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player.h">
+      <Filter>Game\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

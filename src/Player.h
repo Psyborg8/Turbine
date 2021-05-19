@@ -28,6 +28,7 @@ public:
 public:
 	void jump();
 	void dash();
+	void kill();
 
 // Variables
 private:
@@ -46,8 +47,9 @@ private:
 
 // Constants
 private:
-	const double m_moveAcceleration{ 50.0 };
+	const double m_moveAcceleration{ 20.0 };
 	const double m_maxMoveSpeed{ 2.0 };
+	const double m_airMoveMultiplier{ 0.5 };
 
 	const double m_terminalVelocity{ 4.0 };
 
@@ -61,12 +63,13 @@ private:
 
 	const double m_dashPower{ 7.5 };
 	const milliseconds m_dashCooldown{ 1500 };
-	const milliseconds m_dashReleaseTimer{ 150 };
+	const milliseconds m_dashReleaseTime{ 150 };
 
 	const double m_wallFrictionMultiplier{ 5.0 };
 	const double m_minWallFriction{ 1.0 };
 	const double m_maxWallFriction{ 5.0 };
 
-	const double m_wallJumpPower{ 10.0 };
-	const Vec2 m_wallJumpNormal{ 0.65, 0.35 };
+	const double m_wallJumpPower{ 8.5 };
+	const Vec2 m_wallJumpNormal{ 0.7, 0.3 };
+	const milliseconds m_wallJumpReleaseTime{ 300 };
 };

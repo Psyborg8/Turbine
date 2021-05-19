@@ -11,14 +11,14 @@
 
 //================================================================================
 
-Player::Player() : Box( Vec2(), Vec2( 0.15, 0.2 ), Colors::WHITE ), m_velocity( Vec2() )
+Player::Player() : Box( Vec2(), Vec2( 0.15, 0.2 ), Colors::BLUE ), m_velocity( Vec2() )
 {
 	m_collisionType = CollisionType::DynamicBlocking;
 }
 
 //--------------------------------------------------------------------------------
 
-Player::Player( Vec2 pos ) : Box( pos, Vec2( 0.15, 0.2 ), Colors::WHITE ), m_velocity( Vec2() )
+Player::Player( Vec2 pos ) : Box( pos, Vec2( 0.15, 0.2 ), Colors::BLUE ), m_velocity( Vec2() )
 {
 	m_collisionType = CollisionType::DynamicBlocking;
 }
@@ -28,20 +28,10 @@ Player::Player( Vec2 pos ) : Box( pos, Vec2( 0.15, 0.2 ), Colors::WHITE ), m_vel
 void Player::onUpdate( double deltaTime )
 {
 	Vec2 gravity = System::getWorld()->getGravity();
+	bool didMove = false;
 
 	if( m_isDashing )
 		goto afterMovement;
-
-	// Friction
-	if( m_velocity.x )
-	{
-		double friction = m_frictionMultiplier * abs( m_velocity.x ) * deltaTime;
-		friction = std::clamp( friction, m_minFriction * deltaTime, m_maxFriction * deltaTime );
-		if( abs( m_velocity.x ) < friction )
-			m_velocity.x = 0.0;
-		else
-			m_velocity.x -= friction * ( m_velocity.x / abs( m_velocity.x ) );
-	}
 
 	// Movement
 	if( abs( m_velocity.x ) <= m_maxMoveSpeed )
@@ -52,10 +42,27 @@ void Player::onUpdate( double deltaTime )
 		if( System::getKeyState( KeyCode::a ) )
 			move -= m_moveAcceleration * deltaTime;
 
+		if( !m_canJump )
+			move *= m_airMoveMultiplier;
+
 		if( abs( m_velocity.x ) + move > m_maxMoveSpeed )
 			m_velocity.x = m_maxMoveSpeed * ( move / abs( move ) );
 		else
-			m_velocity.x += move;
+			m_velocity.x += move;	
+
+		if( move )
+			didMove = true;
+	}
+
+	// Friction
+	if( m_velocity.x && !didMove )
+	{
+		double friction = m_frictionMultiplier * abs( m_velocity.x ) * deltaTime;
+		friction = std::clamp( friction, m_minFriction * deltaTime, m_maxFriction * deltaTime );
+		if( abs( m_velocity.x ) < friction )
+			m_velocity.x = 0.0;
+		else
+			m_velocity.x -= friction * ( m_velocity.x / abs( m_velocity.x ) );
 	}
 
 	// Gravity
@@ -211,7 +218,14 @@ void Player::dash()
 	m_waitDash = true;
 
 	Timer::addTimer( m_dashCooldown, nullptr, [this] { m_canDash = true; }, false );
-	Timer::addTimer( m_dashReleaseTimer, nullptr, [this] { m_isDashing = false; }, false );
+	Timer::addTimer( m_dashReleaseTime, nullptr, [this] { m_isDashing = false; }, false );
+}
+
+//--------------------------------------------------------------------------------
+
+void Player::kill()
+{
+
 }
 
 //================================================================================

@@ -10,7 +10,7 @@
 #include "Timer.h"
 
 // Worlds
-#include "DevWorld.h"
+#include "GridWorld.h"
 
 //================================================================================
 
@@ -99,9 +99,9 @@ bool init( int argc, char** argv )
 
 int start()
 {
-	world = Object::makeObject< DevWorld >( "DevWorld", nullptr );
+	world = Object::makeObject< GridWorld >( "World", nullptr );
+	
 	world->onStart();
-
 	vector< shared_ptr< Object > > objects = Object::getObjectsByParent( getWorld(), true );
 	for( shared_ptr< Object > object : objects )
 	{
@@ -165,6 +165,7 @@ void update()
 	// Do physics and collision before limiting the framerate for accuracy
 	const vector< shared_ptr< Object > > objects = Object::getObjectsByParent( getWorld(), true );
 
+	world->onUpdate( deltaTime );
 	for( shared_ptr< Object > object : objects )
 	{
 		object->onUpdate( deltaTime );
@@ -183,6 +184,7 @@ void update()
 	glClear( GL_COLOR_BUFFER_BIT );
 
 	// Render images
+	world->onRender();
 	for( shared_ptr< Object > object : objects )
 	{
 		object->onRender();

@@ -81,6 +81,9 @@
     <ClCompile Include="src\GridWorld.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\Text.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -124,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="src\GridWorld.h">
       <Filter>Game\Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Text.h">
+      <Filter>Engine\GFX\Primitives</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

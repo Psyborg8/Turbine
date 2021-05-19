@@ -22,6 +22,7 @@
     <ClCompile Include="src\Box.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\DevWorld.cpp" />
+    <ClCompile Include="src\GridWorld.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Observers.cpp" />
     <ClCompile Include="src\Player.cpp" />
@@ -30,12 +31,14 @@
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\System.cpp" />
     <ClCompile Include="src\MathTypes.cpp" />
+    <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DevWorld.h" />
     <ClInclude Include="src\Box.h" />
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\GridWorld.h" />
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\Observers.h" />
     <ClInclude Include="src\Player.h" />
@@ -44,6 +47,7 @@
     <ClInclude Include="src\Global.h" />
     <ClInclude Include="src\System.h" />
     <ClInclude Include="src\MathTypes.h" />
+    <ClInclude Include="src\Timer.h" />
     <ClInclude Include="src\World.h" />
   </ItemGroup>
   <ItemGroup>

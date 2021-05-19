@@ -4,8 +4,12 @@
 
 //--------------------------------------------------------------------------------
 
+// Systems
 #include "Random.h"
 #include "Observers.h"
+#include "Timer.h"
+
+// Worlds
 #include "DevWorld.h"
 
 //================================================================================
@@ -16,6 +20,7 @@ namespace System
 //================================================================================
 
 void onKeyPress( int key );
+void onKeyRelease( int key );
 void onWindowResize( int width, int height );
 void onMouseMove( float x, float y );
 
@@ -25,11 +30,14 @@ void update();
 
 shared_ptr< World > world;
 
+std::unordered_map< KeyCode, bool > keyMap;
+
 //--------------------------------------------------------------------------------
 
 SystemInfo systemInfo;
 
 chronoClockPoint lastFrameTime;
+chronoClockPoint lastRenderTime;
 chronoClockPoint startTime;
 
 unique_ptr< Random > randomGen;
@@ -67,11 +75,15 @@ bool init( int argc, char** argv )
 	// Set clear color
 	glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 
+	// Init timers
+	Timer::init();
+
 	// Init observers
 	Observer::initObservers();
 
 	// Add System observers
 	Observer::addObserver( ObserverType::KeyPress, KeyCallback( onKeyPress ) );
+	Observer::addObserver( ObserverType::KeyRelease, KeyCallback( onKeyRelease ) );
 	Observer::addObserver( ObserverType::WindowResize, Vec2Callback( onWindowResize ) );
 	Observer::addObserver( ObserverType::MouseMove, AxisCallback( onMouseMove ) );
 
@@ -97,6 +109,7 @@ int start()
 	}
 
 	lastFrameTime = high_resolution_clock::now();
+	lastRenderTime = high_resolution_clock::now();
 
 	glutMainLoop();
 
@@ -124,6 +137,14 @@ shared_ptr< World > getWorld()
 	return world;
 }
 
+//--------------------------------------------------------------------------------
+
+bool getKeyState( KeyCode key )
+{
+	keyMap.try_emplace( key, false ); // Default to false if the value doesn't exist yet.
+	return keyMap[ key ];
+}
+
 //================================================================================
 
 // LOCAL
@@ -135,42 +156,33 @@ void update()
 	// Get delta time
 	chronoClockPoint now = high_resolution_clock::now();
 	milliseconds msDeltaTime = duration_cast< milliseconds >( now - lastFrameTime );
-	double deltaTime = msDeltaTime.count() / 1000.0f;
+	double deltaTime = msDeltaTime.count() / 1000.0;
 
 	// Limit the deltaTime if the frame took too long.
 	// So we can stop the game during breakpoints.
-	if( deltaTime > 0.1 )
-	{
-		const double frameRate = systemInfo.fpsLimit > 0 ? systemInfo.fpsLimit : 60.0;
-		deltaTime = 1.0 / frameRate;
-	}
+	deltaTime = min( deltaTime, 0.05 );
 
-	// Apply frame limiter if there is one
-	if( systemInfo.fpsLimit > 0u )
-	{
-		milliseconds frameTime = milliseconds( 1000 / systemInfo.fpsLimit );
-
-		if( msDeltaTime < frameTime )
-		{
-			return;
-		}
-	}
-
-	lastFrameTime = now;
-
+	// Do physics and collision before limiting the framerate for accuracy
 	const vector< shared_ptr< Object > > objects = Object::getObjectsByParent( getWorld(), true );
 
-	// Update objects
 	for( shared_ptr< Object > object : objects )
 	{
 		object->onUpdate( deltaTime );
 	}
 
+	// Update timers
+	Timer::update();
+
+	// Check for collisions
 	Object::checkCollisions( objects );
+
+	// Store new frame time
+	lastFrameTime = now;
 
 	glClearColor( 0.05f, 0.1f, 0.1f, 1.0f );
 	glClear( GL_COLOR_BUFFER_BIT );
 
+	// Render images
 	for( shared_ptr< Object > object : objects )
 	{
 		object->onRender();
@@ -184,10 +196,21 @@ void update()
 
 void onKeyPress( int key )
 {
-	if( key == 27 ) // ESC
+	const KeyCode keyCode = static_cast< KeyCode >( key );
+	keyMap[ keyCode ] = true;
+
+	if( keyCode == KeyCode::Escape )
 	{
 		exit();
 	}
+}
+
+//--------------------------------------------------------------------------------
+
+void onKeyRelease( int key )
+{
+	const KeyCode keyCode = static_cast< KeyCode >( key );
+	keyMap[ keyCode ] = false;
 }
 
 //--------------------------------------------------------------------------------

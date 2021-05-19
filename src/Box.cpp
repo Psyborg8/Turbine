@@ -154,7 +154,9 @@ bool Box::isColliding( shared_ptr< Box > box, Vec2& normal )
 
 	// Calculate normal
 	const Vec2 midpoint = getMidpoint();
-	const Vec2 dist = box->getMidpoint() - midpoint;
+	Vec2 dist = box->getMidpoint() - midpoint;
+	dist.x /= ( m_size.x + box->getSize().x ) / 2.0;
+	dist.y /= ( m_size.y + box->getSize().y ) / 2.0;
 
 	if( abs( dist.x ) > abs( dist.y ) )
 	{

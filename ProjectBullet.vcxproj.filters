@@ -75,6 +75,12 @@
     <ClCompile Include="src\Player.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\Timer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GridWorld.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -112,6 +118,12 @@
     </ClInclude>
     <ClInclude Include="src\Player.h">
       <Filter>Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Timer.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GridWorld.h">
+      <Filter>Game\Worlds</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

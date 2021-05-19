@@ -17,7 +17,6 @@ struct SystemInfo
 {
 	int width{ 800 };
 	int height{ 450 };
-	int fpsLimit{ 60 };
 };
 
 //================================================================================
@@ -31,6 +30,8 @@ void exit();
 SystemInfo getSystemInfo();
 
 shared_ptr< World > getWorld();
+
+bool getKeyState( KeyCode key );
 
 
 //================================================================================

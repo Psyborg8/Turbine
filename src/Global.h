@@ -94,10 +94,7 @@ enum class KeyCode
 	Num_0 = 48,
 	Num_1, Num_2, Num_3, Num_4, Num_5, Num_6, Num_7, Num_8, Num_9,
 
-	A = 65,
-	B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-
-	a = 100,
+	a = 97,
 	b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z,
 
 	// Special characters

@@ -77,3 +77,16 @@ struct Vec2
 };
 
 //================================================================================
+
+struct Line
+{
+	Vec2 start;
+	Vec2 end;
+
+	double length() const;
+
+	Line() : start( Vec2() ), end( Vec2() ) {}
+	Line( Vec2 start, Vec2 end ) : start( start ), end( end ) {}
+};
+
+//================================================================================

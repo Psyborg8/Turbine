@@ -12,18 +12,16 @@
 GridWorld::GridWorld() : World()
 {
 	m_worldData = {
-		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1 },
-		{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1 },
-		{ 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0 },
-		{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0 },
-		{ 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0 },
-		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 },
-		{ 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 },
-		{ 1, 2, 0, 1, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1 },
-		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+		"W                                     W",
+		"W                           WWWWWWWWWWW",
+		"W      WWW                  W         W",
+		"W      W                    W         W",
+		"W    WWWWW      WWWWWWWWWWWWW         W",
+		"W      W                              W",
+		"WWW    W        WWW   WWW  WWW      WWW",
+		"W P                                   W",
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 	};
 
 	m_gravity = Vec2( 0.0, -6.0 );
@@ -40,15 +38,15 @@ void GridWorld::onSpawnChildren()
 		for( int x = 0; x < m_worldData.at( y ).size(); ++x )
 		{
 			const Vec2 pos = Vec2( x, -y ) * m_gridSize;
-			const BlockType block = static_cast< BlockType >( m_worldData.at( y ).at( x ) );
+			const char block = m_worldData.at( y ).at( x );
 
-			if( block == BlockType::Wall )
+			if( block == 'W' )
 			{
 				Box box = Box( pos, Vec2( m_gridSize, m_gridSize ), Colors::WHITE );
 				box.setCollisionType( CollisionType::StaticBlocking );
 				Object::makeObject< Box >( box, this );
 			}
-			else if( block == BlockType::Player )
+			else if( block == 'P' )
 			{
 				Player player = Player( pos );
 				Object::makeObject< Player >( player, this );
@@ -69,7 +67,9 @@ void GridWorld::onStart()
 void GridWorld::onUpdate( double deltaTime )
 {
 	const shared_ptr< Player > player = Object::getObjectsByType< Player >().at( 0 );
-	const Vec2 pos = player->getPos();
+	Vec2 pos = player->getPos();
+	pos.y += 0.5;
+
 	const Vec2 direction = pos - m_camera->getPosition();
 	if( direction.length() )
 	{

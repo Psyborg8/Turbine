@@ -27,6 +27,8 @@ Player::Player( Vec2 pos ) : Box( pos, Vec2( 0.15, 0.2 ), Colors::BLUE ), m_velo
 
 void Player::onUpdate( double deltaTime )
 {
+	Box::onUpdate( deltaTime );
+
 	Vec2 gravity = System::getWorld()->getGravity();
 	bool didMove = false;
 
@@ -36,20 +38,24 @@ void Player::onUpdate( double deltaTime )
 	// Movement
 	if( abs( m_velocity.x ) <= m_maxMoveSpeed )
 	{
+		// Input
 		double move = 0.0;
 		if( System::getKeyState( KeyCode::d ) )
 			move += m_moveAcceleration * deltaTime;
 		if( System::getKeyState( KeyCode::a ) )
 			move -= m_moveAcceleration * deltaTime;
 
+		// Air control
 		if( !m_canJump )
 			move *= m_airMoveMultiplier;
 
+		// Apply movement
 		if( abs( m_velocity.x ) + move > m_maxMoveSpeed )
 			m_velocity.x = m_maxMoveSpeed * ( move / abs( move ) );
 		else
 			m_velocity.x += move;	
 
+		// Disable friction
 		if( move )
 			didMove = true;
 	}
@@ -67,7 +73,7 @@ void Player::onUpdate( double deltaTime )
 
 	// Gravity
 	m_velocity += gravity * deltaTime;
-	m_velocity.y = m_velocity.y < ( -m_terminalVelocity ) ? -m_terminalVelocity : m_velocity.y;
+	m_velocity.y = m_velocity.y < -m_terminalVelocity ? -m_terminalVelocity : m_velocity.y;
 
 	// Jump Release
 	if( !System::getKeyState( KeyCode::Space ) )
@@ -96,6 +102,24 @@ afterMovement:
 void Player::onRender()
 {
 	Box::onRender();
+}
+
+//--------------------------------------------------------------------------------
+
+void Player::onDestroy()
+{
+	Observer::removeObserver( m_keyPressObserver );
+	Observer::removeObserver( m_keyReleaseObserver );
+}
+
+//--------------------------------------------------------------------------------
+
+void Player::onCreateObservers()
+{
+	using namespace std::placeholders;
+
+	m_keyPressObserver = Observer::addObserver( ObserverType::KeyPress, KeyCallback( std::bind( &Player::onKeyboardPress, this, _1 ) ) );
+	m_keyReleaseObserver = Observer::addObserver( ObserverType::KeyRelease, KeyCallback( std::bind( &Player::onKeyboardRelease, this, _1 ) ) );
 }
 
 //--------------------------------------------------------------------------------
@@ -218,7 +242,11 @@ void Player::dash()
 	m_waitDash = true;
 
 	Timer::addTimer( m_dashCooldown, nullptr, [this] { m_canDash = true; }, false );
-	Timer::addTimer( m_dashReleaseTime, nullptr, [this] { m_isDashing = false; }, false );
+	Timer::addTimer( m_dashReleaseTime, nullptr,
+					 [this] { 
+						 m_isDashing = false; 
+						 m_velocity.y = m_velocity.y > m_jumpReleaseThreshold ? m_jumpReleaseThreshold : m_velocity.y;
+					 }, false );
 }
 
 //--------------------------------------------------------------------------------

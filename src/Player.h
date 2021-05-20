@@ -18,9 +18,11 @@ public:
 public:
 	void onUpdate( double deltaTime ) override;
 	void onRender() override;
+	void onDestroy() override;
+	void onCreateObservers() override;
 
-	void onKeyboardPress( int key ) override;
-	void onKeyboardRelease( int key ) override;
+	void onKeyboardPress( int key );
+	void onKeyboardRelease( int key );
 
 	void onCollision( shared_ptr< Object > target, Vec2 normal ) override;
 
@@ -28,14 +30,20 @@ public:
 public:
 	void jump();
 	void dash();
+	void dashEnd();
 	void kill();
+
+// Observers
+private:
+	ObserverID m_keyPressObserver;
+	ObserverID m_keyReleaseObserver;
 
 // Variables
 private:
 	Vec2 m_velocity;
 
 	bool m_canJump{ false };
-	bool m_canDoubleJump{ false };
+	bool m_canDoubleJump{ true };
 	bool m_waitJump{ false };
 
 	bool m_canDash{ true };
@@ -49,7 +57,7 @@ private:
 private:
 	const double m_moveAcceleration{ 20.0 };
 	const double m_maxMoveSpeed{ 2.0 };
-	const double m_airMoveMultiplier{ 0.5 };
+	const double m_airMoveMultiplier{ 0.8 };
 
 	const double m_terminalVelocity{ 4.0 };
 

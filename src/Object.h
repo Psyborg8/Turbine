@@ -22,37 +22,23 @@ enum class CollisionType
 class Object
 {
 public:
-	Object();
-	Object( string name );
+	Object() : m_name( "" ), m_parent( nullptr ) {};
+	Object( string name ) : m_name( name ), m_parent( nullptr ) {};
 
-// System
-public:
-	void createObservers();
-
-// Events
+	// Events
 public:
 	// System
 	virtual inline void onSpawnChildren() {} // For spawning all child objects
+	virtual inline void onCreateObservers() {} // For binding observers
 	virtual inline void onStart() {} // For setting properties of object and children
 	virtual inline void onUpdate( double deltaTime ) {} // Called first each frame
 	virtual inline void onRender() {} // Called last each frame
-	virtual inline void onDestroy(); // Called when the object is destroyed
+	virtual inline void onDestroy() {} // Called when the object is destroyed
 	virtual inline void onExit() {} // Called when the game closes
 
 	// Collision
 	virtual inline bool isColliding( shared_ptr< Object > target, Vec2& normal ) { return false; } // The collision calculation function for this object
 	virtual inline void onCollision( shared_ptr< Object > object, Vec2 normal ) {}  // Called when the object collides with another
-
-	// Input
-	virtual inline void onMouseMove( float x, float y ) {}
-	virtual inline void onMousePress( int button ) {}
-	virtual inline void onMouseRelease( int button ) {}
-
-	virtual inline void onKeyboardPress( int key ) {}
-	virtual inline void onKeyboardRelease( int key ) {}
-
-	// Window
-	virtual inline void onWindowResize( int width, int height ) {}
 
 // Get/Set
 public:
@@ -72,16 +58,6 @@ protected:
 	string m_name;
 	CollisionType m_collisionType;
 
-	// Input
-	ObserverID m_mouseMoveObserver;
-	ObserverID m_mousePressObserver;
-	ObserverID m_mouseReleaseObserver;
-
-	ObserverID m_keyboardPressObserver;
-	ObserverID m_keyboardReleaseObserver;
-
-	ObserverID m_windowResizeObserver;
-
 
 /* Static */
 
@@ -97,7 +73,7 @@ public:
 		if( ptrObj != nullptr )
 		{
 			ptrObj->setParent( parent );
-			ptrObj->createObservers();
+			ptrObj->onCreateObservers();
 			ptrObj->onSpawnChildren();
 
 			s_objects.push_back( ptrObj );
@@ -117,7 +93,7 @@ public:
 		if( ptrObj != nullptr )
 		{
 			ptrObj->setParent( parent );
-			ptrObj->createObservers();
+			ptrObj->onCreateObservers();
 			ptrObj->onSpawnChildren();
 
 			s_objects.push_back( ptrObj );

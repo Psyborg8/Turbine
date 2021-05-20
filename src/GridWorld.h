@@ -33,7 +33,7 @@ protected:
 	double m_gridSize{ 0.5 };
 	double m_cameraMoveMultiplier{ 6.0 };
 
-	vector< vector< int > > m_worldData;
+	vector< string > m_worldData;
 };
 
 //================================================================================

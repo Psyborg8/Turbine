@@ -10,6 +10,7 @@
 #include "Timer.h"
 
 // Worlds
+#include "CollisionWorld.h"
 #include "GridWorld.h"
 
 //================================================================================
@@ -31,6 +32,8 @@ void update();
 shared_ptr< World > world;
 
 std::unordered_map< KeyCode, bool > keyMap;
+Vec2 mousePosition;
+double deltaTime;
 
 //--------------------------------------------------------------------------------
 
@@ -99,14 +102,13 @@ bool init( int argc, char** argv )
 
 int start()
 {
-	world = Object::makeObject< GridWorld >( "World", nullptr );
+	// world = Object::makeObject< CollisionWorld >( nullptr );
+	world = Object::makeObject< GridWorld >( nullptr );
 	
 	world->onStart();
 	vector< shared_ptr< Object > > objects = Object::getObjectsByParent( getWorld(), true );
 	for( shared_ptr< Object > object : objects )
-	{
 		object->onStart();
-	}
 
 	lastFrameTime = high_resolution_clock::now();
 	lastRenderTime = high_resolution_clock::now();
@@ -145,6 +147,20 @@ bool getKeyState( KeyCode key )
 	return keyMap[ key ];
 }
 
+//--------------------------------------------------------------------------------
+
+Vec2 getMousePosition()
+{
+	return mousePosition;
+}
+
+//--------------------------------------------------------------------------------
+
+double getDeltaTime()
+{
+	return deltaTime;
+}
+
 //================================================================================
 
 // LOCAL
@@ -156,26 +172,24 @@ void update()
 	// Get delta time
 	chronoClockPoint now = high_resolution_clock::now();
 	milliseconds msDeltaTime = duration_cast< milliseconds >( now - lastFrameTime );
-	double deltaTime = msDeltaTime.count() / 1000.0;
+	double dt = msDeltaTime.count() / 1000.0;
 
 	// Limit the deltaTime if the frame took too long.
 	// So we can stop the game during breakpoints.
-	deltaTime = min( deltaTime, 0.05 );
+	dt = std::min( dt, 0.05 );
+
+	// Store the delta time
+	deltaTime = dt;
 
 	// Do physics and collision before limiting the framerate for accuracy
 	const vector< shared_ptr< Object > > objects = Object::getObjectsByParent( getWorld(), true );
 
-	world->onUpdate( deltaTime );
+	world->onUpdate( dt );
 	for( shared_ptr< Object > object : objects )
-	{
-		object->onUpdate( deltaTime );
-	}
+		object->onUpdate( dt );
 
 	// Update timers
 	Timer::update();
-
-	// Check for collisions
-	Object::checkCollisions( objects );
 
 	// Store new frame time
 	lastFrameTime = now;
@@ -186,9 +200,7 @@ void update()
 	// Render images
 	world->onRender();
 	for( shared_ptr< Object > object : objects )
-	{
 		object->onRender();
-	}
 
 	glutSwapBuffers();
 	glutPostRedisplay();
@@ -231,7 +243,7 @@ void onWindowResize( int width, int height )
 
 void onMouseMove( float x, float y )
 {
-	std::cout << x << " " << y << std::endl;
+	mousePosition = Vec2( static_cast< double >( x ), static_cast< double >( y ) );
 }
 
 //================================================================================

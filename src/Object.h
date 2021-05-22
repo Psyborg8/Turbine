@@ -4,22 +4,12 @@
 
 //================================================================================
 
-#include "Observers.h"
 #include "MathTypes.h"
+#include "Collision.h"
 
 //================================================================================
 
-enum class CollisionType
-{
-	None,
-	Notify,
-	StaticBlocking,
-	DynamicBlocking
-};
-
-//================================================================================
-
-class Object
+class Object : public std::enable_shared_from_this< Object >
 {
 public:
 	Object() : m_name( "" ), m_parent( nullptr ) {};
@@ -37,26 +27,30 @@ public:
 	virtual inline void onExit() {} // Called when the game closes
 
 	// Collision
-	virtual inline bool isColliding( shared_ptr< Object > target, Vec2& normal ) { return false; } // The collision calculation function for this object
-	virtual inline void onCollision( shared_ptr< Object > object, Vec2 normal ) {}  // Called when the object collides with another
+	virtual inline Collision::CollisionResult isColliding( shared_ptr< Object > target ) { return Collision::CollisionResult(); } // The collision calculation function for this object
+	virtual inline void onCollision( const Collision::CollisionResult collision ) {}  // Called when the object collides with another
+	virtual inline void resolveCollision( shared_ptr< Object > target ) {} // Resolves the collision by moving the dynamic object towards the collision normal
+	virtual inline void resolveCollision( Collision::CollisionResult collision ) {}
+	void processCollisions( vector< shared_ptr< Object > > targets ); // Calls onCollision for every colliding target
+	void resolveCollisions( vector< shared_ptr< Object > > targets, bool notify = false ); // Resolves all collisions with the targets, in order of distance. If Notify, calls onCollision when a collision is resolved.
+	vector< shared_ptr < Object > > sortByDistance( vector< shared_ptr< Object > > targets );
 
 // Get/Set
 public:
-	inline Object* getParent() { return m_parent; }
+	inline Object* getParent() const { return m_parent; }
 	inline void setParent( Object* parent ) { m_parent = parent; }
 
-	inline string getName() { return m_name; }
+	inline string getName() const { return m_name; }
 	inline void setName( string name ) { m_name = name; }
 
-	inline CollisionType getCollisionType() { return m_collisionType; }
-	inline void setCollisionType( CollisionType type ) { m_collisionType = type; }
+	virtual inline Vec2 getPosition() const { return Vec2(); }
+	virtual inline void setPosition( Vec2 position ) {}
 
 // Variables
 protected:
 	// System
 	Object* m_parent;
 	string m_name;
-	CollisionType m_collisionType;
 
 
 /* Static */
@@ -65,29 +59,9 @@ protected:
 public:
 	// Create an object and store it in the global objects array for event processing
 	template< class T >
-	inline static shared_ptr< T > makeObject( string name, Object* parent )
+	inline static shared_ptr< T > makeObject( Object* parent )
 	{
 		shared_ptr< T > ptr = std::make_shared< T >( T() );
-
-		shared_ptr< Object > ptrObj = std::dynamic_pointer_cast< Object >( ptr );
-		if( ptrObj != nullptr )
-		{
-			ptrObj->setParent( parent );
-			ptrObj->onCreateObservers();
-			ptrObj->onSpawnChildren();
-
-			s_objects.push_back( ptrObj );
-		}
-
-		return ptr;
-	}
-
-	//--------------------------------------------------------------------------------
-
-	template< class T >
-	inline static shared_ptr< T > makeObject( const T& object, Object* parent )
-	{
-		shared_ptr< T > ptr = make_shared< T >( object );
 
 		shared_ptr< Object > ptrObj = std::dynamic_pointer_cast< Object >( ptr );
 		if( ptrObj != nullptr )
@@ -145,9 +119,7 @@ public:
 		{
 			shared_ptr< T > ptr = std::dynamic_pointer_cast< T >( object );
 			if( ptr != nullptr )
-			{
 				out.push_back( ptr );
-			}
 		}
 
 		return out;
@@ -182,10 +154,6 @@ public:
 
 		return out;
 	}
-
-	//--------------------------------------------------------------------------------
-
-	static void checkCollisions( vector< shared_ptr< Object > > objects );
 
 // Variables
 private:

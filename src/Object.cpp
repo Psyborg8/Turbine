@@ -4,46 +4,78 @@
 
 //================================================================================
 
-// STATIC
-
-//================================================================================
-
-void Object::checkCollisions( vector< shared_ptr< Object > > objects )
+void Object::processCollisions( vector< shared_ptr< Object > > targets )
 {
-	for( vector< shared_ptr< Object > >::iterator it = objects.begin(); it != objects.end(); ++it )
+	for( shared_ptr< Object > target : targets )
 	{
-		const shared_ptr< Object > object = *it;
-		if( object->getCollisionType() == CollisionType::None )
-			continue;
-
-		// Avoid checking the same collision twice
-		vector< shared_ptr< Object > >::iterator jt = it;
-		jt++;
-
-		while( jt != objects.end() )
+		const Collision::CollisionResult result = isColliding( target );
+		if( result.success )
 		{
-			shared_ptr< Object > target = *jt;
-			jt++;
+			onCollision( result );
+			target->onCollision( result );
+		}
+	}
+}
 
-			if( target->getCollisionType() == CollisionType::None )
-				continue;
+//--------------------------------------------------------------------------------
 
-			if( object->getCollisionType() == CollisionType::StaticBlocking &&
-				target->getCollisionType() == CollisionType::StaticBlocking )
-				continue;
+void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool notify )
+{
+	using collisionPair = pair< shared_ptr< Object >, Collision::CollisionResult >;
 
-			Vec2 normal;
-			const bool isColliding = object->isColliding( target, normal );
-			if( isColliding )
+	vector < collisionPair > results;
+	for( shared_ptr< Object > target : targets )
+	{
+		Collision::CollisionResult result = isColliding( target );
+		if( result.success )
+			results.push_back( make_pair( target, result ) );
+	}
+
+	std::sort( results.begin(), results.end(),
+			   []( const collisionPair& a, const collisionPair& b ) {
+				   return a.second.distance < b.second.distance;
+			   } );
+
+	for( pair< shared_ptr< Object >, Collision::CollisionResult > collision : results )
+	{
+		const Collision::CollisionResult result = isColliding( collision.first );
+		if( result.success )
+		{
+			Collision::resolveCollision( result );
+
+			if( notify )
 			{
-				object->onCollision( target, normal );
-				target->onCollision( object, normal * -1.0 ); // Also notify the target with the inverse normal
+				onCollision( result );
+				collision.first->onCollision( result );
 			}
 		}
 	}
 }
 
 //--------------------------------------------------------------------------------
+
+vector< shared_ptr< Object > > Object::sortByDistance( vector< shared_ptr< Object > > targets )
+{
+	vector< shared_ptr< Object > > out = targets;
+	vector< pair< shared_ptr< Object >, double > > distances;
+
+	for( shared_ptr< Object > target : targets )
+	{
+		const Collision::CollisionResult result = isColliding( target );
+		if( result.success )
+			distances.push_back( make_pair( target, result.distance ) );
+	}
+
+	std::sort( distances.begin(), distances.end(),
+			   []( const pair< shared_ptr< Object >, double >& a, const pair< shared_ptr< Object >, double >& b )
+			   {
+				   return a.second < b.second;
+			   } );
+
+	return out;
+}
+
+//================================================================================
 
 vector< shared_ptr< Object > > Object::s_objects;
 vector< shared_ptr< Object > > Object::s_markedForDeletion;

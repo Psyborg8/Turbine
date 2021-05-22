@@ -240,13 +240,14 @@ Vec2 Vec2::normalize() const
 
 //--------------------------------------------------------------------------------
 
-double Vec2::angleTo( const Vec2& rh ) const
+Vec2 Vec2::abs() const
 {
-	const double dotProd = normalize().dot( rh.normalize() );
-	const double det = normalize().determinant( rh.normalize() );
-	const double angle = atan2( det, dotProd );
+	Vec2 out;
 
-	return angle;
+	out.x = std::abs( x );
+	out.y = std::abs( y );
+
+	return out;
 }
 
 //--------------------------------------------------------------------------------
@@ -309,6 +310,51 @@ Vec2& Vec2::operator-=( const Vec2& rh )
 
 //--------------------------------------------------------------------------------
 
+Vec2 Vec2::operator/( const Vec2& rh ) const
+{
+	Vec2 out;
+
+	out.x = x / rh.x;
+	out.y = y / rh.y;
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+Vec2& Vec2::operator/=( const Vec2& rh )
+{
+	x /= rh.x;
+	y /= rh.y;
+
+	return *this;
+}
+
+//--------------------------------------------------------------------------------
+
+Vec2 Vec2::operator*( const Vec2& rh ) const
+{
+	Vec2 out;
+
+	out.x = x * rh.x;
+	out.y = y * rh.y;
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+Vec2& Vec2::operator*=( const Vec2& rh )
+{
+	x *= rh.x;
+	y *= rh.y;
+
+	return *this;
+}
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+
 Vec2 Vec2::operator*( const double& rh ) const
 {
 	Vec2 out;
@@ -349,17 +395,6 @@ Vec2& Vec2::operator/=( const double& rh )
 	y /= rh;
 
 	return *this;
-}
-
-//================================================================================
-
-// CLASS Line
-
-//================================================================================
-
-double Line::length() const
-{
-	return ( end - start ).length();
 }
 
 //================================================================================

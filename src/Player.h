@@ -4,11 +4,12 @@
 
 //================================================================================
 
-#include "Box.h"
+#include "Observers.h"
+#include "RigidRect.h"
 
 //================================================================================
 
-class Player : public Box
+class Player : public RigidRect
 {
 public:
 	Player();
@@ -24,13 +25,12 @@ public:
 	void onKeyboardPress( int key );
 	void onKeyboardRelease( int key );
 
-	void onCollision( shared_ptr< Object > target, Vec2 normal ) override;
+	void onCollision( Collision::CollisionResult collision ) override;
 
 // Methods
 public:
 	void jump();
 	void dash();
-	void dashEnd();
 	void kill();
 
 // Observers
@@ -38,10 +38,10 @@ private:
 	ObserverID m_keyPressObserver;
 	ObserverID m_keyReleaseObserver;
 
+	vector< function< void() > > m_renders;
+
 // Variables
 private:
-	Vec2 m_velocity;
-
 	bool m_canJump{ false };
 	bool m_canDoubleJump{ true };
 	bool m_waitJump{ false };

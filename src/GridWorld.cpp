@@ -4,7 +4,6 @@
 
 //--------------------------------------------------------------------------------
 
-#include "Box.h"
 #include "Player.h"
 
 //================================================================================
@@ -37,19 +36,19 @@ void GridWorld::onSpawnChildren()
 	{
 		for( int x = 0; x < m_worldData.at( y ).size(); ++x )
 		{
-			const Vec2 pos = Vec2( x, -y ) * m_gridSize;
+			const Vec2 pos = Vec2( x, m_worldData.size() - y ) * m_gridSize;
 			const char block = m_worldData.at( y ).at( x );
 
 			if( block == 'W' )
 			{
-				Box box = Box( pos, Vec2( m_gridSize, m_gridSize ), Colors::WHITE );
-				box.setCollisionType( CollisionType::StaticBlocking );
-				Object::makeObject< Box >( box, this );
+				shared_ptr< RigidRect > wall = makeObject< RigidRect >( this );
+				wall->position = pos;
+				wall->size = Vec2( m_gridSize, m_gridSize );
 			}
 			else if( block == 'P' )
 			{
-				Player player = Player( pos );
-				Object::makeObject< Player >( player, this );
+				shared_ptr< Player > player = makeObject< Player >( this );
+				player->position = pos;
 			}
 		}
 	}
@@ -58,8 +57,8 @@ void GridWorld::onSpawnChildren()
 void GridWorld::onStart()
 {
 	const shared_ptr< Player > player = Object::getObjectsByType< Player >().at( 0 );
-	m_camera->setDistance( 2.0 );
-	m_camera->setPosition( player->getPos() );
+	m_camera->setDistance( 4.0 );
+	m_camera->setPosition( player->position );
 }
 
 //--------------------------------------------------------------------------------
@@ -67,7 +66,7 @@ void GridWorld::onStart()
 void GridWorld::onUpdate( double deltaTime )
 {
 	const shared_ptr< Player > player = Object::getObjectsByType< Player >().at( 0 );
-	Vec2 pos = player->getPos();
+	Vec2 pos = player->position;
 	pos.y += 0.5;
 
 	const Vec2 direction = pos - m_camera->getPosition();

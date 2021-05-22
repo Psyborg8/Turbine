@@ -9,10 +9,10 @@
 
 //================================================================================
 
-class Camera : public Object
+class Camera
 {
 public:
-	Camera( Vec2 position, float distance );
+	Camera();
 
 // Get-Set
 public:

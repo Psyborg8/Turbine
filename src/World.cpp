@@ -17,10 +17,7 @@ World::World() : Object(), m_gravity( Vec2() )
 
 void World::onSpawnChildren()
 {
-	{
-		Camera camera = Camera( Vec2(), 1.0f );
-		m_camera = makeObject< Camera >( camera, this );
-	}
+	m_camera = make_shared< Camera >();
 }
 
 //================================================================================

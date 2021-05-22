@@ -37,6 +37,12 @@
     <Filter Include="Game\Objects">
       <UniqueIdentifier>{160e20d3-866a-44ec-98ee-db4952cda7f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Collision">
+      <UniqueIdentifier>{cb60b95a-bb97-403b-8073-dfd77cc783fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Objects">
+      <UniqueIdentifier>{abc69a04-4206-410a-9a57-b899d8d37494}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ProjectBullet.cpp">
@@ -66,12 +72,6 @@
     <ClCompile Include="src\Camera.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\Box.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DevWorld.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\Player.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -82,6 +82,21 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Text.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Collision.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rect.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RigidRect.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Line.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CollisionWorld.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -104,20 +119,11 @@
     <ClInclude Include="src\MathTypes.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\Object.h">
-      <Filter>Engine\GFX\Primitives</Filter>
-    </ClInclude>
     <ClInclude Include="src\Camera.h">
       <Filter>Engine\GFX\Camera</Filter>
     </ClInclude>
     <ClInclude Include="src\World.h">
       <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Box.h">
-      <Filter>Engine\GFX\Primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="DevWorld.h">
-      <Filter>Game\Worlds</Filter>
     </ClInclude>
     <ClInclude Include="src\Player.h">
       <Filter>Game\Objects</Filter>
@@ -130,6 +136,24 @@
     </ClInclude>
     <ClInclude Include="src\Text.h">
       <Filter>Engine\GFX\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Collision.h">
+      <Filter>Engine\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rect.h">
+      <Filter>Engine\GFX\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object.h">
+      <Filter>Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RigidRect.h">
+      <Filter>Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Line.h">
+      <Filter>Engine\GFX\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CollisionWorld.h">
+      <Filter>Game\Worlds</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

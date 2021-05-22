@@ -12,12 +12,8 @@
 
 //================================================================================
 
-Camera::Camera( Vec2 position, float distance ) : Object(), m_position( position )
+Camera::Camera() : m_distance( Vec2( 0.0, 1.0 ) ), m_position( Vec2() )
 {
-	m_distance = Vec2();
-	m_distance.y = distance;
-
-	setName( "Camera" );
 	calculate();
 }
 

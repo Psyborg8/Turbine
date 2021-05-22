@@ -25,7 +25,7 @@ struct Color
 	Color& operator+=( const Color& rh );
 	Color operator-( const Color& rh ) const;
 	Color& operator-=( const Color& rh );
-
+	
 	Color operator*( const float& ) const;
 	Color operator/( const float& ) const;
 };
@@ -60,7 +60,7 @@ struct Vec2
 	double dot( const Vec2& rh ) const;
 	double determinant( const Vec2& rh ) const;
 	Vec2 normalize() const;
-	double angleTo( const Vec2& rh ) const;
+	Vec2 abs() const;
 
 	bool operatorbool() const;
 	bool operator==( const Vec2& rh ) const;
@@ -69,24 +69,15 @@ struct Vec2
 	Vec2& operator+=( const Vec2& rh );
 	Vec2 operator-( const Vec2& rh ) const;
 	Vec2& operator-=( const Vec2& rh );
+	Vec2 operator/( const Vec2& rh ) const;
+	Vec2& operator/=( const Vec2& rh );
+	Vec2 operator*( const Vec2& rh ) const;
+	Vec2& operator*=( const Vec2& rh );
 
 	Vec2 operator*( const double& rh ) const;
 	Vec2& operator*=( const double& rh );
 	Vec2 operator/( const double& rh ) const;
 	Vec2& operator/=( const double& rh );
-};
-
-//================================================================================
-
-struct Line
-{
-	Vec2 start;
-	Vec2 end;
-
-	double length() const;
-
-	Line() : start( Vec2() ), end( Vec2() ) {}
-	Line( Vec2 start, Vec2 end ) : start( start ), end( end ) {}
 };
 
 //================================================================================

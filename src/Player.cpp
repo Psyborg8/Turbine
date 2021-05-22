@@ -8,27 +8,26 @@
 #include "System.h"
 #include "World.h"
 #include "Timer.h"
+#include "Line.h"
 
 //================================================================================
 
-Player::Player() : Box( Vec2(), Vec2( 0.15, 0.2 ), Colors::BLUE ), m_velocity( Vec2() )
+Player::Player() : Player( Vec2() )
 {
-	m_collisionType = CollisionType::DynamicBlocking;
+
 }
 
 //--------------------------------------------------------------------------------
 
-Player::Player( Vec2 pos ) : Box( pos, Vec2( 0.15, 0.2 ), Colors::BLUE ), m_velocity( Vec2() )
+Player::Player( Vec2 pos ) : RigidRect( pos, Vec2( 0.15, 0.2 ), Colors::BLUE )
 {
-	m_collisionType = CollisionType::DynamicBlocking;
+
 }
 
 //--------------------------------------------------------------------------------
 
 void Player::onUpdate( double deltaTime )
 {
-	Box::onUpdate( deltaTime );
-
 	Vec2 gravity = System::getWorld()->getGravity();
 	bool didMove = false;
 
@@ -36,7 +35,7 @@ void Player::onUpdate( double deltaTime )
 		goto afterMovement;
 
 	// Movement
-	if( abs( m_velocity.x ) <= m_maxMoveSpeed )
+	if( abs( velocity.x ) <= m_maxMoveSpeed )
 	{
 		// Input
 		double move = 0.0;
@@ -50,10 +49,10 @@ void Player::onUpdate( double deltaTime )
 			move *= m_airMoveMultiplier;
 
 		// Apply movement
-		if( abs( m_velocity.x ) + move > m_maxMoveSpeed )
-			m_velocity.x = m_maxMoveSpeed * ( move / abs( move ) );
+		if( abs( velocity.x ) + move > m_maxMoveSpeed )
+			velocity.x = m_maxMoveSpeed * ( move / abs( move ) );
 		else
-			m_velocity.x += move;	
+			velocity.x += move;
 
 		// Disable friction
 		if( move )
@@ -61,47 +60,61 @@ void Player::onUpdate( double deltaTime )
 	}
 
 	// Friction
-	if( m_velocity.x && !didMove )
+	if( velocity.x && !didMove )
 	{
-		double friction = m_frictionMultiplier * abs( m_velocity.x ) * deltaTime;
+		double friction = m_frictionMultiplier * abs( velocity.x ) * deltaTime;
 		friction = std::clamp( friction, m_minFriction * deltaTime, m_maxFriction * deltaTime );
-		if( abs( m_velocity.x ) < friction )
-			m_velocity.x = 0.0;
+		if( abs( velocity.x ) < friction )
+			velocity.x = 0.0;
 		else
-			m_velocity.x -= friction * ( m_velocity.x / abs( m_velocity.x ) );
+			velocity.x -= friction * ( velocity.x / abs( velocity.x ) );
 	}
 
 	// Gravity
-	m_velocity += gravity * deltaTime;
-	m_velocity.y = m_velocity.y < -m_terminalVelocity ? -m_terminalVelocity : m_velocity.y;
+	velocity += gravity * deltaTime;
+	velocity.y = velocity.y < -m_terminalVelocity ? -m_terminalVelocity : velocity.y;
 
 	// Jump Release
 	if( !System::getKeyState( KeyCode::Space ) )
-		m_velocity.y = min( m_velocity.y, m_jumpReleaseThreshold );
+		velocity.y = std::min( velocity.y, m_jumpReleaseThreshold );
 
 	// Wall Cling
 	if( m_isWallCling )
 	{
-		double friction = m_wallFrictionMultiplier * abs( m_velocity.y ) * deltaTime;
+		double friction = m_wallFrictionMultiplier * abs( velocity.y ) * deltaTime;
 		friction = std::clamp( friction, m_minWallFriction * deltaTime, m_maxWallFriction * deltaTime );
-		if( abs( m_velocity.y ) < friction )
-			m_velocity.y = 0.0;
+		if( abs( velocity.y ) < friction )
+			velocity.y = 0.0;
 		else
-			m_velocity.y -= friction * ( m_velocity.y / abs( m_velocity.y ) );
+			velocity.y -= friction * ( velocity.y / abs( velocity.y ) );
 	}
 
 afterMovement:
-	m_pos += m_velocity * deltaTime;
+	position += velocity * deltaTime;
 
 	m_canJump = false;
 	m_isWallCling = false;
+
+	// Collision
+	{
+		vector< shared_ptr< Object > > targets;
+		const vector< shared_ptr< RigidRect > > walls = getObjectsByType< RigidRect >();
+
+		for( shared_ptr< RigidRect > target : walls )
+		{
+			target->fillColor = Colors::WHITE;
+			targets.push_back( std::dynamic_pointer_cast< Object >( target ) );
+		}
+
+		resolveCollisions( targets, true );
+	}
 }
 
 //--------------------------------------------------------------------------------
 
 void Player::onRender()
 {
-	Box::onRender();
+	RigidRect::render();
 }
 
 //--------------------------------------------------------------------------------
@@ -146,32 +159,18 @@ void Player::onKeyboardRelease( int key )
 
 //--------------------------------------------------------------------------------
 
-void Player::onCollision( shared_ptr<Object> target, Vec2 normal )
+void Player::onCollision( Collision::CollisionResult result )
 {
-	Box::onCollision( target, normal );
-
-	if( target->getCollisionType() == CollisionType::StaticBlocking )
+	if( result.normal.y == 1.0 )
 	{
-		if( normal.x == 1.0 )
-			m_velocity.x = min( m_velocity.x, 0.0 );
-		else if( normal.x == -1.0 )
-			m_velocity.x = max( m_velocity.x, 0.0 );
-		else if( normal.y == 1.0 )
-			m_velocity.y = min( m_velocity.y, 0.0 );
-		else if( normal.y == -1.0 )
-			m_velocity.y = max( m_velocity.y, 0.0 );
+		m_canJump = true;
+		m_canDoubleJump = true;
+	}
 
-		if( normal.y == -1.0 )
-		{
-			m_canJump = true;
-			m_canDoubleJump = true;
-		}
-
-		if( normal.x )
-		{
-			m_isWallCling = true;
-			m_wallClingNormal = -normal.x;
-		}
+	if( result.normal.x )
+	{
+		m_isWallCling = true;
+		m_wallClingNormal = -result.normal.x;
 	}
 }
 
@@ -186,18 +185,18 @@ void Player::jump()
 	{
 		Vec2 normal = m_wallJumpNormal;
 		normal.x *= m_wallClingNormal;
-		m_velocity = normal * m_wallJumpPower;
+		velocity = normal * m_wallJumpPower;
 
 		m_isWallCling = false;
 	}
 	else if( m_canJump )
 	{
-		m_velocity.y = m_jumpPower;
+		velocity.y = m_jumpPower;
 		m_canJump = false;
 	}
 	else if( m_canDoubleJump )
 	{
-		m_velocity.y = m_doubleJumpPower;
+		velocity.y = m_doubleJumpPower;
 		m_canDoubleJump = false;
 	}
 
@@ -235,7 +234,7 @@ void Player::dash()
 	direction = direction.normalize();
 	direction *= m_dashPower;
 
-	m_velocity = direction;
+	velocity = direction;
 
 	m_canDash = false;
 	m_isDashing = true;
@@ -245,7 +244,7 @@ void Player::dash()
 	Timer::addTimer( m_dashReleaseTime, nullptr,
 					 [this] { 
 						 m_isDashing = false; 
-						 m_velocity.y = m_velocity.y > m_jumpReleaseThreshold ? m_jumpReleaseThreshold : m_velocity.y;
+						 velocity.y = velocity.y > m_jumpReleaseThreshold ? m_jumpReleaseThreshold : velocity.y;
 					 }, false );
 }
 

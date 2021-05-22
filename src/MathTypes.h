@@ -61,6 +61,7 @@ struct Vec2
 	double determinant( const Vec2& rh ) const;
 	Vec2 normalize() const;
 	Vec2 abs() const;
+	Vec2 inverse() const;
 
 	bool operatorbool() const;
 	bool operator==( const Vec2& rh ) const;

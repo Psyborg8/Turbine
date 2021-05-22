@@ -14,14 +14,14 @@
 
 Player::Player() : Player( Vec2() )
 {
-
+	//
 }
 
 //--------------------------------------------------------------------------------
 
 Player::Player( Vec2 pos ) : RigidRect( pos, Vec2( 0.15, 0.2 ), Colors::BLUE )
 {
-
+	setName( "Player" );
 }
 
 //--------------------------------------------------------------------------------
@@ -31,83 +31,99 @@ void Player::onUpdate( double deltaTime )
 	Vec2 gravity = System::getWorld()->getGravity();
 	bool didMove = false;
 
-	if( m_isDashing )
-		goto afterMovement;
-
-	// Movement
-	if( abs( velocity.x ) <= m_maxMoveSpeed )
+	// Ignore physics while dashing
+	if( !m_isDashing )
 	{
-		// Input
-		double move = 0.0;
-		if( System::getKeyState( KeyCode::d ) )
-			move += m_moveAcceleration * deltaTime;
-		if( System::getKeyState( KeyCode::a ) )
-			move -= m_moveAcceleration * deltaTime;
+		// Movement
+		if( abs( velocity.x ) <= m_maxMoveSpeed )
+		{
+			// Input
+			double move = 0.0;
+			if( System::getKeyState( KeyCode::d ) )
+				move += m_moveAcceleration * deltaTime;
+			if( System::getKeyState( KeyCode::a ) )
+				move -= m_moveAcceleration * deltaTime;
 
-		// Air control
-		if( !m_canJump )
-			move *= m_airMoveMultiplier;
+			// Air control
+			if( !m_canJump )
+				move *= m_airMoveMultiplier;
 
-		// Apply movement
-		if( abs( velocity.x ) + move > m_maxMoveSpeed )
-			velocity.x = m_maxMoveSpeed * ( move / abs( move ) );
-		else
-			velocity.x += move;
+			// Apply movement
+			if( abs( velocity.x ) + move > m_maxMoveSpeed )
+				velocity.x = m_maxMoveSpeed * ( move / abs( move ) );
+			else
+				velocity.x += move;
 
-		// Disable friction
-		if( move )
-			didMove = true;
+			// Disable friction
+			if( move )
+				didMove = true;
+		}
+
+		// Friction
+		if( velocity.x && !didMove )
+		{
+			double friction = m_frictionMultiplier * abs( velocity.x ) * deltaTime;
+			friction = std::clamp( friction, m_minFriction * deltaTime, m_maxFriction * deltaTime );
+			if( abs( velocity.x ) < friction )
+				velocity.x = 0.0;
+			else
+				velocity.x -= friction * ( velocity.x / abs( velocity.x ) );
+		}
+
+		// Gravity
+		velocity += gravity * deltaTime;
+		velocity.y = velocity.y < -m_terminalVelocity ? -m_terminalVelocity : velocity.y;
+
+		// Jump Release
+		if( !System::getKeyState( KeyCode::Space ) )
+			velocity.y = std::min( velocity.y, m_jumpReleaseThreshold );
+
+		// Wall Cling
+		if( m_isWallCling )
+		{
+			double friction = m_wallFrictionMultiplier * abs( velocity.y ) * deltaTime;
+			friction = std::clamp( friction, m_minWallFriction * deltaTime, m_maxWallFriction * deltaTime );
+			if( abs( velocity.y ) < friction )
+				velocity.y = 0.0;
+			else
+				velocity.y -= friction * ( velocity.y / abs( velocity.y ) );
+		}
 	}
 
-	// Friction
-	if( velocity.x && !didMove )
-	{
-		double friction = m_frictionMultiplier * abs( velocity.x ) * deltaTime;
-		friction = std::clamp( friction, m_minFriction * deltaTime, m_maxFriction * deltaTime );
-		if( abs( velocity.x ) < friction )
-			velocity.x = 0.0;
-		else
-			velocity.x -= friction * ( velocity.x / abs( velocity.x ) );
-	}
-
-	// Gravity
-	velocity += gravity * deltaTime;
-	velocity.y = velocity.y < -m_terminalVelocity ? -m_terminalVelocity : velocity.y;
-
-	// Jump Release
-	if( !System::getKeyState( KeyCode::Space ) )
-		velocity.y = std::min( velocity.y, m_jumpReleaseThreshold );
-
-	// Wall Cling
-	if( m_isWallCling )
-	{
-		double friction = m_wallFrictionMultiplier * abs( velocity.y ) * deltaTime;
-		friction = std::clamp( friction, m_minWallFriction * deltaTime, m_maxWallFriction * deltaTime );
-		if( abs( velocity.y ) < friction )
-			velocity.y = 0.0;
-		else
-			velocity.y -= friction * ( velocity.y / abs( velocity.y ) );
-	}
-
-afterMovement:
-	position += velocity * deltaTime;
-
-	m_canJump = false;
 	m_isWallCling = false;
+	m_canJump = false;
 
-	// Collision
+	// Walls and Traps
 	{
 		vector< shared_ptr< Object > > targets;
-		const vector< shared_ptr< RigidRect > > walls = getObjectsByType< RigidRect >();
+		const vector< shared_ptr< Object > > walls = getObjectsByName( "Wall" );
+		const vector< shared_ptr< Object > > traps = getObjectsByName( "Trap" );
+		const vector< shared_ptr< Object > > platforms = getObjectsByName( "Platform" );
 
-		for( shared_ptr< RigidRect > target : walls )
+		targets.insert( targets.end(), walls.begin(), walls.end() );
+		targets.insert( targets.end(), traps.begin(), traps.end() );
+
+		bool collision = false;
+		for( shared_ptr< Object > platform : platforms )
 		{
-			target->fillColor = Colors::WHITE;
-			targets.push_back( std::dynamic_pointer_cast< Object >( target ) );
+			Collision::CollisionResult result = isColliding( platform );
+			if( result.success )
+			{
+				collision = true;
+				break;
+			}
 		}
+
+		m_jumpingDown &= collision;
+
+		if( !m_jumpingDown )
+			if( velocity.y < 0.0 )
+				targets.insert( targets.end(), platforms.begin(), platforms.end() );
 
 		resolveCollisions( targets, true );
 	}
+
+	position += velocity * deltaTime;
 }
 
 //--------------------------------------------------------------------------------
@@ -159,8 +175,14 @@ void Player::onKeyboardRelease( int key )
 
 //--------------------------------------------------------------------------------
 
-void Player::onCollision( Collision::CollisionResult result )
+void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object > target )
 {
+	// Check for Trap or Wall
+	if( target->getName() == "Trap" )
+		return kill();
+	if( target->getName() == "Platform" )
+		m_canJumpDown = true;
+
 	if( result.normal.y == 1.0 )
 	{
 		m_canJump = true;
@@ -170,7 +192,7 @@ void Player::onCollision( Collision::CollisionResult result )
 	if( result.normal.x )
 	{
 		m_isWallCling = true;
-		m_wallClingNormal = -result.normal.x;
+		m_wallClingNormal = result.normal.x;
 	}
 }
 
@@ -181,18 +203,23 @@ void Player::jump()
 	if( m_waitJump )
 		return;
 
-	if( m_isWallCling )
+	if( m_canJump )
+	{
+		if( m_canJumpDown && System::getKeyState( KeyCode::s ) )
+			m_jumpingDown = true;
+		else
+		{
+			velocity.y = m_jumpPower;
+			m_canJump = false;
+		}
+	}
+	else if( m_isWallCling )
 	{
 		Vec2 normal = m_wallJumpNormal;
 		normal.x *= m_wallClingNormal;
 		velocity = normal * m_wallJumpPower;
 
 		m_isWallCling = false;
-	}
-	else if( m_canJump )
-	{
-		velocity.y = m_jumpPower;
-		m_canJump = false;
 	}
 	else if( m_canDoubleJump )
 	{
@@ -252,7 +279,7 @@ void Player::dash()
 
 void Player::kill()
 {
-
+	System::getWorld()->reset();
 }
 
 //================================================================================

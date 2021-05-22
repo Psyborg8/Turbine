@@ -32,9 +32,12 @@ CollisionResult collision( Ray ray, Rect rect )
 	CollisionResult out;
 	out.success = false;
 
+	// Calculate inverse 
+	Vec2 inverseDirection = ray.direction().inverse();
+
 	// Find near and far collisions
-	Vec2 tNear = ( rect.position - ray.start ) / ray.direction();
-	Vec2 tFar = ( rect.position + rect.size - ray.start ) / ray.direction();
+	Vec2 tNear = ( rect.position - ray.start ) * inverseDirection;
+	Vec2 tFar = ( rect.position + rect.size - ray.start ) * inverseDirection ;
 
 	if( std::isnan( tFar.y ) || std::isnan( tFar.x ) )
 		return out;
@@ -59,12 +62,8 @@ CollisionResult collision( Ray ray, Rect rect )
 	double tHitNear = std::max( tNear.x, tNear.y );
 	double tHitFar = std::min( tFar.x, tFar.y );
 
-	// Collision is happening in the wrong direction
-	if( tHitFar <= 0.0 )
-		return out;
-
-	// Collision is happening outside of the range
-	if( tHitNear >= 1.0 )
+	// Collision is happening out of range
+	if( tHitFar <= 0.0 || tHitNear >= 1.0 )
 		return out;
 
 	// Output collision alpha and collision point
@@ -73,9 +72,9 @@ CollisionResult collision( Ray ray, Rect rect )
 
 	// Find normal
 	if( tNear.x > tNear.y )
-		out.normal = ray.direction().x < 0.0 ? Vec2{ 1, 0 } : Vec2{ -1, 0 };
+		out.normal = inverseDirection.x < 0.0 ? Vec2{ 1, 0 } : Vec2{ -1, 0 };
 	else
-		out.normal = ray.direction().y < 0.0 ? Vec2{ 0, 1 } : Vec2{ 0, -1 };
+		out.normal = inverseDirection.y < 0.0 ? Vec2{ 0, 1 } : Vec2{ 0, -1 };
 
 	out.success = true;
 
@@ -121,6 +120,22 @@ CollisionResult collision( Rect* rectA, Rect* rectB )
 	out = collision( rayCollider, e );
 	if( out.success )
 	{
+		out.success = false;
+		if( out.normal.x > 0.0 )
+			if( d->position.x == s->position.x + s->size.x )
+				return out;
+		if( out.normal.x < 0.0 )
+			if( d->position.x + d->size.x == s->position.x )
+				return out;
+		if( out.normal.y > 0.0 )
+			if( d->position.y == s->position.y + s->size.y )
+				return out;
+		if( out.normal.y < 0.0 )
+			if( d->position.y + d->size.y == s->position.y )
+				return out;
+
+		out.success = true;
+
 		// Set point and distance data
 		Vec2 distance = out.point - e.midpoint();
 		distance = ( distance / e.size ) * s->size;
@@ -152,24 +167,7 @@ void resolveCollision( CollisionResult result )
 	Rect* d = result.dynamic.dynamicRect;
 	Rect* s = result.dynamic.staticRect;
 
-	if( result.normal.x )
-	{
-		if( result.normal.x == -1.0 )
-			d->position.x = s->position.x - d->size.x;
-		else
-			d->position.x = s->position.x + s->size.x;
-
-		d->velocity.x = 0.0;
-	}	
-	else if( result.normal.y )
-	{
-		if( result.normal.y == -1.0 )
-			d->position.y = s->position.y - d->size.y;
-		else
-			d->position.y = s->position.y + s->size.y;
-
-		d->velocity.y = 0.0;
-	}
+	d->velocity += result.normal * d->velocity.abs() * ( 1.0 - result.distance ) * 1.0000000001;
 }
 
 //================================================================================

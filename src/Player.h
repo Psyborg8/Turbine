@@ -25,7 +25,7 @@ public:
 	void onKeyboardPress( int key );
 	void onKeyboardRelease( int key );
 
-	void onCollision( Collision::CollisionResult collision ) override;
+	void onCollision( Collision::CollisionResult collision, shared_ptr< Object > target ) override;
 
 // Methods
 public:
@@ -45,6 +45,9 @@ private:
 	bool m_canJump{ false };
 	bool m_canDoubleJump{ true };
 	bool m_waitJump{ false };
+
+	bool m_canJumpDown{ false };
+	bool m_jumpingDown{ false };
 
 	bool m_canDash{ true };
 	bool m_waitDash{ false };
@@ -81,3 +84,5 @@ private:
 	const Vec2 m_wallJumpNormal{ 0.7, 0.3 };
 	const milliseconds m_wallJumpReleaseTime{ 300 };
 };
+
+//================================================================================

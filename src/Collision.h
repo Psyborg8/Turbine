@@ -6,7 +6,7 @@
 
 #include "MathTypes.h"
 
-//--------------------------------------------------------------------------------
+//================================================================================
 
 class Object;
 
@@ -22,8 +22,8 @@ struct Ray
 	Vec2 start;
 	Vec2 end;
 
-	Vec2 direction() { return end - start; };
-	double length() { return direction().length(); };
+	inline Vec2 direction() { return end - start; };
+	inline double length() { return direction().length(); };
 };
 
 //--------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ struct Rect
 	Vec2 size;
 	Vec2 velocity;
 
-	Vec2 midpoint() { return position + ( size / 2.0 ); }
+	inline Vec2 midpoint() { return position + ( size / 2.0 ); }
 };
 
 //--------------------------------------------------------------------------------

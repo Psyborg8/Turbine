@@ -10,10 +10,7 @@ void Object::processCollisions( vector< shared_ptr< Object > > targets )
 	{
 		const Collision::CollisionResult result = isColliding( target );
 		if( result.success )
-		{
-			onCollision( result );
-			target->onCollision( result );
-		}
+			target->onCollision( result, target );
 	}
 }
 
@@ -44,10 +41,7 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 			Collision::resolveCollision( result );
 
 			if( notify )
-			{
-				onCollision( result );
-				collision.first->onCollision( result );
-			}
+				onCollision( result, collision.first );
 		}
 	}
 }

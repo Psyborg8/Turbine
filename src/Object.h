@@ -28,9 +28,10 @@ public:
 
 	// Collision
 	virtual inline Collision::CollisionResult isColliding( shared_ptr< Object > target ) { return Collision::CollisionResult(); } // The collision calculation function for this object
-	virtual inline void onCollision( const Collision::CollisionResult collision ) {}  // Called when the object collides with another
+	virtual inline void onCollision( Collision::CollisionResult collision, shared_ptr< Object > target ) {}  // Called when the object collides with another
 	virtual inline void resolveCollision( shared_ptr< Object > target ) {} // Resolves the collision by moving the dynamic object towards the collision normal
 	virtual inline void resolveCollision( Collision::CollisionResult collision ) {}
+	
 	void processCollisions( vector< shared_ptr< Object > > targets ); // Calls onCollision for every colliding target
 	void resolveCollisions( vector< shared_ptr< Object > > targets, bool notify = false ); // Resolves all collisions with the targets, in order of distance. If Notify, calls onCollision when a collision is resolved.
 	vector< shared_ptr < Object > > sortByDistance( vector< shared_ptr< Object > > targets );
@@ -121,6 +122,19 @@ public:
 			if( ptr != nullptr )
 				out.push_back( ptr );
 		}
+
+		return out;
+	}
+
+	//--------------------------------------------------------------------------------
+
+	inline static vector< shared_ptr< Object > > getObjectsByName( string name )
+	{
+		vector< shared_ptr< Object > > out;
+
+		for( const shared_ptr< Object > object : s_objects )
+			if( object->getName() == name )
+				out.push_back( object );
 
 		return out;
 	}

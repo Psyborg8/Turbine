@@ -9,11 +9,11 @@ enum class ObserverType
 	KeyPress, // KeyCallback
 	KeyRelease, // KeyCallback
 
-	MouseMove,
-	MousePress,
-	MouseRelease,
+	MouseMove, // AxisCallback
+	MousePress, // KeyCallback
+	MouseRelease, // KeyCallback
 
-	WindowResize,
+	WindowResize, // Vec2Callback
 
 	None
 };

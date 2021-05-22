@@ -14,11 +14,11 @@ public:
 	Text( string text, Vec2 pos, Color color );
 	Text( function< string() > textFunc, Vec2 pos, Color color );
 
-// Events
+	// Events
 public:
 	void onRender();
 
-// Variables
+	// Variables
 protected:
 	string m_text;
 	function< string() > m_textFunc;
@@ -26,3 +26,5 @@ protected:
 	Vec2 m_pos;
 	Color m_color;
 };
+
+//================================================================================

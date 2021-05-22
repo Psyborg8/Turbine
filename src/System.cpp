@@ -13,6 +13,9 @@
 #include "CollisionWorld.h"
 #include "GridWorld.h"
 
+// Objects
+#include "RigidRect.h"
+
 //================================================================================
 
 namespace System
@@ -190,6 +193,9 @@ void update()
 
 	// Update timers
 	Timer::update();
+
+	// Cleanup
+	Object::cleanupObjects();
 
 	// Store new frame time
 	lastFrameTime = now;

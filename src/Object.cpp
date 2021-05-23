@@ -20,6 +20,7 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 {
 	using collisionPair = pair< shared_ptr< Object >, Collision::CollisionResult >;
 
+	// Broad Phase
 	vector < collisionPair > results;
 	for( shared_ptr< Object > target : targets )
 	{
@@ -28,11 +29,13 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 			results.push_back( make_pair( target, result ) );
 	}
 
+	// Sort by distance
 	std::sort( results.begin(), results.end(),
 			   []( const collisionPair& a, const collisionPair& b ) {
 				   return a.second.distance < b.second.distance;
 			   } );
 
+	// Narrow Phase
 	for( pair< shared_ptr< Object >, Collision::CollisionResult > collision : results )
 	{
 		const Collision::CollisionResult result = isColliding( collision.first );
@@ -41,32 +44,13 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 			Collision::resolveCollision( result );
 
 			if( notify )
+			{
+				// Notify both targets
 				onCollision( result, collision.first );
+				collision.first->onCollision( result, shared_from_this() );
+			}
 		}
 	}
-}
-
-//--------------------------------------------------------------------------------
-
-vector< shared_ptr< Object > > Object::sortByDistance( vector< shared_ptr< Object > > targets )
-{
-	vector< shared_ptr< Object > > out = targets;
-	vector< pair< shared_ptr< Object >, double > > distances;
-
-	for( shared_ptr< Object > target : targets )
-	{
-		const Collision::CollisionResult result = isColliding( target );
-		if( result.success )
-			distances.push_back( make_pair( target, result.distance ) );
-	}
-
-	std::sort( distances.begin(), distances.end(),
-			   []( const pair< shared_ptr< Object >, double >& a, const pair< shared_ptr< Object >, double >& b )
-			   {
-				   return a.second < b.second;
-			   } );
-
-	return out;
 }
 
 //================================================================================

@@ -15,7 +15,7 @@ RigidRect::RigidRect() : Gfx::Rect(), Object()
 
 //--------------------------------------------------------------------------------
 
-RigidRect::RigidRect( Vec2 _position, Vec2 _size, Color _color = Colors::WHITE )
+RigidRect::RigidRect( Vec2 _position, Vec2 _size, Color _color = Colors::WHITE ) : Gfx::Rect(), Object()
 {
 	position = _position;
 	size = _size;

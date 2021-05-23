@@ -18,6 +18,7 @@ public:
 // Events
 public:
 	void onUpdate( double deltaTime ) override;
+	void onProcessCollisions( double deltaTime ) override;
 	void onRender() override;
 	void onDestroy() override;
 	void onCreateObservers() override;

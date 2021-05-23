@@ -29,7 +29,6 @@ Player::Player( Vec2 pos ) : RigidRect( pos, Vec2( 0.15, 0.2 ), Colors::BLUE )
 void Player::onUpdate( double deltaTime )
 {
 	Vec2 gravity = System::getWorld()->getGravity();
-	bool didMove = false;
 
 	// Ignore physics while dashing
 	if( !m_isDashing )
@@ -54,20 +53,16 @@ void Player::onUpdate( double deltaTime )
 			else
 				velocity.x += move;
 
-			// Disable friction
-			if( move )
-				didMove = true;
-		}
-
-		// Friction
-		if( velocity.x && !didMove )
-		{
-			double friction = m_frictionMultiplier * abs( velocity.x ) * deltaTime;
-			friction = std::clamp( friction, m_minFriction * deltaTime, m_maxFriction * deltaTime );
-			if( abs( velocity.x ) < friction )
-				velocity.x = 0.0;
-			else
-				velocity.x -= friction * ( velocity.x / abs( velocity.x ) );
+			// Friction
+			if( !move && velocity.x )
+			{
+				double friction = m_frictionMultiplier * abs( velocity.x ) * deltaTime;
+				friction = std::clamp( friction, m_minFriction * deltaTime, m_maxFriction * deltaTime );
+				if( abs( velocity.x ) < friction )
+					velocity.x = 0.0;
+				else
+					velocity.x -= friction * ( velocity.x / abs( velocity.x ) );
+			}
 		}
 
 		// Gravity
@@ -92,38 +87,41 @@ void Player::onUpdate( double deltaTime )
 
 	m_isWallCling = false;
 	m_canJump = false;
+}
 
-	// Walls and Traps
+//--------------------------------------------------------------------------------
+
+void Player::onProcessCollisions( double deltaTime )
+{
+	vector< shared_ptr< Object > > targets;
+	const vector< shared_ptr< Object > > walls = getObjectsByName( "Wall" );
+	const vector< shared_ptr< Object > > traps = getObjectsByName( "Trap" );
+	const vector< shared_ptr< Object > > platforms = getObjectsByName( "Platform" );
+
+	targets.insert( targets.end(), walls.begin(), walls.end() );
+	targets.insert( targets.end(), traps.begin(), traps.end() );
+
+	// Check if we're supposed to collide with platforms
+
+	if( m_jumpingDown )
 	{
-		vector< shared_ptr< Object > > targets;
-		const vector< shared_ptr< Object > > walls = getObjectsByName( "Wall" );
-		const vector< shared_ptr< Object > > traps = getObjectsByName( "Trap" );
-		const vector< shared_ptr< Object > > platforms = getObjectsByName( "Platform" );
-
-		targets.insert( targets.end(), walls.begin(), walls.end() );
-		targets.insert( targets.end(), traps.begin(), traps.end() );
-
-		bool collision = false;
+		m_jumpingDown = false;
 		for( shared_ptr< Object > platform : platforms )
 		{
 			Collision::CollisionResult result = isColliding( platform );
 			if( result.success )
 			{
-				collision = true;
+				m_jumpingDown = true;
 				break;
 			}
 		}
-
-		m_jumpingDown &= collision;
-
-		if( !m_jumpingDown )
-			if( velocity.y < 0.0 )
-				targets.insert( targets.end(), platforms.begin(), platforms.end() );
-
-		resolveCollisions( targets, true );
 	}
 
-	position += velocity * deltaTime;
+	if( !m_jumpingDown )
+		if( velocity.y < 0.0 )
+			targets.insert( targets.end(), platforms.begin(), platforms.end() );
+
+	resolveCollisions( targets, true );
 }
 
 //--------------------------------------------------------------------------------

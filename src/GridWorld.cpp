@@ -37,7 +37,7 @@ void GridWorld::onSpawnChildren()
 	{
 		for( int x = 0; x < m_worldData.at( y ).size(); ++x )
 		{
-			const Vec2 pos = Vec2( x, m_worldData.size() - y ) * m_gridSize;
+			const Vec2 pos = Vec2( double( x ), m_worldData.size() - double( y ) ) * m_gridSize;
 			const char block = m_worldData.at( y ).at( x );
 
 			if( block == 'w' )

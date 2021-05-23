@@ -184,15 +184,19 @@ void update()
 	// Store the delta time
 	deltaTime = dt;
 
-	// Do physics and collision before limiting the framerate for accuracy
-	const vector< shared_ptr< Object > > objects = Object::getObjectsByParent( getWorld(), true );
-
-	world->onUpdate( dt );
-	for( shared_ptr< Object > object : objects )
-		object->onUpdate( dt );
-
 	// Update timers
 	Timer::update();
+
+	// Update the current world
+	vector< shared_ptr< Object > > objects = Object::getObjectsByParent( getWorld(), true );
+	objects.insert( objects.begin(), getWorld() );
+
+	for( shared_ptr< Object > object : objects )
+		object->onUpdate( dt );
+	for( shared_ptr< Object > object : objects )
+		object->onProcessCollisions( dt );
+	for( shared_ptr< Object > object : objects )
+		object->onPostUpdate( dt );
 
 	// Cleanup
 	Object::cleanupObjects();
@@ -200,13 +204,14 @@ void update()
 	// Store new frame time
 	lastFrameTime = now;
 
+	// Render
 	glClearColor( 0.05f, 0.1f, 0.1f, 1.0f );
 	glClear( GL_COLOR_BUFFER_BIT );
 
-	// Render images
-	world->onRender();
 	for( shared_ptr< Object > object : objects )
 		object->onRender();
+	for( shared_ptr< Object > object : objects )
+		object->onPostRender();
 
 	glutSwapBuffers();
 	glutPostRedisplay();

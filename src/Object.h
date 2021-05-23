@@ -15,18 +15,21 @@ public:
 	Object() : m_name( "" ), m_parent( nullptr ) {};
 	Object( string name ) : m_name( name ), m_parent( nullptr ) {};
 
-	// Events
+// Events
 public:
-	// System
-	virtual inline void onSpawnChildren() {} // For spawning all child objects
-	virtual inline void onCreateObservers() {} // For binding observers
-	virtual inline void onStart() {} // For setting properties of object and children
-	virtual inline void onUpdate( double deltaTime ) {} // Called first each frame
-	virtual inline void onRender() {} // Called last each frame
-	virtual inline void onDestroy() {} // Called when the object is destroyed
-	virtual inline void onExit() {} // Called when the game closes
+	virtual inline void onStart() {}
+	virtual inline void onCreateObservers() {}
+	virtual inline void onSpawnChildren() {}
+	virtual inline void onUpdate( double deltaTime ) {}
+	virtual inline void onProcessCollisions( double deltaTime ) {}
+	virtual inline void onPostUpdate( double deltaTime ) {}
+	virtual inline void onRender() {}
+	virtual inline void onPostRender() {}
+	virtual inline void onExit() {}
+	virtual inline void onDestroy() {}
 
-	// Collision
+// Collision
+public:
 	virtual inline Collision::CollisionResult isColliding( shared_ptr< Object > target ) { return Collision::CollisionResult(); } // The collision calculation function for this object
 	virtual inline void onCollision( Collision::CollisionResult collision, shared_ptr< Object > target ) {}  // Called when the object collides with another
 	virtual inline void resolveCollision( shared_ptr< Object > target ) {} // Resolves the collision by moving the dynamic object towards the collision normal
@@ -34,7 +37,6 @@ public:
 	
 	void processCollisions( vector< shared_ptr< Object > > targets ); // Calls onCollision for every colliding target
 	void resolveCollisions( vector< shared_ptr< Object > > targets, bool notify = false ); // Resolves all collisions with the targets, in order of distance. If Notify, calls onCollision when a collision is resolved.
-	vector< shared_ptr < Object > > sortByDistance( vector< shared_ptr< Object > > targets );
 
 // Get/Set
 public:

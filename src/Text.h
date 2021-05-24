@@ -8,8 +8,7 @@
 
 //================================================================================
 
-class Text : public Object
-{
+class Text : public Object {
 public:
 	Text( string text, Vec2 pos, Color color );
 	Text( function< string() > textFunc, Vec2 pos, Color color );

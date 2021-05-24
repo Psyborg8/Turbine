@@ -4,8 +4,7 @@
 
 //================================================================================
 
-struct Color
-{
+struct Color {
 	float r;
 	float g;
 	float b;
@@ -32,8 +31,7 @@ struct Color
 
 //--------------------------------------------------------------------------------
 
-namespace Colors
-{
+namespace Colors {
 
 static const Color WHITE = Color( 1.0f, 1.0f, 1.0f, 1.0f );
 static const Color BLACK = Color( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -48,8 +46,7 @@ static const Color YELLOW = Color( 1.0f, 1.0f, 0.0f, 1.0f );
 
 //================================================================================
 
-struct Vec2
-{
+struct Vec2 {
 	double x;
 	double y;
 

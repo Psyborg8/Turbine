@@ -5,28 +5,25 @@
 
 //================================================================================
 
-Shader::Shader() : m_type( ShaderType::Vertex ), m_name( "" )
-{
+Shader::Shader() : m_type( ShaderType::Vertex ), m_name( "" ) {
 	//
 }
 
 //--------------------------------------------------------------------------------
 
-Shader::Shader( ShaderType type, string name ) : m_type( type ), m_name( name )
-{
+Shader::Shader( ShaderType type, string name ) : m_type( type ), m_name( name ) {
+	
 	m_path = findPath();
 	load();
 }
 
 //--------------------------------------------------------------------------------
 
-void Shader::load()
-{
+void Shader::load() {
 	std::ifstream file;
 	file.open( m_path, std::ios::in );
 
-	if( file.is_open() )
-	{
+	if( file.is_open() ) {
 		std::streampos size;
 		char * memblock;
 
@@ -40,16 +37,11 @@ void Shader::load()
 
 		delete[]  memblock;
 	}
-	else
-	{
-		assert( !"Shader file doesn't exist!" );
-		return;
-	}
+	else return;
 
 	int type;
 
-	switch( m_type )
-	{
+	switch( m_type ) {
 	case ShaderType::Fragment:
 		type = GL_FRAGMENT_SHADER;
 		break;
@@ -70,8 +62,7 @@ void Shader::load()
 	GLint success;
 	glGetShaderiv( m_glShader, GL_COMPILE_STATUS, &success );
 
-	if( !success )
-	{
+	if( !success ) {
 		char infoLog[ 512 ];
 		glGetShaderInfoLog( m_glShader, 512, NULL, infoLog );
 		assert( !"Shader compilation failed!" );
@@ -81,13 +72,11 @@ void Shader::load()
 
 //--------------------------------------------------------------------------------
 
-string Shader::findPath() const
-{
+string Shader::findPath() const {
 	string out;
 
 	string folder, extension;
-	switch( m_type )
-	{
+	switch( m_type ) {
 	case ShaderType::Vertex:
 		folder = Folders::VERTEX_SHADER;
 		extension = ".vs";
@@ -107,8 +96,7 @@ string Shader::findPath() const
 
 //--------------------------------------------------------------------------------
 
-void Shader::setName( string name )
-{
+void Shader::setName( string name ) {
 	m_name = name;
 	m_path = findPath();
 	load();
@@ -129,20 +117,16 @@ void Shader::setType( ShaderType type )
 
 //================================================================================
 
-void Shader::loadShader( ShaderType type, string name )
-{
+void Shader::loadShader( ShaderType type, string name ) {
 	const Shader shader = Shader( type, name );
 	s_shaders.push_back( std::make_shared< Shader >( shader ) );
 }
 
 //--------------------------------------------------------------------------------
 
-const Shader& Shader::getGlobalShader( ShaderType type )
-{
+const Shader& Shader::getGlobalShader( ShaderType type ) {
 	if( s_global[ type ] == nullptr )
-	{
 		s_global[ type ] = std::make_unique< Shader >( getShader( type, "Default" ) );
-	}
 
 	return *s_global.at( type );
 }
@@ -158,14 +142,10 @@ const Shader& Shader::getShader( ShaderType type, string name )
 	);
 
 	if( it != s_shaders.end() )
-	{
 		return **it;
-	}
 
 	if( name == "Default" )
-	{
 		loadShader( type, name ); // Construct the default shader so we have something to pass back
-	}
 
 	return getShader( type, "Default" ); // Return the default shader if none found
 }
@@ -176,10 +156,7 @@ void Shader::setGlobal( ShaderType type, string name )
 {
 	Shader s = getShader( type, name );
 	if( name != s.getName() )
-	{
-		// Shader doesn't exist, don't replace global with default
 		return;
-	}
 	
 	s_global.at( type ) = std::make_unique< Shader >( s );
 }

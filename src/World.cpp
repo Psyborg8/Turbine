@@ -8,15 +8,13 @@
 
 //================================================================================
 
-World::World() : Object()
-{
-
+World::World() : Object() {
+	//
 }
 
 //--------------------------------------------------------------------------------
 
-void World::onSpawnChildren()
-{
+void World::onSpawnChildren() {
 	m_camera = make_shared< Camera >();
 }
 

@@ -12,13 +12,11 @@ class Object;
 
 //================================================================================
 
-namespace Collision
-{
+namespace Collision {
 
 //================================================================================
 
-struct Ray
-{
+struct Ray {
 	Vec2 start;
 	Vec2 end;
 
@@ -28,8 +26,7 @@ struct Ray
 
 //--------------------------------------------------------------------------------
 
-struct Rect
-{
+struct Rect {
 	Vec2 position;
 	Vec2 size;
 	Vec2 velocity;
@@ -40,8 +37,7 @@ struct Rect
 
 //--------------------------------------------------------------------------------
 
-struct DynamicCollision
-{
+struct DynamicCollision {
 	bool isDynamic = false;
 	Rect* staticRect;
 	Rect* dynamicRect;
@@ -49,8 +45,7 @@ struct DynamicCollision
 
 //--------------------------------------------------------------------------------
 
-struct CollisionResult
-{
+struct CollisionResult {
 	bool success = false;
 	Vec2 normal;
 	Vec2 point;

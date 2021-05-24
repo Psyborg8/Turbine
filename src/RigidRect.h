@@ -9,8 +9,7 @@
 
 //================================================================================
 
-class RigidRect : public Gfx::Rect, public Object
-{
+class RigidRect : public Gfx::Rect, public Object {
 public:
 	RigidRect();
 	RigidRect( Vec2 position, Vec2 size, Color color );

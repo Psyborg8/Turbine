@@ -8,24 +8,20 @@
 
 //================================================================================
 
-RigidRect::RigidRect() : Gfx::Rect(), Object()
-{
+RigidRect::RigidRect() : Gfx::Rect(), Object() {
 	//
 }
 
 //--------------------------------------------------------------------------------
 
-RigidRect::RigidRect( Vec2 _position, Vec2 _size, Color _color = Colors::WHITE ) : Gfx::Rect(), Object()
-{
-	position = _position;
+RigidRect::RigidRect( Vec2 _position, Vec2 _size, Color _color = Colors::WHITE ) : Gfx::Rect(), Object() {
 	size = _size;
 	fillColor = _color;
 }
 
 //--------------------------------------------------------------------------------
 
-Collision::CollisionResult RigidRect::isColliding( ObjectPtr target )
-{
+Collision::CollisionResult RigidRect::isColliding( ObjectPtr target ) {
 	Collision::CollisionResult out;
 
 	if( target == shared_from_this() )

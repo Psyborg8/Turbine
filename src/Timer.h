@@ -9,34 +9,29 @@
 //==================================================================================================
 
 // Timer identifier used to reference timers.
-struct TimerID
-{
+struct TimerID {
 	// Use a time stamp in addition to an ID since we reuse old IDs.
 	std::chrono::time_point< std::chrono::steady_clock > timeStamp;
 	int ID = -1;
 
-	bool operator==( const TimerID& rh ) const
-	{
+	bool operator==( const TimerID& rh ) const {
 		return timeStamp == rh.timeStamp && ID == rh.ID;
 	}
 
-	explicit operator bool() const
-	{
+	explicit operator bool() const {
 		return ID != -1;
 	}
 
 	// Removing timers is fairly costly. So using this when a timer is already removed to prevent repeated removal
 	// attempts of the same timer is recommended.
-	void reset()
-	{
+	void reset() {
 		ID = -1;
 	}
 };
 
 //==================================================================================================
 
-namespace Timer
-{
+namespace Timer {
 
 //==================================================================================================
 

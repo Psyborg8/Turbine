@@ -8,17 +8,23 @@
 
 //================================================================================
 
-enum class BlockType
-{
+enum class BlockType {
 	None,
 	Wall,
 	Player,
 };
 
+//--------------------------------------------------------------------------------
+
+struct WorldData {
+	vector< string > blockData;
+	double gridSize;
+	double cameraDistance;
+};
+
 //================================================================================
 
-class GridWorld : public World
-{
+class GridWorld : public World {
 public:
 	GridWorld();
 
@@ -29,14 +35,15 @@ public:
 	virtual void onStart() override;
 	virtual void reset() override;
 
+	void loadWorld( WorldData data );
+	void unloadWorld();
+
 // Variables
 protected:
-	double m_gridSize{ 0.35 };
 	double m_cameraMoveMultiplier{ 6.0 };
 
-	vector< string > m_worldData;
-
-	Vec2 m_playerStart;
+	Vec2 m_playerStart{ 0.0, 0.0 };
+	size_t m_checkpoints{ 0 };
 };
 
 //================================================================================

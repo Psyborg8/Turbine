@@ -9,17 +9,27 @@
 
 //================================================================================
 
-namespace Gfx
-{
+namespace Gfx {
 
 //================================================================================
 
-struct Line : public Collision::Ray
-{
+struct Line : public Collision::Ray {
 	Color color = Colors::WHITE;
 	float weight = 3.0f;
 
-	void render();
+	//--------------------------------------------------------------------------------
+
+	void render() {
+		glBegin( GL_LINES );
+
+		glColor4f( color.r, color.g, color.b, color.a );
+		glPointSize( weight );
+
+		glVertex2d( start.x, start.y );
+		glVertex2d( end.x, end.y );
+
+		glEnd();
+	}
 };
 
 //================================================================================

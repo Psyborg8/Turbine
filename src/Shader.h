@@ -4,16 +4,14 @@
 
 //================================================================================
 
-enum class ShaderType
-{
+enum class ShaderType {
 	Vertex = 0,
 	Fragment,
 };
 
 //================================================================================
 
-class Shader
-{
+class Shader {
 public:
 	Shader();
 

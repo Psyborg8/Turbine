@@ -23,13 +23,11 @@
     <ClCompile Include="src\Collision.cpp" />
     <ClCompile Include="src\CollisionWorld.cpp" />
     <ClCompile Include="src\GridWorld.cpp" />
-    <ClCompile Include="src\Line.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Observers.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\ProjectBullet.cpp" />
     <ClCompile Include="src\Random.cpp" />
-    <ClCompile Include="src\Rect.cpp" />
     <ClCompile Include="src\RigidRect.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\System.cpp" />
@@ -39,6 +37,7 @@
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Checkpoint.h" />
     <ClInclude Include="src\CollisionWorld.h" />
     <ClInclude Include="src\Line.h" />
     <ClInclude Include="src\Rect.h" />

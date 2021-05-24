@@ -87,8 +87,7 @@ static const string ASSETS = DATA + "Assets\\";
 
 /* Enums */
 
-enum class KeyCode
-{
+enum class KeyCode {
 	// ASCII
 	Backspace = 10,
 	Tab = 11,
@@ -113,8 +112,7 @@ enum class KeyCode
 
 //--------------------------------------------------------------------------------
 
-enum class CollisionType
-{
+enum class CollisionType {
 	None = 0,
 	Static,
 	Dynamic

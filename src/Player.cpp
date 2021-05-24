@@ -12,31 +12,26 @@
 
 //================================================================================
 
-Player::Player() : Player( Vec2() )
-{
+Player::Player() : Player( Vec2() ) {
 	//
 }
 
 //--------------------------------------------------------------------------------
 
-Player::Player( Vec2 pos ) : RigidRect( pos, Vec2( 0.15, 0.2 ), Colors::BLUE )
-{
+Player::Player( Vec2 pos ) : RigidRect( pos, Vec2( 0.15, 0.2 ), Colors::BLUE ) {
 	setName( "Player" );
 }
 
 //--------------------------------------------------------------------------------
 
-void Player::onUpdate( double deltaTime )
-{
+void Player::onUpdate( double deltaTime ) {
 	// Ignore physics while dashing
-	if( !dashData.isDashing )
-	{
+	if( !dashData.isDashing ){
 		// Horizontal
 		{
 			double move = 0.0;
 			// Movement
-			if( abs( velocity.x ) <= movementData.maxSpeed )
-			{
+			if( abs( velocity.x ) <= movementData.maxSpeed ) {
 				// Input
 				if( System::getKeyState( KeyCode::d ) )
 					move += movementData.acceleration * deltaTime;
@@ -56,8 +51,7 @@ void Player::onUpdate( double deltaTime )
 			}
 
 			// Friction
-			if( !move && velocity.x )
-			{
+			if( !move && velocity.x ) {
 				double friction = frictionData.power * abs( velocity.x ) * deltaTime;
 
 				// Air resistance
@@ -83,8 +77,7 @@ void Player::onUpdate( double deltaTime )
 				velocity.y = std::min( velocity.y, jumpData.release );
 
 			// Wall Cling
-			if( wallClingData.isClinging )
-			{
+			if( wallClingData.isClinging ) {
 				double friction = wallClingData.multiplier * abs( velocity.y ) * deltaTime;
 				friction = std::clamp( friction, wallClingData.min * deltaTime, wallClingData.max * deltaTime );
 				if( abs( velocity.y ) < friction )
@@ -115,11 +108,9 @@ void Player::onProcessCollisions()
 	// Check if we're supposed to collide with platforms
 
 	bool collision = false;
-	for( ObjectPtr platform : platforms )
-	{
+	for( ObjectPtr platform : platforms ) {
 		Collision::CollisionResult result = isColliding( platform );
-		if( result.success )
-		{
+		if( result.success ) {
 			collision = true;
 			break;
 		}
@@ -137,23 +128,20 @@ void Player::onProcessCollisions()
 
 //--------------------------------------------------------------------------------
 
-void Player::onRender()
-{
+void Player::onRender() {
 	RigidRect::render();
 }
 
 //--------------------------------------------------------------------------------
 
-void Player::onDestroy()
-{
+void Player::onDestroy() {
 	Observer::removeObserver( m_keyPressObserver );
 	Observer::removeObserver( m_keyReleaseObserver );
 }
 
 //--------------------------------------------------------------------------------
 
-void Player::onCreateObservers()
-{
+void Player::onCreateObservers() {
 	using namespace std::placeholders;
 
 	m_keyPressObserver = Observer::addObserver( ObserverType::KeyPress, KeyCallback( std::bind( &Player::onKeyboardPress, this, _1 ) ) );
@@ -162,8 +150,7 @@ void Player::onCreateObservers()
 
 //--------------------------------------------------------------------------------
 
-void Player::onKeyboardPress( int key )
-{
+void Player::onKeyboardPress( int key ) {
 	const KeyCode keyCode = static_cast< KeyCode >( key );
 	if( keyCode == KeyCode::Space )
 		jump();
@@ -173,8 +160,7 @@ void Player::onKeyboardPress( int key )
 
 //--------------------------------------------------------------------------------
 
-void Player::onKeyboardRelease( int key )
-{
+void Player::onKeyboardRelease( int key ) {
 	const KeyCode keyCode = static_cast< KeyCode >( key );
 	if( keyCode == KeyCode::Space )
 		jumpData.wait = false;
@@ -184,22 +170,19 @@ void Player::onKeyboardRelease( int key )
 
 //--------------------------------------------------------------------------------
 
-void Player::onCollision( Collision::CollisionResult result, ObjectPtr target )
-{
+void Player::onCollision( Collision::CollisionResult result, ObjectPtr target ) {
 	// Check for Trap or Wall
 	if( target->getName() == "Trap" )
 		return kill();
 	if( target->getName() == "Platform" )
 		jumpData.canJumpDown = true;
 
-	if( result.normal.y == 1.0 )
-	{
+	if( result.normal.y == 1.0 ) {
 		jumpData.canJump = true;
 		doubleJumpData.canDoubleJump = true;
 	}
 
-	if( result.normal.x )
-	{
+	if( result.normal.x ) {
 		wallClingData.isClinging = true;
 		wallJumpData.normal = result.normal.x;
 	}
@@ -214,20 +197,16 @@ void Player::jump()
 	if( jumpData.wait )
 		return;
 
-	if( jumpData.canJump )
-	{
+	if( jumpData.canJump ) {
 		if( jumpData.canJumpDown && System::getKeyState( KeyCode::s ) )
 			jumpData.isJumpingDown = true;
-		else
-		{
+		else {
 			velocity.y = jumpData.power;
 			jumpData.canJump = false;
 		}
 	}
-	else if( doubleJumpData.canDoubleJump )
-	{
-		if( wallClingData.isClinging )
-		{
+	else if( doubleJumpData.canDoubleJump ) {
+		if( wallClingData.isClinging ) {
 			velocity = wallJumpData.direction * wallJumpData.power;
 			velocity.x *= wallJumpData.normal;
 		}
@@ -242,8 +221,7 @@ void Player::jump()
 
 //--------------------------------------------------------------------------------
 
-void Player::dash()
-{
+void Player::dash() {
 	if( dashData.wait )
 		return;
 
@@ -286,8 +264,7 @@ void Player::dash()
 
 //--------------------------------------------------------------------------------
 
-void Player::kill()
-{
+void Player::kill() {
 	System::getWorld()->reset();
 }
 

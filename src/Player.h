@@ -9,8 +9,7 @@
 
 //================================================================================
 
-class Player : public RigidRect
-{
+class Player : public RigidRect {
 public:
 	Player();
 	Player( Vec2 pos );

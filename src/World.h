@@ -9,8 +9,7 @@
 
 //================================================================================
 
-class World : public Object
-{
+class World : public Object {
 public:
 	World();
 

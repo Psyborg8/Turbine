@@ -12,13 +12,11 @@ class World;
 
 //================================================================================
 
-namespace System
-{
+namespace System {
 
 //================================================================================
 
-struct SystemInfo
-{
+struct SystemInfo {
 	int width{ 800 };
 	int height{ 450 };
 };

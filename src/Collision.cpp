@@ -8,8 +8,7 @@
 
 //================================================================================
 
-namespace Collision
-{
+namespace Collision {
 
 //================================================================================
 
@@ -17,8 +16,7 @@ bool staticRectCollision( Rect rectA, Rect rectB );
 
 //================================================================================
 
-bool collision( Vec2 point, Rect rect )
-{
+bool collision( Vec2 point, Rect rect ) {
 	return ( point.x >= rect.position.x ) &&
 		( point.x <= rect.position.x + rect.size.x ) &&
 		( point.y >= rect.position.y ) &&
@@ -27,8 +25,7 @@ bool collision( Vec2 point, Rect rect )
 
 //--------------------------------------------------------------------------------
 
-CollisionResult collision( Ray ray, Rect rect )
-{
+CollisionResult collision( Ray ray, Rect rect ) {
 	CollisionResult out;
 	out.success = false;
 
@@ -83,8 +80,7 @@ CollisionResult collision( Ray ray, Rect rect )
 
 //--------------------------------------------------------------------------------
 
-CollisionResult collision( Rect* rectA, Rect* rectB )
-{
+CollisionResult collision( Rect* rectA, Rect* rectB ) {
 	CollisionResult out;
 	out.success = false;
 
@@ -100,8 +96,7 @@ CollisionResult collision( Rect* rectA, Rect* rectB )
 	d = rectA->velocity.length() > 0.0 ? rectA : rectB;
 	s = rectA->velocity.length() == 0.0 ? rectA : rectB;
 
-	if( s == d )
-	{
+	if( s == d ) {
 		// Static collision
 		out.success = staticRectCollision( *rectA, *rectB );
 		return out;
@@ -118,8 +113,8 @@ CollisionResult collision( Rect* rectA, Rect* rectB )
 	rayCollider.end = rayCollider.start + ( d->velocity * System::getDeltaTime() );
 
 	out = collision( rayCollider, e );
-	if( out.success )
-	{
+	if( out.success ) {
+
 		out.success = false;
 		if( out.normal.x > 0.0 )
 			if( d->position.x == s->position.x + s->size.x )
@@ -154,8 +149,7 @@ CollisionResult collision( Rect* rectA, Rect* rectB )
 
 //--------------------------------------------------------------------------------
 
-void resolveCollision( CollisionResult result )
-{
+void resolveCollision( CollisionResult result ) {
 	// There was no collision
 	if( !result.success )
 		return;
@@ -172,8 +166,7 @@ void resolveCollision( CollisionResult result )
 
 //================================================================================
 
-bool staticRectCollision( Rect rectA, Rect rectB )
-{
+bool staticRectCollision( Rect rectA, Rect rectB ) {
 	bool out = true;
 
 	const Vec2 midPointA = rectA.position + ( rectA.size / 2.0 );

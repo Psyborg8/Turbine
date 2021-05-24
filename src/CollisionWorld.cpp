@@ -8,8 +8,7 @@
 
 //================================================================================
 
-void CollisionWorld::onSpawnChildren()
-{
+void CollisionWorld::onSpawnChildren() {
 	World::onSpawnChildren();
 
 	m_camera->setDistance( 3.0 );
@@ -42,8 +41,7 @@ void CollisionWorld::onSpawnChildren()
 
 //--------------------------------------------------------------------------------
 
-void CollisionWorld::onUpdate( double deltaTime )
-{
+void CollisionWorld::onUpdate( double deltaTime ) {
 	Vec2 mousePosition = System::getMousePosition();
 	mousePosition = m_camera->screenToWorld( mousePosition );
 
@@ -55,11 +53,9 @@ void CollisionWorld::onUpdate( double deltaTime )
 	m_player.position += m_player.velocity;
 
 	m_lines.clear();
-	for( Gfx::Rect& wall : m_walls )
-	{
+	for( Gfx::Rect& wall : m_walls ) {
 		Collision::CollisionResult result = Collision::collision( &m_player, &wall );
-		if( result.success )
-		{
+		if( result.success ) {
 			wall.fillColor = Colors::YELLOW;
 
 			Gfx::Line distance;
@@ -83,8 +79,7 @@ void CollisionWorld::onUpdate( double deltaTime )
 
 //--------------------------------------------------------------------------------
 
-void CollisionWorld::onRender()
-{
+void CollisionWorld::onRender() {
 	for( Gfx::Rect wall : m_walls )
 		wall.render();
 

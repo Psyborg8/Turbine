@@ -12,15 +12,13 @@
 
 //================================================================================
 
-Camera::Camera() : m_distance( Vec2( 0.0, 1.0 ) ), m_position( Vec2() )
-{
+Camera::Camera() : m_distance( Vec2( 0.0, 1.0 ) ), m_position( Vec2() ) {
 	calculate();
 }
 
 //--------------------------------------------------------------------------------
 
-Vec2 Camera::screenToWorld( Vec2 screenPosition )
-{
+Vec2 Camera::screenToWorld( Vec2 screenPosition ) {
 	Vec2 out;
 
 	out.x = m_position.x + ( m_distance.x * screenPosition.x );
@@ -31,8 +29,7 @@ Vec2 Camera::screenToWorld( Vec2 screenPosition )
 
 //--------------------------------------------------------------------------------
 
-Vec2 Camera::worldToScreen( Vec2 worldPosition )
-{
+Vec2 Camera::worldToScreen( Vec2 worldPosition ) {
 	Vec2 out;
 
 	out.x = ( worldPosition.x - m_position.x ) / m_distance.x;
@@ -43,8 +40,7 @@ Vec2 Camera::worldToScreen( Vec2 worldPosition )
 
 //--------------------------------------------------------------------------------
 
-void Camera::calculate()
-{
+void Camera::calculate() {
 	GLdouble left, right, top, bottom;
 
 	System::SystemInfo systemInfo = System::getSystemInfo();

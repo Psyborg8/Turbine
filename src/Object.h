@@ -13,8 +13,7 @@ using ObjectPtr = shared_ptr< Object >;
 
 //================================================================================
 
-class Object : public std::enable_shared_from_this< Object >
-{
+class Object : public std::enable_shared_from_this< Object > {
 public:
 	Object() : m_name( "" ), m_parent( nullptr ) {};
 	Object( string name ) : m_name( name ), m_parent( nullptr ) {};
@@ -72,13 +71,11 @@ protected:
 public:
 	// Create an object and store it in the global objects array for event processing
 	template< class T >
-	inline static shared_ptr< T > makeObject( Object* parent )
-	{
+	inline static shared_ptr< T > makeObject( Object* parent ) {
 		shared_ptr< T > ptr = std::make_shared< T >( T() );
 
 		ObjectPtr ptrObj = std::dynamic_pointer_cast< Object >( ptr );
-		if( ptrObj != nullptr )
-		{
+		if( ptrObj != nullptr ) {
 			ptrObj->setParent( parent );
 			ptrObj->onCreateObservers();
 			ptrObj->onSpawnChildren();
@@ -92,21 +89,17 @@ public:
 	//--------------------------------------------------------------------------------
 
 	// Mark an objects to be destroyed
-	inline static void destroyObject( ObjectPtr object )
-	{
+	inline static void destroyObject( ObjectPtr object ) {
 		s_markedForDeletion.push_back( object );
 	}
 
 	//--------------------------------------------------------------------------------
 
 	// Clean up deleted objects
-	inline static void cleanupObjects()
-	{
-		for( ObjectPtr marked : s_markedForDeletion )
-		{
+	inline static void cleanupObjects() {
+		for( ObjectPtr marked : s_markedForDeletion ) {
 			vector< ObjectPtr >::iterator it = find( s_objects.begin(), s_objects.end(), marked );
-			if( it != s_objects.end() )
-			{
+			if( it != s_objects.end() ) {
 				(*it)->onDestroy();
 				s_objects.erase( it );
 			}
@@ -129,16 +122,14 @@ public:
 
 		vector< ObjectPtr > out;
 
-		for( const ObjectPtr object : s_objects )
-		{
+		for( const ObjectPtr object : s_objects ) {
 			// Check name first cause it's the fastest
 			if( name != "" )
 				if( object->getName() != name )
 					continue;
 
 			// Check the parent
-			if( parent != nullptr )
-			{
+			if( parent != nullptr ) {
 				if( object->getParent() != parent.get() )
 					continue;
 			}
@@ -147,11 +138,9 @@ public:
 		}
 
 		// If the parent exists and is correct, look recursively for more
-		if( recursive && parent != nullptr )
-		{
+		if( recursive && parent != nullptr ) {
 			vector< ObjectPtr > temp = out;
-			for( ObjectPtr object : temp )
-			{
+			for( ObjectPtr object : temp ) {
 				vector< ObjectPtr > children = getObjects( object, name, true, false );
 				out.insert( out.end(), children.begin(), children.end() );
 			}
@@ -175,8 +164,7 @@ public:
 	{
 		vector< shared_ptr< T > > out;
 
-		for( const ObjectPtr object : s_objects )
-		{
+		for( const ObjectPtr object : s_objects ) {
 			// Check name first cause it's the fastest
 			if( name != "" )
 				if( object->getName() != name )
@@ -196,11 +184,9 @@ public:
 		}
 
 		// If the parent exists and is correct, look recursively for more
-		if( recursive && parent != nullptr )
-		{
+		if( recursive && parent != nullptr ) {
 			vector< shared_ptr< T > > temp = out;
-			for( shared_ptr< T > object : temp )
-			{
+			for( shared_ptr< T > object : temp ) {
 				shared_ptr< Object > ptr = std::dynamic_pointer_cast< Object >( object );
 				if( ptr == nullptr )
 					continue;
@@ -210,8 +196,7 @@ public:
 			}
 		}
 
-		if( inclusive )
-		{
+		if( inclusive ) {
 			shared_ptr< T > ptr = std::dynamic_pointer_cast< T >( parent );
 			if( ptr != nullptr )
 				out.insert( out.begin(), ptr );

@@ -5,8 +5,7 @@
 //================================================================================
 
 template < class T >
-class RandomNumbers : public stack< T >
-{
+class RandomNumbers : public stack< T > {
 public:
 	inline RandomNumbers() : stack< T >() {}
 
@@ -16,8 +15,7 @@ public:
 
 //================================================================================
 
-class Random
-{
+class Random {
 public:
 	Random();
 	Random( unsigned int seed );

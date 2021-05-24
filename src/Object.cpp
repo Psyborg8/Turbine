@@ -4,8 +4,7 @@
 
 //================================================================================
 
-void Object::onDestroy()
-{
+void Object::onDestroy() {
 	vector< ObjectPtr > objects = getObjects( shared_from_this(), "" );
 	for( ObjectPtr object : objects )
 		object->destroy();
@@ -14,10 +13,8 @@ void Object::onDestroy()
 
 //--------------------------------------------------------------------------------
 
-void Object::processCollisions( vector< ObjectPtr > targets )
-{
-	for( ObjectPtr target : targets )
-	{
+void Object::processCollisions( vector< ObjectPtr > targets ) {
+	for( ObjectPtr target : targets ) {
 		const Collision::CollisionResult result = isColliding( target );
 		if( result.success )
 			target->onCollision( result, target );
@@ -26,14 +23,12 @@ void Object::processCollisions( vector< ObjectPtr > targets )
 
 //--------------------------------------------------------------------------------
 
-void Object::resolveCollisions( vector< ObjectPtr > targets, bool notify )
-{
+void Object::resolveCollisions( vector< ObjectPtr > targets, bool notify ) {
 	using collisionPair = pair< ObjectPtr, Collision::CollisionResult >;
 
 	// Broad Phase
 	vector < collisionPair > results;
-	for( ObjectPtr target : targets )
-	{
+	for( ObjectPtr target : targets ) {
 		Collision::CollisionResult result = isColliding( target );
 		if( result.success )
 			results.push_back( make_pair( target, result ) );
@@ -46,17 +41,14 @@ void Object::resolveCollisions( vector< ObjectPtr > targets, bool notify )
 			   } );
 
 	// Narrow Phase
-	for( pair< ObjectPtr, Collision::CollisionResult > collision : results )
-	{
+	for( pair< ObjectPtr, Collision::CollisionResult > collision : results ) {
 		// Check again, in case a previous resolution means we aren't colliding anymore
 		const Collision::CollisionResult result = isColliding( collision.first );
-		if( result.success )
-		{
+		if( result.success ) {
 			// Resolve the collision
 			Collision::resolveCollision( result );
 
-			if( notify )
-			{
+			if( notify ) {
 				// Notify both targets
 				onCollision( result, collision.first );
 				collision.first->onCollision( result, shared_from_this() );

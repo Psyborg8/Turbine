@@ -87,13 +87,7 @@
     <ClCompile Include="src\Collision.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rect.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\RigidRect.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Line.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\CollisionWorld.cpp">
@@ -154,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="src\CollisionWorld.h">
       <Filter>Game\Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Checkpoint.h">
+      <Filter>Game\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

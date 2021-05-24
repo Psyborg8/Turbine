@@ -10,8 +10,7 @@
 
 //================================================================================
 
-class CollisionWorld : public World
-{
+class CollisionWorld : public World {
 public:
 	CollisionWorld() : World() {}
 

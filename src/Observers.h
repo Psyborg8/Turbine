@@ -4,8 +4,7 @@
 
 //================================================================================
 
-enum class ObserverType
-{
+enum class ObserverType {
 	KeyPress, // KeyCallback
 	KeyRelease, // KeyCallback
 
@@ -20,24 +19,20 @@ enum class ObserverType
 
 //--------------------------------------------------------------------------------
 
-struct ObserverID
-{
+struct ObserverID {
 	chronoClockPoint timeStamp;
 	ObserverType type;
 	int ID;
 
-	bool operator==( const ObserverID& rh )
-	{
+	bool operator==( const ObserverID& rh ) {
 		return ID == rh.ID && timeStamp == rh.timeStamp;
 	}
 
-	explicit operator bool() const
-	{
+	explicit operator bool() const {
 		return ID != -1;
 	}
 
-	void reset()
-	{
+	void reset() {
 		ID = -1;
 	}
 
@@ -47,8 +42,7 @@ struct ObserverID
 
 //================================================================================
 
-namespace Observer
-{
+namespace Observer {
 
 //================================================================================
 

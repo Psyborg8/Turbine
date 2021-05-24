@@ -16,7 +16,7 @@ bool staticRectCollision( Rect rectA, Rect rectB );
 
 //================================================================================
 
-bool collision( Vec2 point, Rect rect ) {
+bool collision( Math::Vec2 point, Rect rect ) {
 	return ( point.x >= rect.position.x ) &&
 		( point.x <= rect.position.x + rect.size.x ) &&
 		( point.y >= rect.position.y ) &&
@@ -30,11 +30,11 @@ CollisionResult collision( Ray ray, Rect rect ) {
 	out.success = false;
 
 	// Calculate inverse 
-	Vec2 inverseDirection = ray.direction().inverse();
+	Math::Vec2 inverseDirection = ray.direction().inverse();
 
 	// Find near and far collisions
-	Vec2 tNear = ( rect.position - ray.start ) * inverseDirection;
-	Vec2 tFar = ( rect.position + rect.size - ray.start ) * inverseDirection ;
+	Math::Vec2 tNear = ( rect.position - ray.start ) * inverseDirection;
+	Math::Vec2 tFar = ( rect.position + rect.size - ray.start ) * inverseDirection ;
 
 	if( std::isnan( tFar.y ) || std::isnan( tFar.x ) )
 		return out;
@@ -69,9 +69,9 @@ CollisionResult collision( Ray ray, Rect rect ) {
 
 	// Find normal
 	if( tNear.x > tNear.y )
-		out.normal = inverseDirection.x < 0.0 ? Vec2{ 1, 0 } : Vec2{ -1, 0 };
+		out.normal = inverseDirection.x < 0.0 ? Math::Vec2{ 1, 0 } : Math::Vec2{ -1, 0 };
 	else
-		out.normal = inverseDirection.y < 0.0 ? Vec2{ 0, 1 } : Vec2{ 0, -1 };
+		out.normal = inverseDirection.y < 0.0 ? Math::Vec2{ 0, 1 } : Math::Vec2{ 0, -1 };
 
 	out.success = true;
 
@@ -132,7 +132,7 @@ CollisionResult collision( Rect* rectA, Rect* rectB ) {
 		out.success = true;
 
 		// Set point and distance data
-		Vec2 distance = out.point - e.midpoint();
+		Math::Vec2 distance = out.point - e.midpoint();
 		distance = ( distance / e.size ) * s->size;
 		out.point = e.midpoint() + distance;
 
@@ -169,9 +169,9 @@ void resolveCollision( CollisionResult result ) {
 bool staticRectCollision( Rect rectA, Rect rectB ) {
 	bool out = true;
 
-	const Vec2 midPointA = rectA.position + ( rectA.size / 2.0 );
+	const Math::Vec2 midPointA = rectA.position + ( rectA.size / 2.0 );
 
-	const Vec2 midPointB = rectB.position + ( rectB.size / 2.0 );
+	const Math::Vec2 midPointB = rectB.position + ( rectB.size / 2.0 );
 
 	out &= abs( midPointA.x - midPointB.x ) < ( rectA.size.x / 2.0 ) + ( rectB.size.x / 2.0 );
 	out &= abs( midPointA.y - midPointB.y ) < ( rectA.size.y / 2.0 ) + ( rectB.size.y / 2.0 );

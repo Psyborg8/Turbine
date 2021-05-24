@@ -8,6 +8,10 @@
 
 //================================================================================
 
+namespace Worlds {
+
+//================================================================================
+
 enum class BlockType {
 	None,
 	Wall,
@@ -28,7 +32,7 @@ class GridWorld : public World {
 public:
 	GridWorld();
 
-// Events
+	// Events
 public:
 	virtual void onSpawnChildren() override;
 	virtual void onUpdate( double deltaTime ) override;
@@ -38,12 +42,16 @@ public:
 	void loadWorld( WorldData data );
 	void unloadWorld();
 
-// Variables
+	// Variables
 protected:
 	double m_cameraMoveMultiplier{ 6.0 };
 
-	Vec2 m_playerStart{ 0.0, 0.0 };
-	size_t m_checkpoints{ 0 };
+	Math::Vec2 m_playerStart{ 0.0, 0.0 };
+	size_t m_checkpoints{ 0u };
 };
+
+//================================================================================
+
+} // Worlds
 
 //================================================================================

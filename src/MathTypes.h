@@ -4,6 +4,10 @@
 
 //================================================================================
 
+namespace Math {
+
+//================================================================================
+
 struct Color {
 	float r;
 	float g;
@@ -24,25 +28,32 @@ struct Color {
 	Color& operator+=( const Color& rh );
 	Color operator-( const Color& rh ) const;
 	Color& operator-=( const Color& rh );
-	
+
 	Color operator*( const float& ) const;
 	Color operator/( const float& ) const;
 };
 
-//--------------------------------------------------------------------------------
+//================================================================================
 
+} // Math
 namespace Colors {
 
-static const Color WHITE = Color( 1.0f, 1.0f, 1.0f, 1.0f );
-static const Color BLACK = Color( 0.0f, 0.0f, 0.0f, 1.0f );
-static const Color RED = Color( 1.0f, 0.0f, 0.0f, 1.0f );
-static const Color GREEN = Color( 0.0f, 1.0f, 0.0f, 1.0f );
-static const Color BLUE = Color( 0.0f, 0.0f, 1.0f, 1.0f );
-static const Color CYAN = Color( 0.0f, 1.0f, 1.0f, 1.0f );
-static const Color MAGENTA = Color( 1.0f, 0.0f, 1.0f, 1.0f );
-static const Color YELLOW = Color( 1.0f, 1.0f, 0.0f, 1.0f );
+//================================================================================
+
+static const Math::Color WHITE{ 1.0f, 1.0f, 1.0f, 1.0f };
+static const Math::Color BLACK{ 0.0f, 0.0f, 0.0f, 1.0f };
+static const Math::Color RED{ 1.0f, 0.0f, 0.0f, 1.0f };
+static const Math::Color GREEN{ 0.0f, 1.0f, 0.0f, 1.0f };
+static const Math::Color BLUE{ 0.0f, 0.0f, 1.0f, 1.0f };
+static const Math::Color CYAN{ 0.0f, 1.0f, 1.0f, 1.0f };
+static const Math::Color MAGENTA{ 1.0f, 0.0f, 1.0f, 1.0f };
+static const Math::Color YELLOW{ 1.0f, 1.0f, 0.0f, 1.0f };
 
 }
+
+//================================================================================
+
+namespace Math {
 
 //================================================================================
 
@@ -77,5 +88,9 @@ struct Vec2 {
 	Vec2 operator/( const double& rh ) const;
 	Vec2& operator/=( const double& rh );
 };
+
+//================================================================================
+
+} // Math
 
 //================================================================================

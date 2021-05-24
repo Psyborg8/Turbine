@@ -8,6 +8,10 @@
 
 //================================================================================
 
+namespace Worlds {
+
+//================================================================================
+
 void CollisionWorld::onSpawnChildren() {
 	World::onSpawnChildren();
 
@@ -15,26 +19,26 @@ void CollisionWorld::onSpawnChildren() {
 
 	{
 		Gfx::Rect wall;
-		wall.position = Vec2( -1.0, -1.0 );
-		wall.size = Vec2( 0.5, 0.5 );
+		wall.position = Math::Vec2( -1.0, -1.0 );
+		wall.size = Math::Vec2( 0.5, 0.5 );
 		m_walls.push_back( wall );
 	}
 	{
 		Gfx::Rect wall;
-		wall.position = Vec2( -1.5, 1.0 );
-		wall.size = Vec2( 2.5, 0.5 );
+		wall.position = Math::Vec2( -1.5, 1.0 );
+		wall.size = Math::Vec2( 2.5, 0.5 );
 		m_walls.push_back( wall );
 	}
 	{
 		Gfx::Rect wall;
-		wall.position = Vec2( 1.0, -1.0 );
-		wall.size = Vec2( 1.0, 1.0 );
+		wall.position = Math::Vec2( 1.0, -1.0 );
+		wall.size = Math::Vec2( 1.0, 1.0 );
 		m_walls.push_back( wall );
 	}
 	{
 		Gfx::Rect player;
-		player.position = Vec2();
-		player.size = Vec2( 0.5, 1.0 );
+		player.position = Math::Vec2();
+		player.size = Math::Vec2( 0.5, 1.0 );
 		m_player = player;
 	}
 }
@@ -42,10 +46,10 @@ void CollisionWorld::onSpawnChildren() {
 //--------------------------------------------------------------------------------
 
 void CollisionWorld::onUpdate( double deltaTime ) {
-	Vec2 mousePosition = System::getMousePosition();
+	Math::Vec2 mousePosition = System::getMousePosition();
 	mousePosition = m_camera->screenToWorld( mousePosition );
 
-	Vec2 diff = mousePosition - m_player.midpoint();
+	Math::Vec2 diff = mousePosition - m_player.midpoint();
 	diff = diff.normalize() * 0.05 * deltaTime;
 
 	m_player.velocity += diff;
@@ -89,4 +93,8 @@ void CollisionWorld::onRender() {
 		line.render();
 }
 
-//--------------------------------------------------------------------------------
+//================================================================================
+
+} // Worlds
+
+//================================================================================

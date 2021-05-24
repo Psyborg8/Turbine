@@ -14,6 +14,7 @@
 #include "GridWorld.h"
 
 // Objects
+#include "Object.h"
 #include "RigidRect.h"
 
 //================================================================================
@@ -32,10 +33,10 @@ void update();
 
 //--------------------------------------------------------------------------------
 
-shared_ptr< World > world;
+shared_ptr< Worlds::World > world;
 
 std::unordered_map< KeyCode, bool > keyMap;
-Vec2 mousePosition;
+Math::Vec2 mousePosition;
 double deltaTime;
 
 //--------------------------------------------------------------------------------
@@ -46,8 +47,6 @@ chronoClockPoint lastFrameTime;
 chronoClockPoint lastRenderTime;
 chronoClockPoint startTime;
 
-unique_ptr< Random > randomGen;
-
 bool shouldExit{ false };
 
 //================================================================================
@@ -56,8 +55,7 @@ bool shouldExit{ false };
 
 //================================================================================
 
-bool init( int argc, char** argv )
-{
+bool init( int argc, char** argv ) {
 	// Init glut
 	glutInit( &argc, argv );
 	glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH );
@@ -71,9 +69,7 @@ bool init( int argc, char** argv )
 
 	// Init glew
 	if( GLEW_OK != glewInit() )
-	{
 		return false;
-	}
 
 	// Flush errors
 	while( GL_NO_ERROR != glGetError() );
@@ -82,35 +78,34 @@ bool init( int argc, char** argv )
 	glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 
 	// Init timers
-	Timer::init();
+	Timers::init();
 
 	// Init observers
-	Observer::initObservers();
+	Observers::initObservers();
 
 	// Add System observers
-	Observer::addObserver( ObserverType::KeyPress, KeyCallback( onKeyPress ) );
-	Observer::addObserver( ObserverType::KeyRelease, KeyCallback( onKeyRelease ) );
-	Observer::addObserver( ObserverType::WindowResize, Vec2Callback( onWindowResize ) );
-	Observer::addObserver( ObserverType::MouseMove, AxisCallback( onMouseMove ) );
+	Observers::addObserver( Observers::ObserverType::KeyPress, KeyCallback( onKeyPress ) );
+	Observers::addObserver( Observers::ObserverType::KeyRelease, KeyCallback( onKeyRelease ) );
+	Observers::addObserver( Observers::ObserverType::WindowResize, Vec2Callback( onWindowResize ) );
+	Observers::addObserver( Observers::ObserverType::MouseMove, AxisCallback( onMouseMove ) );
 
 	// Init random number generator
 	startTime = high_resolution_clock::now();
 	long long seed = startTime.time_since_epoch().count();
-	randomGen = make_unique< Random >( static_cast< unsigned int >( seed ) );
+	Random::setSeed( uint16_t( seed ) );
 
 	return true;
 }
 
 //--------------------------------------------------------------------------------
 
-int start()
-{
+int start() {
 	// world = Object::makeObject< CollisionWorld >( nullptr );
-	world = Object::makeObject< GridWorld >( nullptr );
+	world = Game::Object::makeObject< Worlds::GridWorld >( nullptr );
 	
-	vector< ObjectPtr > objects = Object::getObjects( getWorld(), "", true, true );
-
-	for( ObjectPtr object : objects )
+	vector< shared_ptr< Game::Object > > objects = Game::Object::getObjects( getWorld(), "", true, true );
+	
+	for( shared_ptr< Game::Object > object : objects )
 		object->onStart();
 
 	lastFrameTime = high_resolution_clock::now();
@@ -123,44 +118,38 @@ int start()
 
 //--------------------------------------------------------------------------------
 
-void exit()
-{
+void exit() {
 	shouldExit = true;
 }
 
 //--------------------------------------------------------------------------------
 
-SystemInfo getSystemInfo()
-{
+SystemInfo getSystemInfo() {
 	return systemInfo;
 }
 
 //--------------------------------------------------------------------------------
 
-shared_ptr< World > getWorld()
-{
+shared_ptr< Worlds::World > getWorld() {
 	return world;
 }
 
 //--------------------------------------------------------------------------------
 
-bool getKeyState( KeyCode key )
-{
+bool getKeyState( KeyCode key ) {
 	keyMap.try_emplace( key, false ); // Default to false if the value doesn't exist yet.
 	return keyMap[ key ];
 }
 
 //--------------------------------------------------------------------------------
 
-Vec2 getMousePosition()
-{
+Math::Vec2 getMousePosition() {
 	return mousePosition;
 }
 
 //--------------------------------------------------------------------------------
 
-double getDeltaTime()
-{
+double getDeltaTime() {
 	return deltaTime;
 }
 
@@ -170,8 +159,7 @@ double getDeltaTime()
 
 //================================================================================
 
-void update()
-{
+void update() {
 	// Get delta time
 	chronoClockPoint now = high_resolution_clock::now();
 	milliseconds msDeltaTime = duration_cast< milliseconds >( now - lastFrameTime );
@@ -185,20 +173,20 @@ void update()
 	deltaTime = dt;
 
 	// Update timers
-	Timer::update();
+	Timers::update();
 
 	// Update the current world
-	vector< ObjectPtr > objects = Object::getObjects( getWorld(), "", true, true );
+	vector< shared_ptr< Game::Object > > objects = Game::Object::getObjects( getWorld(), "", true, true );
 
-	for( ObjectPtr object : objects )
+	for( shared_ptr< Game::Object > object : objects )
 		object->onUpdate( dt );
-	for( ObjectPtr object : objects )
+	for( shared_ptr< Game::Object > object : objects )
 		object->onProcessCollisions();
-	for( ObjectPtr object : objects )
+	for( shared_ptr< Game::Object > object : objects )
 		object->onPostUpdate( dt );
 
 	// Cleanup
-	Object::cleanupObjects();
+	Game::Object::cleanupObjects();
 
 	// Store new frame time
 	lastFrameTime = now;
@@ -207,9 +195,9 @@ void update()
 	glClearColor( 0.05f, 0.1f, 0.1f, 1.0f );
 	glClear( GL_COLOR_BUFFER_BIT );
 
-	for( ObjectPtr object : objects )
+	for( shared_ptr< Game::Object > object : objects )
 		object->onRender();
-	for( ObjectPtr object : objects )
+	for( shared_ptr< Game::Object > object : objects )
 		object->onPostRender();
 
 	glutSwapBuffers();
@@ -218,29 +206,24 @@ void update()
 
 //--------------------------------------------------------------------------------
 
-void onKeyPress( int key )
-{
+void onKeyPress( int key ) {
 	const KeyCode keyCode = static_cast< KeyCode >( key );
 	keyMap[ keyCode ] = true;
 
 	if( keyCode == KeyCode::Escape )
-	{
 		exit();
-	}
 }
 
 //--------------------------------------------------------------------------------
 
-void onKeyRelease( int key )
-{
+void onKeyRelease( int key ) {
 	const KeyCode keyCode = static_cast< KeyCode >( key );
 	keyMap[ keyCode ] = false;
 }
 
 //--------------------------------------------------------------------------------
 
-void onWindowResize( int width, int height )
-{
+void onWindowResize( int width, int height ) {
 	systemInfo.height = height;
 	systemInfo.width = width;
 
@@ -251,9 +234,8 @@ void onWindowResize( int width, int height )
 
 //--------------------------------------------------------------------------------
 
-void onMouseMove( float x, float y )
-{
-	mousePosition = Vec2( static_cast< double >( x ), static_cast< double >( y ) );
+void onMouseMove( float x, float y ) {
+	mousePosition = Math::Vec2( static_cast< double >( x ), static_cast< double >( y ) );
 }
 
 //================================================================================

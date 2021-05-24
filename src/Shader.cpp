@@ -5,6 +5,10 @@
 
 //================================================================================
 
+namespace Gfx {
+
+//================================================================================
+
 Shader::Shader() : m_type( ShaderType::Vertex ), m_name( "" ) {
 	//
 }
@@ -12,7 +16,7 @@ Shader::Shader() : m_type( ShaderType::Vertex ), m_name( "" ) {
 //--------------------------------------------------------------------------------
 
 Shader::Shader( ShaderType type, string name ) : m_type( type ), m_name( name ) {
-	
+
 	m_path = findPath();
 	load();
 }
@@ -25,7 +29,7 @@ void Shader::load() {
 
 	if( file.is_open() ) {
 		std::streampos size;
-		char * memblock;
+		char* memblock;
 
 		size = file.tellg();
 		memblock = new char[ size ];
@@ -56,7 +60,7 @@ void Shader::load() {
 
 	const char* data = m_data.c_str();
 	glShaderSource( m_glShader, 1, &data, NULL );
-		
+
 	glCompileShader( m_glShader );
 
 	GLint success;
@@ -135,10 +139,10 @@ const Shader& Shader::getGlobalShader( ShaderType type ) {
 
 const Shader& Shader::getShader( ShaderType type, string name )
 {
-	const auto it = std::find_if( s_shaders.begin(), s_shaders.end(), 
-		[ type, name ]( shared_ptr< Shader > shader ) { 
-			return shader->getType() == type && shader->getName() == name;
-		} 
+	const auto it = std::find_if( s_shaders.begin(), s_shaders.end(),
+								  [type, name]( shared_ptr< Shader > shader ) {
+									  return shader->getType() == type && shader->getName() == name;
+								  }
 	);
 
 	if( it != s_shaders.end() )
@@ -157,7 +161,7 @@ void Shader::setGlobal( ShaderType type, string name )
 	Shader s = getShader( type, name );
 	if( name != s.getName() )
 		return;
-	
+
 	s_global.at( type ) = std::make_unique< Shader >( s );
 }
 
@@ -166,5 +170,9 @@ void Shader::setGlobal( ShaderType type, string name )
 vector< shared_ptr< Shader > > Shader::s_shaders;
 
 unordered_map< ShaderType, shared_ptr< Shader > > Shader::s_global;
+
+//================================================================================
+
+} // Gfx
 
 //================================================================================

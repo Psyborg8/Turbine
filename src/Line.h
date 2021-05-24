@@ -14,7 +14,7 @@ namespace Gfx {
 //================================================================================
 
 struct Line : public Collision::Ray {
-	Color color = Colors::WHITE;
+	Math::Color color = Colors::WHITE;
 	float weight = 3.0f;
 
 	//--------------------------------------------------------------------------------

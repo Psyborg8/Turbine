@@ -5,10 +5,7 @@
 //================================================================================
 
 #include "MathTypes.h"
-
-//================================================================================
-
-class World;
+#include "World.h"
 
 //================================================================================
 
@@ -31,11 +28,11 @@ void exit();
 
 SystemInfo getSystemInfo();
 
-shared_ptr< World > getWorld();
+shared_ptr< Worlds::World > getWorld();
 
 bool getKeyState( KeyCode key );
 
-Vec2 getMousePosition();
+Math::Vec2 getMousePosition();
 
 double getDeltaTime();
 

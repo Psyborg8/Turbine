@@ -9,12 +9,16 @@
 
 //================================================================================
 
+namespace Game {
+
+//================================================================================
+
 class Player : public RigidRect {
 public:
 	Player();
-	Player( Vec2 pos );
+	Player( Math::Vec2 pos );
 
-// Events
+	// Events
 public:
 	void onUpdate( double deltaTime ) override;
 	void onProcessCollisions() override;
@@ -25,22 +29,22 @@ public:
 	void onKeyboardPress( int key );
 	void onKeyboardRelease( int key );
 
-	void onCollision( Collision::CollisionResult collision, ObjectPtr target ) override;
+	void onCollision( Collision::CollisionResult collision, shared_ptr< Object > target ) override;
 
-// Methods
+	// Methods
 public:
 	void jump();
 	void dash();
 	void kill();
 
-// Observers
+	// Observers
 private:
-	ObserverID m_keyPressObserver;
-	ObserverID m_keyReleaseObserver;
+	Observers::ObserverID m_keyPressObserver;
+	Observers::ObserverID m_keyReleaseObserver;
 
 	vector< function< void() > > m_renders;
 
-// Attributes
+	// Attributes
 private:
 	struct {
 		const double acceleration{ 20.0 };
@@ -97,9 +101,13 @@ private:
 		double normal{ 0.0 };
 
 		const double power{ 8.0 };
-		const Vec2 direction{ 0.7, 0.3 };
+		const Math::Vec2 direction{ 0.7, 0.3 };
 		const milliseconds duration{ 300 };
 	} wallJumpData;
 };
+
+//================================================================================
+
+} // Game
 
 //================================================================================

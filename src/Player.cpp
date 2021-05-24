@@ -12,13 +12,17 @@
 
 //================================================================================
 
-Player::Player() : Player( Vec2() ) {
+namespace Game {
+
+//================================================================================
+
+Player::Player() : Player( Math::Vec2() ) {
 	//
 }
 
 //--------------------------------------------------------------------------------
 
-Player::Player( Vec2 pos ) : RigidRect( pos, Vec2( 0.15, 0.2 ), Colors::BLUE ) {
+Player::Player( Math::Vec2 pos ) : RigidRect( pos, Math::Vec2( 0.15, 0.2 ), Colors::BLUE ) {
 	setName( "Player" );
 }
 
@@ -26,7 +30,7 @@ Player::Player( Vec2 pos ) : RigidRect( pos, Vec2( 0.15, 0.2 ), Colors::BLUE ) {
 
 void Player::onUpdate( double deltaTime ) {
 	// Ignore physics while dashing
-	if( !dashData.isDashing ){
+	if( !dashData.isDashing ) {
 		// Horizontal
 		{
 			double move = 0.0;
@@ -97,10 +101,10 @@ void Player::onUpdate( double deltaTime ) {
 
 void Player::onProcessCollisions()
 {
-	vector< ObjectPtr > targets;
-	const vector< ObjectPtr > walls	   = getObjects( System::getWorld(), "Wall" );
-	const vector< ObjectPtr > traps     = getObjects( System::getWorld(), "Trap" );
-	const vector< ObjectPtr > platforms = getObjects( System::getWorld(), "Platform" );
+	vector< shared_ptr< Object > > targets;
+	const vector< shared_ptr< Object > > walls = getObjects( System::getWorld(), "Wall" );
+	const vector< shared_ptr< Object > > traps = getObjects( System::getWorld(), "Trap" );
+	const vector< shared_ptr< Object > > platforms = getObjects( System::getWorld(), "Platform" );
 
 	targets.insert( targets.end(), walls.begin(), walls.end() );
 	targets.insert( targets.end(), traps.begin(), traps.end() );
@@ -108,7 +112,7 @@ void Player::onProcessCollisions()
 	// Check if we're supposed to collide with platforms
 
 	bool collision = false;
-	for( ObjectPtr platform : platforms ) {
+	for( shared_ptr< Object > platform : platforms ) {
 		Collision::CollisionResult result = isColliding( platform );
 		if( result.success ) {
 			collision = true;
@@ -135,8 +139,8 @@ void Player::onRender() {
 //--------------------------------------------------------------------------------
 
 void Player::onDestroy() {
-	Observer::removeObserver( m_keyPressObserver );
-	Observer::removeObserver( m_keyReleaseObserver );
+	Observers::removeObserver( m_keyPressObserver );
+	Observers::removeObserver( m_keyReleaseObserver );
 }
 
 //--------------------------------------------------------------------------------
@@ -144,8 +148,8 @@ void Player::onDestroy() {
 void Player::onCreateObservers() {
 	using namespace std::placeholders;
 
-	m_keyPressObserver = Observer::addObserver( ObserverType::KeyPress, KeyCallback( std::bind( &Player::onKeyboardPress, this, _1 ) ) );
-	m_keyReleaseObserver = Observer::addObserver( ObserverType::KeyRelease, KeyCallback( std::bind( &Player::onKeyboardRelease, this, _1 ) ) );
+	m_keyPressObserver = Observers::addObserver( Observers::ObserverType::KeyPress, KeyCallback( std::bind( &Player::onKeyboardPress, this, _1 ) ) );
+	m_keyReleaseObserver = Observers::addObserver( Observers::ObserverType::KeyRelease, KeyCallback( std::bind( &Player::onKeyboardRelease, this, _1 ) ) );
 }
 
 //--------------------------------------------------------------------------------
@@ -170,7 +174,7 @@ void Player::onKeyboardRelease( int key ) {
 
 //--------------------------------------------------------------------------------
 
-void Player::onCollision( Collision::CollisionResult result, ObjectPtr target ) {
+void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object > target ) {
 	// Check for Trap or Wall
 	if( target->getName() == "Trap" )
 		return kill();
@@ -187,7 +191,7 @@ void Player::onCollision( Collision::CollisionResult result, ObjectPtr target ) 
 		wallJumpData.normal = result.normal.x;
 	}
 
-	Timer::triggerTimer( "Dash Timer" );
+	Timers::triggerTimer( "Dash Timer" );
 }
 
 //--------------------------------------------------------------------------------
@@ -230,7 +234,7 @@ void Player::dash() {
 	if( !dashData.canDash )
 		return;
 
-	Vec2 direction;
+	Math::Vec2 direction;
 	if( System::getKeyState( KeyCode::d ) )
 		direction.x += 1.0;
 	if( System::getKeyState( KeyCode::a ) )
@@ -240,7 +244,7 @@ void Player::dash() {
 	if( System::getKeyState( KeyCode::s ) )
 		direction.y -= 1.0;
 
-	if( direction == Vec2() )
+	if( direction == Math::Vec2() )
 		return;
 
 	direction = direction.normalize();
@@ -253,10 +257,10 @@ void Player::dash() {
 	dashData.wait = true;
 	doubleJumpData.canDoubleJump = true;
 
-	Timer::addTimer( "Dash Cooldown", dashData.cooldown, nullptr, [this] { dashData.canDash = true; }, false );
-	Timer::addTimer( "Dash Timer",
+	Timers::addTimer( "Dash Cooldown", dashData.cooldown, nullptr, [this] { dashData.canDash = true; }, false );
+	Timers::addTimer( "Dash Timer",
 					 dashData.duration, nullptr,
-					 [this] { 
+					 [this] {
 						 dashData.isDashing = false;
 						 velocity.y = velocity.y > jumpData.release ? jumpData.release : velocity.y;
 					 }, false );
@@ -267,5 +271,9 @@ void Player::dash() {
 void Player::kill() {
 	System::getWorld()->reset();
 }
+
+//================================================================================
+
+} // Game
 
 //================================================================================

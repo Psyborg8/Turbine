@@ -12,14 +12,18 @@
 
 //================================================================================
 
-Camera::Camera() : m_distance( Vec2( 0.0, 1.0 ) ), m_position( Vec2() ) {
+namespace Gfx {
+
+//================================================================================
+
+Camera::Camera() : m_distance( Math::Vec2( 0.0, 1.0 ) ), m_position( Math::Vec2() ) {
 	calculate();
 }
 
 //--------------------------------------------------------------------------------
 
-Vec2 Camera::screenToWorld( Vec2 screenPosition ) {
-	Vec2 out;
+Math::Vec2 Camera::screenToWorld( Math::Vec2 screenPosition ) {
+	Math::Vec2 out;
 
 	out.x = m_position.x + ( m_distance.x * screenPosition.x );
 	out.y = m_position.y + ( m_distance.y * screenPosition.y );
@@ -29,8 +33,8 @@ Vec2 Camera::screenToWorld( Vec2 screenPosition ) {
 
 //--------------------------------------------------------------------------------
 
-Vec2 Camera::worldToScreen( Vec2 worldPosition ) {
-	Vec2 out;
+Math::Vec2 Camera::worldToScreen( Math::Vec2 worldPosition ) {
+	Math::Vec2 out;
 
 	out.x = ( worldPosition.x - m_position.x ) / m_distance.x;
 	out.y = ( worldPosition.y - m_position.y ) / m_distance.y;
@@ -56,5 +60,9 @@ void Camera::calculate() {
 	gluOrtho2D( left, right, bottom, top );
 	glMatrixMode( GL_MODELVIEW );
 }
+
+//================================================================================
+
+} // Gfx
 
 //================================================================================

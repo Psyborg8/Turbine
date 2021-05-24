@@ -8,20 +8,24 @@
 
 //================================================================================
 
+namespace Game {
+
+//================================================================================
+
 RigidRect::RigidRect() : Gfx::Rect(), Object() {
 	//
 }
 
 //--------------------------------------------------------------------------------
 
-RigidRect::RigidRect( Vec2 _position, Vec2 _size, Color _color = Colors::WHITE ) : Gfx::Rect(), Object() {
+RigidRect::RigidRect( Math::Vec2 _position, Math::Vec2 _size, Math::Color _color = Colors::WHITE ) : Gfx::Rect(), Object() {
 	size = _size;
 	fillColor = _color;
 }
 
 //--------------------------------------------------------------------------------
 
-Collision::CollisionResult RigidRect::isColliding( ObjectPtr target ) {
+Collision::CollisionResult RigidRect::isColliding( shared_ptr< Object > target ) {
 	Collision::CollisionResult out;
 
 	if( target == shared_from_this() )
@@ -40,5 +44,9 @@ Collision::CollisionResult RigidRect::isColliding( ObjectPtr target ) {
 
 	return out;
 }
+
+//================================================================================
+
+} // Game
 
 //================================================================================

@@ -9,7 +9,7 @@
 
 //================================================================================
 
-using ObjectPtr = shared_ptr< Object >;
+namespace Game {
 
 //================================================================================
 
@@ -18,17 +18,17 @@ public:
 	Object() : m_name( "" ), m_parent( nullptr ) {};
 	Object( string name ) : m_name( name ), m_parent( nullptr ) {};
 
-// System
+	// System
 	inline void destroy() { destroyObject( shared_from_this() ); }
 
-// Events
+	// Events
 public:
 	virtual inline void onCreateObservers() {} // Create all observers for object
 	virtual inline void onSpawnChildren() {} // Make all child objects for this object
 	virtual inline void onStart() {} // Called after all objects are spawned
 	virtual inline void onUpdate( double deltaTime ) {} // First update phase - For input, physics etc.
 	virtual inline void onProcessCollisions() {} // Second update phase - For collision processing
-	virtual inline void onCollision( Collision::CollisionResult collision, ObjectPtr target ) {}  // Called when the object collides with another
+	virtual inline void onCollision( Collision::CollisionResult collision, shared_ptr< Object > target ) {}  // Called when the object collides with another
 	virtual inline void onPostUpdate( double deltaTime ) {} // Third update phase - For resolving physics and cleaning up
 	virtual inline void onRender() {} // Called after all update phases, for rendering gfx
 	virtual inline void onPostRender() {} // For things that need to be done after all renders are complete
@@ -37,12 +37,12 @@ public:
 
 // Collision
 public:
-	virtual inline Collision::CollisionResult isColliding( ObjectPtr target ) { return Collision::CollisionResult(); } // The collision calculation function for this object
-	virtual inline void resolveCollision( ObjectPtr target ) {} // Resolves the collision by moving the dynamic object towards the collision normal
+	virtual inline Collision::CollisionResult isColliding( shared_ptr< Object > target ) { return Collision::CollisionResult(); } // The collision calculation function for this object
+	virtual inline void resolveCollision( shared_ptr< Object > target ) {} // Resolves the collision by moving the dynamic object towards the collision normal
 	virtual inline void resolveCollision( Collision::CollisionResult collision ) {}
-	
-	void processCollisions( vector< ObjectPtr > targets ); // Calls onCollision for every colliding target
-	void resolveCollisions( vector< ObjectPtr > targets, bool notify = false ); // Resolves all collisions with the targets, in order of distance. If Notify, calls onCollision when a collision is resolved.
+
+	void processCollisions( vector< shared_ptr< Object > > targets ); // Calls onCollision for every colliding target
+	void resolveCollisions( vector< shared_ptr< Object > > targets, bool notify = false ); // Resolves all collisions with the targets, in order of distance. If Notify, calls onCollision when a collision is resolved.
 
 // Get/Set
 public:
@@ -52,29 +52,29 @@ public:
 	inline string getName() const { return m_name; }
 	inline void setName( string name ) { m_name = name; }
 
-	virtual inline Vec2 getPosition() const { return Vec2(); }
-	virtual inline void setPosition( Vec2 position ) {}
+	virtual inline Math::Vec2 getPosition() const { return Math::Vec2(); }
+	virtual inline void setPosition( Math::Vec2 position ) {}
 
 	inline CollisionType getCollisionType() const { return m_collisionType; }
 	inline void setCollisionType( CollisionType type ) { m_collisionType = type; }
 
-// Variables
+	// Variables
 protected:
 	Object* m_parent{ nullptr };
 	string m_name{ "" };
 	CollisionType m_collisionType{ CollisionType::None };
 
 
-/* Static */
+	/* Static */
 
-// Functions
+	// Functions
 public:
 	// Create an object and store it in the global objects array for event processing
 	template< class T >
 	inline static shared_ptr< T > makeObject( Object* parent ) {
 		shared_ptr< T > ptr = std::make_shared< T >( T() );
 
-		ObjectPtr ptrObj = std::dynamic_pointer_cast< Object >( ptr );
+		shared_ptr< Object > ptrObj = std::dynamic_pointer_cast< Object >( ptr );
 		if( ptrObj != nullptr ) {
 			ptrObj->setParent( parent );
 			ptrObj->onCreateObservers();
@@ -89,7 +89,7 @@ public:
 	//--------------------------------------------------------------------------------
 
 	// Mark an objects to be destroyed
-	inline static void destroyObject( ObjectPtr object ) {
+	inline static void destroyObject( shared_ptr< Object > object ) {
 		s_markedForDeletion.push_back( object );
 	}
 
@@ -97,32 +97,32 @@ public:
 
 	// Clean up deleted objects
 	inline static void cleanupObjects() {
-		for( ObjectPtr marked : s_markedForDeletion ) {
-			vector< ObjectPtr >::iterator it = find( s_objects.begin(), s_objects.end(), marked );
+		for( shared_ptr< Object > marked : s_markedForDeletion ) {
+			vector< shared_ptr< Object > >::iterator it = find( s_objects.begin(), s_objects.end(), marked );
 			if( it != s_objects.end() ) {
-				(*it)->onDestroy();
+				( *it )->onDestroy();
 				s_objects.erase( it );
 			}
 		}
 
-		s_markedForDeletion = vector< ObjectPtr >();
+		s_markedForDeletion = vector< shared_ptr< Object > >();
 	}
 
 	//--------------------------------------------------------------------------------
 
 	// Return all objects made using Object::makeObject
-	inline static vector< ObjectPtr > getObjects( ObjectPtr parent = nullptr, 
-															string name = "", 
-															bool recursive = false, 
-															bool inclusive = false ) 
-	{ 
+	inline static vector< shared_ptr< Object > > getObjects( shared_ptr< Object > parent = nullptr,
+												  string name = "",
+												  bool recursive = false,
+												  bool inclusive = false )
+	{
 		// If there's no name or parent, we just want everything
 		if( parent == nullptr && name == "" )
 			return s_objects;
 
-		vector< ObjectPtr > out;
+		vector< shared_ptr< Object > > out;
 
-		for( const ObjectPtr object : s_objects ) {
+		for( const shared_ptr< Object > object : s_objects ) {
 			// Check name first cause it's the fastest
 			if( name != "" )
 				if( object->getName() != name )
@@ -139,9 +139,9 @@ public:
 
 		// If the parent exists and is correct, look recursively for more
 		if( recursive && parent != nullptr ) {
-			vector< ObjectPtr > temp = out;
-			for( ObjectPtr object : temp ) {
-				vector< ObjectPtr > children = getObjects( object, name, true, false );
+			vector< shared_ptr< Object > > temp = out;
+			for( shared_ptr< Object > object : temp ) {
+				vector< shared_ptr< Object > > children = getObjects( object, name, true, false );
 				out.insert( out.end(), children.begin(), children.end() );
 			}
 		}
@@ -157,14 +157,14 @@ public:
 
 	// Dynamic casts to template type and returns all that aren't nullptr
 	template< class T >
-	inline static vector< shared_ptr< T > > getObjects( ObjectPtr parent = nullptr,
-															  string name = "",
-															  bool recursive = false,
-															  bool inclusive = false )
+	inline static vector< shared_ptr< T > > getObjects( shared_ptr< Object > parent = nullptr,
+														string name = "",
+														bool recursive = false,
+														bool inclusive = false )
 	{
 		vector< shared_ptr< T > > out;
 
-		for( const ObjectPtr object : s_objects ) {
+		for( const shared_ptr< Object > object : s_objects ) {
 			// Check name first cause it's the fastest
 			if( name != "" )
 				if( object->getName() != name )
@@ -205,10 +205,14 @@ public:
 		return out;
 	}
 
-// Variables
+	// Variables
 private:
-	static vector< ObjectPtr > s_objects;
-	static vector< ObjectPtr > s_markedForDeletion;
+	static vector< shared_ptr< Object > > s_objects;
+	static vector< shared_ptr< Object > > s_markedForDeletion;
 };
+
+//================================================================================
+
+} // Game
 
 //================================================================================

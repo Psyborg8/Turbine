@@ -4,6 +4,10 @@
 
 //================================================================================
 
+namespace Random {
+
+//================================================================================
+
 template < class T >
 class RandomNumbers : public stack< T > {
 public:
@@ -15,27 +19,18 @@ public:
 
 //================================================================================
 
-class Random {
-public:
-	Random();
-	Random( unsigned int seed );
+	int getRandomIntInRange( int min, int max );
+	int getRandomIntInRange( int min, int max, function< int( int randomNumber ) > func );
+	RandomNumbers< int > getRandomIntInRange( int min, int max, size_t count );
+	RandomNumbers< int > getRandomIntInRange( int min, int max, size_t count, function< int( int randomNumber ) > func );
 
-public:
-	int getRandomIntInRange( int min, int max ) const;
-	int getRandomIntInRange( int min, int max, function< int( int randomNumber ) > func ) const;
-	RandomNumbers< int > getRandomIntInRange( int min, int max, size_t count ) const;
-	RandomNumbers< int > getRandomIntInRange( int min, int max, size_t count, function< int( int randomNumber ) > func ) const;
+	float getRandomFloatInRange( float min, float max );
+	float getRandomFloatInRange( float min, float max, function< float( float randomNumber ) > func );
+	RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count );
+	RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count, function< float( float randomNumber ) > func );
 
-	float getRandomFloatInRange( float min, float max ) const;
-	float getRandomFloatInRange( float min, float max, function< float( float randomNumber ) > func ) const;
-	RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count ) const;
-	RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count, function< float( float randomNumber ) > func ) const;
-
-	inline const long long& getSeed() const { return m_seed; }
-	inline void setSeed( int seed ) { m_seed = seed; srand( seed ); }
-
-private:
-	unsigned int m_seed;
+	uint16_t getSeed();
+	void setSeed( uint16_t seed );
 };
 
 //================================================================================

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Checkpoint.cpp" />
     <ClCompile Include="src\Collision.cpp" />
     <ClCompile Include="src\CollisionWorld.cpp" />
     <ClCompile Include="src\GridWorld.cpp" />

@@ -40,6 +40,7 @@ namespace Colors {
 
 //================================================================================
 
+static const Math::Color CLEAR{ 0.0f, 0.0f, 0.0f, 0.0f };
 static const Math::Color WHITE{ 1.0f, 1.0f, 1.0f, 1.0f };
 static const Math::Color BLACK{ 0.0f, 0.0f, 0.0f, 1.0f };
 static const Math::Color RED{ 1.0f, 0.0f, 0.0f, 1.0f };

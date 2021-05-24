@@ -6,6 +6,7 @@
 
 #include "Player.h"
 #include "Timer.h"
+#include "Checkpoint.h"
 
 //================================================================================
 
@@ -187,6 +188,8 @@ void GridWorld::loadWorld( string name ) {
 				platform->size = Math::Vec2( data.gridSize, data.gridSize * 0.1 );
 				platform->position = Math::Vec2( pos.x, pos.y + data.gridSize * 0.9 );
 				platform->setName( "Platform" );
+
+				continue;
 			}
 			if( block == 'P' ) {
 				shared_ptr< Game::Player > player = makeObject< Game::Player >( this );
@@ -197,7 +200,15 @@ void GridWorld::loadWorld( string name ) {
 				continue;
 			}
 			if( block >= '1' && block <= '9' ) {
+				shared_ptr< Game::Checkpoint > checkpoint = makeObject< Game::Checkpoint >( this );
 
+				const Math::Vec2 midpoint = Math::Vec2( pos.x + data.gridSize / 2.0, 0.0 );
+				checkpoint->setMidpoint( midpoint );
+				checkpoint->position.y = pos.y;
+				checkpoint->size = Math::Vec2( data.gridSize * 0.1, data.gridSize * 1.5 );
+				checkpoint->setNumber( size_t( block ) );
+
+				continue;
 			}
 		}
 	}
@@ -209,6 +220,22 @@ void GridWorld::unloadWorld() {
 	vector< shared_ptr< Object > > objects = getObjects( shared_from_this(), "", true );
 	for( shared_ptr< Object > object : objects )
 		object->destroy();
+}
+
+//--------------------------------------------------------------------------------
+
+void GridWorld::setCheckpoint( size_t checkpoint ) {
+	vector< shared_ptr< Game::Checkpoint > > checkpoints = getObjects< Game::Checkpoint >( shared_from_this(), "", true );
+
+	const auto it = std::find_if( checkpoints.begin(), checkpoints.end(), 
+								  [checkpoint]( shared_ptr< Game::Checkpoint > in ) {
+									  return in->getNumber() == checkpoint;
+								  } );
+
+	if( it == checkpoints.end() )
+		return;
+
+	m_playerStart = ( *it )->position;
 }
 
 //================================================================================

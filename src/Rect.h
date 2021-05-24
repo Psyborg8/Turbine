@@ -23,7 +23,7 @@ struct Rect : public Collision::Rect {
 	//--------------------------------------------------------------------------------
 
 	void render() {
-		if( fillColor.a == 0.0f && lineColor.a == 0.0f )
+		if( !( fill || line ) )
 			return;
 
 		array< Math::Vec2, 4 > verts = vertices();
@@ -39,7 +39,7 @@ struct Rect : public Collision::Rect {
 			glEnd();
 		}
 		if( line ) {
-			glBegin( GL_LINE );
+			glBegin( GL_LINES );
 
 			glColor4f( lineColor.r, lineColor.g, lineColor.b, lineColor.a );
 			glLineWidth( lineWeight );

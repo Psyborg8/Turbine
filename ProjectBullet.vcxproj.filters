@@ -90,6 +90,9 @@
     <ClCompile Include="src\CollisionWorld.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\Checkpoint.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">

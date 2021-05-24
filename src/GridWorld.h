@@ -43,13 +43,14 @@ public:
 	void loadWorld( string name ) override;
 	void unloadWorld();
 
+	void setCheckpoint( size_t checkpoint ) override;
+
 	// Variables
 protected:
 	double m_cameraMoveMultiplier{ 6.0 };
 
 	Math::Vec2 m_playerStart{ 0.0, 0.0 };
 	vector< WorldData > m_worldData;
-	size_t m_checkpoints{ 0u };
 };
 
 //================================================================================

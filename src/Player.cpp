@@ -28,36 +28,43 @@ Player::Player( Vec2 pos ) : RigidRect( pos, Vec2( 0.15, 0.2 ), Colors::BLUE )
 
 void Player::onUpdate( double deltaTime )
 {
-	Vec2 gravity = System::getWorld()->getGravity();
-
 	// Ignore physics while dashing
-	if( !m_isDashing )
+	if( !dashData.isDashing )
 	{
-		// Movement
-		if( abs( velocity.x ) <= m_maxMoveSpeed )
+		// Horizontal
 		{
-			// Input
 			double move = 0.0;
-			if( System::getKeyState( KeyCode::d ) )
-				move += m_moveAcceleration * deltaTime;
-			if( System::getKeyState( KeyCode::a ) )
-				move -= m_moveAcceleration * deltaTime;
+			// Movement
+			if( abs( velocity.x ) <= movementData.maxSpeed )
+			{
+				// Input
+				if( System::getKeyState( KeyCode::d ) )
+					move += movementData.acceleration * deltaTime;
+				if( System::getKeyState( KeyCode::a ) )
+					move -= movementData.acceleration * deltaTime;
 
-			// Air control
-			if( !m_canJump )
-				move *= m_airMoveMultiplier;
+				// Air control
+				if( !jumpData.canJump )
+					move *= movementData.airMultiplier;
 
-			// Apply movement
-			if( abs( velocity.x ) + move > m_maxMoveSpeed )
-				velocity.x = m_maxMoveSpeed * ( move / abs( move ) );
-			else
-				velocity.x += move;
+				// Apply movement
+				if( abs( velocity.x + move ) > movementData.maxSpeed &&
+					velocity.x / abs( velocity.x ) == move / abs( move ) )
+					velocity.x = movementData.maxSpeed * ( move / abs( move ) );
+				else
+					velocity.x += move;
+			}
 
 			// Friction
 			if( !move && velocity.x )
 			{
-				double friction = m_frictionMultiplier * abs( velocity.x ) * deltaTime;
-				friction = std::clamp( friction, m_minFriction * deltaTime, m_maxFriction * deltaTime );
+				double friction = frictionData.power * abs( velocity.x ) * deltaTime;
+
+				// Air resistance
+				if( !jumpData.canJump )
+					friction *= frictionData.airMultiplier;
+
+				friction = std::clamp( friction, frictionData.min * deltaTime, frictionData.max * deltaTime );
 				if( abs( velocity.x ) < friction )
 					velocity.x = 0.0;
 				else
@@ -65,61 +72,65 @@ void Player::onUpdate( double deltaTime )
 			}
 		}
 
-		// Gravity
-		velocity += gravity * deltaTime;
-		velocity.y = velocity.y < -m_terminalVelocity ? -m_terminalVelocity : velocity.y;
-
-		// Jump Release
-		if( !System::getKeyState( KeyCode::Space ) )
-			velocity.y = std::min( velocity.y, m_jumpReleaseThreshold );
-
-		// Wall Cling
-		if( m_isWallCling )
+		// Vertical
 		{
-			double friction = m_wallFrictionMultiplier * abs( velocity.y ) * deltaTime;
-			friction = std::clamp( friction, m_minWallFriction * deltaTime, m_maxWallFriction * deltaTime );
-			if( abs( velocity.y ) < friction )
-				velocity.y = 0.0;
-			else
-				velocity.y -= friction * ( velocity.y / abs( velocity.y ) );
+			// Gravity
+			velocity.y -= gravityData.power * deltaTime;
+			velocity.y = velocity.y < -gravityData.max ? -gravityData.max : velocity.y;
+
+			// Jump Release
+			if( !System::getKeyState( KeyCode::Space ) )
+				velocity.y = std::min( velocity.y, jumpData.release );
+
+			// Wall Cling
+			if( wallClingData.isClinging )
+			{
+				double friction = wallClingData.multiplier * abs( velocity.y ) * deltaTime;
+				friction = std::clamp( friction, wallClingData.min * deltaTime, wallClingData.max * deltaTime );
+				if( abs( velocity.y ) < friction )
+					velocity.y = 0.0;
+				else
+					velocity.y -= friction * ( velocity.y / abs( velocity.y ) );
+			}
 		}
 	}
 
-	m_isWallCling = false;
-	m_canJump = false;
+	// Reset flags
+	wallClingData.isClinging = false;
+	jumpData.canJump = false;
 }
 
 //--------------------------------------------------------------------------------
 
-void Player::onProcessCollisions( double deltaTime )
+void Player::onProcessCollisions()
 {
-	vector< shared_ptr< Object > > targets;
-	const vector< shared_ptr< Object > > walls = getObjectsByName( "Wall" );
-	const vector< shared_ptr< Object > > traps = getObjectsByName( "Trap" );
-	const vector< shared_ptr< Object > > platforms = getObjectsByName( "Platform" );
+	vector< ObjectPtr > targets;
+	const vector< ObjectPtr > walls	   = getObjects( System::getWorld(), "Wall" );
+	const vector< ObjectPtr > traps     = getObjects( System::getWorld(), "Trap" );
+	const vector< ObjectPtr > platforms = getObjects( System::getWorld(), "Platform" );
 
 	targets.insert( targets.end(), walls.begin(), walls.end() );
 	targets.insert( targets.end(), traps.begin(), traps.end() );
 
 	// Check if we're supposed to collide with platforms
 
-	if( m_jumpingDown )
+	bool collision = false;
+	for( ObjectPtr platform : platforms )
 	{
-		m_jumpingDown = false;
-		for( shared_ptr< Object > platform : platforms )
+		Collision::CollisionResult result = isColliding( platform );
+		if( result.success )
 		{
-			Collision::CollisionResult result = isColliding( platform );
-			if( result.success )
-			{
-				m_jumpingDown = true;
-				break;
-			}
+			collision = true;
+			break;
 		}
 	}
 
-	if( !m_jumpingDown )
+	jumpData.isJumpingDown &= collision;
+	if( !jumpData.isJumpingDown )
 		if( velocity.y < 0.0 )
 			targets.insert( targets.end(), platforms.begin(), platforms.end() );
+		else if( collision )
+			jumpData.isJumpingDown = true;
 
 	resolveCollisions( targets, true );
 }
@@ -166,78 +177,79 @@ void Player::onKeyboardRelease( int key )
 {
 	const KeyCode keyCode = static_cast< KeyCode >( key );
 	if( keyCode == KeyCode::Space )
-		m_waitJump = false;
+		jumpData.wait = false;
 	else if( keyCode == KeyCode::e )
-		m_waitDash = false;
+		dashData.wait = false;
 }
 
 //--------------------------------------------------------------------------------
 
-void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object > target )
+void Player::onCollision( Collision::CollisionResult result, ObjectPtr target )
 {
 	// Check for Trap or Wall
 	if( target->getName() == "Trap" )
 		return kill();
 	if( target->getName() == "Platform" )
-		m_canJumpDown = true;
+		jumpData.canJumpDown = true;
 
 	if( result.normal.y == 1.0 )
 	{
-		m_canJump = true;
-		m_canDoubleJump = true;
+		jumpData.canJump = true;
+		doubleJumpData.canDoubleJump = true;
 	}
 
 	if( result.normal.x )
 	{
-		m_isWallCling = true;
-		m_wallClingNormal = result.normal.x;
+		wallClingData.isClinging = true;
+		wallJumpData.normal = result.normal.x;
 	}
+
+	Timer::triggerTimer( "Dash Timer" );
 }
 
 //--------------------------------------------------------------------------------
 
 void Player::jump()
 {
-	if( m_waitJump )
+	if( jumpData.wait )
 		return;
 
-	if( m_canJump )
+	if( jumpData.canJump )
 	{
-		if( m_canJumpDown && System::getKeyState( KeyCode::s ) )
-			m_jumpingDown = true;
+		if( jumpData.canJumpDown && System::getKeyState( KeyCode::s ) )
+			jumpData.isJumpingDown = true;
 		else
 		{
-			velocity.y = m_jumpPower;
-			m_canJump = false;
+			velocity.y = jumpData.power;
+			jumpData.canJump = false;
 		}
 	}
-	else if( m_isWallCling )
+	else if( doubleJumpData.canDoubleJump )
 	{
-		Vec2 normal = m_wallJumpNormal;
-		normal.x *= m_wallClingNormal;
-		velocity = normal * m_wallJumpPower;
+		if( wallClingData.isClinging )
+		{
+			velocity = wallJumpData.direction * wallJumpData.power;
+			velocity.x *= wallJumpData.normal;
+		}
+		else
+			velocity.y = doubleJumpData.power;
 
-		m_isWallCling = false;
-	}
-	else if( m_canDoubleJump )
-	{
-		velocity.y = m_doubleJumpPower;
-		m_canDoubleJump = false;
+		doubleJumpData.canDoubleJump = false;
 	}
 
-	m_waitJump = true;
+	jumpData.wait = true;
 }
 
 //--------------------------------------------------------------------------------
 
 void Player::dash()
 {
-	if( m_waitDash )
+	if( dashData.wait )
 		return;
 
-	m_waitDash = true;
+	dashData.wait = true;
 
-	if( !m_canDash )
+	if( !dashData.canDash )
 		return;
 
 	Vec2 direction;
@@ -251,25 +263,24 @@ void Player::dash()
 		direction.y -= 1.0;
 
 	if( direction == Vec2() )
-	{
-		m_waitDash = true;
 		return;
-	}
 
 	direction = direction.normalize();
-	direction *= m_dashPower;
+	direction *= dashData.power;
 
 	velocity = direction;
 
-	m_canDash = false;
-	m_isDashing = true;
-	m_waitDash = true;
+	dashData.canDash = false;
+	dashData.isDashing = true;
+	dashData.wait = true;
+	doubleJumpData.canDoubleJump = true;
 
-	Timer::addTimer( m_dashCooldown, nullptr, [this] { m_canDash = true; }, false );
-	Timer::addTimer( m_dashReleaseTime, nullptr,
+	Timer::addTimer( "Dash Cooldown", dashData.cooldown, nullptr, [this] { dashData.canDash = true; }, false );
+	Timer::addTimer( "Dash Timer",
+					 dashData.duration, nullptr,
 					 [this] { 
-						 m_isDashing = false; 
-						 velocity.y = velocity.y > m_jumpReleaseThreshold ? m_jumpReleaseThreshold : velocity.y;
+						 dashData.isDashing = false;
+						 velocity.y = velocity.y > jumpData.release ? jumpData.release : velocity.y;
 					 }, false );
 }
 

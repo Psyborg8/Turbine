@@ -24,7 +24,7 @@ RigidRect::RigidRect( Vec2 _position, Vec2 _size, Color _color = Colors::WHITE )
 
 //--------------------------------------------------------------------------------
 
-Collision::CollisionResult RigidRect::isColliding( shared_ptr< Object > target )
+Collision::CollisionResult RigidRect::isColliding( ObjectPtr target )
 {
 	Collision::CollisionResult out;
 

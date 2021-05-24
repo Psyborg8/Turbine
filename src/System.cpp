@@ -108,9 +108,9 @@ int start()
 	// world = Object::makeObject< CollisionWorld >( nullptr );
 	world = Object::makeObject< GridWorld >( nullptr );
 	
-	world->onStart();
-	vector< shared_ptr< Object > > objects = Object::getObjectsByParent( getWorld(), true );
-	for( shared_ptr< Object > object : objects )
+	vector< ObjectPtr > objects = Object::getObjects( getWorld(), "", true, true );
+
+	for( ObjectPtr object : objects )
 		object->onStart();
 
 	lastFrameTime = high_resolution_clock::now();
@@ -188,14 +188,13 @@ void update()
 	Timer::update();
 
 	// Update the current world
-	vector< shared_ptr< Object > > objects = Object::getObjectsByParent( getWorld(), true );
-	objects.insert( objects.begin(), getWorld() );
+	vector< ObjectPtr > objects = Object::getObjects( getWorld(), "", true, true );
 
-	for( shared_ptr< Object > object : objects )
+	for( ObjectPtr object : objects )
 		object->onUpdate( dt );
-	for( shared_ptr< Object > object : objects )
-		object->onProcessCollisions( dt );
-	for( shared_ptr< Object > object : objects )
+	for( ObjectPtr object : objects )
+		object->onProcessCollisions();
+	for( ObjectPtr object : objects )
 		object->onPostUpdate( dt );
 
 	// Cleanup
@@ -208,9 +207,9 @@ void update()
 	glClearColor( 0.05f, 0.1f, 0.1f, 1.0f );
 	glClear( GL_COLOR_BUFFER_BIT );
 
-	for( shared_ptr< Object > object : objects )
+	for( ObjectPtr object : objects )
 		object->onRender();
-	for( shared_ptr< Object > object : objects )
+	for( ObjectPtr object : objects )
 		object->onPostRender();
 
 	glutSwapBuffers();

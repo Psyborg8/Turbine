@@ -4,9 +4,19 @@
 
 //================================================================================
 
-void Object::processCollisions( vector< shared_ptr< Object > > targets )
+void Object::onDestroy()
 {
-	for( shared_ptr< Object > target : targets )
+	vector< ObjectPtr > objects = getObjects( shared_from_this(), "" );
+	for( ObjectPtr object : objects )
+		object->destroy();
+
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::processCollisions( vector< ObjectPtr > targets )
+{
+	for( ObjectPtr target : targets )
 	{
 		const Collision::CollisionResult result = isColliding( target );
 		if( result.success )
@@ -16,13 +26,13 @@ void Object::processCollisions( vector< shared_ptr< Object > > targets )
 
 //--------------------------------------------------------------------------------
 
-void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool notify )
+void Object::resolveCollisions( vector< ObjectPtr > targets, bool notify )
 {
-	using collisionPair = pair< shared_ptr< Object >, Collision::CollisionResult >;
+	using collisionPair = pair< ObjectPtr, Collision::CollisionResult >;
 
 	// Broad Phase
 	vector < collisionPair > results;
-	for( shared_ptr< Object > target : targets )
+	for( ObjectPtr target : targets )
 	{
 		Collision::CollisionResult result = isColliding( target );
 		if( result.success )
@@ -36,11 +46,13 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 			   } );
 
 	// Narrow Phase
-	for( pair< shared_ptr< Object >, Collision::CollisionResult > collision : results )
+	for( pair< ObjectPtr, Collision::CollisionResult > collision : results )
 	{
+		// Check again, in case a previous resolution means we aren't colliding anymore
 		const Collision::CollisionResult result = isColliding( collision.first );
 		if( result.success )
 		{
+			// Resolve the collision
 			Collision::resolveCollision( result );
 
 			if( notify )
@@ -55,7 +67,7 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 
 //================================================================================
 
-vector< shared_ptr< Object > > Object::s_objects;
-vector< shared_ptr< Object > > Object::s_markedForDeletion;
+vector< ObjectPtr > Object::s_objects;
+vector< ObjectPtr > Object::s_markedForDeletion;
 
 //================================================================================

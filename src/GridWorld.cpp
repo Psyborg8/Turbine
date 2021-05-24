@@ -11,20 +11,69 @@
 
 GridWorld::GridWorld() : World()
 {
-	m_worldData = {
+	pair< vector< string >, double > dashPrecisionWorld = { {
 		"wwwwwwwwwwwwwwwwwwww                   ",
+		"t            t     w                   ",
 		"t                  w                   ",
-		"t                  w                   ",
-		"t      w     w     w                   ",
+		"t      w     t     w                   ",
 		"t      wttttttwpppwwwwwwwwwwwwwwwwwwwww",
-		"t      wwwwwwww   wwwwwtwwwwwtw       w",
+		"t      wwwwwwww   wwwwtttwwwttt       w",
 		"w      wwwwwwww                       w",
-		"wwwppwwwwwwwwww        t     t      ppw",
-		"w P    wwwwwwww        w     w        w",
+		"wwwppwwwwwwwwww       ttt   ttt     ppw",
+		"w P    wwwwwwww       www   www       w",
 		"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
-	};
+	}, 0.35 };
 
-	m_gravity = Vec2( 0.0, -6.0 );
+	pair< vector< string >, double > juggleTimeTower = { {
+		"wwwwwwwwwwwwwww",
+		"w             w",
+		"w             w",
+		"w             w",
+		"wwwwwww wwwwwww",
+		"wtttttt ttttttw",
+		"w             w",
+		"w             w",
+		"w             w",
+		"wtttttttt   ttw",
+		"w             w",
+		"w             w",
+		"w             w",
+		"w             w",
+		"w             w",
+		"wtt   ttttttttw",
+		"w             w",
+		"w             w",
+		"w             w",
+		"w             w",
+		"w w    w    w w",
+		"w             w",
+		"w             w",
+		"w             w",
+		"w             w",
+		"w             w",
+		"w   ww   ww   w",
+		"w            tw",
+		"wttttttt     ww",
+		"w      t     ww",
+		"w            ww",
+		"w            tw",
+		"w      t  ww  w",
+		"w      tttttttw",
+		"w     ww      w",
+		"w             w",
+		"w             w",
+		"w             w",
+		"w             w",
+		"w             w",
+		"wttttt   tttttw",
+		"wwwwww P wwwwww",
+		"wwwwwwwwwwwwwww",
+	}, 0.20 };
+
+	const pair< vector< string >, double >& world = juggleTimeTower;
+
+	m_worldData = world.first;
+	m_gridSize = world.second;
 }
 
 //--------------------------------------------------------------------------------
@@ -75,6 +124,10 @@ void GridWorld::onSpawnChildren()
 
 				continue;
 			}
+			if( block >= '1' && block <= '9' )
+			{
+				
+			}
 		}
 	}
 }
@@ -83,11 +136,11 @@ void GridWorld::onSpawnChildren()
 
 void GridWorld::onUpdate( double deltaTime )
 {
-	const vector< shared_ptr< Player > > players = Object::getObjectsByType< Player >();
+	const vector< shared_ptr< Player > > players = Object::getObjects< Player >();
 	if( players.empty() )
 		return;
 
-	const shared_ptr< Player > player = Object::getObjectsByType< Player >().at( 0 );
+	const shared_ptr< Player > player = Object::getObjects< Player >().at( 0 );
 	Vec2 pos = player->position;
 	pos.y += 0.5;
 
@@ -108,7 +161,7 @@ void GridWorld::onUpdate( double deltaTime )
 
 void GridWorld::onStart()
 {
-	const vector< shared_ptr< Player > > players = Object::getObjectsByType< Player >();
+	const vector< shared_ptr< Player > > players = Object::getObjects< Player >();
 	if( players.empty() )
 		return; 
 
@@ -122,14 +175,15 @@ void GridWorld::onStart()
 
 void GridWorld::reset()
 {
-	const vector< shared_ptr< Player > > players = Object::getObjectsByType< Player >();
+	const vector< shared_ptr< Player > > players = Object::getObjects< Player >();
 	if( players.empty() )
 		return;
 
 	const shared_ptr< Player > player = players.at( 0 );
 	destroyObject( player );
 
-	Timer::addTimer( 1000, nullptr,
+	Timer::addTimer( "Reset Player",
+					 1000, nullptr,
 					 [this]
 					 {
 						 shared_ptr< Player > player = makeObject< Player >( this );

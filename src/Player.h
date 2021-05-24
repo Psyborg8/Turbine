@@ -18,7 +18,7 @@ public:
 // Events
 public:
 	void onUpdate( double deltaTime ) override;
-	void onProcessCollisions( double deltaTime ) override;
+	void onProcessCollisions() override;
 	void onRender() override;
 	void onDestroy() override;
 	void onCreateObservers() override;
@@ -26,7 +26,7 @@ public:
 	void onKeyboardPress( int key );
 	void onKeyboardRelease( int key );
 
-	void onCollision( Collision::CollisionResult collision, shared_ptr< Object > target ) override;
+	void onCollision( Collision::CollisionResult collision, ObjectPtr target ) override;
 
 // Methods
 public:
@@ -41,49 +41,66 @@ private:
 
 	vector< function< void() > > m_renders;
 
-// Variables
+// Attributes
 private:
-	bool m_canJump{ false };
-	bool m_canDoubleJump{ true };
-	bool m_waitJump{ false };
+	struct {
+		const double acceleration{ 20.0 };
+		const double maxSpeed{ 2.0 };
+		const double airMultiplier{ 0.9 };
+	} movementData;
 
-	bool m_canJumpDown{ false };
-	bool m_jumpingDown{ false };
+	struct {
+		const double power{ 6.0 };
+		const double max{ 4.0 };
+	} gravityData;
 
-	bool m_canDash{ true };
-	bool m_waitDash{ false };
-	bool m_isDashing{ false };
+	struct {
+		const double power{ 20.0 };
+		const double min{ 2.0 };
+		const double max{ 50.0 };
+		const double airMultiplier{ 0.4 };
+	} frictionData;
 
-	bool m_isWallCling{ false };
-	double m_wallClingNormal{ 0.0 };
+	struct {
+		bool canJump{ false };
+		bool canJumpDown{ false };
+		bool isJumpingDown{ false };
+		bool wait{ false };
 
-// Constants
-private:
-	const double m_moveAcceleration{ 20.0 };
-	const double m_maxMoveSpeed{ 2.0 };
-	const double m_airMoveMultiplier{ 0.8 };
+		const double power{ 3.5 };
+		const double release{ 1.5 };
+	} jumpData;
 
-	const double m_terminalVelocity{ 4.0 };
+	struct {
+		bool canDoubleJump{ true };
+		const double power{ 2.75 };
+	} doubleJumpData;
 
-	const double m_frictionMultiplier{ 20.0 };
-	const double m_minFriction{ 2.0 };
-	const double m_maxFriction{ 50.0 };
+	struct {
+		bool canDash{ true };
+		bool isDashing{ false };
+		bool wait{ false };
 
-	const double m_jumpPower{ 4.0 };
-	const double m_doubleJumpPower{ 2.25 };
-	const double m_jumpReleaseThreshold{ 1.5 };
+		const double power{ 7.5 };
+		const milliseconds cooldown{ 1500 };
+		const milliseconds duration{ 150 };
+	} dashData;
 
-	const double m_dashPower{ 7.5 };
-	const milliseconds m_dashCooldown{ 1500 };
-	const milliseconds m_dashReleaseTime{ 150 };
+	struct {
+		bool isClinging{ false };
 
-	const double m_wallFrictionMultiplier{ 5.0 };
-	const double m_minWallFriction{ 1.0 };
-	const double m_maxWallFriction{ 5.0 };
+		const double multiplier{ 0.2 };
+		const double min{ 1.0 };
+		const double max{ 5.0 };
+	} wallClingData;
 
-	const double m_wallJumpPower{ 8.5 };
-	const Vec2 m_wallJumpNormal{ 0.7, 0.3 };
-	const milliseconds m_wallJumpReleaseTime{ 300 };
+	struct {
+		double normal{ 0.0 };
+
+		const double power{ 8.0 };
+		const Vec2 direction{ 0.7, 0.3 };
+		const milliseconds duration{ 300 };
+	} wallJumpData;
 };
 
 //================================================================================

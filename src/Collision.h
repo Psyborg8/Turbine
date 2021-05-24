@@ -35,6 +35,7 @@ struct Rect
 	Vec2 velocity;
 
 	inline Vec2 midpoint() { return position + ( size / 2.0 ); }
+	inline void setMidpoint( Vec2 midpoint ) { position = midpoint - ( size / 2.0 ); }
 };
 
 //--------------------------------------------------------------------------------

@@ -48,21 +48,24 @@ using FinishCallback = std::function< void() >;
 
 //==================================================================================================
 
-/// Must be called on update.
+// Must be called on update.
 void update();
 
-/// Must be called on init.
+// Must be called on init.
 void init();
 
-/// Add a new timer. onUpdate and onFinish can be nullptr. Returns timer ID for removal.
-TimerID addTimer( int msDuration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop );
-TimerID addTimer( std::chrono::milliseconds duration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop );
+// Add a new timer. onUpdate and onFinish can be nullptr. Returns timer ID for removal.
+void addTimer( string name, int msDuration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop );
+void addTimer( string name, std::chrono::milliseconds duration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop );
 
-/// Remove timer using ID given when timer is created.
-void removeTimer( TimerID ID );
+// Remove timer using ID given when timer is created.
+void removeTimer( string name );
+
+// Triggers a timer's onFinish function, and restarts it if it's looping.
+void triggerTimer( string name );
 
 /// Returns true if timer is still valid.
-bool timerStillActive( TimerID ID );
+bool timerStillActive( string name );
 
 /// Remove all timers.
 void clearTimers();

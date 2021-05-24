@@ -9,10 +9,6 @@
 
 //================================================================================
 
-namespace Game {
-
-//================================================================================
-
 class Object : public std::enable_shared_from_this< Object > {
 public:
 	Object() : m_name( "" ), m_parent( nullptr ) {};
@@ -210,9 +206,5 @@ private:
 	static vector< shared_ptr< Object > > s_objects;
 	static vector< shared_ptr< Object > > s_markedForDeletion;
 };
-
-//================================================================================
-
-} // Game
 
 //================================================================================

@@ -21,6 +21,7 @@ enum class BlockType {
 //--------------------------------------------------------------------------------
 
 struct WorldData {
+	string name;
 	vector< string > blockData;
 	double gridSize;
 	double cameraDistance;
@@ -39,7 +40,7 @@ public:
 	virtual void onStart() override;
 	virtual void reset() override;
 
-	void loadWorld( WorldData data );
+	void loadWorld( string name ) override;
 	void unloadWorld();
 
 	// Variables
@@ -47,6 +48,7 @@ protected:
 	double m_cameraMoveMultiplier{ 6.0 };
 
 	Math::Vec2 m_playerStart{ 0.0, 0.0 };
+	vector< WorldData > m_worldData;
 	size_t m_checkpoints{ 0u };
 };
 

@@ -100,12 +100,15 @@ bool init( int argc, char** argv ) {
 //--------------------------------------------------------------------------------
 
 int start() {
+	world = Object::makeObject< Worlds::GridWorld >( nullptr );
 	// world = Object::makeObject< CollisionWorld >( nullptr );
-	world = Game::Object::makeObject< Worlds::GridWorld >( nullptr );
+
+	world->loadWorld( "Dash Precision World" );
+	// world->loadWorld( "Juggle Time Tower" );
 	
-	vector< shared_ptr< Game::Object > > objects = Game::Object::getObjects( getWorld(), "", true, true );
+	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true, true );
 	
-	for( shared_ptr< Game::Object > object : objects )
+	for( shared_ptr< Object > object : objects )
 		object->onStart();
 
 	lastFrameTime = high_resolution_clock::now();
@@ -176,17 +179,17 @@ void update() {
 	Timers::update();
 
 	// Update the current world
-	vector< shared_ptr< Game::Object > > objects = Game::Object::getObjects( getWorld(), "", true, true );
+	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true, true );
 
-	for( shared_ptr< Game::Object > object : objects )
+	for( shared_ptr< Object > object : objects )
 		object->onUpdate( dt );
-	for( shared_ptr< Game::Object > object : objects )
+	for( shared_ptr< Object > object : objects )
 		object->onProcessCollisions();
-	for( shared_ptr< Game::Object > object : objects )
+	for( shared_ptr< Object > object : objects )
 		object->onPostUpdate( dt );
 
 	// Cleanup
-	Game::Object::cleanupObjects();
+	Object::cleanupObjects();
 
 	// Store new frame time
 	lastFrameTime = now;
@@ -195,9 +198,9 @@ void update() {
 	glClearColor( 0.05f, 0.1f, 0.1f, 1.0f );
 	glClear( GL_COLOR_BUFFER_BIT );
 
-	for( shared_ptr< Game::Object > object : objects )
+	for( shared_ptr< Object > object : objects )
 		object->onRender();
-	for( shared_ptr< Game::Object > object : objects )
+	for( shared_ptr< Object > object : objects )
 		object->onPostRender();
 
 	glutSwapBuffers();

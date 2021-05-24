@@ -15,6 +15,7 @@ namespace Worlds {
 
 GridWorld::GridWorld() : World() {
 	WorldData dashPrecisionWorld;
+	dashPrecisionWorld.name = "Dash Precision World";
 	dashPrecisionWorld.gridSize = 0.35;
 	dashPrecisionWorld.cameraDistance = 3.0;
 	dashPrecisionWorld.blockData = {
@@ -31,6 +32,7 @@ GridWorld::GridWorld() : World() {
 	};
 
 	WorldData juggleTimeTower;
+	juggleTimeTower.name = "Juggle Time Tower";
 	juggleTimeTower.gridSize = 0.3;
 	juggleTimeTower.cameraDistance = 2.0;
 	juggleTimeTower.blockData = {
@@ -79,7 +81,8 @@ GridWorld::GridWorld() : World() {
 		"wwwwwwwwwwwwwww",
 	};
 
-	loadWorld( juggleTimeTower );
+	m_worldData.push_back( dashPrecisionWorld );
+	m_worldData.push_back( juggleTimeTower );
 }
 
 //--------------------------------------------------------------------------------
@@ -146,7 +149,17 @@ void GridWorld::reset() {
 
 //--------------------------------------------------------------------------------
 
-void GridWorld::loadWorld( WorldData data ) {
+void GridWorld::loadWorld( string name ) {
+	const auto it = std::find_if( m_worldData.begin(), m_worldData.end(), 
+								  [name]( const WorldData& data ) { 
+									  return data.name == name; 
+								  } );
+
+	if( it == m_worldData.end() )
+		return;
+
+	const WorldData& data = *it;
+
 	for( int y = 0; y < data.blockData.size(); ++y ) {
 		for( int x = 0; x < data.blockData.at( y ).size(); ++x ) {
 			const Math::Vec2 pos = Math::Vec2( double( x ), data.blockData.size() - double( y ) ) * data.gridSize;

@@ -13,7 +13,7 @@ namespace Worlds {
 
 //================================================================================
 
-class World : public Game::Object {
+class World : public Object {
 public:
 	World();
 
@@ -21,6 +21,8 @@ public:
 public:
 	virtual void onSpawnChildren() override;
 	virtual void reset() {}
+	virtual void loadWorld( string name ) {};
+	virtual void unloadWorld() {};
 
 public:
 	inline shared_ptr< Gfx::Camera > getCamera() { return m_camera; }

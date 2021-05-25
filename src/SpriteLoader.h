@@ -11,18 +11,6 @@
 //================================================================================
 
 namespace Gfx {
-
-//--------------------------------------------------------------------------------
-
-struct Sprite {
-	string name;
-	png::image< png::rgba_pixel > image;
-
-	void render( Math::Vec2 pos );
-};
-
-//--------------------------------------------------------------------------------
-
 namespace SpriteLoader {
 
 //--------------------------------------------------------------------------------
@@ -33,8 +21,8 @@ void loadSprite( string name, string path );
 // Unload sprite from memory
 void unloadSprite( string name );
 
-// Get pointer to sprite loaded in memory
-shared_ptr< Sprite > getSprite( string name );
+// Draw sprite to screen
+void renderSprite( string name, Math::Vec2 pos );
 
 //--------------------------------------------------------------------------------
 

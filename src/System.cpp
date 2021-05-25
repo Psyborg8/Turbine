@@ -206,7 +206,7 @@ void update() {
 	for( shared_ptr< Object > object : objects )
 		object->onPostRender();
 
-	Gfx::SpriteLoader::getSprite( "stone" )->render( Math::Vec2() );
+	Gfx::SpriteLoader::renderSprite( "stone", Math::Vec2( 3.0, 1.0 ) );
 
 	glutSwapBuffers();
 	glutPostRedisplay();

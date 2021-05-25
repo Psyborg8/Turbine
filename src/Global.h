@@ -72,7 +72,7 @@ using Vec2Callback = function< void( int x, int y ) >;
 /* Globals */
 namespace Folders {
 
-static const string Data = "Data\\";
+static const string Data = ".\\Data\\";
 
 static const string Shader = Data + "Shader\\";
 static const string VertexShader = Shader + "Vertex\\";

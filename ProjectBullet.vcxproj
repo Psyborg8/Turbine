@@ -34,6 +34,7 @@
     <ClCompile Include="src\System.cpp" />
     <ClCompile Include="src\MathTypes.cpp" />
     <ClCompile Include="src\Timer.cpp" />
+    <ClCompile Include="src\Traps.cpp" />
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +55,7 @@
     <ClInclude Include="src\System.h" />
     <ClInclude Include="src\MathTypes.h" />
     <ClInclude Include="src\Timer.h" />
+    <ClInclude Include="src\Traps.h" />
     <ClInclude Include="src\World.h" />
   </ItemGroup>
   <ItemGroup>

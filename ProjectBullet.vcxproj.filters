@@ -93,6 +93,9 @@
     <ClCompile Include="src\Checkpoint.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\Traps.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -147,6 +150,9 @@
       <Filter>Game\Worlds</Filter>
     </ClInclude>
     <ClInclude Include="src\Checkpoint.h">
+      <Filter>Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Traps.h">
       <Filter>Game\Objects</Filter>
     </ClInclude>
   </ItemGroup>

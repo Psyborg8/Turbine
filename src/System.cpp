@@ -16,6 +16,7 @@
 // Objects
 #include "Object.h"
 #include "RigidRect.h"
+#include "SpriteLoader.h"
 
 //================================================================================
 
@@ -111,6 +112,8 @@ int start() {
 	for( shared_ptr< Object > object : objects )
 		object->onStart();
 
+	Gfx::SpriteLoader::loadSprite( "stone", "stone" );
+
 	lastFrameTime = high_resolution_clock::now();
 	lastRenderTime = high_resolution_clock::now();
 
@@ -202,6 +205,8 @@ void update() {
 		object->onRender();
 	for( shared_ptr< Object > object : objects )
 		object->onPostRender();
+
+	Gfx::SpriteLoader::getSprite( "stone" )->render( Math::Vec2() );
 
 	glutSwapBuffers();
 	glutPostRedisplay();

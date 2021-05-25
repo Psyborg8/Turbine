@@ -31,6 +31,7 @@
     <ClCompile Include="src\Random.cpp" />
     <ClCompile Include="src\RigidRect.cpp" />
     <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\SpriteLoader.cpp" />
     <ClCompile Include="src\System.cpp" />
     <ClCompile Include="src\MathTypes.cpp" />
     <ClCompile Include="src\Timer.cpp" />
@@ -52,6 +53,7 @@
     <ClInclude Include="src\RigidRect.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Global.h" />
+    <ClInclude Include="src\SpriteLoader.h" />
     <ClInclude Include="src\System.h" />
     <ClInclude Include="src\MathTypes.h" />
     <ClInclude Include="src\Timer.h" />
@@ -114,13 +116,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>D:\Backup\Work\C++ Libraries\GLFW-32\lib-vc2017;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\bin\$(Configuration)\</IntDir>
+    <SourcePath>$(ProjectDir)\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\bin\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)deps\png++;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -128,14 +132,16 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Backup\Work\C++ Libraries\GLAD\include;D:\Backup\Work\C++ Libraries\GLFW-64\include;D:\Backup\Work\WIP Projects\Bullet Hell Project\ProjectBullet\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)deps\glut\include;$(ProjectDir)deps\libpng\include;$(ProjectDir)deps\zlib\include;$(ProjectDir)deps\png++;$(ProjectDir)\deps\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <ForcedIncludeFiles>global.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>D:\Backup\Work\C++ Libraries\GLFW-64\lib-vc2017;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)deps\zlib\lib;$(ProjectDir)deps\glew\lib\win32;$(ProjectDir)deps\glut\lib;$(ProjectDir)deps\libpng\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <PerUserRedirection>true</PerUserRedirection>
-      <AdditionalDependencies>glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libpng.lib;freeglutd.lib;zlib.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -144,7 +150,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)deps\glew\include;$(ProjectDir)deps\glut\include;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)deps\libpng\include;$(ProjectDir)deps\glew\include;$(ProjectDir)deps\glut\include;$(ProjectDir)deps\zlib\include;$(ProjectDir)src;$(ProjectDir)deps\png++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ShowIncludes>false</ShowIncludes>
@@ -152,8 +158,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(ProjectDir)deps\glew\lib;$(ProjectDir)deps\glut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;freeglutd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)deps\libpng\lib;$(ProjectDir)deps\glew\lib;$(ProjectDir)deps\zlib\lib;$(ProjectDir)deps\glut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>zlib.lib;glew32.lib;freeglutd.lib;libpng.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <PerUserRedirection>true</PerUserRedirection>
     </Link>

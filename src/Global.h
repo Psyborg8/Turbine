@@ -70,16 +70,19 @@ using Vec2Callback = function< void( int x, int y ) >;
 //================================================================================
 
 /* Globals */
-namespace Folders
-{
+namespace Folders {
 
-static const string DATA = "Data\\";
+static const string Data = "Data\\";
 
-static const string SHADER = DATA + "Shader\\";
-static const string VERTEX_SHADER = SHADER + "Vertex\\";
-static const string FRAGMENT_SHADER = SHADER + "Fragment\\";
+static const string Shader = Data + "Shader\\";
+static const string VertexShader = Shader + "Vertex\\";
+static const string FragmentShader = Shader + "Fragment\\";
 
-static const string ASSETS = DATA + "Assets\\";
+static const string Assets = Data + "Assets\\";
+static const string Tilesets = Assets + "Tilesets\\";
+static const string Sprites = Assets + "Sprites\\";
+
+static const string Worlds = Data + "Worlds\\";
 
 } // Folders
 

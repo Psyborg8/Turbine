@@ -43,6 +43,9 @@
     <Filter Include="Engine\Objects">
       <UniqueIdentifier>{abc69a04-4206-410a-9a57-b899d8d37494}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\GFX\Sprite">
+      <UniqueIdentifier>{1945f43a-8cb5-44eb-9b02-ff2b06956356}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ProjectBullet.cpp">
@@ -94,6 +97,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Traps.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpriteLoader.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -154,6 +160,9 @@
     </ClInclude>
     <ClInclude Include="src\Traps.h">
       <Filter>Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpriteLoader.h">
+      <Filter>Engine\GFX\Sprite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

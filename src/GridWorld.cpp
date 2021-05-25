@@ -161,8 +161,8 @@ void GridWorld::loadWorld( string name ) {
 
 	const WorldData& data = *it;
 
-	for( int y = 0; y < data.blockData.size(); ++y ) {
-		for( int x = 0; x < data.blockData.at( y ).size(); ++x ) {
+	for( size_t y = 0; y < data.blockData.size(); ++y ) {
+		for( size_t x = 0; x < data.blockData.at( y ).size(); ++x ) {
 			const Math::Vec2 pos = Math::Vec2( double( x ), data.blockData.size() - double( y ) ) * data.gridSize;
 			const char block = data.blockData.at( y ).at( x );
 

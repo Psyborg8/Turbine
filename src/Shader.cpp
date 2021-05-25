@@ -82,11 +82,11 @@ string Shader::findPath() const {
 	string folder, extension;
 	switch( m_type ) {
 	case ShaderType::Vertex:
-		folder = Folders::VERTEX_SHADER;
+		folder = Folders::VertexShader;
 		extension = ".vs";
 		break;
 	case ShaderType::Fragment:
-		folder = Folders::FRAGMENT_SHADER;
+		folder = Folders::FragmentShader;
 		extension = ".fs";
 		break;
 	default:

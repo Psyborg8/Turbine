@@ -1,0 +1,93 @@
+{
+    "activeFile": "Tilesets/Stronghold_Terrain_Tileset.tsx",
+    "expandedProjectPaths": [
+        "Tilesets",
+        "Tilesets/Multi_Platformer_Tileset_v2",
+        "Worlds"
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "Tilesets/Developer Symbols.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Tilesets/Fortress Spikes.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Tilesets/Multi_Platformer_Tileset_v2/Developer Symbols.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 4
+        },
+        "Tilesets/Multi_Platformer_Tileset_v2/Stronghold Animations.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Tilesets/Numbers.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Tilesets/Stronghold Details.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1.5
+        },
+        "Tilesets/Stronghold Spikes.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Tilesets/Stronghold Terrain.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Tilesets/Stronghold_Terrain_Tileset.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 4
+        },
+        "Worlds/DevWorld.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 199.5,
+                "y": 119.5
+            }
+        },
+        "Worlds/TestMap.json": {
+            "scale": 3,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": -1296.5,
+                "y": -2703.833333333333
+            }
+        }
+    },
+    "openFiles": [
+        "Worlds/TestMap.json",
+        "Tilesets/Stronghold_Terrain_Tileset.tsx",
+        "Tilesets/Developer Symbols.tsx",
+        "Tilesets/Multi_Platformer_Tileset_v2/Developer Symbols.tsx",
+        "Tilesets/Stronghold Details.tsx",
+        "Tilesets/Stronghold Spikes.tsx",
+        "Tilesets/Stronghold Terrain.tsx"
+    ],
+    "project": "ProjectBullet.tiled-project",
+    "recentFiles": [
+        "Worlds/TestMap.json",
+        "Tilesets/Stronghold Terrain.tsx",
+        "Tilesets/Stronghold Spikes.tsx",
+        "Tilesets/Stronghold Details.tsx",
+        "Tilesets/Multi_Platformer_Tileset_v2/Developer Symbols.tsx",
+        "Tilesets/Developer Symbols.tsx",
+        "Tilesets/Stronghold_Terrain_Tileset.tsx",
+        "Tilesets/Fortress Spikes.tsx",
+        "Tilesets/Multi_Platformer_Tileset_v2/Stronghold Animations.tsx",
+        "Tilesets/Numbers.tsx",
+        "Worlds/DevWorld.tmx"
+    ]
+}

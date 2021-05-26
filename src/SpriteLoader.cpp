@@ -23,6 +23,17 @@ struct Sprite {
 			return;
 
 		// Construct image data
+		size_t idx = 0u;
+		Byte* buffer = new Byte[ image->get_width() * image->get_height() * 4 ];
+		for( size_t y = 0u; y < image->get_width(); ++y )
+			for( size_t x = 0u; x < image->get_height(); ++x )
+			{
+				png::rgba_pixel pixel = image->get_pixel( x, y );
+				buffer[ idx++ ] = pixel.red;
+				buffer[ idx++ ] = pixel.green;
+				buffer[ idx++ ] = pixel.blue;
+				buffer[ idx++ ] = pixel.alpha;
+			}
 
 		glEnable( GL_BLEND );
 		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );

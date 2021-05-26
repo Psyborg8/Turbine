@@ -330,3 +330,4 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/x64/bin/Debug/ProjectBullet.vcxproj.FileListAbsolute.txt

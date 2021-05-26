@@ -22,9 +22,6 @@
     <Filter Include="Game\Objects">
       <UniqueIdentifier>{160e20d3-866a-44ec-98ee-db4952cda7f9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Collision">
-      <UniqueIdentifier>{cb60b95a-bb97-403b-8073-dfd77cc783fe}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Objects">
       <UniqueIdentifier>{abc69a04-4206-410a-9a57-b899d8d37494}</UniqueIdentifier>
     </Filter>
@@ -89,17 +86,11 @@
     <ClInclude Include="src\MathTypes.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\World.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="src\Player.h">
       <Filter>Game\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Timer.h">
       <Filter>Engine\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Collision.h">
-      <Filter>Engine\Collision</Filter>
     </ClInclude>
     <ClInclude Include="src\Object.h">
       <Filter>Engine\Objects</Filter>
@@ -121,6 +112,12 @@
     </ClInclude>
     <ClInclude Include="src\Tileset.h">
       <Filter>Engine\GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Collision.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\World.h">
+      <Filter>Engine\Objects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

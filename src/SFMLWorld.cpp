@@ -41,7 +41,6 @@ void SFMLWorld::onRender() {
 	Gfx::Sprite::renderSprite( "stone", Math::Vec2( 0.0f, 0.0f ), Math::Vec2( 1.0f, 1.0f ) );
 	Gfx::Tileset::renderTile( "Stronghold_Terrain_Tileset", 10, Math::Vec2( 32.0f, 32.0f ) );
 	Gfx::Tileset::renderTile( "Stronghold_Terrain_Tileset", 23, Math::Vec2( 32.0f, 0.0f ) );
-
 }
 
 //================================================================================

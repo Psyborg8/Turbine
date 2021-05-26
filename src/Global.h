@@ -29,7 +29,7 @@
 #include <chrono>
 #include <array>
 
-#include <SFML/Graphics.hpp>
+#include <SFML/graphics.hpp>
 
 //================================================================================
 

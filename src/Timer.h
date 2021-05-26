@@ -37,7 +37,7 @@ struct TimerID {
 
 // Called on update
 // Float argument is the lerp alpha from 0 - 1
-using UpdateCallback = std::function< void( double ) >;
+using UpdateCallback = std::function< void( float ) >;
 // Called on timer finish
 using FinishCallback = std::function< void() >;
 

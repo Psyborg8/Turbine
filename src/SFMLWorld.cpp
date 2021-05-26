@@ -4,7 +4,8 @@
 
 //--------------------------------------------------------------------------------
 
-#include "SpriteLoader.h"
+#include "Sprite.h"
+#include "Tileset.h"
 #include "RigidRect.h"
 
 //================================================================================
@@ -30,13 +31,17 @@ void SFMLWorld::onSpawnChildren() {
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onStart() {
-	Gfx::SpriteLoader::loadSprite( "stone" );
+	Gfx::Sprite::loadSprite( "stone" );
+	Gfx::Tileset::loadTileset( "Stronghold_Terrain_Tileset", sf::Vector2u( 16, 16 ) );
 }
 
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onRender() {
-	Gfx::SpriteLoader::renderSprite( "stone", Math::Vec2( 0.0f, 0.0f ), Math::Vec2( 1.0f, 1.0f ) );
+	Gfx::Sprite::renderSprite( "stone", Math::Vec2( 0.0f, 0.0f ), Math::Vec2( 1.0f, 1.0f ) );
+	Gfx::Tileset::renderTile( "Stronghold_Terrain_Tileset", 10, Math::Vec2( 32.0f, 32.0f ) );
+	Gfx::Tileset::renderTile( "Stronghold_Terrain_Tileset", 23, Math::Vec2( 32.0f, 0.0f ) );
+
 }
 
 //================================================================================

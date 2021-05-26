@@ -4,9 +4,6 @@
     <Filter Include="Engine">
       <UniqueIdentifier>{d52dd478-83f2-4212-875e-da86996b624e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Observers">
-      <UniqueIdentifier>{68cef8e6-fd79-43d2-a45e-5b5320135694}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\GFX">
       <UniqueIdentifier>{12a91a57-e64a-478c-b020-ab3bc0465dfc}</UniqueIdentifier>
     </Filter>
@@ -66,7 +63,7 @@
     <ClCompile Include="src\Traps.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\SpriteLoader.cpp">
+    <ClCompile Include="src\Sprite.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\SFMLWorld.cpp">
@@ -75,7 +72,7 @@
     <ClCompile Include="src\Camera.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\TilesetLoader.cpp">
+    <ClCompile Include="src\Tileset.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,10 +116,10 @@
     <ClInclude Include="src\Camera.h">
       <Filter>Engine\GFX</Filter>
     </ClInclude>
-    <ClInclude Include="src\SpriteLoader.h">
+    <ClInclude Include="src\Sprite.h">
       <Filter>Engine\GFX</Filter>
     </ClInclude>
-    <ClInclude Include="src\TilesetLoader.h">
+    <ClInclude Include="src\Tileset.h">
       <Filter>Engine\GFX</Filter>
     </ClInclude>
   </ItemGroup>

@@ -26,10 +26,13 @@ public:
 	virtual void setCheckpoint( size_t checkpoint ) {};
 
 public:
-	inline shared_ptr< Gfx::Camera > getCamera() { return m_camera; }
+	inline Gfx::Camera& getCamera() { return m_camera; }
+	
+	inline Math::Color getBackgroundColor() const { return m_backgroundColor; }
 
 protected:
-	shared_ptr< Gfx::Camera > m_camera;
+	Gfx::Camera m_camera;
+	Math::Color m_backgroundColor;
 };
 
 //================================================================================

@@ -50,17 +50,17 @@ void update();
 void init();
 
 // Add a new timer. onUpdate and onFinish can be nullptr. Returns timer ID for removal.
-void addTimer( string name, int msDuration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop );
-void addTimer( string name, std::chrono::milliseconds duration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop );
+TimerID addTimer( int msDuration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop );
+TimerID addTimer( std::chrono::milliseconds duration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop );
 
 // Remove timer using ID given when timer is created.
-void removeTimer( string name );
+void removeTimer( TimerID ID );
 
 // Triggers a timer's onFinish function, and restarts it if it's looping.
-void triggerTimer( string name );
+void triggerTimer( TimerID ID );
 
 /// Returns true if timer is still valid.
-bool timerStillActive( string name );
+bool timerStillActive( TimerID ID );
 
 /// Remove all timers.
 void clearTimers();

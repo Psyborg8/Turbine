@@ -10,23 +10,11 @@
     <Filter Include="Engine\GFX">
       <UniqueIdentifier>{12a91a57-e64a-478c-b020-ab3bc0465dfc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\GFX\Primitives">
-      <UniqueIdentifier>{0454ba43-245b-41ed-884f-9c96cee97b7b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\GFX\Particles">
-      <UniqueIdentifier>{1a267825-fa85-4070-9b0d-d7f66ae62b0d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\GFX\Shaders">
-      <UniqueIdentifier>{8f987ecb-66c1-42e9-9219-6fb55f62cddc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Math">
       <UniqueIdentifier>{b31f6836-5dc7-463d-85ad-bd901e554568}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source">
       <UniqueIdentifier>{2f621186-3722-4f6a-87c3-e49dc7463bdc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\GFX\Camera">
-      <UniqueIdentifier>{913eb072-0049-4ae8-8998-9f10e94efe58}</UniqueIdentifier>
     </Filter>
     <Filter Include="Game">
       <UniqueIdentifier>{26351a8f-7d6c-4536-9702-2687f7880e10}</UniqueIdentifier>
@@ -43,24 +31,15 @@
     <Filter Include="Engine\Objects">
       <UniqueIdentifier>{abc69a04-4206-410a-9a57-b899d8d37494}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\GFX\Sprite">
-      <UniqueIdentifier>{1945f43a-8cb5-44eb-9b02-ff2b06956356}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ProjectBullet.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\Shader.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\MathTypes.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Random.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Observers.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Object.cpp">
@@ -72,16 +51,10 @@
     <ClCompile Include="src\World.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\Camera.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\Player.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Timer.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GridWorld.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Collision.cpp">
@@ -90,28 +63,25 @@
     <ClCompile Include="src\RigidRect.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\CollisionWorld.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Checkpoint.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\Traps.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\SpriteLoader.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\SFMLWorld.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TilesetLoader.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
       <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Observers.h">
-      <Filter>Engine\Observers</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Shader.h">
-      <Filter>Engine\GFX\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="src\Random.h">
       <Filter>Engine\Math</Filter>
@@ -122,9 +92,6 @@
     <ClInclude Include="src\MathTypes.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\Camera.h">
-      <Filter>Engine\GFX\Camera</Filter>
-    </ClInclude>
     <ClInclude Include="src\World.h">
       <Filter>Engine</Filter>
     </ClInclude>
@@ -134,14 +101,8 @@
     <ClInclude Include="src\Timer.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\GridWorld.h">
-      <Filter>Game\Worlds</Filter>
-    </ClInclude>
     <ClInclude Include="src\Collision.h">
       <Filter>Engine\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rect.h">
-      <Filter>Engine\GFX\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="src\Object.h">
       <Filter>Engine\Objects</Filter>
@@ -149,28 +110,20 @@
     <ClInclude Include="src\RigidRect.h">
       <Filter>Engine\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\Line.h">
-      <Filter>Engine\GFX\Primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="src\CollisionWorld.h">
-      <Filter>Game\Worlds</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Checkpoint.h">
-      <Filter>Game\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="src\Traps.h">
       <Filter>Game\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\SpriteLoader.h">
-      <Filter>Engine\GFX\Sprite</Filter>
+    <ClInclude Include="src\SFMLWorld.h">
+      <Filter>Game\Worlds</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="src\Shaders\Fragment\Default.fs">
-      <Filter>Engine\GFX\Shaders</Filter>
-    </Text>
-    <Text Include="src\Shaders\Vertex\Default.vs">
-      <Filter>Engine\GFX\Shaders</Filter>
-    </Text>
+    <ClInclude Include="src\Camera.h">
+      <Filter>Engine\GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpriteLoader.h">
+      <Filter>Engine\GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TilesetLoader.h">
+      <Filter>Engine\GFX</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

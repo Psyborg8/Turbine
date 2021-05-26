@@ -20,13 +20,11 @@ public:
 	inline Math::Vec2 getPosition() { return m_position; }
 	inline void setPosition( Math::Vec2 position ) { m_position = position; calculate(); }
 
-	inline double getDistance() { return m_distance.y; }
+	inline float getDistance() { return m_distance.y; }
 	inline void setDistance( float distance ) { m_distance.y = distance; calculate(); }
 
-	// Conversions
-public:
-	Math::Vec2 screenToWorld( Math::Vec2 screenPosition );
-	Math::Vec2 worldToScreen( Math::Vec2 worldPosition );
+	inline float getRotation() { return m_rotation; }
+	inline void setRotation( float rotation ) { m_rotation = rotation; calculate(); }
 
 	// Utility
 public:
@@ -36,6 +34,7 @@ public:
 protected:
 	Math::Vec2 m_position;
 	Math::Vec2 m_distance;
+	float m_rotation;
 };
 
 //================================================================================

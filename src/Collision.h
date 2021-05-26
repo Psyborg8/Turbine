@@ -6,6 +6,8 @@
 
 #include "MathTypes.h"
 
+namespace Game { class RigidRect; }
+
 //================================================================================
 
 namespace Collision {
@@ -35,8 +37,8 @@ struct Rect {
 
 struct DynamicCollision {
 	bool isDynamic = false;
-	Rect* staticRect;
-	Rect* dynamicRect;
+	shared_ptr< Game::RigidRect > staticRect;
+	shared_ptr< Game::RigidRect > dynamicRect;
 };
 
 //--------------------------------------------------------------------------------
@@ -45,16 +47,16 @@ struct CollisionResult {
 	bool success = false;
 	Math::Vec2 normal;
 	Math::Vec2 point;
-	double distance;
+	float distance;
 	DynamicCollision dynamic;
 };
 
 //================================================================================
 
-bool collision( Math::Vec2 point, Rect rect );
+bool collision( Math::Vec2 point, shared_ptr< Game::RigidRect > rect );
 
-CollisionResult collision( Ray ray, Rect rect );
-CollisionResult collision( Rect* rectA, Rect* rectB );
+CollisionResult collision( Ray ray, shared_ptr< Game::RigidRect > rect );
+CollisionResult collision( shared_ptr< Game::RigidRect > rectA, shared_ptr< Game::RigidRect > rectB );
 
 void resolveCollision( CollisionResult result );
 

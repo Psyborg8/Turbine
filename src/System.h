@@ -30,11 +30,9 @@ SystemInfo getSystemInfo();
 
 shared_ptr< Worlds::World > getWorld();
 
-bool getKeyState( KeyCode key );
+sf::RenderWindow* getWindow();
 
-Math::Vec2 getMousePosition();
-
-double getDeltaTime();
+sf::Time getDeltaTime();
 
 
 //================================================================================

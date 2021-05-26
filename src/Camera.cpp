@@ -22,43 +22,20 @@ Camera::Camera() : m_distance( Math::Vec2( 0.0, 1.0 ) ), m_position( Math::Vec2(
 
 //--------------------------------------------------------------------------------
 
-Math::Vec2 Camera::screenToWorld( Math::Vec2 screenPosition ) {
-	Math::Vec2 out;
-
-	out.x = m_position.x + ( m_distance.x * screenPosition.x );
-	out.y = m_position.y + ( m_distance.y * screenPosition.y );
-
-	return out;
-}
-
-//--------------------------------------------------------------------------------
-
-Math::Vec2 Camera::worldToScreen( Math::Vec2 worldPosition ) {
-	Math::Vec2 out;
-
-	out.x = ( worldPosition.x - m_position.x ) / m_distance.x;
-	out.y = ( worldPosition.y - m_position.y ) / m_distance.y;
-
-	return out;
-}
-
-//--------------------------------------------------------------------------------
-
 void Camera::calculate() {
-	GLdouble left, right, top, bottom;
-
+	sf::RenderWindow* window = System::getWindow();
 	System::SystemInfo systemInfo = System::getSystemInfo();
 	m_distance.x = m_distance.y / systemInfo.height * systemInfo.width;
 
-	left = GLdouble( m_position.x - m_distance.x );
-	right = GLdouble( m_position.x + m_distance.x );
-	top = GLdouble( m_position.y + m_distance.y );
-	bottom = GLdouble( m_position.y - m_distance.y );
+	sf::FloatRect viewport;
+	viewport.left = m_position.x - m_distance.x / 2.0f;
+	viewport.top = m_position.y - m_distance.y / 2.0f;
+	viewport.width = m_distance.x;
+	viewport.height = m_distance.y;
 
-	glMatrixMode( GL_PROJECTION );
-	glLoadIdentity();
-	gluOrtho2D( left, right, bottom, top );
-	glMatrixMode( GL_MODELVIEW );
+	sf::View view{ viewport };
+
+	window->setView( view );
 }
 
 //================================================================================

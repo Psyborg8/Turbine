@@ -95,6 +95,19 @@ float Color::hue() const {
 
 //--------------------------------------------------------------------------------
 
+sf::Color Color::sf() const {
+	sf::Color out;
+
+	out.r = sf::Uint8( r * 255.0f );
+	out.g = sf::Uint8( g * 255.0f );
+	out.b = sf::Uint8( b * 255.0f );
+	out.a = sf::Uint8( r * 255.0f );
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
 bool Color::operatorbool() const {
 	return r + g + b != 0.0f;
 }
@@ -179,19 +192,19 @@ Color Color::operator/( const float& rh ) const {
 
 //================================================================================
 
-double Vec2::length() const {
+float Vec2::length() const {
 	return std::sqrt( x * x + y * y );
 }
 
 //--------------------------------------------------------------------------------
 
-double Vec2::dot( const Vec2& rh ) const {
+float Vec2::dot( const Vec2& rh ) const {
 	return x * rh.x + y * rh.y;
 }
 
 //--------------------------------------------------------------------------------
 
-double Vec2::determinant( const Vec2& rh ) const {
+float Vec2::determinant( const Vec2& rh ) const {
 	return x * rh.y - y * rh.x;
 }
 
@@ -218,10 +231,16 @@ Vec2 Vec2::abs() const {
 Vec2 Vec2::inverse() const {
 	Vec2 out;
 
-	out.x = 1.0 / x;
-	out.y = 1.0 / y;
+	out.x = 1.0f / x;
+	out.y = 1.0f / y;
 
 	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+sf::Vector2f Vec2::sf() const {
+	return sf::Vector2f( x, y );
 }
 
 //--------------------------------------------------------------------------------
@@ -319,7 +338,7 @@ Vec2& Vec2::operator*=( const Vec2& rh ) {
 
 //--------------------------------------------------------------------------------
 
-Vec2 Vec2::operator*( const double& rh ) const {
+Vec2 Vec2::operator*( const float& rh ) const {
 	Vec2 out;
 
 	out.x = x * rh;
@@ -330,7 +349,7 @@ Vec2 Vec2::operator*( const double& rh ) const {
 
 //--------------------------------------------------------------------------------
 
-Vec2& Vec2::operator*=( const double& rh ) {
+Vec2& Vec2::operator*=( const float& rh ) {
 	x *= rh;
 	y *= rh;
 
@@ -339,7 +358,7 @@ Vec2& Vec2::operator*=( const double& rh ) {
 
 //--------------------------------------------------------------------------------
 
-Vec2 Vec2::operator/( const double& rh ) const {
+Vec2 Vec2::operator/( const float& rh ) const {
 	Vec2 out;
 
 	out.x = x / rh;
@@ -350,7 +369,7 @@ Vec2 Vec2::operator/( const double& rh ) const {
 
 //--------------------------------------------------------------------------------
 
-Vec2& Vec2::operator/=( const double& rh ) {
+Vec2& Vec2::operator/=( const float& rh ) {
 	x /= rh;
 	y /= rh;
 

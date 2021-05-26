@@ -29,8 +29,7 @@
 #include <chrono>
 #include <array>
 
-#include <GL/glew.h>
-#include <GL/glut.h>
+#include <SFML/Graphics.hpp>
 
 //================================================================================
 

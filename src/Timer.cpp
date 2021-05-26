@@ -14,9 +14,7 @@ namespace Timers {
 
 //==================================================================================================
 
-struct Timer {
-	string name;
-
+struct Timer : public TimerID {
 	std::chrono::time_point< std::chrono::steady_clock > startTime;
 	std::chrono::milliseconds duration;
 	std::chrono::nanoseconds expirationTime; // ms turned out to not be accurate enough in some cases.
@@ -25,11 +23,6 @@ struct Timer {
 
 	UpdateCallback onUpdate;
 	FinishCallback onFinish;
-
-	bool operator==( const Timer& rh )
-	{
-		return name == rh.name;
-	}
 };
 
 //==================================================================================================
@@ -37,7 +30,7 @@ struct Timer {
 std::vector< Timer > timers;
 std::stack< int > freeIDs; // Recycle old IDs so nextID doesn't keep growing.
 int nextID{ 0 };
-std::vector< string > markedForRemoval; // Handle removal timing so timers can be safely deleted by eachothers.
+std::vector< TimerID > markedForRemoval; // Handle removal timing so timers can be safely deleted by eachothers.
 
 bool threadLock{ false }; // Prevent unsafe functions being used during iteration.
 
@@ -66,7 +59,7 @@ void update() {
 	for( size_t idx = 0u; idx < timersSize; ++idx ) {
 		Timer& timer = timers[ idx ];
 
-		const auto it = find( markedForRemoval.begin(), markedForRemoval.end(), timer.name );
+		const auto it = find( markedForRemoval.begin(), markedForRemoval.end(), timer );
 		if( it != markedForRemoval.end() )
 			continue; // This timer isn't supposed to exist, ignore it.
 
@@ -78,7 +71,7 @@ void update() {
 				timer.startTime = time;
 			}
 			else
-				removeTimer( timer.name );
+				removeTimer( TimerID( timer ) );
 
 			if( timer.onUpdate != nullptr )
 				timer.onUpdate( 1.0f ); // onUpdate won't ever reach 1.0f otherwise
@@ -98,8 +91,11 @@ void update() {
 	}
 
 	// Delete all timers that were marked for removal. Including those manually deleted before this loop.
-	for( string name : markedForRemoval ) {
-		const auto it = find_if( timers.begin(), timers.end(), [name]( Timer timer ) { return timer.name == name; } );
+	for( TimerID ID : markedForRemoval ) {
+		const auto it = find_if( timers.begin(), timers.end(),
+									[ID]( Timer timer ) {
+										return TimerID( timer ) == ID;
+									} );
 		if( it != timers.end() )
 			timers.erase( it );
 	}
@@ -120,7 +116,7 @@ void init()
 	freeIDs = std::stack< int >();
 	nextID  = 0;
 
-	markedForRemoval = std::vector< string >();
+	markedForRemoval = std::vector< TimerID >();
 	markedForRemoval.reserve( 32u );
 
 	threadLock = false;
@@ -132,18 +128,18 @@ void init()
 
 //--------------------------------------------------------------------------------------------------
 
-void addTimer( string name, int msDuration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop ) {
+TimerID addTimer( int msDuration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop ) {
 	const std::chrono::milliseconds duration = std::chrono::milliseconds( msDuration );
 
-	return addTimer( name, duration, onUpdate, onFinish, loop );
+	return addTimer( duration, onUpdate, onFinish, loop );
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void addTimer( string name, std::chrono::milliseconds duration,
-							   UpdateCallback onUpdate,
-							   FinishCallback onFinish,
-							   bool loop ) 
+TimerID addTimer( std::chrono::milliseconds duration,
+			   UpdateCallback onUpdate,
+			   FinishCallback onFinish,
+			   bool loop )
 {
 	const std::chrono::time_point< std::chrono::steady_clock > time = std::chrono::high_resolution_clock::now();
 
@@ -160,11 +156,8 @@ void addTimer( string name, std::chrono::milliseconds duration,
 		freeIDs.pop();
 	}
 
-	TimerID timerID;
-	timerID.ID		  = ID;
-	timerID.timeStamp = std::chrono::high_resolution_clock::now();
-
-	timer.name			 = name;
+	timer.ID		  = ID;
+	timer.timeStamp = std::chrono::high_resolution_clock::now();
 	timer.duration		 = duration;
 	timer.expirationTime = std::chrono::duration_cast< std::chrono::nanoseconds >( duration );
 	timer.startTime		 = time;
@@ -173,28 +166,30 @@ void addTimer( string name, std::chrono::milliseconds duration,
 	timer.onFinish		 = onFinish;
 
 	timers.push_back( timer );
+
+	return TimerID( timer );
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void removeTimer( string name ) {
+void removeTimer( TimerID ID ) {
 	// Don't bother trying to delete an invalid ID.
-	if( name.empty() )
+	if( !ID )
 		return;
 
 	// Don't delete the timer now, just mark it for removal on the next update.
 	// This makes it safe for timers to delete each other.
-	markedForRemoval.push_back( name );
+	markedForRemoval.push_back( ID );
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void triggerTimer( string name )
+void triggerTimer( TimerID ID )
 {
-	if( name.empty() )
+	if( !ID )
 		return;
 
-	const auto it = std::find_if( timers.begin(), timers.end(), [name]( const Timer& timer ) { return timer.name == name; } );
+	const auto it = std::find_if( timers.begin(), timers.end(), [ID]( const Timer& timer ) { return TimerID( timer ) == ID; } );
 	if( it != timers.end() ) {
 		if( it->onUpdate != nullptr )
 			it->onUpdate( 1.0f );
@@ -208,18 +203,21 @@ void triggerTimer( string name )
 			it->startTime = time;
 		}
 		else
-			removeTimer( it->name );
+			removeTimer( *it );
 	}
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool timerStillActive( string name ) {
+bool timerStillActive( TimerID ID ) {
 	// Don't bother looking for an invalid ID.
-	if( name.empty() )
+	if( !ID )
 		return false;
 
-	const auto it = find_if( timers.begin(), timers.end(), [name]( Timer timer ) { return timer.name == name; } );
+	const auto it = find_if( timers.begin(), timers.end(), 
+							 [ID]( Timer timer ) { 
+								 return TimerID( timer ) == ID; 
+							 } );
 	return it != timers.end();
 }
 

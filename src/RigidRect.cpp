@@ -5,6 +5,7 @@
 //--------------------------------------------------------------------------------
 
 #include "Collision.h"
+#include "System.h"
 
 //================================================================================
 
@@ -12,15 +13,22 @@ namespace Game {
 
 //================================================================================
 
-RigidRect::RigidRect() : Gfx::Rect(), Object() {
+RigidRect::RigidRect() : Object() {
 	//
 }
 
 //--------------------------------------------------------------------------------
 
-RigidRect::RigidRect( Math::Vec2 _position, Math::Vec2 _size, Math::Color _color = Colors::WHITE ) : Gfx::Rect(), Object() {
-	size = _size;
-	fillColor = _color;
+RigidRect::RigidRect( Math::Vec2 position, Math::Vec2 size, Math::Color color = Colors::WHITE ) :  Object() {
+	m_rect.setScale( size.sf() );
+	m_rect.setPosition( position.sf() );
+	m_color = color;
+}
+
+//--------------------------------------------------------------------------------
+
+void RigidRect::onRender() {
+	System::getWindow()->draw( m_rect );
 }
 
 //--------------------------------------------------------------------------------
@@ -28,18 +36,16 @@ RigidRect::RigidRect( Math::Vec2 _position, Math::Vec2 _size, Math::Color _color
 Collision::CollisionResult RigidRect::isColliding( shared_ptr< Object > target ) {
 	Collision::CollisionResult out;
 
+	if( m_collisionType == CollisionType::None )
+		return out;
+
 	if( target == shared_from_this() )
 		return out;
 
 	{
-		Collision::Rect* ptr = dynamic_cast< Rect* >( target.get() );
+		shared_ptr< RigidRect > ptr = std::dynamic_pointer_cast< RigidRect >( target );
 		if( ptr != nullptr )
-			out = Collision::collision( ptr, this );
-	}
-	{
-		Collision::Ray* ptr = dynamic_cast< Collision::Ray* >( target.get() );
-		if( ptr != nullptr )
-			out = Collision::collision( *ptr, *this );
+			out = Collision::collision( ptr, std::dynamic_pointer_cast< RigidRect >( shared_from_this() ) );
 	}
 
 	return out;

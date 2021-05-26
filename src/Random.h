@@ -19,18 +19,21 @@ public:
 
 //================================================================================
 
-	int getRandomIntInRange( int min, int max );
-	int getRandomIntInRange( int min, int max, function< int( int randomNumber ) > func );
-	RandomNumbers< int > getRandomIntInRange( int min, int max, size_t count );
-	RandomNumbers< int > getRandomIntInRange( int min, int max, size_t count, function< int( int randomNumber ) > func );
+int getRandomIntInRange( int min, int max );
+int getRandomIntInRange( int min, int max, function< int( int randomNumber ) > func );
+RandomNumbers< int > getRandomIntInRange( int min, int max, size_t count );
+RandomNumbers< int > getRandomIntInRange( int min, int max, size_t count, function< int( int randomNumber ) > func );
 
-	float getRandomFloatInRange( float min, float max );
-	float getRandomFloatInRange( float min, float max, function< float( float randomNumber ) > func );
-	RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count );
-	RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count, function< float( float randomNumber ) > func );
+float getRandomFloatInRange( float min, float max );
+float getRandomFloatInRange( float min, float max, function< float( float randomNumber ) > func );
+RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count );
+RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count, function< float( float randomNumber ) > func );
 
-	uint16_t getSeed();
-	void setSeed( uint16_t seed );
-};
+uint16_t getSeed();
+void setSeed( uint16_t seed );
+
+//================================================================================
+
+} // Random
 
 //================================================================================

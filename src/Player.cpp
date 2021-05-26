@@ -8,7 +8,6 @@
 #include "System.h"
 #include "World.h"
 #include "Timer.h"
-#include "Line.h"
 
 //================================================================================
 
@@ -22,72 +21,72 @@ Player::Player() : Player( Math::Vec2() ) {
 
 //--------------------------------------------------------------------------------
 
-Player::Player( Math::Vec2 pos ) : RigidRect( pos, Math::Vec2( 0.15, 0.2 ), Colors::BLUE ) {
+Player::Player( Math::Vec2 pos ) : RigidRect( pos, Math::Vec2( 0.15f, 0.2f ), Colors::BLUE ) {
 	setName( "Player" );
 }
 
 //--------------------------------------------------------------------------------
 
-void Player::onUpdate( double deltaTime ) {
+void Player::onUpdate( sf::Time deltaTime ) {
 	// Ignore physics while dashing
 	if( !dashData.isDashing ) {
 		// Horizontal
 		{
-			double move = 0.0;
+			float move = 0.0;
 			// Movement
-			if( abs( velocity.x ) <= movementData.maxSpeed ) {
+			if( abs( m_velocity.x ) <= movementData.maxSpeed ) {
 				// Input
-				if( System::getKeyState( KeyCode::d ) )
-					move += movementData.acceleration * deltaTime;
-				if( System::getKeyState( KeyCode::a ) )
-					move -= movementData.acceleration * deltaTime;
+				if( sf::Keyboard::isKeyPressed( sf::Keyboard::D ) )
+					move += movementData.acceleration * deltaTime.asSeconds();
+				if( sf::Keyboard::isKeyPressed( sf::Keyboard::A ) )
+					move -= movementData.acceleration * deltaTime.asSeconds();
 
 				// Air control
 				if( !jumpData.canJump )
 					move *= movementData.airMultiplier;
 
 				// Apply movement
-				if( abs( velocity.x + move ) > movementData.maxSpeed &&
-					velocity.x / abs( velocity.x ) == move / abs( move ) )
-					velocity.x = movementData.maxSpeed * ( move / abs( move ) );
+				if( abs( m_velocity.x + move ) > movementData.maxSpeed &&
+					m_velocity.x / abs( m_velocity.x ) == move / abs( move ) )
+					m_velocity.x = movementData.maxSpeed * ( move / abs( move ) );
 				else
-					velocity.x += move;
+					m_velocity.x += move;
 			}
 
 			// Friction
-			if( !move && velocity.x ) {
-				double friction = frictionData.power * abs( velocity.x ) * deltaTime;
+			if( !move && m_velocity.x ) {
+				float friction = frictionData.power * abs( m_velocity.x ) * deltaTime.asSeconds();
 
 				// Air resistance
 				if( !jumpData.canJump )
 					friction *= frictionData.airMultiplier;
 
-				friction = std::clamp( friction, frictionData.min * deltaTime, frictionData.max * deltaTime );
-				if( abs( velocity.x ) < friction )
-					velocity.x = 0.0;
+				friction = std::clamp( friction, frictionData.min * deltaTime.asSeconds(), frictionData.max * deltaTime.asSeconds() );
+				if( abs( m_velocity.x ) < friction )
+					m_velocity.x = 0.0;
 				else
-					velocity.x -= friction * ( velocity.x / abs( velocity.x ) );
+					m_velocity.x -= friction * ( m_velocity.x / abs( m_velocity.x ) );
 			}
 		}
 
 		// Vertical
 		{
 			// Gravity
-			velocity.y -= gravityData.power * deltaTime;
-			velocity.y = velocity.y < -gravityData.max ? -gravityData.max : velocity.y;
+			m_velocity.y -= gravityData.power * deltaTime.asSeconds();
+			m_velocity.y = m_velocity.y < -gravityData.max ? -gravityData.max : m_velocity.y;
 
 			// Jump Release
-			if( !System::getKeyState( KeyCode::Space ) )
-				velocity.y = std::min( velocity.y, jumpData.release );
+			if( !sf::Keyboard::isKeyPressed( sf::Keyboard::Space ) )
+				m_velocity.y = std::min( m_velocity.y, jumpData.release );
 
 			// Wall Cling
 			if( wallClingData.isClinging ) {
-				double friction = wallClingData.multiplier * abs( velocity.y ) * deltaTime;
-				friction = std::clamp( friction, wallClingData.min * deltaTime, wallClingData.max * deltaTime );
-				if( abs( velocity.y ) < friction )
-					velocity.y = 0.0;
+				float friction = wallClingData.multiplier * abs( m_velocity.y ) * deltaTime.asSeconds();
+				friction = std::clamp( friction, wallClingData.min * deltaTime.asSeconds(), wallClingData.max * deltaTime.asSeconds() );
+				if( abs( m_velocity.y ) < friction )
+					m_velocity.y = 0.0;
 				else
-					velocity.y -= friction * ( velocity.y / abs( velocity.y ) );
+					m_velocity.y -= friction * ( m_velocity.y / abs( m_velocity.y ) );
 			}
 		}
 	}
@@ -122,7 +121,7 @@ void Player::onProcessCollisions()
 
 	jumpData.isJumpingDown &= collision;
 	if( !jumpData.isJumpingDown )
-		if( velocity.y < 0.0 )
+		if( m_velocity.y < 0.0 )
 			targets.insert( targets.end(), platforms.begin(), platforms.end() );
 		else if( collision )
 			jumpData.isJumpingDown = true;
@@ -132,44 +131,35 @@ void Player::onProcessCollisions()
 
 //--------------------------------------------------------------------------------
 
-void Player::onRender() {
-	RigidRect::render();
-}
-
-//--------------------------------------------------------------------------------
-
 void Player::onDestroy() {
-	Observers::removeObserver( m_keyPressObserver );
-	Observers::removeObserver( m_keyReleaseObserver );
+
 }
 
 //--------------------------------------------------------------------------------
 
-void Player::onCreateObservers() {
-	using namespace std::placeholders;
-
-	m_keyPressObserver = Observers::addObserver( Observers::ObserverType::KeyPress, KeyCallback( std::bind( &Player::onKeyboardPress, this, _1 ) ) );
-	m_keyReleaseObserver = Observers::addObserver( Observers::ObserverType::KeyRelease, KeyCallback( std::bind( &Player::onKeyboardRelease, this, _1 ) ) );
-}
-
-//--------------------------------------------------------------------------------
-
-void Player::onKeyboardPress( int key ) {
-	const KeyCode keyCode = static_cast< KeyCode >( key );
-	if( keyCode == KeyCode::Space )
-		jump();
-	else if( keyCode == KeyCode::e )
-		dash();
-}
-
-//--------------------------------------------------------------------------------
-
-void Player::onKeyboardRelease( int key ) {
-	const KeyCode keyCode = static_cast< KeyCode >( key );
-	if( keyCode == KeyCode::Space )
-		jumpData.wait = false;
-	else if( keyCode == KeyCode::e )
-		dashData.wait = false;
+void Player::onEvent( sf::Event e ) {
+	if( e.type == sf::Event::KeyPressed )
+		switch( e.key.code ) {
+		case sf::Keyboard::Space:
+			jump();
+			break;
+		case sf::Keyboard::E:
+			dash();
+			break;
+		default:
+			break;
+	}
+	else if( e.type == sf::Event::KeyReleased )
+		switch( e.key.code ) {
+		case sf::Keyboard::Space:
+			jumpData.wait = false;
+			break;
+		case sf::Keyboard::E:
+			dashData.wait = false;
+			break;
+		default:
+			break;
+		}
 }
 
 //--------------------------------------------------------------------------------
@@ -191,7 +181,7 @@ void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object 
 		wallJumpData.normal = result.normal.x;
 	}
 
-	Timers::triggerTimer( "Dash Timer" );
+	Timers::triggerTimer( m_dashTimer );
 }
 
 //--------------------------------------------------------------------------------
@@ -202,20 +192,20 @@ void Player::jump()
 		return;
 
 	if( jumpData.canJump ) {
-		if( jumpData.canJumpDown && System::getKeyState( KeyCode::s ) )
+		if( jumpData.canJumpDown && sf::Keyboard::isKeyPressed( sf::Keyboard::S ) )
 			jumpData.isJumpingDown = true;
 		else {
-			velocity.y = jumpData.power;
+			m_velocity.y = jumpData.power;
 			jumpData.canJump = false;
 		}
 	}
 	else if( doubleJumpData.canDoubleJump ) {
 		if( wallClingData.isClinging ) {
-			velocity = wallJumpData.direction * wallJumpData.power;
-			velocity.x *= wallJumpData.normal;
+			m_velocity = wallJumpData.direction * wallJumpData.power;
+			m_velocity.x *= wallJumpData.normal;
 		}
 		else
-			velocity.y = doubleJumpData.power;
+			m_velocity.y = doubleJumpData.power;
 
 		doubleJumpData.canDoubleJump = false;
 	}
@@ -235,13 +225,13 @@ void Player::dash() {
 		return;
 
 	Math::Vec2 direction;
-	if( System::getKeyState( KeyCode::d ) )
+	if( sf::Keyboard::isKeyPressed( sf::Keyboard::D ) )
 		direction.x += 1.0;
-	if( System::getKeyState( KeyCode::a ) )
+	if( sf::Keyboard::isKeyPressed( sf::Keyboard::A ) )
 		direction.x -= 1.0;
-	if( System::getKeyState( KeyCode::w ) )
+	if( sf::Keyboard::isKeyPressed( sf::Keyboard::W ) )
 		direction.y += 1.0;
-	if( System::getKeyState( KeyCode::s ) )
+	if( sf::Keyboard::isKeyPressed( sf::Keyboard::S ) )
 		direction.y -= 1.0;
 
 	if( direction == Math::Vec2() )
@@ -250,20 +240,42 @@ void Player::dash() {
 	direction = direction.normalize();
 	direction *= dashData.power;
 
-	velocity = direction;
+	setVelocity( direction );
 
 	dashData.canDash = false;
 	dashData.isDashing = true;
 	dashData.wait = true;
 	doubleJumpData.canDoubleJump = true;
 
-	Timers::addTimer( "Dash Cooldown", dashData.cooldown, nullptr, [this] { dashData.canDash = true; }, false );
-	Timers::addTimer( "Dash Timer",
-					 dashData.duration, nullptr,
-					 [this] {
-						 dashData.isDashing = false;
-						 velocity.y = velocity.y > jumpData.release ? jumpData.release : velocity.y;
-					 }, false );
+	m_dashCooldownTimer = Timers::addTimer( dashData.cooldown, nullptr, [this] { dashData.canDash = true; }, false );
+	m_dashTimer = Timers::addTimer( dashData.duration,
+									nullptr,
+									[this] {
+										dashData.isDashing = false;
+										m_velocity.y = m_velocity.y > jumpData.release ? jumpData.release : m_velocity.y;
+										Timers::removeTimer( m_dashAnimationTimer );
+									}, false );
+
+
+
+	m_dashAnimationTimer = Timers::addTimer( dashData.animationStep,
+											nullptr,
+											[this] {
+												 shared_ptr< RigidRect > rect = makeObject< RigidRect >( m_parent );
+												 rect->setPosition( getPosition() );
+												 rect->setSize( getSize() );
+												 Math::Color color = getColor();
+
+												Timers::addTimer( dashData.duration, 
+																  [rect, &color]( float a )  {
+																	  color.a = ( 1.0f - color.a ) * 0.5f;
+																	  rect->setColor( color );
+																	  System::getWindow()->draw( rect->getRect() );
+																  },
+																  nullptr, 
+															      false );
+											}, true );
+
 }
 
 //--------------------------------------------------------------------------------

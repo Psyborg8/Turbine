@@ -19,13 +19,13 @@ public:
 
 	// Events
 public:
-	virtual inline void onCreateObservers() {} // Create all observers for object
+	virtual inline void onEvent( sf::Event e ) {} // Called for SFML events
 	virtual inline void onSpawnChildren() {} // Make all child objects for this object
 	virtual inline void onStart() {} // Called after all objects are spawned
-	virtual inline void onUpdate( double deltaTime ) {} // First update phase - For input, physics etc.
+	virtual inline void onUpdate( sf::Time deltaTime ) {} // First update phase - For input, physics etc.
 	virtual inline void onProcessCollisions() {} // Second update phase - For collision processing
 	virtual inline void onCollision( Collision::CollisionResult collision, shared_ptr< Object > target ) {}  // Called when the object collides with another
-	virtual inline void onPostUpdate( double deltaTime ) {} // Third update phase - For resolving physics and cleaning up
+	virtual inline void onPostUpdate( sf::Time deltaTime ) {} // Third update phase - For resolving physics and cleaning up
 	virtual inline void onRender() {} // Called after all update phases, for rendering gfx
 	virtual inline void onPostRender() {} // For things that need to be done after all renders are complete
 	virtual inline void onExit() {} // When the game exits
@@ -49,7 +49,9 @@ public:
 	inline void setName( string name ) { m_name = name; }
 
 	virtual inline Math::Vec2 getPosition() const { return Math::Vec2(); }
-	virtual inline void setPosition( Math::Vec2 position ) {}
+	virtual inline void setPosition( Math::Vec2 position ) { m_position = position; }
+	virtual Math::Vec2 getWorldPosition() const;
+	virtual void setWorldPosition( Math::Vec2 position );
 
 	inline CollisionType getCollisionType() const { return m_collisionType; }
 	inline void setCollisionType( CollisionType type ) { m_collisionType = type; }
@@ -59,6 +61,7 @@ protected:
 	Object* m_parent{ nullptr };
 	string m_name{ "" };
 	CollisionType m_collisionType{ CollisionType::None };
+	Math::Vec2 m_position;
 
 
 	/* Static */
@@ -73,7 +76,6 @@ public:
 		shared_ptr< Object > ptrObj = std::dynamic_pointer_cast< Object >( ptr );
 		if( ptrObj != nullptr ) {
 			ptrObj->setParent( parent );
-			ptrObj->onCreateObservers();
 			ptrObj->onSpawnChildren();
 
 			s_objects.push_back( ptrObj );

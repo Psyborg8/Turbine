@@ -101,9 +101,6 @@
     <ClInclude Include="src\RigidRect.h">
       <Filter>Engine\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\Traps.h">
-      <Filter>Game\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="src\SFMLWorld.h">
       <Filter>Game\Worlds</Filter>
     </ClInclude>

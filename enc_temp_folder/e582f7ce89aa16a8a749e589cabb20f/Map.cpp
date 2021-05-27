@@ -265,7 +265,7 @@ void constructMap( string name, Object* world ) {
 
 				const auto it = std::find_if( tilesets.begin(), tilesets.end(),
 											  [id]( const Tileset& tileset ) {
-												  return id >= tileset.uid && id < tileset.uid + tileset.tiles.size();
+												  return id >= tileset.uid && id <= tileset.uid + tileset.tiles.size();
 											  } );
 
 				if( it == tilesets.end() )

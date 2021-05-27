@@ -51,7 +51,6 @@
     <ClInclude Include="src\MathTypes.h" />
     <ClInclude Include="src\Tileset.h" />
     <ClInclude Include="src\Timer.h" />
-    <ClInclude Include="src\Traps.h" />
     <ClInclude Include="src\World.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

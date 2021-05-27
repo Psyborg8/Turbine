@@ -28,9 +28,10 @@ void loadTileset( string name, sf::Vector2u tileSize, string path );
 void unloadTileset( string name );
 
 // Draw tile to screen
-void renderTile( string name, size_t index, Math::Vec2 pos = Math::Vec2(), Math::Vec2 scale = Math::Vec2( 1.0, 1.0 ) );
+void renderTile( string name, size_t index, Math::Vec2 pos = Math::Vec2(), Math::Vec2 scale = Math::Vec2( 1.0f, 1.0f ) );
 
-shared_ptr< sf::Sprite > getTileSprite( string name, size_t index );
+// Draw tile to render target
+void renderTile( string name, size_t index, sf::RenderTarget* target, Math::Vec2 pos = Math::Vec2(), Math::Vec2 scale = Math::Vec2( 1.0f, 1.0f ) );
 
 //--------------------------------------------------------------------------------
 

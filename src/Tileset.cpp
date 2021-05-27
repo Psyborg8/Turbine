@@ -4,6 +4,7 @@
 
 //--------------------------------------------------------------------------------
 
+#include <filesystem>
 #include "System.h"
 
 //================================================================================
@@ -41,6 +42,9 @@ void loadTileset( string name, sf::Vector2u tileSize, string path ) {
 		return;
 
 	tileset.name = name;
+
+	if( !std::filesystem::exists( std::filesystem::path( path ) ) )
+		return;
 
 	tileset.texture = make_shared< sf::Texture >();
 	tileset.texture->loadFromFile( path );
@@ -93,12 +97,14 @@ void renderTile( string name, size_t index, Math::Vec2 pos, Math::Vec2 scale ) {
 
 //--------------------------------------------------------------------------------
 
-shared_ptr< sf::Sprite > getTileSprite( string name, size_t index ) {
+void renderTile( string name, size_t index, sf::RenderTarget* target, Math::Vec2 pos, Math::Vec2 scale ) {
 	Tileset tileset = getTileset( name );
 	if( tileset.name != name )
-		return nullptr;
+		return;
 
-	return tileset.tiles.at( index ).sprite;
+	const Tile& tile = tileset.tiles.at( index );
+	tile.sprite->setPosition( pos.sf() );
+	target->draw( *tile.sprite );
 }
 
 //--------------------------------------------------------------------------------

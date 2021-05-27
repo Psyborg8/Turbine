@@ -7,6 +7,8 @@
 #include "Sprite.h"
 #include "Tileset.h"
 #include "RigidRect.h"
+#include "Map.h"
+#include "System.h"
 
 //================================================================================
 
@@ -17,8 +19,8 @@ namespace Worlds {
 void SFMLWorld::onSpawnChildren() {
 	World::onSpawnChildren();
 
-	m_camera.setDistance( 100.0f );
-	m_camera.setPosition( Math::Vec2() );
+	m_camera.setDistance( 256.0f );
+	m_camera.setPosition( Math::Vec2( 128.0f, 128.0f ) );
 
 	/*
 	shared_ptr< Game::RigidRect > rect = makeObject< Game::RigidRect >( this );
@@ -31,16 +33,24 @@ void SFMLWorld::onSpawnChildren() {
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onStart() {
-	Gfx::Sprite::loadSprite( "stone" );
-	Gfx::Tileset::loadTileset( "Stronghold_Terrain_Tileset", sf::Vector2u( 16, 16 ) );
+	Gfx::Map::loadMap( "DungeonMap" );
+	Gfx::Map::constructMap( "DungeonMap", this );
 }
 
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onRender() {
-	Gfx::Sprite::renderSprite( "stone", Math::Vec2( 0.0f, 0.0f ), Math::Vec2( 1.0f, 1.0f ) );
-	Gfx::Tileset::renderTile( "Stronghold_Terrain_Tileset", 10, Math::Vec2( 32.0f, 32.0f ) );
-	Gfx::Tileset::renderTile( "Stronghold_Terrain_Tileset", 23, Math::Vec2( 32.0f, 0.0f ) );
+	Gfx::Map::renderMap( "DungeonMap" );
+}
+
+//--------------------------------------------------------------------------------
+
+void SFMLWorld::onUpdate( sf::Time deltaTime ) {
+	m_camera.setPosition( m_camera.getPosition() + Math::Vec2( 16.0f, 0.0f ) * deltaTime.asSeconds() );
+
+	sf::Vector2i screenPos = sf::Mouse::getPosition();
+
+	m_camera.setPosition( Math::Vec2( screenPos.x / 100.0f, screenPos.y / 100.0f ) + Math::Vec2( 128.0f, 128.0f ) );
 }
 
 //================================================================================

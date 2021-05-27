@@ -39,10 +39,14 @@ public:
 	inline Math::Color getColor() const { return m_color; }
 	inline void setColor( Math::Color color ) { m_color = color; }
 
+	inline pair< string, int > getTile() const { return m_tile; }
+	inline void setTile( string tileset, int index ) { m_tile = make_pair( tileset, index ); }
+
 protected:
 	sf::RectangleShape m_rect;
 	Math::Vec2 m_velocity;
 	Math::Color m_color;
+	pair< string, int > m_tile;
 };
 
 //================================================================================

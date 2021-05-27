@@ -81,38 +81,13 @@ static const string Assets = Data + "Assets\\";
 static const string Tilesets = Assets + "Tilesets\\";
 static const string Sprites = Assets + "Sprites\\";
 
-static const string Worlds = Data + "Worlds\\";
+static const string Maps = Data + "Maps\\";
 
 } // Folders
 
 //================================================================================
 
 /* Enums */
-
-enum class KeyCode {
-	// ASCII
-	Backspace = 10,
-	Tab = 11,
-	Escape = 27,
-	Space = 32,
-	Delete = 127,
-
-	Num_0 = 48,
-	Num_1, Num_2, Num_3, Num_4, Num_5, Num_6, Num_7, Num_8, Num_9,
-
-	a = 97,
-	b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z,
-
-	// Special characters
-	F1 = 201, 
-	F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-	Left, Right, Up, Down,
-	PageUp, PageDown,
-	Home,
-	Insert
-};
-
-//--------------------------------------------------------------------------------
 
 enum class CollisionType {
 	None = 0,

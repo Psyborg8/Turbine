@@ -11,24 +11,17 @@
 namespace Gfx {
 namespace Tileset {
 
+struct Tile {
+	int id;
+	shared_ptr< sf::Sprite > sprite;
+};
+
 //--------------------------------------------------------------------------------
 
 struct Tileset {
 	string name;
-	vector< sf::Texture > texture;
-
-	void render( size_t index, Math::Vec2 pos, Math::Vec2 scale = Math::Vec2( 1.0, 1.0 ) ) const {
-		if( index >= texture.size() )
-			return;
-
-		const sf::Texture& tex = texture.at( index );
-		sf::Sprite sprite( tex );
-
-		sprite.scale( scale.sf() );
-		sprite.setPosition( pos.sf() );
-
-		System::getWindow()->draw( sprite );
-	}
+	shared_ptr< sf::Texture > texture;
+	vector< Tile > tiles;
 };
 
 //--------------------------------------------------------------------------------
@@ -41,7 +34,7 @@ vector< Tileset > tilesets;
 
 //================================================================================
 
-void loadTileset( string name, sf::Vector2u tileSize, string folder ) {
+void loadTileset( string name, sf::Vector2u tileSize, string path ) {
 	Tileset tileset = getTileset( name );
 	
 	if( tileset.name == name )
@@ -49,13 +42,12 @@ void loadTileset( string name, sf::Vector2u tileSize, string folder ) {
 
 	tileset.name = name;
 
-	sf::Texture texture;
-	const string path = folder + name + ".png";
-	texture.loadFromFile( path );
+	tileset.texture = make_shared< sf::Texture >();
+	tileset.texture->loadFromFile( path );
 
 	sf::Vector2u mapSize;
-	mapSize.x = texture.getSize().x / tileSize.x;
-	mapSize.y = texture.getSize().y / tileSize.y;
+	mapSize.x = tileset.texture->getSize().x / tileSize.x;
+	mapSize.y = tileset.texture->getSize().y / tileSize.y;
 
 	for( size_t y = 0u; y < mapSize.y; ++y )
 		for( size_t x = 0u; x < mapSize.x; ++x ) {
@@ -65,10 +57,10 @@ void loadTileset( string name, sf::Vector2u tileSize, string folder ) {
 			rect.width = tileSize.x;
 			rect.height = tileSize.y;
 
-			sf::Texture tile;
-			tile.loadFromFile( path, rect );
+			Tile tile;
 
-			tileset.texture.push_back( tile );
+			tile.sprite = std::make_shared< sf::Sprite >( *tileset.texture, rect );
+			tileset.tiles.push_back( tile );
 		}
 
 	tilesets.push_back( tileset );
@@ -94,29 +86,19 @@ void renderTile( string name, size_t index, Math::Vec2 pos, Math::Vec2 scale ) {
 	if( tileset.name != name )
 		return;
 
-	tileset.render( index, pos, scale );
+	const Tile& tile = tileset.tiles.at( index );
+	tile.sprite->setPosition( pos.sf() );
+	System::getWindow()->draw( *tile.sprite );
 }
 
 //--------------------------------------------------------------------------------
 
-void renderTiles( string name, Tilemap map, Math::Vec2 pos ) {
-	if( map.indices.empty() )
-		return;
-	if( map.indices.size() != map.mapSize.x * map.mapSize.y )
-		return;
-
+shared_ptr< sf::Sprite > getTileSprite( string name, size_t index ) {
 	Tileset tileset = getTileset( name );
 	if( tileset.name != name )
-		return;
+		return nullptr;
 
-	for( size_t x = 0u; x < map.mapSize.x; ++x )
-		for( size_t y = 0u; y < map.mapSize.y; ++y ) {
-			Math::Vec2 position = pos;
-			position.x += x * map.tileSize.x;
-			position.y += y * map.tileSize.y;
-
-			tileset.render( map.indices.at( y * map.mapSize.x + x ), position );
-		}
+	return tileset.tiles.at( index ).sprite;
 }
 
 //--------------------------------------------------------------------------------

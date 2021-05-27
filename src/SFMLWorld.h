@@ -20,6 +20,7 @@ public:
 	void onSpawnChildren() override;
 	void onStart() override;
 	void onRender() override;
+	void onUpdate( sf::Time deltaTime ) override;
 };
 
 //--------------------------------------------------------------------------------

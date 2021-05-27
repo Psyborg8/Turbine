@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Collision.cpp" />
+    <ClCompile Include="src\Map.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\ProjectBullet.cpp" />
@@ -38,6 +39,7 @@
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Collision.h" />
+    <ClInclude Include="src\Map.h" />
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\Random.h" />

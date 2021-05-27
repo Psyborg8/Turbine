@@ -72,6 +72,9 @@
     <ClCompile Include="src\Tileset.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\Map.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -118,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="src\World.h">
       <Filter>Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Map.h">
+      <Filter>Engine\GFX</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

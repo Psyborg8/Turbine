@@ -22,7 +22,7 @@ struct Tilemap {
 //--------------------------------------------------------------------------------
 
 // Load the tileset from file into memory
-void loadTileset( string name, sf::Vector2u tileSize, string folder = Folders::Tilesets );
+void loadTileset( string name, sf::Vector2u tileSize, string path );
 
 // Unload tileset from memory
 void unloadTileset( string name );
@@ -30,8 +30,7 @@ void unloadTileset( string name );
 // Draw tile to screen
 void renderTile( string name, size_t index, Math::Vec2 pos = Math::Vec2(), Math::Vec2 scale = Math::Vec2( 1.0, 1.0 ) );
 
-// Draw tiles to screen
-void renderTiles( string name, Tilemap map, Math::Vec2 pos = Math::Vec2() );
+shared_ptr< sf::Sprite > getTileSprite( string name, size_t index );
 
 //--------------------------------------------------------------------------------
 

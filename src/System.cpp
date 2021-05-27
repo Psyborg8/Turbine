@@ -125,8 +125,10 @@ void update() {
 	// Event handling
 	sf::Event e;
 	while( window.pollEvent( e ) ) {
-		for( shared_ptr< Object > object : objects )
+		for( shared_ptr< Object > object : objects ) {
+
 			object->onEvent( e );
+		}
 	}
 
 	// Update physics

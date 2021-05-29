@@ -101,7 +101,7 @@ sf::Color Color::sf() const {
 	out.r = sf::Uint8( r * 255.0f );
 	out.g = sf::Uint8( g * 255.0f );
 	out.b = sf::Uint8( b * 255.0f );
-	out.a = sf::Uint8( r * 255.0f );
+	out.a = sf::Uint8( a * 255.0f );
 
 	return out;
 }

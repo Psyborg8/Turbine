@@ -21,6 +21,7 @@ public:
 	void onStart() override;
 	void onRender() override;
 	void onUpdate( sf::Time deltaTime ) override;
+	void reset() override;
 };
 
 //--------------------------------------------------------------------------------

@@ -80,6 +80,7 @@ static const string FragmentShader = Shader + "Fragment\\";
 static const string Assets = Data + "Assets\\";
 static const string Tilesets = Assets + "Tilesets\\";
 static const string Sprites = Assets + "Sprites\\";
+static const string Fonts = Assets + "Fonts\\";
 
 static const string Maps = Data + "Maps\\";
 

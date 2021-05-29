@@ -19,8 +19,10 @@ public:
 	RigidRect( Math::Vec2 position, Math::Vec2 size, Math::Color color );
 
 public:
-	virtual void onRender() override;
-	virtual inline void onPostUpdate( sf::Time deltaTime ) override { setPosition( getPosition() + m_velocity * deltaTime.asSeconds() ); }
+	virtual inline void onPostUpdate( sf::Time deltaTime ) override { 
+		if( m_velocity.length() > 0.0f )
+			setPosition( getPosition() + m_velocity * deltaTime.asSeconds() ); 
+	}
 
 	virtual Collision::CollisionResult isColliding( shared_ptr< Object > target ) override;
 
@@ -35,9 +37,10 @@ public:
 
 	inline const sf::RectangleShape& getRect() const { return m_rect; }
 	inline sf::RectangleShape& getRect() { return m_rect; }
+	inline void setRect( const sf::RectangleShape& rect ) { m_rect = rect; }
 
-	inline Math::Color getColor() const { return m_color; }
-	inline void setColor( Math::Color color ) { m_color = color; }
+	inline Math::Color getColor() const { return Math::Color( m_rect.getFillColor() ); }
+	inline void setColor( Math::Color color ) { m_rect.setFillColor( color.sf() ); }
 
 	inline pair< string, int > getTile() const { return m_tile; }
 	inline void setTile( string tileset, int index ) { m_tile = make_pair( tileset, index ); }
@@ -45,7 +48,6 @@ public:
 protected:
 	sf::RectangleShape m_rect;
 	Math::Vec2 m_velocity;
-	Math::Color m_color;
 	pair< string, int > m_tile;
 };
 

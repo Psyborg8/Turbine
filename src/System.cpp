@@ -7,6 +7,7 @@
 // Systems
 #include "Random.h"
 #include "Timer.h"
+#include "Debug.h"
 
 // Worlds
 #include "SFMLWorld.h"
@@ -32,7 +33,11 @@ bool shouldExit{ false };
 
 //--------------------------------------------------------------------------------
 
-sf::RenderWindow window{ sf::VideoMode( systemInfo.width, systemInfo.height ), "Project Bullet" };
+sf::Font font;
+
+//--------------------------------------------------------------------------------
+
+sf::RenderWindow window;
 sf::Clock clock;
 
 //================================================================================
@@ -43,6 +48,14 @@ sf::Clock clock;
 
 bool init( int argc, char** argv ) {
 
+	//window.create( sf::VideoMode::getFullscreenModes()[0], "Project Bullet", sf::Style::Fullscreen  );
+	window.create( sf::VideoMode( 1920u, 1080u ), "Project Bullet" );
+	
+	window.setVerticalSyncEnabled( false );
+	window.setFramerateLimit( 100u );
+	systemInfo.width = window.getSize().x;
+	systemInfo.height = window.getSize().y;
+
 	// Init timers
 	Timers::init();
 
@@ -52,16 +65,20 @@ bool init( int argc, char** argv ) {
 //--------------------------------------------------------------------------------
 
 int start() {
+	Debug::startTimer( "System::Make World" );
 	world = Object::makeObject< Worlds::SFMLWorld >( nullptr );
 	// world = Object::makeObject< CollisionWorld >( nullptr );
+	Debug::stopTimer( "System::Make World" );
 
 	world->loadWorld( "Dash Precision World" );
 	// world->loadWorld( "Juggle Time Tower" );
 	
-	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true, true );
+	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true );
 	
 	for( shared_ptr< Object > object : objects )
 		object->onStart();
+
+	font.loadFromFile( Folders::Fonts + "arial.ttf" );
 
 	while( window.isOpen() )
 		update();
@@ -120,37 +137,66 @@ void update() {
 	Timers::update();
 
 	// Update the current world
-	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true, true );
+	Debug::startTimer( "System::Get World Objects" );
+	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true );
+	Debug::stopTimer( "System::Get World Objects" );
 
+	Debug::startTimer( "System::Event Handling" );
 	// Event handling
 	sf::Event e;
 	while( window.pollEvent( e ) ) {
+		Debug::startTimer( "System::Event Notify" );
 		for( shared_ptr< Object > object : objects ) {
-
 			object->onEvent( e );
+
+			if( e.type == sf::Event::KeyPressed )
+				if( e.key.code == sf::Keyboard::Escape )
+					window.close();
+			if( e.type == sf::Event::Resized ) {
+				systemInfo.width = e.size.width;
+				systemInfo.height = e.size.height;
+				world->getCamera().calculate();
+			}
 		}
+		Debug::stopTimer( "System::Event Notify" );
 	}
 
+	Debug::stopTimer( "System::Event Handling" );
+
+	Debug::startTimer( "System::Update" );
 	// Update physics
 	for( shared_ptr< Object > object : objects )
 		object->onUpdate( time );
+	Debug::stopTimer( "System::Update" );
+	Debug::startTimer( "System::Process Collisions" );
 	for( shared_ptr< Object > object : objects )
 		object->onProcessCollisions();
+	Debug::stopTimer( "System::Process Collisions" );
+	Debug::startTimer( "System::Post Update" );
 	for( shared_ptr< Object > object : objects )
 		object->onPostUpdate( time );
+	Debug::stopTimer( "System::Post Update" );
 
+	Debug::startTimer( "System::Cleanup" );
 	// Cleanup
 	Object::cleanupObjects();
+	Debug::stopTimer( "System::Cleanup" );
 
 	// Render
 	window.clear( world->getBackgroundColor().sf() );
 
+	Debug::startTimer( "System::Render" );
 	for( shared_ptr< Object > object : objects )
 		object->onRender();
+	Debug::stopTimer( "System::Render" );
+	Debug::startTimer( "System::Post Render" );
 	for( shared_ptr< Object > object : objects )
 		object->onPostRender();
+	Debug::stopTimer( "System::Post Render" );
 
+	Debug::startTimer( "System::Display" );
 	window.display();
+	Debug::stopTimer( "System::Display" );
 }
 
 //================================================================================

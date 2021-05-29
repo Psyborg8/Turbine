@@ -15,6 +15,7 @@ public:
 	Object( string name ) : m_name( name ), m_parent( nullptr ) {};
 
 	// System
+public:
 	inline void destroy() { destroyObject( shared_from_this() ); }
 
 	// Events
@@ -50,8 +51,6 @@ public:
 
 	virtual inline Math::Vec2 getPosition() const { return Math::Vec2(); }
 	virtual inline void setPosition( Math::Vec2 position ) { m_position = position; }
-	virtual Math::Vec2 getWorldPosition() const;
-	virtual void setWorldPosition( Math::Vec2 position );
 
 	inline CollisionType getCollisionType() const { return m_collisionType; }
 	inline void setCollisionType( CollisionType type ) { m_collisionType = type; }
@@ -111,7 +110,6 @@ public:
 	// Return all objects made using Object::makeObject
 	inline static vector< shared_ptr< Object > > getObjects( shared_ptr< Object > parent = nullptr,
 												  string name = "",
-												  bool recursive = false,
 												  bool inclusive = false )
 	{
 		// If there's no name or parent, we just want everything
@@ -135,15 +133,6 @@ public:
 			out.push_back( object );
 		}
 
-		// If the parent exists and is correct, look recursively for more
-		if( recursive && parent != nullptr ) {
-			vector< shared_ptr< Object > > temp = out;
-			for( shared_ptr< Object > object : temp ) {
-				vector< shared_ptr< Object > > children = getObjects( object, name, true, false );
-				out.insert( out.end(), children.begin(), children.end() );
-			}
-		}
-
 		// Add the parent if we need it
 		if( inclusive )
 			out.insert( out.begin(), parent );
@@ -157,7 +146,6 @@ public:
 	template< class T >
 	inline static vector< shared_ptr< T > > getObjects( shared_ptr< Object > parent = nullptr,
 														string name = "",
-														bool recursive = false,
 														bool inclusive = false )
 	{
 		vector< shared_ptr< T > > out;
@@ -179,19 +167,6 @@ public:
 					continue;
 
 			out.push_back( ptr );
-		}
-
-		// If the parent exists and is correct, look recursively for more
-		if( recursive && parent != nullptr ) {
-			vector< shared_ptr< T > > temp = out;
-			for( shared_ptr< T > object : temp ) {
-				shared_ptr< Object > ptr = std::dynamic_pointer_cast< Object >( object );
-				if( ptr == nullptr )
-					continue;
-
-				vector< shared_ptr< T > > children = getObjects< T >( ptr, name, true, false );
-				out.insert( out.end(), children.begin(), children.end() );
-			}
 		}
 
 		if( inclusive ) {

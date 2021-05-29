@@ -23,7 +23,8 @@ public:
 	void onUpdate( sf::Time deltaTime ) override;
 	void onProcessCollisions() override;
 	void onDestroy() override;
-	void onEvent( sf::Event e );
+	void onEvent( sf::Event e ) override;
+	void onRender() override;
 
 	void onCollision( Collision::CollisionResult collision, shared_ptr< Object > target ) override;
 
@@ -33,23 +34,43 @@ public:
 	void dash();
 	void kill();
 
+	Math::Vec2 getSpawn() const { return m_spawn; }
+	void setSpawn( Math::Vec2 pos ) { m_spawn = pos; }
+
+	// Variables
+private:
+	Math::Vec2 m_spawn;
+
+	// Timers
+private:
+	Timers::TimerID m_dashCooldownTimer;
+	Timers::TimerID m_dashAnimationTimer;
+	Timers::TimerID m_dashTimer;
+
 	// Attributes
 private:
 	struct {
-		const float acceleration{ 20.0f };
-		const float maxSpeed{ 2.0f };
+		const Math::Vec2 size{ 8.0f, 12.0f };
+		const Math::Color color{ 0.2f, 0.2f, 0.2f, 1.0f };
+
+		vector< shared_ptr< RigidRect > > dashShadows;
+	} spriteData;
+
+	struct {
+		const float acceleration{ 860.0f };
+		const float maxSpeed{ 80.0f };
 		const float airMultiplier{ 0.9f };
 	} movementData;
 
 	struct {
-		const float power{ 6.0f };
-		const float max{ 4.0f };
+		const float power{ 288.0f };
+		const float max{ 196.0f };
 	} gravityData;
 
 	struct {
-		const float power{ 20.0f };
-		const float min{ 2.0f };
-		const float max{ 50.0f };
+		const float power{ 80.0f };
+		const float min{ 128.0f };
+		const float max{ 800.0f };
 		const float airMultiplier{ 0.4f };
 	} frictionData;
 
@@ -59,13 +80,13 @@ private:
 		bool isJumpingDown{ false };
 		bool wait{ false };
 
-		const float power{ 3.5f };
-		const float release{ 1.5f };
+		const float power{ 168.0f };
+		const float release{ 72.0f };
 	} jumpData;
 
 	struct {
 		bool canDoubleJump{ true };
-		const float power{ 2.75f };
+		const float power{ 132.0f };
 	} doubleJumpData;
 
 	struct {
@@ -73,10 +94,11 @@ private:
 		bool isDashing{ false };
 		bool wait{ false };
 
-		const float power{ 7.5f };
-		const milliseconds cooldown{ 1500 };
+		const float power{ 280.0f };
+		const Math::Vec2 release{ 32.0f, 32.0f };
+		const milliseconds cooldown{ 1000 };
 		const milliseconds duration{ 150 };
-
+		
 		const milliseconds animationStep{ 15 };
 	} dashData;
 
@@ -84,23 +106,17 @@ private:
 		bool isClinging{ false };
 
 		const float multiplier{ 0.2f };
-		const float min{ 1.0f };
-		const float max{ 5.0f };
+		const float min{ 64.0f };
+		const float max{ 256.0f };
 	} wallClingData;
 
 	struct {
 		float normal{ 0.0f };
 
-		const float power{ 8.0f };
+		const float power{ 256.0f };
 		const Math::Vec2 direction{ 0.7f, 0.3f };
 		const milliseconds duration{ 300 };
 	} wallJumpData;
-
-// Timers
-private:
-	Timers::TimerID m_dashCooldownTimer;
-	Timers::TimerID m_dashAnimationTimer;
-	Timers::TimerID m_dashTimer;
 };
 
 //================================================================================

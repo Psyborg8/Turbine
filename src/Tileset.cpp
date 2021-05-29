@@ -48,6 +48,7 @@ void loadTileset( string name, sf::Vector2u tileSize, string path ) {
 
 	tileset.texture = make_shared< sf::Texture >();
 	tileset.texture->loadFromFile( path );
+	tileset.texture->setSmooth( true );
 
 	sf::Vector2u mapSize;
 	mapSize.x = tileset.texture->getSize().x / tileSize.x;
@@ -56,14 +57,15 @@ void loadTileset( string name, sf::Vector2u tileSize, string path ) {
 	for( size_t y = 0u; y < mapSize.y; ++y )
 		for( size_t x = 0u; x < mapSize.x; ++x ) {
 			sf::IntRect rect;
-			rect.left = x * tileSize.x;
-			rect.top = y * tileSize.y;
-			rect.width = tileSize.x;
-			rect.height = tileSize.y;
+			rect.left = int( x * tileSize.x );
+			rect.top = int( y * tileSize.y );
+			rect.width = int( tileSize.x );
+			rect.height = int( tileSize.y );
 
 			Tile tile;
 
 			tile.sprite = std::make_shared< sf::Sprite >( *tileset.texture, rect );
+			tile.id = int( y * mapSize.x + x );
 			tileset.tiles.push_back( tile );
 		}
 
@@ -81,18 +83,6 @@ void unloadTileset( string name ) {
 		return;
 
 	tilesets.erase( it );
-}
-
-//--------------------------------------------------------------------------------
-
-void renderTile( string name, size_t index, Math::Vec2 pos, Math::Vec2 scale ) {
-	Tileset tileset = getTileset( name );
-	if( tileset.name != name )
-		return;
-
-	const Tile& tile = tileset.tiles.at( index );
-	tile.sprite->setPosition( pos.sf() );
-	System::getWindow()->draw( *tile.sprite );
 }
 
 //--------------------------------------------------------------------------------

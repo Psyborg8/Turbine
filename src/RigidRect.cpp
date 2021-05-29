@@ -21,15 +21,10 @@ RigidRect::RigidRect() : Object() {
 //--------------------------------------------------------------------------------
 
 RigidRect::RigidRect( Math::Vec2 position, Math::Vec2 size, Math::Color color = Colors::WHITE ) :  Object() {
-	m_rect.setScale( size.sf() );
+	m_rect = sf::RectangleShape();
+	m_rect.setSize( size.sf() );
 	m_rect.setPosition( position.sf() );
-	m_color = color;
-}
-
-//--------------------------------------------------------------------------------
-
-void RigidRect::onRender() {
-
+	m_rect.setFillColor( color.sf() );
 }
 
 //--------------------------------------------------------------------------------

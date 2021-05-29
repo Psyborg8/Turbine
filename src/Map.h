@@ -19,8 +19,6 @@ void loadMap( string name );
 
 void unloadMap( string name );
 
-void unloadResources( string map );
-
 void constructMap( string name, Object* parent );
 
 //--------------------------------------------------------------------------------

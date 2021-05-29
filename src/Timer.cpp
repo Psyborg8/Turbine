@@ -8,6 +8,8 @@
 #include <stack>
 #include <unordered_set>
 
+#include "Debug.h"
+
 //==================================================================================================
 
 namespace Timers {
@@ -40,6 +42,7 @@ std::chrono::time_point< std::chrono::steady_clock > previousUpdateTime;
 //==================================================================================================
 
 void update() {
+	Debug::startTimer( "Timer::Update" );
 	// Lock unsafe functions.
 	threadLock = true;
 
@@ -104,6 +107,7 @@ void update() {
 
 	// Unlock unsafe functions.
 	threadLock = false;
+	Debug::stopTimer( "Timer::Update" );
 }
 
 //--------------------------------------------------------------------------------------------------

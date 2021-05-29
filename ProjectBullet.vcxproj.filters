@@ -25,6 +25,9 @@
     <Filter Include="Engine\Objects">
       <UniqueIdentifier>{abc69a04-4206-410a-9a57-b899d8d37494}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Debug">
+      <UniqueIdentifier>{429d7e7b-752b-4d30-ba7b-f141219b76e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ProjectBullet.cpp">
@@ -75,6 +78,9 @@
     <ClCompile Include="src\Map.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\Debug.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -121,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="src\Map.h">
       <Filter>Engine\GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Debug.h">
+      <Filter>Engine\Debug</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

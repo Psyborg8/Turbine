@@ -2,6 +2,10 @@
 
 #include "Object.h"
 
+//--------------------------------------------------------------------------------
+
+#include "Debug.h"
+
 //================================================================================
 
 void Object::onDestroy() {
@@ -26,6 +30,8 @@ void Object::processCollisions( vector< shared_ptr< Object > > targets ) {
 void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool notify ) {
 	using collisionPair = pair< shared_ptr< Object >, Collision::CollisionResult >;
 
+	Debug::startTimer( "Collision::Broad Phase" );
+
 	// Broad Phase
 	vector < collisionPair > results;
 	for( shared_ptr< Object > target : targets ) {
@@ -34,11 +40,17 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 			results.push_back( make_pair( target, result ) );
 	}
 
+	Debug::stopTimer( "Collision::Broad Phase" );
+	Debug::startTimer( "Collision::Sorting" );
+
 	// Sort by distance
 	std::sort( results.begin(), results.end(),
 			   []( const collisionPair& a, const collisionPair& b ) {
 				   return a.second.distance < b.second.distance;
 			   } );
+
+	Debug::stopTimer( "Collision::Sorting" );
+	Debug::startTimer( "Collision::Narrow Phase" );
 
 	// Narrow Phase
 	for( pair< shared_ptr< Object >, Collision::CollisionResult > collision : results ) {
@@ -56,24 +68,8 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 			Collision::resolveCollision( result );
 		}
 	}
-}
 
-//--------------------------------------------------------------------------------
-
-Math::Vec2 Object::getWorldPosition() const {
-	if( m_parent == nullptr )
-		return m_position;
-
-	return m_position + m_parent->getWorldPosition();
-}
-
-//--------------------------------------------------------------------------------
-
-void Object::setWorldPosition( Math::Vec2 position ) {
-	if( m_parent == nullptr )
-		m_position = position;
-
-	m_position = position - m_parent->getWorldPosition();
+	Debug::stopTimer( "Collision::Narrow Phase" );
 }
 
 //================================================================================

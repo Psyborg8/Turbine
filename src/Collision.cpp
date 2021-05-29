@@ -6,6 +6,7 @@
 
 #include "System.h"
 #include "RigidRect.h"
+#include "Debug.h"
 
 //================================================================================
 
@@ -18,10 +19,10 @@ bool staticRectCollision( shared_ptr< Game::RigidRect > rectA, shared_ptr< Game:
 //================================================================================
 
 bool collision( Math::Vec2 point, shared_ptr< Game::RigidRect > rect ) {
-	return ( point.x >= rect->getWorldPosition().x ) &&
-		( point.x <= rect->getWorldPosition().x + rect->getSize().x ) &&
-		( point.y >= rect->getWorldPosition().y ) &&
-		( point.y <= rect->getWorldPosition().y + rect->getSize().y );
+	return ( point.x >= rect->getPosition().x ) &&
+		( point.x <= rect->getPosition().x + rect->getSize().x ) &&
+		( point.y >= rect->getPosition().y ) &&
+		( point.y <= rect->getPosition().y + rect->getSize().y );
 }
 
 //--------------------------------------------------------------------------------
@@ -31,11 +32,12 @@ CollisionResult collision( Ray ray, shared_ptr< Game::RigidRect > rect ) {
 	out.success = false;
 
 	// Calculate inverse 
-	Math::Vec2 inverseDirection = ray.direction().inverse();
+	const Math::Vec2 direction = ray.direction();
+	const Math::Vec2 inverseDirection = direction.inverse();
 
 	// Find near and far collisions
-	Math::Vec2 tNear = ( Math::Vec2( rect->getWorldPosition() ) - ray.start ) * inverseDirection;
-	Math::Vec2 tFar = ( Math::Vec2( rect->getWorldPosition() ) +
+	Math::Vec2 tNear = ( Math::Vec2( rect->getPosition() ) - ray.start ) * inverseDirection;
+	Math::Vec2 tFar = ( Math::Vec2( rect->getPosition() ) +
 						Math::Vec2( rect->getSize() ) - ray.start ) * inverseDirection;
 
 	if( std::isnan( tFar.y ) || std::isnan( tFar.x ) )
@@ -93,59 +95,71 @@ CollisionResult collision( shared_ptr< Game::RigidRect > a, shared_ptr< Game::Ri
 	if( a->getVelocity().length() > 0.0 && b->getVelocity().length() > 0.0 )
 		return out;
 
-	// Narrow Phase
 	shared_ptr< Game::RigidRect > d = a->getVelocity().length() > 0.0 ? a : b;
 	shared_ptr< Game::RigidRect > s = a->getVelocity().length() == 0.0 ? a : b;
 
+	// Broad Phase
+	Math::Vec2 diff = ( a->getPosition() + a->getSize() / 2.0f ) - ( b->getPosition() + b->getSize() / 2.0f );
+	Math::Vec2 size = ( s->getSize() / 2.0f ) + ( d->getSize() / 2.0f ) + ( d->getVelocity().abs() * System::getDeltaTime().asSeconds() );
+	if( diff.x > size.x || diff.y > size.y )
+		return out;
+
+	// Static collision
 	if( &s == &d ) {
-		// Static collision
 		out.success = staticRectCollision( d, s );
 		return out;
 	}
 
+	// Narrow Phase
 	// Create a combined radius
 	Game::RigidRect e;
 	sf::RectangleShape& eRect = e.getRect();
-	e.setPosition( s->getWorldPosition() - s->getSize() / 2.0 );
+	e.setPosition( s->getPosition() - d->getSize() / 2.0 );
 	e.setSize( s->getSize() + d->getSize() );
 
 	// Do a ray cast to the combined rect
 	Ray rayCollider;
-	rayCollider.start = s->getWorldPosition() + s->getSize() / 2.0;
+	rayCollider.start = d->getPosition() + d->getSize() / 2.0;
 	rayCollider.end = rayCollider.start + ( d->getVelocity() * System::getDeltaTime().asSeconds() );
 
+	// Perform ray collision
 	out = collision( rayCollider, make_shared< Game::RigidRect >( e ) );
-	if( out.success ) {
 
-		out.success = false;
-		if( out.normal.x > 0.0 )
-			if( d->getWorldPosition().x == s->getWorldPosition().x + s->getSize().x )
-				return out;
-		if( out.normal.x < 0.0 )
-			if( d->getWorldPosition().x + d->getSize().x == s->getWorldPosition().x )
-				return out;
-		if( out.normal.y > 0.0 )
-			if( d->getWorldPosition().y == s->getWorldPosition().y + s->getSize().y )
-				return out;
-		if( out.normal.y < 0.0 )
-			if( d->getWorldPosition().y + d->getSize().y == s->getWorldPosition().y )
-				return out;
+	Debug::stopTimer( "Rect-Rect Collision" );
 
-		out.success = true;
+	if( !out.success )
+		return out;
 
-		// Set point and distance data
-		Math::Vec2 distance = out.point - ( e.getWorldPosition() + e.getSize() / 2.0 );
-		distance = ( distance / e.getSize() ) * s->getSize();
-		out.point = ( e.getWorldPosition() + e.getSize() / 2.0 ) + distance;
+	// Ignore if they're overlapping exactly
+	out.success = false;
+	if( out.normal.x > 0.0 )
+		if( d->getPosition().x == s->getPosition().x + s->getSize().x )
+			return out;
+	if( out.normal.x < 0.0 )
+		if( d->getPosition().x + d->getSize().x == s->getPosition().x )
+			return out;
+	if( out.normal.y > 0.0 )
+		if( d->getPosition().y == s->getPosition().y + s->getSize().y )
+			return out;
+	if( out.normal.y < 0.0 )
+		if( d->getPosition().y + d->getSize().y == s->getPosition().y )
+			return out;
 
-		// Set Dynamic collision data
-		DynamicCollision dynamic;
-		dynamic.isDynamic = true;
-		dynamic.staticRect = s;
-		dynamic.dynamicRect = d;
+	out.success = true;
 
-		out.dynamic = dynamic;
-	}
+	// Set point and distance data
+	Math::Vec2 distance = out.point - ( e.getPosition() + e.getSize() / 2.0 );
+	distance = ( distance / e.getSize() ) * s->getSize();
+	out.point = ( e.getPosition() + e.getSize() / 2.0 ) + distance;
+
+	// Set Dynamic collision data
+	DynamicCollision dynamic;
+	dynamic.isDynamic = true;
+	dynamic.staticRect = s;
+	dynamic.dynamicRect = d;
+
+	out.dynamic = dynamic;
+
 	return out;
 }
 
@@ -163,7 +177,9 @@ void resolveCollision( CollisionResult result ) {
 	shared_ptr< Game::RigidRect > d = result.dynamic.dynamicRect;
 	shared_ptr< Game::RigidRect > s = result.dynamic.staticRect;
 
-	d->setVelocity( d->getVelocity() + result.normal * d->getVelocity().abs() * ( 1.0f - result.distance ) * 1.001f );
+	Math::Vec2 velocity = d->getVelocity() + result.normal * d->getVelocity().abs() * ( 1.0f - result.distance ) * 1.001f;
+
+	d->setVelocity( velocity );
 }
 
 //================================================================================
@@ -171,12 +187,12 @@ void resolveCollision( CollisionResult result ) {
 bool staticRectCollision( shared_ptr< Game::RigidRect > rectA, shared_ptr< Game::RigidRect > rectB ) {
 	bool out = true;
 
-	const Math::Vec2 midPointA = rectA->getWorldPosition() + ( rectA->getSize() / 2.0 );
+	const Math::Vec2 midPointA = rectA->getPosition() + ( rectA->getSize() / 2.0 );
 
-	const Math::Vec2 midPointB = rectB->getWorldPosition() + ( rectB->getSize() / 2.0 );
+	const Math::Vec2 midPointB = rectB->getPosition() + ( rectB->getSize() / 2.0 );
 
-	out &= abs( midPointA.x - midPointB.x ) < ( rectA->getWorldPosition().x / 2.0 ) + ( rectB->getSize().x / 2.0 );
-	out &= abs( midPointA.y - midPointB.y ) < ( rectA->getWorldPosition().y / 2.0 ) + ( rectB->getSize().y / 2.0 );
+	out &= abs( midPointA.x - midPointB.x ) < ( rectA->getPosition().x / 2.0 ) + ( rectB->getSize().x / 2.0 );
+	out &= abs( midPointA.y - midPointB.y ) < ( rectA->getPosition().y / 2.0 ) + ( rectB->getSize().y / 2.0 );
 
 	return out;
 }

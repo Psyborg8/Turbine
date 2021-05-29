@@ -8,6 +8,7 @@
 #include "System.h"
 #include "World.h"
 #include "Timer.h"
+#include "Debug.h"
 
 //================================================================================
 
@@ -21,13 +22,21 @@ Player::Player() : Player( Math::Vec2() ) {
 
 //--------------------------------------------------------------------------------
 
-Player::Player( Math::Vec2 pos ) : RigidRect( pos, Math::Vec2( 0.15f, 0.2f ), Colors::BLUE ) {
+Player::Player( Math::Vec2 pos ) : RigidRect() {
 	setName( "Player" );
+	setPosition( pos );
+	setSize( spriteData.size );
+	setColor( spriteData.color );
+	setCollisionType( CollisionType::Dynamic );
+	m_rect.setOutlineColor( sf::Color( 180u, 180u, 180u, 255u ) );
+	m_rect.setOutlineThickness( 0.5f );
 }
 
 //--------------------------------------------------------------------------------
 
 void Player::onUpdate( sf::Time deltaTime ) {
+	Debug::startTimer( "Player::Update" );
+
 	// Ignore physics while dashing
 	if( !dashData.isDashing ) {
 		// Horizontal
@@ -72,12 +81,12 @@ void Player::onUpdate( sf::Time deltaTime ) {
 		// Vertical
 		{
 			// Gravity
-			m_velocity.y -= gravityData.power * deltaTime.asSeconds();
-			m_velocity.y = m_velocity.y < -gravityData.max ? -gravityData.max : m_velocity.y;
+			m_velocity.y += gravityData.power * deltaTime.asSeconds();
+			m_velocity.y = m_velocity.y > gravityData.max ? gravityData.max : m_velocity.y;
 
 			// Jump Release
 			if( !sf::Keyboard::isKeyPressed( sf::Keyboard::Space ) )
-				m_velocity.y = std::min( m_velocity.y, jumpData.release );
+				m_velocity.y = std::max( m_velocity.y, -jumpData.release );
 
 			// Wall Cling
 			if( wallClingData.isClinging ) {
@@ -94,22 +103,43 @@ void Player::onUpdate( sf::Time deltaTime ) {
 	// Reset flags
 	wallClingData.isClinging = false;
 	jumpData.canJump = false;
+
+	// Animations
+	for( shared_ptr< RigidRect > shadow : spriteData.dashShadows ) {
+		sf::RectangleShape& rect = shadow->getRect();
+		{
+			sf::Color color = rect.getFillColor();
+			color.a = sf::Uint8( color.a * 0.85f );
+			rect.setFillColor( color );
+		}
+		{
+			sf::Color color = rect.getOutlineColor();
+			color.a = sf::Uint8( color.a * 0.85f );
+			rect.setOutlineColor( color );
+		}
+		
+	}
+
+	Debug::stopTimer( "Player::Update" );
 }
 
 //--------------------------------------------------------------------------------
 
 void Player::onProcessCollisions()
 {
+	Debug::startTimer( "Player::Find Colliders" );
 	vector< shared_ptr< Object > > targets;
 	const vector< shared_ptr< Object > > walls = getObjects( System::getWorld(), "Wall" );
 	const vector< shared_ptr< Object > > traps = getObjects( System::getWorld(), "Trap" );
 	const vector< shared_ptr< Object > > platforms = getObjects( System::getWorld(), "Platform" );
+	Debug::stopTimer( "Player::Find Colliders" );
 
 	targets.insert( targets.end(), walls.begin(), walls.end() );
 	targets.insert( targets.end(), traps.begin(), traps.end() );
 
 	// Check if we're supposed to collide with platforms
 
+	Debug::startTimer( "Player::Platform Collision" );
 	bool collision = false;
 	for( shared_ptr< Object > platform : platforms ) {
 		Collision::CollisionResult result = isColliding( platform );
@@ -125,8 +155,11 @@ void Player::onProcessCollisions()
 			targets.insert( targets.end(), platforms.begin(), platforms.end() );
 		else if( collision )
 			jumpData.isJumpingDown = true;
+	Debug::stopTimer( "Player::Platform Collision" );
 
+	Debug::startTimer( "Player::Resolve Collisions" );
 	resolveCollisions( targets, true );
+	Debug::stopTimer( "Player::Resolve Collisions" );
 }
 
 //--------------------------------------------------------------------------------
@@ -164,6 +197,19 @@ void Player::onEvent( sf::Event e ) {
 
 //--------------------------------------------------------------------------------
 
+void Player::onRender() {
+	Debug::startTimer( "Player::Render" );
+
+	for( shared_ptr< RigidRect > shadow : spriteData.dashShadows )
+		System::getWindow()->draw( shadow->getRect() );
+
+	System::getWindow()->draw( m_rect );
+
+	Debug::stopTimer( "Player::Render" );
+}
+
+//--------------------------------------------------------------------------------
+
 void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object > target ) {
 	// Check for Trap or Wall
 	if( target->getName() == "Trap" )
@@ -171,7 +217,7 @@ void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object 
 	if( target->getName() == "Platform" )
 		jumpData.canJumpDown = true;
 
-	if( result.normal.y == 1.0 ) {
+	if( result.normal.y == -1.0 ) {
 		jumpData.canJump = true;
 		doubleJumpData.canDoubleJump = true;
 	}
@@ -195,17 +241,17 @@ void Player::jump()
 		if( jumpData.canJumpDown && sf::Keyboard::isKeyPressed( sf::Keyboard::S ) )
 			jumpData.isJumpingDown = true;
 		else {
-			m_velocity.y = jumpData.power;
+			m_velocity.y = -jumpData.power;
 			jumpData.canJump = false;
 		}
 	}
 	else if( doubleJumpData.canDoubleJump ) {
 		if( wallClingData.isClinging ) {
-			m_velocity = wallJumpData.direction * wallJumpData.power;
-			m_velocity.x *= wallJumpData.normal;
+			m_velocity.x = wallJumpData.direction.x * wallJumpData.power * wallJumpData.normal;
+			m_velocity.y = wallJumpData.direction.y * -wallJumpData.power;
 		}
 		else
-			m_velocity.y = doubleJumpData.power;
+			m_velocity.y = -doubleJumpData.power;
 
 		doubleJumpData.canDoubleJump = false;
 	}
@@ -230,9 +276,9 @@ void Player::dash() {
 	if( sf::Keyboard::isKeyPressed( sf::Keyboard::A ) )
 		direction.x -= 1.0;
 	if( sf::Keyboard::isKeyPressed( sf::Keyboard::W ) )
-		direction.y += 1.0;
-	if( sf::Keyboard::isKeyPressed( sf::Keyboard::S ) )
 		direction.y -= 1.0;
+	if( sf::Keyboard::isKeyPressed( sf::Keyboard::S ) )
+		direction.y += 1.0;
 
 	if( direction == Math::Vec2() )
 		return;
@@ -250,30 +296,37 @@ void Player::dash() {
 	m_dashCooldownTimer = Timers::addTimer( dashData.cooldown, nullptr, [this] { dashData.canDash = true; }, false );
 	m_dashTimer = Timers::addTimer( dashData.duration,
 									nullptr,
-									[this] {
+									[this, direction] {
 										dashData.isDashing = false;
-										m_velocity.y = m_velocity.y > jumpData.release ? jumpData.release : m_velocity.y;
+										m_velocity = dashData.release * direction.normalize();
 										Timers::removeTimer( m_dashAnimationTimer );
 									}, false );
 
 
 
 	m_dashAnimationTimer = Timers::addTimer( dashData.animationStep,
-											nullptr,
-											[this] {
-												 shared_ptr< RigidRect > rect = makeObject< RigidRect >( m_parent );
-												 rect->setPosition( getPosition() );
-												 rect->setSize( getSize() );
-												 Math::Color color = getColor();
+											 nullptr,
+											 [this] {
+												 shared_ptr< RigidRect > rect = makeObject< RigidRect >( this );
+												 rect->setRect( m_rect );
+												 sf::RectangleShape& r = rect->getRect();
+												 {
+													 sf::Color color = r.getFillColor();
+													 color.a = sf::Uint8( color.a * 0.9f );
+													 r.setFillColor( color );
+												 }
+												 {
+													 sf::Color color = r.getOutlineColor();
+													 color.a =  sf::Uint8( color.a * 0.75f );
+													 r.setOutlineColor( color );
+												 }
 
-												Timers::addTimer( dashData.duration, 
-																  [rect, &color]( float a )  {
-																	  color.a = ( 1.0f - color.a ) * 0.5f;
-																	  rect->setColor( color );
-																	  System::getWindow()->draw( rect->getRect() );
-																  },
-																  nullptr, 
-															      false );
+												 spriteData.dashShadows.push_back( rect );
+
+												 Timers::addTimer( 500, nullptr,
+																  [this, rect] {
+																	   spriteData.dashShadows.erase( std::find( spriteData.dashShadows.begin(), spriteData.dashShadows.end(), rect ) );
+																  }, false );
 											}, true );
 
 }
@@ -281,6 +334,10 @@ void Player::dash() {
 //--------------------------------------------------------------------------------
 
 void Player::kill() {
+	Timers::removeTimer( m_dashAnimationTimer );
+	Timers::removeTimer( m_dashCooldownTimer );
+	Timers::removeTimer( m_dashTimer );
+
 	System::getWorld()->reset();
 }
 

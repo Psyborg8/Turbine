@@ -9,6 +9,13 @@ namespace Math {
 //================================================================================
 
 struct Color {
+	Color( const sf::Color& color ) : 
+		r( float( color.r ) / 255.0f ), 
+		g( float( color.g ) / 255.0f ), 
+		b( float( color.b ) / 255.0f ), 
+		a( float( color.a ) / 255.0f ) 
+	{}
+
 	float r;
 	float g;
 	float b;

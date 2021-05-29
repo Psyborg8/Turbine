@@ -80,13 +80,13 @@ private:
 		bool isJumpingDown{ false };
 		bool wait{ false };
 
-		const float power{ 168.0f };
+		const float power{ 152.0f };
 		const float release{ 72.0f };
 	} jumpData;
 
 	struct {
 		bool canDoubleJump{ true };
-		const float power{ 132.0f };
+		const float power{ 96.0f };
 	} doubleJumpData;
 
 	struct {

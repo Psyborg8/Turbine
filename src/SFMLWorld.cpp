@@ -23,13 +23,6 @@ void SFMLWorld::onSpawnChildren() {
 
 	m_camera.setDistance( 196.0f );
 
-	/*
-	shared_ptr< Game::RigidRect > rect = makeObject< Game::RigidRect >( this );
-	rect->setSize( Math::Vec2( 250.0f, 250.0f ) );
-	rect->setPosition( Math::Vec2( 0.0f, 0.0f ) );
-	rect->setColor( Colors::WHITE );
-	*/
-
 	makeObject< Debug::DebugWindow >( this );
 }
 

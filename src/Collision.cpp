@@ -99,7 +99,7 @@ CollisionResult collision( shared_ptr< Game::RigidRect > a, shared_ptr< Game::Ri
 	shared_ptr< Game::RigidRect > s = a->getVelocity().length() == 0.0 ? a : b;
 
 	// Broad Phase
-	Math::Vec2 diff = ( a->getPosition() + a->getSize() / 2.0f ) - ( b->getPosition() + b->getSize() / 2.0f );
+	Math::Vec2 diff = ( ( a->getPosition() + a->getSize() / 2.0f ) - ( b->getPosition() + b->getSize() / 2.0f ) ).abs();
 	Math::Vec2 size = ( s->getSize() / 2.0f ) + ( d->getSize() / 2.0f ) + ( d->getVelocity().abs() * System::getDeltaTime().asSeconds() );
 	if( diff.x > size.x || diff.y > size.y )
 		return out;

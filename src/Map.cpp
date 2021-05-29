@@ -40,9 +40,33 @@ enum class TileType {
 
 //--------------------------------------------------------------------------------
 
+enum class ObjectType {
+	None = 0,
+	Checkpoint,
+};
+
+//--------------------------------------------------------------------------------
+
 enum class DevSymbol {
 	Num0, Num1, Num2, Num3, Num4, Num5, Num6, Num7, Num8, Num9,
 	A, B, C, D, E, S, Cross, Tick, Warning, Dash
+};
+
+//================================================================================
+
+struct Rect {
+	string name;
+	Math::Vec2 position;
+	Math::Vec2 size;
+	ObjectType type;
+};
+
+//--------------------------------------------------------------------------------
+
+struct Point {
+	string name;
+	Math::Vec2 position;
+	ObjectType type;
 };
 
 //--------------------------------------------------------------------------------
@@ -50,6 +74,9 @@ enum class DevSymbol {
 struct Tile {
 	int id;
 	TileType type;
+	Math::Vec2 offset;
+	Math::Vec2 size;
+	Math::Vec2 direction;
 };
 
 //--------------------------------------------------------------------------------
@@ -72,15 +99,24 @@ struct Chunk {
 
 //--------------------------------------------------------------------------------
 
-struct Layer {
+struct TileLayer {
 	vector< Chunk > chunks;
 	sf::Vector2i position;
+	LayerType type;
+};
+
+//--------------------------------------------------------------------------------
+
+struct ObjectLayer {
+	vector< Rect > objects;
+	LayerType type;
 };
 
 //--------------------------------------------------------------------------------
 
 struct Map {
-	map< LayerType, Layer > layers;
+	map< LayerType, TileLayer > tileLayers;
+	map< LayerType, ObjectLayer > objectLayers;
 	vector< Tileset > tilesets;
 	string name;
 	sf::Vector2u tileSize;
@@ -104,9 +140,21 @@ const map< string, TileType > tileMap{
 	{ "DevSymbol", TileType::DevSymbol },
 };
 
+//--------------------------------------------------------------------------------
+
+const map< string, ObjectType > objectMap{
+	{ "Checkpoint", ObjectType::Checkpoint },
+};
+
 //================================================================================
 
 vector< Map >::iterator getMap( string name );
+
+bool loadLayer( rapidjson::Value& data, TileLayer& layer );
+bool loadLayer( rapidjson::Value& data, ObjectLayer& layer );
+
+bool constructLayer( TileLayer& layer, Object* parent );
+bool constructLayer( ObjectLayer& layer, Object* parent );
 
 //--------------------------------------------------------------------------------
 
@@ -122,23 +170,31 @@ void renderMap( string name ) {
 		return;
 
 
-	for( const Chunk& chunk : it->layers[ LayerType::Background ].chunks ) {
+	for( const Chunk& chunk : it->tileLayers[ LayerType::Background ].chunks ) {
 		sf::Sprite sprite( chunk.texture );
-		sf::Vector2i position = chunk.position + it->layers[ LayerType::Background ].position;
+		sf::Vector2i position = chunk.position + it->tileLayers[ LayerType::Background ].position;
+		sprite.setPosition( sf::Vector2f( float( position.x ), float( position.y ) ) );
+		System::getWindow()->draw( sprite );
+
+		// Darken the background
+		sf::RectangleShape rect;
+		rect.setPosition( sf::Vector2f( float( position.x ), float( position.y ) ) );
+		rect.setSize( sf::Vector2f( 256.0f, 256.0f ) );
+		rect.setFillColor( sf::Color( 0u, 0u, 0u, 48u ) );
+		System::getWindow()->draw( rect );
+	}
+
+	for( const Chunk& chunk : it->tileLayers[ LayerType::BackgroundDetails ].chunks ) {
+
+		sf::Sprite sprite( chunk.texture );
+		sf::Vector2i position = chunk.position + it->tileLayers[ LayerType::BackgroundDetails ].position;
 		sprite.setPosition( sf::Vector2f( float( position.x ), float( position.y ) ) );
 		System::getWindow()->draw( sprite );
 	}
 
-	for( const Chunk& chunk : it->layers[ LayerType::BackgroundDetails ].chunks ) {
+	for( const Chunk& chunk : it->tileLayers[ LayerType::Terrain ].chunks ) {
 		sf::Sprite sprite( chunk.texture );
-		sf::Vector2i position = chunk.position + it->layers[ LayerType::BackgroundDetails ].position;
-		sprite.setPosition( sf::Vector2f( float( position.x ), float( position.y ) ) );
-		System::getWindow()->draw( sprite );
-	}
-
-	for( const Chunk& chunk : it->layers[ LayerType::Terrain ].chunks ) {
-		sf::Sprite sprite( chunk.texture );
-		sf::Vector2i position = chunk.position + it->layers[ LayerType::Terrain ].position;
+		sf::Vector2i position = chunk.position + it->tileLayers[ LayerType::Terrain ].position;
 		sprite.setPosition( sf::Vector2f( float( position.x ), float( position.y ) ) );
 		System::getWindow()->draw( sprite );
 	}
@@ -186,36 +242,9 @@ void loadMap( string name ) {
 	// Layers
 	GenericArray< false, Value > layers = document[ "layers" ].GetArray();
 	for( SizeType i = 0; i < layers.Size(); ++i ) {
-		const string name = layers[ i ][ "name" ].GetString();
-		const int startx = layers[ i ][ "startx" ].GetInt();
-		const int starty = layers[ i ][ "starty" ].GetInt();
-
-		LayerType layer = layerMap.at( name );
-		map.layers[ layer ] = Layer();
-
-		map.layers.at( layer ).position.x = startx;
-		map.layers.at( layer ).position.y = starty;
-
-		// Chunks
-		GenericArray< false, Value > chunks = layers[ i ][ "chunks" ].GetArray();
-		for( SizeType j = 0; j < chunks.Size(); ++j ) {
-			Chunk chunk;
-
-			Math::Vec2 position;
-			const int x = chunks[ j ][ "x" ].GetInt();
-			const int y = chunks[ j ][ "y" ].GetInt();
-
-			chunk.position.x = x * map.tileSize.x;
-			chunk.position.y = y * map.tileSize.y;
-
-			// Data
-			GenericArray< false, Value > data = chunks[ j ][ "data" ].GetArray();
-			for( SizeType k = 0; k < data.Size(); ++k ) {
-				chunk.blockData[ k ] = data[ k ].GetInt();
-			}
-
-			map.layers.at( layer ).chunks.push_back( chunk );
-		}
+		TileLayer layer;
+		if( loadLayer( layers[ i ], layer ) )
+			map.tileLayers[ layer.type ] = layer;
 	}
 
 	// Tilesets
@@ -236,6 +265,22 @@ void loadMap( string name ) {
 			Tile tile;
 			tile.id = tiles[ j ][ "id" ].GetInt();
 			tile.type = tileMap.at( tiles[ j ][ "type" ].GetString() );
+
+			if( tile.type == TileType::Trap ) {
+				const GenericArray< false, Value > properties = tiles[ j ][ "properties" ].GetArray();
+				for( const Value& value : properties ) {
+					string name = value[ "name" ].GetString();
+					if( name == "Normal x" ) {
+						const int directionX = value[ "value" ].GetInt();
+						tile.direction.x = float( directionX );
+					}
+					if( name == "Normal y" ) {
+						const int directionY = value[ "value"].GetInt();
+						tile.direction.y = float( directionY );
+					}
+				}
+			}
+
 			tileset.tiles.push_back( tile );
 		}
 
@@ -280,9 +325,9 @@ void constructMap( string name, Object* world ) {
 		Gfx::Tileset::loadTileset( tileset.name, tileset.tileSize, tileset.path );
 
 	// Create objects
-	for( auto& pair : it->layers ) {
+	for( auto& pair : it->tileLayers ) {
 		LayerType type = pair.first;
-		Layer& layer = pair.second;
+		TileLayer& layer = pair.second;
 
 		for( Chunk& chunk : layer.chunks ) {
 			// Render chunk to a texture to save on render calls
@@ -325,18 +370,40 @@ void constructMap( string name, Object* world ) {
 
 				// Construct collider
 				if( type == LayerType::Terrain ) {
-
-					shared_ptr< Game::RigidRect > rect =
-						Object::makeObject< Game::RigidRect >( world );
-					rect->setSize( Math::Vec2( float( mapTileSize.x ), float( mapTileSize.y ) ) );
-					rect->setPosition( worldPosition );
-
-					if( tile.type == TileType::Wall )
+					if( tile.type == TileType::Wall ) {
+						shared_ptr< Game::RigidRect > rect =
+							Object::makeObject< Game::RigidRect >( world );
+						rect->setSize( Math::Vec2( float( mapTileSize.x ), float( mapTileSize.y ) ) );
+						rect->setPosition( worldPosition );
 						rect->setName( "Wall" );
-					if( tile.type == TileType::Trap )
-						rect->setName( "Trap" );
+						rect->setCollisionType( CollisionType::Static );
+					}
+					else if( tile.type == TileType::Trap ) {
+						// Build trap colliders
+						Math::Vec2 normal = tile.direction;
+						if( normal.x ) {
+							shared_ptr< Game::RigidRect > rect =
+								Object::makeObject< Game::RigidRect >( world );
 
-					rect->setCollisionType( CollisionType::Static );
+							Math::Vec2 pos = worldPosition;
+							pos.x += normal.x > 0 ? 0.0f : 12.0f;
+							rect->setPosition( pos );
+							rect->setSize( sf::Vector2f( 4.0f, 16.0f ) );
+							rect->setName( "Trap" );
+							rect->setCollisionType( CollisionType::Static );
+						}
+						if( normal.y ) {
+							shared_ptr< Game::RigidRect > rect =
+								Object::makeObject< Game::RigidRect >( world );
+
+							Math::Vec2 pos = worldPosition;
+							pos.y += normal.y > 0 ? 0.0f : 12.0f;
+							rect->setPosition( pos );
+							rect->setSize( sf::Vector2f( 16.0f, 4.0f ) );
+							rect->setName( "Trap" );
+							rect->setCollisionType( CollisionType::Static );
+						}
+					}
 				}
 
 				// Create the checkpoints and player
@@ -351,6 +418,7 @@ void constructMap( string name, Object* world ) {
 					}
 				}
 			}
+
 			texture.display();
 			chunk.texture = sf::Texture( texture.getTexture() );
 		}
@@ -372,6 +440,56 @@ vector< Map >::iterator getMap( string name ) {
 							 } );
 
 	return it;
+}
+
+//--------------------------------------------------------------------------------
+
+bool loadLayer( rapidjson::Value& data, TileLayer& layer ) {
+	using namespace rapidjson;
+
+	if( !data[ "name" ].IsString() )
+		return false;
+
+	const string name = data[ "name" ].GetString();
+	layer.type = layerMap.at( name );
+
+	// Chunks
+	GenericArray< false, Value > chunks = data[ "chunks" ].GetArray();
+	for( SizeType j = 0; j < chunks.Size(); ++j ) {
+		Chunk chunk;
+
+		// Chunk position
+		Math::Vec2 position;
+		if( !chunks[ j ][ "x" ].IsInt() | !chunks[ j ][ "y" ].IsInt() )
+			continue;
+
+		chunk.position.x = float( chunks[ j ][ "x" ].GetInt() );
+		chunk.position.y = float( chunks[ j ][ "y" ].GetInt() );
+
+		// Block data
+		if( !chunks[ j ][ "data" ].IsArray() )
+			continue;
+
+		GenericArray< false, Value > data = chunks[ j ][ "data" ].GetArray();
+		for( SizeType k = 0; k < data.Size(); ++k )
+			chunk.blockData[ k ] = data[ k ].GetInt();
+
+		layer.chunks.push_back( chunk );
+	}
+}
+
+//--------------------------------------------------------------------------------
+
+bool loadLayer( rapidjson::Value& data, ObjectLayer& layer ) {
+	using namespace rapidjson;
+
+	if( !data[ "name" ].IsString() )
+		return false;
+
+	const string name = data[ "name" ].GetString();
+	layer.type = layerMap.at( name );
+
+	GenericArray<
 }
 
 //================================================================================

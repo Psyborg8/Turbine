@@ -155,8 +155,13 @@ void DebugWindow::onRender() {
 	string s = std::to_string( fps ) + "fps\n";
 	int i = 2;
 
-	for( auto& timer : timers )
-		s += timer.name + ": " + std::to_string( getAverageTime( timer.name ) * 1000.0f ) + "ms\n";
+	for( auto& timer : timers ) {
+		char buffer[ 40 ];
+		s += timer.name + ": ";
+		sprintf_s( buffer, "%.3f", getAverageTime( timer.name ) * 1000.0f );
+		s += buffer;
+		s += "ms\n";
+	}
 
 	// Render string
 	m_text.setString( sf::String( s ) );

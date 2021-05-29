@@ -109,12 +109,12 @@ void Player::onUpdate( sf::Time deltaTime ) {
 		sf::RectangleShape& rect = shadow->getRect();
 		{
 			sf::Color color = rect.getFillColor();
-			color.a = sf::Uint8( color.a * 0.85f );
+			color.a = sf::Uint8( color.a * 0.8f );
 			rect.setFillColor( color );
 		}
 		{
 			sf::Color color = rect.getOutlineColor();
-			color.a = sf::Uint8( color.a * 0.85f );
+			color.a = sf::Uint8( color.a * 0.8f );
 			rect.setOutlineColor( color );
 		}
 		
@@ -324,8 +324,17 @@ void Player::dash() {
 												 spriteData.dashShadows.push_back( rect );
 
 												 Timers::addTimer( 500, nullptr,
-																  [this, rect] {
-																	   spriteData.dashShadows.erase( std::find( spriteData.dashShadows.begin(), spriteData.dashShadows.end(), rect ) );
+																   [this, rect] {
+																	   if( this == nullptr )
+																		   return;
+																	   if( spriteData.dashShadows.empty() )
+																		   return;
+
+																	   const auto it = std::find( spriteData.dashShadows.begin(),
+																								  spriteData.dashShadows.end(),
+																								  rect );
+																	   if( it != spriteData.dashShadows.end() )
+																		   spriteData.dashShadows.erase( it );
 																  }, false );
 											}, true );
 

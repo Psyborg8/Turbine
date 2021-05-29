@@ -50,9 +50,8 @@ bool init( int argc, char** argv ) {
 
 	//window.create( sf::VideoMode::getFullscreenModes()[0], "Project Bullet", sf::Style::Fullscreen  );
 	window.create( sf::VideoMode( 1920u, 1080u ), "Project Bullet" );
-	
-	window.setVerticalSyncEnabled( false );
-	window.setFramerateLimit( 100u );
+	window.setVerticalSyncEnabled( true );
+
 	systemInfo.width = window.getSize().x;
 	systemInfo.height = window.getSize().y;
 
@@ -128,8 +127,8 @@ void update() {
 
 	// Limit the deltaTime if the frame took too long.
 	// So we can stop the game during breakpoints.
-	if( time.asSeconds() == 0.05f )
-		time = sf::Time( sf::seconds( 0.05f ) );
+	if( time.asMilliseconds() == 100 )
+		time = sf::Time( sf::milliseconds( 100 ) );
 
 	deltaTime = time;
 
@@ -157,6 +156,8 @@ void update() {
 				systemInfo.height = e.size.height;
 				world->getCamera().calculate();
 			}
+			if( e.type == sf::Event::Closed )
+				window.close();
 		}
 		Debug::stopTimer( "System::Event Notify" );
 	}

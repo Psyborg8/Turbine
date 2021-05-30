@@ -58,23 +58,23 @@ private:
 
 	struct {
 		bool enabled{ true };
-		const float acceleration{ 860.0f };
-		const float maxSpeed{ 80.0f };
-		const float airMultiplier{ 0.75f };
+		float acceleration{ 650.0f };
+		float maxSpeed{ 85.0f };
+		float airMultiplier{ 0.8f };
 	} movementData;
 
 	struct {
 		bool enabled{ true };
-		const float power{ 288.0f };
-		const float max{ 196.0f };
+		float power{ 288.0f };
+		float max{ 196.0f };
 	} gravityData;
 
 	struct {
 		bool enabled{ true };
-		const float power{ 80.0f };
-		const float min{ 128.0f };
-		const float max{ 800.0f };
-		const float airMultiplier{ 0.4f };
+		float power{ 10.0f };
+		float min{ 128.0f };
+		float max{ 800.0f };
+		float airMultiplier{ 0.8f };
 	} frictionData;
 
 	struct {
@@ -84,14 +84,14 @@ private:
 		bool isJumpingDown{ false };
 		bool wait{ false };
 
-		const float power{ 152.0f };
-		const float release{ 72.0f };
+		float power{ 152.0f };
+		float release{ 72.0f };
 	} jumpData;
 
 	struct {
 		bool enabled{ false };
 		bool canDoubleJump{ true };
-		const float power{ 0.0f }; // 96.0f
+		float power{ 0.0f }; // 96.0f
 	} doubleJumpData;
 
 	struct {
@@ -100,30 +100,30 @@ private:
 		bool isDashing{ false };
 		bool wait{ false };
 
-		const float power{ 280.0f };
-		const Math::Vec2 release{ 32.0f, 32.0f };
-		const milliseconds cooldown{ 750 };
-		const milliseconds duration{ 150 };
+		float power{ 280.0f };
+		Math::Vec2 release{ 32.0f, 32.0f };
+		milliseconds cooldown{ 1000 };
+		milliseconds duration{ 150 };
 		
-		const milliseconds animationStep{ 15 };
+		milliseconds animationStep{ 15 };
 	} dashData;
 
 	struct {
 		bool enabled{ true };
 		bool isClinging{ false };
 		
-		const float multiplier{ 0.2f };
-		const float min{ 32.0f };
-		const float max{ 128.0f };
+		float multiplier{ 0.2f };
+		float min{ 32.0f };
+		float max{ 128.0f };
 	} wallClingData;
 
 	struct {
 		bool enabled{ true };
 		float normal{ 0.0f };
 
-		const float power{ 356.0f };
-		const Math::Vec2 direction{ 0.65f, 0.35f };
-		const milliseconds duration{ 300 };
+		float power{ 275.0f };
+		Math::Vec2 direction{ 0.6f, 0.4f };
+		milliseconds duration{ 400 };
 	} wallJumpData;
 };
 

@@ -30,6 +30,7 @@ public:
 	virtual inline void onRender() {} // Called after all update phases, for rendering gfx
 	virtual inline void onPostRender() {} // For things that need to be done after all renders are complete
 	virtual inline void onExit() {} // When the game exits
+	virtual inline void onMessage( string message ) {} // When the object is sent a generic event message
 	virtual void onDestroy(); // When the object is marked for deletion
 
 // Collision
@@ -55,12 +56,16 @@ public:
 	inline CollisionType getCollisionType() const { return m_collisionType; }
 	inline void setCollisionType( CollisionType type ) { m_collisionType = type; }
 
+	inline bool getVisibility() const { return m_visibility; }
+	inline void setVisibility( bool visible ) { m_visibility = visible; }
+
 	// Variables
 protected:
 	Object* m_parent{ nullptr };
 	string m_name{ "" };
 	CollisionType m_collisionType{ CollisionType::None };
 	Math::Vec2 m_position;
+	bool m_visibility{ true };
 
 
 	/* Static */

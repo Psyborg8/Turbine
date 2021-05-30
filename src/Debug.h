@@ -8,6 +8,13 @@
 
 //================================================================================
 
+enum class DebugType {
+	None = 0,
+	Info,
+	Warning,
+	Error
+};
+
 namespace Debug {
 
 //--------------------------------------------------------------------------------
@@ -18,9 +25,13 @@ void stopTimer( string name );
 
 float getAverageTime( string name );
 
+void addMessage( string message, DebugType type = DebugType::None );
+
 //--------------------------------------------------------------------------------
 
 class DebugWindow : public Object {
+private:
+
 public:
 	DebugWindow() = default;
 

@@ -18,7 +18,16 @@ struct Timer {
 
 //--------------------------------------------------------------------------------
 
+struct DebugMessage {
+	sf::Text text;
+	DebugType type;
+	float alpha;
+};
+
+//--------------------------------------------------------------------------------
+
 vector< Timer > timers;
+vector< DebugMessage > messages;
 
 //--------------------------------------------------------------------------------
 
@@ -101,6 +110,34 @@ float getAverageTime( string name ) {
 	return total / vt.size();
 }
 
+//--------------------------------------------------------------------------------
+
+void addMessage( string message, DebugType type  ) {
+	DebugMessage out;
+	out.text.setFont( font );
+	out.text.setCharacterSize( 40u );
+	out.text.setScale( sf::Vector2f( 0.1f, 0.1f ) );
+	out.text.setOutlineColor( sf::Color::Black );
+	out.text.setOutlineThickness( 3.0f );
+	out.text.setString( message );
+	out.alpha = 1.0;
+	out.type = type;
+	
+	sf::Color color;
+	if( out.type == DebugType::None )
+		color = sf::Color::White;
+	else if( out.type == DebugType::Info )
+		color = sf::Color( 200, 150, 200, 255 );
+	else if( out.type == DebugType::Warning )
+		color = sf::Color( 200, 150, 50, 255 );
+	else if( out.type == DebugType::Error )
+		color = sf::Color( 200, 50, 50, 255 );
+
+	out.text.setFillColor( color );
+
+	messages.push_back( out );
+}
+
 //================================================================================
 
 void DebugWindow::onStart() {
@@ -129,6 +166,34 @@ void DebugWindow::onUpdate( sf::Time deltaTime ) {
 
 	if( ++m_iterator == m_deltaTimes.end() )
 		m_iterator = m_deltaTimes.begin();
+
+	float pos = 0.0;
+	for( DebugMessage& message : messages ) {
+		message.alpha -= 2.0f * deltaTime.asSeconds();
+		if( message.alpha < 0.0f ) {
+			const auto it = std::find_if( messages.begin(), messages.end(),
+										  [message]( const DebugMessage& rh ) {
+											  return rh.text.getString() == message.text.getString() &&
+												  rh.alpha == message.alpha;
+										  } );
+			if( it != messages.end() )
+				messages.erase( it );
+			continue;
+		}
+
+		sf::Color color = message.text.getFillColor();
+		color.a = sf::Uint8( message.alpha * 255.0f );
+		message.text.setFillColor( color );
+
+		Math::Vec2 position = Math::Vec2( System::getWindow()->mapPixelToCoords( sf::Vector2i( System::getSystemInfo().width, 0 ) ) );
+		position.y += pos;
+		position.x -= message.text.getLocalBounds().width;
+
+		message.text.setPosition( position.sf() );
+
+		pos += 10.0f;
+	}
+
 	stopTimer( "Debug::Update" );
 }
 
@@ -166,6 +231,12 @@ void DebugWindow::onRender() {
 	// Render string
 	m_text.setString( sf::String( s ) );
 	window->draw( m_text );
+
+	// Messages
+	for( const DebugMessage& message : messages ) {
+		window->draw( message.text );
+	}
+
 	stopTimer( "Debug::Render" );
 }
 

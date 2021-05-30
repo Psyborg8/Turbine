@@ -59,15 +59,14 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 		// Check again, in case a previous resolution means we aren't colliding anymore
 		const Collision::CollisionResult result = isColliding( collision.first );
 		if( result.success ) {
-			// Notify first so we have collision speed
+			// Resolve the collision
+			Collision::resolveCollision( result );
+
 			if( notify ) {
 				// Notify both targets
 				onCollision( result, collision.first );
 				collision.first->onCollision( result, shared_from_this() );
 			}
-
-			// Resolve the collision
-			Collision::resolveCollision( result );
 		}
 	}
 

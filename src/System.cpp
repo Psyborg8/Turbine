@@ -127,8 +127,8 @@ void update() {
 
 	// Limit the deltaTime if the frame took too long.
 	// So we can stop the game during breakpoints.
-	if( time.asMilliseconds() == 100 )
-		time = sf::Time( sf::milliseconds( 100 ) );
+	if( time.asMilliseconds() > 100 )
+		time = sf::Time( sf::milliseconds( 17 ) );
 
 	deltaTime = time;
 
@@ -161,7 +161,6 @@ void update() {
 		}
 		Debug::stopTimer( "System::Event Notify" );
 	}
-
 	Debug::stopTimer( "System::Event Handling" );
 
 	Debug::startTimer( "System::Update" );

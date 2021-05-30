@@ -164,7 +164,9 @@ void Player::onProcessCollisions()
 	Debug::stopTimer( "Player::Resolve Collisions" );
 
 	Debug::startTimer( "Player::Checkpoint Collision" );
-	const vector< shared_ptr< Object > > checkpoints = getObjects( System::getWorld(), "Checkpoint" );
+	vector< shared_ptr< Object > > checkpoints = getObjects( System::getWorld(), "Checkpoint" );
+	const vector< shared_ptr< Object > > levelEnds = getObjects( System::getWorld(), "Level End" );
+	checkpoints.insert( checkpoints.end(), levelEnds.begin(), levelEnds.end() );
 	processCollisions( checkpoints );
 	Debug::stopTimer( "Player::Checkpoint Collision" );
 }
@@ -197,9 +199,6 @@ void Player::onEvent( sf::Event e ) {
 		case sf::Keyboard::E:
 			dashData.wait = false;
 			break;
-		case sf::Keyboard::R:
-			kill();
-			break;
 		default:
 			break;
 		}
@@ -227,11 +226,21 @@ void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object 
 		Math::Vec2 position = checkpoint->getPosition();
 		position.x += checkpoint->getSize().x / 2.0f;
 		m_spawn = position;
-		checkpoint->destroy();
+		checkpoint->setParent( nullptr );
+		System::getWorld()->onMessage( "Checkpoint" );
 		return;
 	}
+
+	if( target->getName() == "Level End" ) {
+		target->setParent( nullptr );
+		System::getWorld()->onMessage( "Level End" );
+		return;
+	}
+
+
 	if( target->getName() == "Trap" )
 		return kill();
+
 	if( target->getName() == "Platform" )
 		jumpData.canJumpDown = true;
 
@@ -255,6 +264,7 @@ void Player::jump()
 	if( jumpData.wait )
 		return;
 
+	// Jump
 	if( jumpData.canJump && jumpData.enabled ) {
 		if( jumpData.canJumpDown && sf::Keyboard::isKeyPressed( sf::Keyboard::S ) )
 			jumpData.isJumpingDown = true;
@@ -263,12 +273,26 @@ void Player::jump()
 			jumpData.canJump = false;
 		}
 	}
+
+	// Wall Jump
 	else if( wallClingData.isClinging && wallJumpData.enabled ) {
 		m_velocity.x = wallJumpData.direction.x * wallJumpData.power * wallJumpData.normal;
 		m_velocity.y = wallJumpData.direction.y * -wallJumpData.power;
+
+		float acceleration = movementData.airMultiplier;
+		float friction = frictionData.airMultiplier;
+
+		Timers::addTimer( wallJumpData.duration,
+						  [this, acceleration, friction]( float alpha ) {
+							  movementData.airMultiplier = alpha * acceleration;
+							  frictionData.airMultiplier = alpha * friction;
+						  },
+						  nullptr, false );
 	}
+	// Dash
 	else if( dashData.enabled && dashData.canDash )
 		dash();
+	// Double Jump
 	else if( doubleJumpData.canDoubleJump && doubleJumpData.enabled ) {
 		m_velocity.y = -doubleJumpData.power;
 		doubleJumpData.canDoubleJump = false;
@@ -359,6 +383,8 @@ void Player::kill() {
 	Timers::removeTimer( m_dashAnimationTimer );
 	Timers::removeTimer( m_dashCooldownTimer );
 	Timers::removeTimer( m_dashTimer );
+
+	spriteData.dashShadows.clear();
 
 	System::getWorld()->reset();
 }

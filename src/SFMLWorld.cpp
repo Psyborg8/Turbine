@@ -23,7 +23,9 @@ void SFMLWorld::onSpawnChildren() {
 
 	m_camera.setDistance( 256.0f );
 
-	// makeObject< Debug::DebugWindow >( this );
+	//makeObject< Debug::DebugWindow >( this );
+
+	m_timer = makeObject< Gfx::GameTimer >( this );
 }
 
 //--------------------------------------------------------------------------------
@@ -33,12 +35,21 @@ void SFMLWorld::onStart() {
 	Gfx::Map::constructMap( "Dungeon_1-1", this );
 
 	m_backgroundColor = Math::Color( sf::Color( 22u, 22u, 22u, 255u ) );
+
+	const vector< shared_ptr< Game::Player > > players = Object::getObjects< Game::Player >();
+	if( players.empty() )
+		return;
+	const shared_ptr< Game::Player > player = Object::getObjects< Game::Player >().at( 0 );
+	m_levelStart = player->getSpawn();
+
+	m_timer->reset();
 }
 
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onRender() {
-	Gfx::Map::renderMap( "Dungeon_1-1" );
+	if( m_visibility )
+		Gfx::Map::renderMap( "Dungeon_1-1" );
 }
 
 //--------------------------------------------------------------------------------
@@ -66,6 +77,37 @@ void SFMLWorld::onUpdate( sf::Time deltaTime ) {
 
 //--------------------------------------------------------------------------------
 
+void SFMLWorld::onEvent( sf::Event e ) {
+	const vector< shared_ptr< Game::Player > > players = Object::getObjects< Game::Player >();
+	if( players.empty() )
+		return;
+
+	const shared_ptr< Game::Player > player = Object::getObjects< Game::Player >().at( 0 );
+
+	if( e.type == e.KeyPressed ) {
+		if( e.key.code == sf::Keyboard::R ) {
+			if( e.key.shift )
+				player->setSpawn( m_levelStart );
+			player->kill();
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------
+
+void SFMLWorld::onMessage( string message ) {
+	if( message == "Checkpoint" ) {
+		m_timer->split();
+		return;
+	}
+	if( message == "Level End" ) {
+		m_timer->stop();
+		return;
+	}
+}
+
+//--------------------------------------------------------------------------------
+
 Timers::TimerID playerSpawnTimer;
 void SFMLWorld::reset() {
 	const vector< shared_ptr< Game::Player > > players = Object::getObjects< Game::Player >();
@@ -84,6 +126,16 @@ void SFMLWorld::reset() {
 						  shared_ptr< Game::Player > player = Object::makeObject< Game::Player >( this );
 						  player->setPosition( spawn );
 						  player->setSpawn( spawn );
+						  if( spawn == m_levelStart ) {
+							  m_timer->reset();
+
+
+							  vector< shared_ptr< Object > > checkpoints = Object::getObjects( nullptr, "Checkpoint" );
+							  const vector< shared_ptr< Object > > levelEnds = Object::getObjects( nullptr, "Level End" );
+							  checkpoints.insert( checkpoints.end(), levelEnds.begin(), levelEnds.end() );
+							  for( shared_ptr< Object > checkpoint : checkpoints )
+								  checkpoint->setParent( this );
+						  }
 					  },
 					  false );
 }

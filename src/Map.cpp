@@ -86,14 +86,14 @@ struct Tileset {
 	string name;
 	string path;
 	int uid;
-	sf::Vector2u tileSize;
+	Math::Vec2 tileSize;
 };
 
 //--------------------------------------------------------------------------------
 
 struct Chunk {
 	array< int, 16u * 16u > blockData;
-	sf::Vector2i position; 
+	Math::Vec2 position; 
 	sf::Texture texture;
 };
 
@@ -101,7 +101,7 @@ struct Chunk {
 
 struct TileLayer {
 	vector< Chunk > chunks;
-	sf::Vector2i position;
+	Math::Vec2 position;
 	LayerType type;
 };
 
@@ -119,8 +119,8 @@ struct Map {
 	map< LayerType, ObjectLayer > objectLayers;
 	vector< Tileset > tilesets;
 	string name;
-	sf::Vector2u tileSize;
-	sf::Vector2u mapSize;
+	Math::Vec2 tileSize;
+	Math::Vec2 mapSize;
 };
 
 //================================================================================
@@ -148,13 +148,21 @@ const map< string, ObjectType > objectMap{
 
 //================================================================================
 
-vector< Map >::iterator getMap( string name );
-
+// Loading
 bool loadLayer( rapidjson::Value& data, TileLayer& layer );
 bool loadLayer( rapidjson::Value& data, ObjectLayer& layer );
+bool loadTileset( rapidjson::Value& data, Tileset& tileset );
+bool loadTile( rapidjson::Value& data, Tile& tile );
 
-bool constructLayer( TileLayer& layer, Object* parent );
-bool constructLayer( ObjectLayer& layer, Object* parent );
+//--------------------------------------------------------------------------------
+
+// Construction
+void constructCollider( const Tile& tile, Math::Vec2 position, Math::Vec2 size, Object* parent );
+void constructObject( const Rect& object, Object* parent );
+
+//================================================================================
+
+vector< Map >::iterator getMap( string name );
 
 //--------------------------------------------------------------------------------
 
@@ -162,53 +170,15 @@ vector< Map > maps;
 
 //================================================================================
 
-void renderMap( string name ) {
-	Debug::startTimer( "Map::Render" );
+// LOADING
 
-	const auto it = getMap( name );
-	if( it == maps.end() )
-		return;
-
-
-	for( const Chunk& chunk : it->tileLayers[ LayerType::Background ].chunks ) {
-		sf::Sprite sprite( chunk.texture );
-		sf::Vector2i position = chunk.position + it->tileLayers[ LayerType::Background ].position;
-		sprite.setPosition( sf::Vector2f( float( position.x ), float( position.y ) ) );
-		System::getWindow()->draw( sprite );
-
-		// Darken the background
-		sf::RectangleShape rect;
-		rect.setPosition( sf::Vector2f( float( position.x ), float( position.y ) ) );
-		rect.setSize( sf::Vector2f( 256.0f, 256.0f ) );
-		rect.setFillColor( sf::Color( 0u, 0u, 0u, 48u ) );
-		System::getWindow()->draw( rect );
-	}
-
-	for( const Chunk& chunk : it->tileLayers[ LayerType::BackgroundDetails ].chunks ) {
-
-		sf::Sprite sprite( chunk.texture );
-		sf::Vector2i position = chunk.position + it->tileLayers[ LayerType::BackgroundDetails ].position;
-		sprite.setPosition( sf::Vector2f( float( position.x ), float( position.y ) ) );
-		System::getWindow()->draw( sprite );
-	}
-
-	for( const Chunk& chunk : it->tileLayers[ LayerType::Terrain ].chunks ) {
-		sf::Sprite sprite( chunk.texture );
-		sf::Vector2i position = chunk.position + it->tileLayers[ LayerType::Terrain ].position;
-		sprite.setPosition( sf::Vector2f( float( position.x ), float( position.y ) ) );
-		System::getWindow()->draw( sprite );
-	}
-
-	Debug::stopTimer( "Map::Render" );
-}
-
-//--------------------------------------------------------------------------------
+//================================================================================
 
 void loadMap( string name ) {
 	Debug::startTimer( "Map::Load" );
 
 	using namespace rapidjson;
-	
+
 	const auto it = getMap( name );
 	if( it != maps.end() )
 		return;
@@ -224,27 +194,35 @@ void loadMap( string name ) {
 	FileReadStream is( pFile, buffer, sizeof( buffer ) );
 	Document document;
 	document.ParseStream<0, UTF8<>, FileReadStream>( is );
+	fclose( pFile );
 
 	if( document.HasParseError() )
 		return;
 
-	// Map Data
-	const int tileWidth = document[ "tilewidth" ].GetInt();
-	const int tileHeight = document[ "tileheight" ].GetInt();
-	map.tileSize.x = tileWidth;
-	map.tileSize.y = tileHeight;
-
-	const int mapwidth = document[ "width" ].GetInt();
-	const int mapheight = document[ "height" ].GetInt();
-	map.mapSize.x = mapwidth;
-	map.mapSize.y = mapheight;
+	// Meta Data
+	{
+		map.tileSize.x = float( document[ "tilewidth" ].GetInt() );
+		map.tileSize.y = float( document[ "tileheight" ].GetInt() );
+		map.mapSize.x = float( document[ "width" ].GetInt() );
+		map.mapSize.y = float( document[ "height" ].GetInt() );
+	}
 
 	// Layers
 	GenericArray< false, Value > layers = document[ "layers" ].GetArray();
 	for( SizeType i = 0; i < layers.Size(); ++i ) {
-		TileLayer layer;
-		if( loadLayer( layers[ i ], layer ) )
-			map.tileLayers[ layer.type ] = layer;
+		// Tile Layer
+		if( layers[ i ][ "type" ] == "tilelayer" ) {
+			TileLayer layer;
+			if( loadLayer( layers[ i ], layer ) )
+				map.tileLayers[ layer.type ] = layer;
+		}
+
+		// Object Layer
+		else if( layers[ i ][ "type" ] == "objectgroup" ) {
+			ObjectLayer layer;
+			if( loadLayer( layers[ i ], layer ) )
+				map.objectLayers[ layer.type ] = layer;
+		}
 	}
 
 	// Tilesets
@@ -252,39 +230,8 @@ void loadMap( string name ) {
 	for( SizeType i = 0; i < tilesets.Size(); ++i ) {
 		Tileset tileset;
 
-		tileset.uid = tilesets[ i ][ "firstgid" ].GetInt();
-		tileset.path = Folders::Maps + tilesets[ i ][ "image" ].GetString();
-		tileset.name = tilesets[ i ][ "name" ].GetString();
-		const int tileheight = tilesets[ i ][ "tileheight" ].GetInt();
-		const int tilewidth = tilesets[ i ][ "tilewidth" ].GetInt();
-		tileset.tileSize.y = tileheight;
-		tileset.tileSize.x = tilewidth;
-
-		const GenericArray< false, Value > tiles = tilesets[ i ][ "tiles" ].GetArray();
-		for( SizeType j = 0; j < tiles.Size(); ++j ) {
-			Tile tile;
-			tile.id = tiles[ j ][ "id" ].GetInt();
-			tile.type = tileMap.at( tiles[ j ][ "type" ].GetString() );
-
-			if( tile.type == TileType::Trap ) {
-				const GenericArray< false, Value > properties = tiles[ j ][ "properties" ].GetArray();
-				for( const Value& value : properties ) {
-					string name = value[ "name" ].GetString();
-					if( name == "Normal x" ) {
-						const int directionX = value[ "value" ].GetInt();
-						tile.direction.x = float( directionX );
-					}
-					if( name == "Normal y" ) {
-						const int directionY = value[ "value"].GetInt();
-						tile.direction.y = float( directionY );
-					}
-				}
-			}
-
-			tileset.tiles.push_back( tile );
-		}
-
-		map.tilesets.push_back( tileset );
+		if( loadTileset( tilesets[ i ], tileset ) )
+			map.tilesets.push_back( tileset );
 	}
 
 	maps.push_back( map );
@@ -302,144 +249,6 @@ void unloadMap( string name ) {
 		maps.erase( it );
 
 	Debug::stopTimer( "Map::Unload" );
-}
-
-//--------------------------------------------------------------------------------
-
-void constructMap( string name, Object* world ) {
-	Debug::startTimer( "Map::Construct" );
-
-	// Constructing map without parent will leak memory
-	if( world == nullptr )
-		return;
-	
-	const auto it = getMap( name );
-	if( it == maps.end() )
-		return;
-
-	vector< Tileset >& tilesets = it->tilesets;
-	const sf::Vector2u mapTileSize = it->tileSize;
-
-	// Load Tilesets
-	for( const Tileset& tileset : tilesets )
-		Gfx::Tileset::loadTileset( tileset.name, tileset.tileSize, tileset.path );
-
-	// Create objects
-	for( auto& pair : it->tileLayers ) {
-		LayerType type = pair.first;
-		TileLayer& layer = pair.second;
-
-		for( Chunk& chunk : layer.chunks ) {
-			// Render chunk to a texture to save on render calls
-			sf::RenderTexture texture;
-			texture.create( it->tileSize.x * 16u, it->tileSize.y * 16u );
-			texture.clear( sf::Color( 0u, 0u, 0u, 0u ) );
-
-			if( type == LayerType::Background )
-				texture.setSmooth( true );
-
-			for( size_t idx = 0u; idx < chunk.blockData.size(); ++idx ) {
-				const int id = chunk.blockData.at( idx );
-
-				if( !id )
-					continue;
-
-				// Find the tileset
-				const auto it = std::find_if( tilesets.begin(), tilesets.end(),
-											  [id]( const Tileset& tileset ) {
-												  return id >= tileset.uid && id < tileset.uid + tileset.tiles.size();
-											  } );
-
-				if( it == tilesets.end() )
-					continue;
-
-				const Tileset& tileset = *it;
-
-				// Calculate position
-				Math::Vec2 position;
-				position.x = float( idx % 16u * mapTileSize.x );
-				position.y = float( idx / 16u * mapTileSize.y );
-				Math::Vec2 worldPosition = position + Math::Vec2( float( layer.position.x + chunk.position.x ), 
-										float( layer.position.y + chunk.position.y ) );
-
-				// Process tile attributes
-				const Tile& tile = tileset.tiles[ id - tileset.uid ];
-
-				// Render to texture
-				Gfx::Tileset::renderTile( tileset.name, tile.id, &texture, position );
-
-				// Construct collider
-				if( type == LayerType::Terrain ) {
-					if( tile.type == TileType::Wall ) {
-						shared_ptr< Game::RigidRect > rect =
-							Object::makeObject< Game::RigidRect >( world );
-						rect->setSize( Math::Vec2( float( mapTileSize.x ), float( mapTileSize.y ) ) );
-						rect->setPosition( worldPosition );
-						rect->setName( "Wall" );
-						rect->setCollisionType( CollisionType::Static );
-					}
-					else if( tile.type == TileType::Trap ) {
-						// Build trap colliders
-						Math::Vec2 normal = tile.direction;
-						if( normal.x ) {
-							shared_ptr< Game::RigidRect > rect =
-								Object::makeObject< Game::RigidRect >( world );
-
-							Math::Vec2 pos = worldPosition;
-							pos.x += normal.x > 0 ? 0.0f : 12.0f;
-							rect->setPosition( pos );
-							rect->setSize( sf::Vector2f( 4.0f, 16.0f ) );
-							rect->setName( "Trap" );
-							rect->setCollisionType( CollisionType::Static );
-						}
-						if( normal.y ) {
-							shared_ptr< Game::RigidRect > rect =
-								Object::makeObject< Game::RigidRect >( world );
-
-							Math::Vec2 pos = worldPosition;
-							pos.y += normal.y > 0 ? 0.0f : 12.0f;
-							rect->setPosition( pos );
-							rect->setSize( sf::Vector2f( 16.0f, 4.0f ) );
-							rect->setName( "Trap" );
-							rect->setCollisionType( CollisionType::Static );
-						}
-					}
-				}
-
-				// Create the checkpoints and player
-				if( type == LayerType::Checkpoints && tile.type == TileType::DevSymbol ) {
-					const DevSymbol symbol = static_cast< DevSymbol >( tile.id );
-
-					// Player start
-					if( symbol == DevSymbol::S ) {
-						shared_ptr< Game::Player > player = Object::makeObject< Game::Player >( world );
-						player->setPosition( worldPosition );
-						player->setSpawn( worldPosition );
-					}
-				}
-			}
-
-			texture.display();
-			chunk.texture = sf::Texture( texture.getTexture() );
-		}
-	}
-
-	// Load Tilesets
-	for( const Tileset& tileset : tilesets )
-		Gfx::Tileset::unloadTileset( tileset.name );
-
-	Debug::stopTimer( "Map::Construct" );
-}
-
-//================================================================================
-
-vector< Map >::iterator getMap( string name ) {
-	const auto it = find_if( maps.begin(), maps.end(),
-							 [name]( const Map& map ) {
-								 return map.name == name;
-							 } );
-
-	return it;
 }
 
 //--------------------------------------------------------------------------------
@@ -463,8 +272,8 @@ bool loadLayer( rapidjson::Value& data, TileLayer& layer ) {
 		if( !chunks[ j ][ "x" ].IsInt() | !chunks[ j ][ "y" ].IsInt() )
 			continue;
 
-		chunk.position.x = float( chunks[ j ][ "x" ].GetInt() );
-		chunk.position.y = float( chunks[ j ][ "y" ].GetInt() );
+		chunk.position.x = float( chunks[ j ][ "x" ].GetInt() ) * 16.0f;
+		chunk.position.y = float( chunks[ j ][ "y" ].GetInt() ) * 16.0f;
 
 		// Block data
 		if( !chunks[ j ][ "data" ].IsArray() )
@@ -476,6 +285,8 @@ bool loadLayer( rapidjson::Value& data, TileLayer& layer ) {
 
 		layer.chunks.push_back( chunk );
 	}
+
+	return true;
 }
 
 //--------------------------------------------------------------------------------
@@ -483,13 +294,315 @@ bool loadLayer( rapidjson::Value& data, TileLayer& layer ) {
 bool loadLayer( rapidjson::Value& data, ObjectLayer& layer ) {
 	using namespace rapidjson;
 
-	if( !data[ "name" ].IsString() )
+	if( !data[ "name" ].IsString()
+		|| !data[ "objects" ].IsArray() )
 		return false;
 
 	const string name = data[ "name" ].GetString();
 	layer.type = layerMap.at( name );
 
-	GenericArray<
+	// Load objects
+	GenericArray< false, Value > objects = data[ "objects" ].GetArray();
+	for( SizeType i = 0u; i < objects.Size(); ++i ) {
+
+		// Get object data
+		Rect rect;
+		rect.type = objectMap.at( objects[ i ][ "type" ].GetString() );
+		rect.position.x = float( objects[ i ][ "x" ].GetInt() );
+		rect.position.y = float( objects[ i ][ "y" ].GetInt() );
+		rect.size.x = float( objects[ i ][ "width" ].GetInt() );
+		rect.size.y = float( objects[ i ][ "height" ].GetInt() );
+		rect.name = objects[ i ][ "name" ].GetString();
+
+		layer.objects.push_back( rect );
+	}
+
+	return true;
+}
+
+//--------------------------------------------------------------------------------
+
+bool loadTileset( rapidjson::Value& data, Tileset& tileset ) {
+	using namespace rapidjson;
+
+	// Get meta data
+	tileset.uid = data[ "firstgid" ].GetInt();
+	tileset.path = Folders::Maps + data[ "image" ].GetString();
+	tileset.name = data[ "name" ].GetString();
+	tileset.tileSize.y = float( data[ "tileheight" ].GetInt() );
+	tileset.tileSize.x = float( data[ "tilewidth" ].GetInt() );
+
+	// Load tiles
+	const GenericArray< false, Value > tiles = data[ "tiles" ].GetArray();
+	for( SizeType j = 0; j < tiles.Size(); ++j ) {
+		Tile tile;
+		if( loadTile( tiles[ j ], tile ) )
+			tileset.tiles.push_back( tile );
+	}
+
+	return true;
+}
+
+//--------------------------------------------------------------------------------
+
+bool loadTile( rapidjson::Value& data, Tile& tile ) {
+	using namespace rapidjson;
+
+	tile.id = data[ "id" ].GetInt();
+	tile.type = tileMap.at( data[ "type" ].GetString() );
+
+	// Traps
+	if( tile.type == TileType::Trap ) {
+		const GenericArray< false, Value > properties = data[ "properties" ].GetArray();
+		for( const Value& value : properties ) {
+
+			string name = value[ "name" ].GetString();
+			if( name == "Normal x" ) {
+				const int directionX = value[ "value" ].GetInt();
+				tile.direction.x = float( directionX );
+			}
+			if( name == "Normal y" ) {
+				const int directionY = value[ "value" ].GetInt();
+				tile.direction.y = float( directionY );
+			}
+		}
+	}
+
+	return true;
+}
+
+//================================================================================
+
+// CONSTRUCTION
+
+//================================================================================
+
+void constructMap( string name, Object* world ) {
+	Debug::startTimer( "Map::Construct" );
+
+	// Constructing map without parent will leak memory
+	if( world == nullptr )
+		return;
+
+	const auto it = getMap( name );
+	if( it == maps.end() )
+		return;
+
+	const vector< Tileset >& tilesets = it->tilesets;
+	const Math::Vec2 mapTileSize = it->tileSize;
+
+	// Load Tilesets
+	for( const Tileset& tileset : tilesets )
+		Gfx::Tileset::loadTileset( tileset.name, tileset.tileSize, tileset.path );
+
+	// Process Tile Layers
+	for( auto& pair : it->tileLayers ) {
+		TileLayer& layer = pair.second;
+
+		// Process chunks
+		for( Chunk& chunk : layer.chunks ) {
+			// Pre-render chunk to a texture to save on render calls
+			sf::RenderTexture texture;
+			texture.create( 256u, 256u );
+			texture.clear( sf::Color( 0u, 0u, 0u, 0u ) );
+
+			if( layer.type == LayerType::Background )
+				texture.setSmooth( true );
+
+			// Construct objects and render tiles
+			for( size_t idx = 0u; idx < chunk.blockData.size(); ++idx ) {
+				const int id = chunk.blockData.at( idx );
+
+				if( !id )
+					continue;
+
+				// Find the tileset
+				const auto it = std::find_if( tilesets.begin(), tilesets.end(),
+											  [id]( const Tileset& tileset ) {
+												  return id >= tileset.uid && id < tileset.uid + tileset.tiles.size();
+											  } );
+
+				if( it == tilesets.end() )
+					continue;
+
+				const Tileset& tileset = *it;
+
+				// Calculate position
+				Math::Vec2 position;
+				position.x = float( idx % 16u ) * 16.0f;
+				position.y = float( idx / 16u ) * 16.0f;
+				Math::Vec2 worldPosition = position + layer.position + chunk.position;
+
+				// Process tile attributes
+				const Tile& tile = tileset.tiles[ id - tileset.uid ];
+
+				// Render to texture
+				Gfx::Tileset::renderTile( tileset.name, tile.id, &texture, position );
+
+				// Construct collider
+				if( layer.type == LayerType::Terrain )
+					constructCollider( tile, worldPosition, Math::Vec2( it->tileSize ), world );
+			}
+
+			texture.display();
+			chunk.texture = sf::Texture( texture.getTexture() );
+		}
+	}
+
+	// Process Object Layers
+	for( const auto& pair : it->objectLayers ) {
+		const ObjectLayer& layer = pair.second;
+
+		for( const Rect& object : layer.objects )
+			constructObject( object, world );
+	}
+
+	// Unload Tilesets
+	for( const Tileset& tileset : tilesets )
+		Gfx::Tileset::unloadTileset( tileset.name );
+
+	Debug::stopTimer( "Map::Construct" );
+}
+
+//--------------------------------------------------------------------------------
+
+void constructCollider( const Tile& tile, Math::Vec2 position, Math::Vec2 size, Object* parent ) {
+	
+	// Wall
+	if( tile.type == TileType::Wall ) {
+		shared_ptr< Game::RigidRect > rect =
+			Object::makeObject< Game::RigidRect >( parent );
+		rect->setSize( size );
+		rect->setPosition( position );
+		rect->setName( "Wall" );
+		rect->setCollisionType( CollisionType::Static );
+		return;
+	}
+
+	// Trap
+	if( tile.type == TileType::Trap ) {
+		// Collider depends on the direction the trap is facing
+		Math::Vec2 normal = tile.direction;
+
+		// Construct X and Y colliders separately so we can have corners
+		Math::Vec2 pos;
+		Math::Vec2 size;
+		if( normal.x ) {
+			shared_ptr< Game::RigidRect > rect =
+				Object::makeObject< Game::RigidRect >( parent );
+
+			rect->setName( "Trap" );
+			rect->setCollisionType( CollisionType::Static );
+			rect->setSize( sf::Vector2f( 4.0f, 16.0f ) );
+
+			Math::Vec2 pos = position;
+			pos.x += normal.x > 0 ? 0.0f : 12.0f;
+			rect->setPosition( pos );
+		}
+		if( normal.y ) {
+			shared_ptr< Game::RigidRect > rect =
+				Object::makeObject< Game::RigidRect >( parent );
+
+			rect->setName( "Trap" );
+			rect->setCollisionType( CollisionType::Static );
+			rect->setSize( sf::Vector2f( 16.0f, 4.0f ) );
+
+			Math::Vec2 pos = position;
+			pos.y += normal.y > 0 ? 0.0f : 12.0f;
+			rect->setPosition( pos );
+
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------
+
+void constructObject( const Rect& object, Object* parent ) {
+	if( object.type == ObjectType::Checkpoint ) {
+		// Player Start
+		if( object.name == "S" ) {
+			Math::Vec2 position = object.position;
+			position.x += object.size.x / 2.0f;
+
+			shared_ptr< Game::Player > player = Object::makeObject< Game::Player >( parent );
+			player->setPosition( position );
+			player->setSpawn( position );
+
+			return;
+		}
+
+		// Level End
+		if( object.name == "E" ) {
+
+			return;
+		}
+		
+		// Checkpoint
+		const int id = std::stoi( object.name );
+		if( id > 0 ) {
+			shared_ptr< Game::RigidRect > checkpoint = Object::makeObject< Game::RigidRect >( parent );
+			checkpoint->setPosition( object.position );
+			checkpoint->setSize( object.size );
+			checkpoint->setName( "Checkpoint" );
+			checkpoint->setCollisionType( CollisionType::Static );
+		}
+	}
+}
+
+//================================================================================
+
+// RENDERING
+
+//================================================================================
+
+void renderMap( string name ) {
+	Debug::startTimer( "Map::Render" );
+
+	const auto it = getMap( name );
+	if( it == maps.end() )
+		return;
+
+	for( const Chunk& chunk : it->tileLayers[ LayerType::Background ].chunks ) {
+		sf::Sprite sprite( chunk.texture );
+		Math::Vec2 position = chunk.position + it->tileLayers[ LayerType::Background ].position;
+		sprite.setPosition( position.sf() );
+		System::getWindow()->draw( sprite );
+
+		// Darken the background
+		sf::RectangleShape rect;
+		rect.setPosition( position.sf() );
+		rect.setSize( sf::Vector2f( 256.0f, 256.0f ) );
+		rect.setFillColor( sf::Color( 0u, 0u, 0u, 48u ) );
+		System::getWindow()->draw( rect );
+	}
+
+	for( const Chunk& chunk : it->tileLayers[ LayerType::BackgroundDetails ].chunks ) {
+
+		sf::Sprite sprite( chunk.texture );
+		Math::Vec2 position = chunk.position + it->tileLayers[ LayerType::BackgroundDetails ].position;
+		sprite.setPosition( position.sf() );
+		System::getWindow()->draw( sprite );
+	}
+
+	for( const Chunk& chunk : it->tileLayers[ LayerType::Terrain ].chunks ) {
+		sf::Sprite sprite( chunk.texture );
+		Math::Vec2 position = chunk.position + it->tileLayers[ LayerType::Terrain ].position;
+		sprite.setPosition( position.sf() );
+		System::getWindow()->draw( sprite );
+	}
+
+	Debug::stopTimer( "Map::Render" );
+}
+
+//================================================================================
+
+vector< Map >::iterator getMap( string name ) {
+	const auto it = find_if( maps.begin(), maps.end(),
+							 [name]( const Map& map ) {
+								 return map.name == name;
+							 } );
+
+	return it;
 }
 
 //================================================================================

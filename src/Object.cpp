@@ -20,8 +20,10 @@ void Object::onDestroy() {
 void Object::processCollisions( vector< shared_ptr< Object > > targets ) {
 	for( shared_ptr< Object > target : targets ) {
 		const Collision::CollisionResult result = isColliding( target );
-		if( result.success )
-			target->onCollision( result, target );
+		if( result.success ) {
+			onCollision( result, target );
+			target->onCollision( result, shared_from_this() );
+		}
 	}
 }
 

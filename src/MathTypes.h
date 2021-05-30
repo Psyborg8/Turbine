@@ -69,6 +69,8 @@ namespace Math {
 
 struct Vec2 {
 	Vec2( sf::Vector2f v ) : x{ v.x }, y{ v.y } {}
+	Vec2( sf::Vector2i v ) : x{ float( v.x ) }, y{ float( v.y ) } {}
+	Vec2( sf::Vector2u v ) : x{ float( v.x ) }, y{ float( v.y ) } {}
 
 	float x;
 	float y;
@@ -82,7 +84,10 @@ struct Vec2 {
 	Vec2 normalize() const;
 	Vec2 abs() const;
 	Vec2 inverse() const;
+	Vec2 trim() const;
 	sf::Vector2f sf() const;
+	sf::Vector2i sfi() const;
+	sf::Vector2u sfu() const;
 
 	bool operatorbool() const;
 	bool operator==( const Vec2& rh ) const;

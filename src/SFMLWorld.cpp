@@ -21,16 +21,16 @@ namespace Worlds {
 void SFMLWorld::onSpawnChildren() {
 	World::onSpawnChildren();
 
-	m_camera.setDistance( 196.0f );
+	m_camera.setDistance( 256.0f );
 
-	makeObject< Debug::DebugWindow >( this );
+	// makeObject< Debug::DebugWindow >( this );
 }
 
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onStart() {
-	Gfx::Map::loadMap( "DungeonMap" );
-	Gfx::Map::constructMap( "DungeonMap", this );
+	Gfx::Map::loadMap( "Dungeon_1-1" );
+	Gfx::Map::constructMap( "Dungeon_1-1", this );
 
 	m_backgroundColor = Math::Color( sf::Color( 22u, 22u, 22u, 255u ) );
 }
@@ -38,7 +38,7 @@ void SFMLWorld::onStart() {
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onRender() {
-	Gfx::Map::renderMap( "DungeonMap" );
+	Gfx::Map::renderMap( "Dungeon_1-1" );
 }
 
 //--------------------------------------------------------------------------------
@@ -66,6 +66,7 @@ void SFMLWorld::onUpdate( sf::Time deltaTime ) {
 
 //--------------------------------------------------------------------------------
 
+Timers::TimerID playerSpawnTimer;
 void SFMLWorld::reset() {
 	const vector< shared_ptr< Game::Player > > players = Object::getObjects< Game::Player >();
 	if( players.empty() )
@@ -75,7 +76,10 @@ void SFMLWorld::reset() {
 	Math::Vec2 spawn = player->getSpawn();
 	player->destroy();
 
-	Timers::addTimer( 1000, nullptr,
+	if( Timers::timerStillActive( playerSpawnTimer ) )
+		return;
+
+	playerSpawnTimer = Timers::addTimer( 1000, nullptr,
 					  [spawn, this] {
 						  shared_ptr< Game::Player > player = Object::makeObject< Game::Player >( this );
 						  player->setPosition( spawn );

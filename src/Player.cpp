@@ -43,7 +43,7 @@ void Player::onUpdate( sf::Time deltaTime ) {
 		{
 			float move = 0.0;
 			// Movement
-			if( abs( m_velocity.x ) <= movementData.maxSpeed ) {
+			if( abs( m_velocity.x ) <= movementData.maxSpeed && movementData.enabled ) {
 				// Input
 				if( sf::Keyboard::isKeyPressed( sf::Keyboard::D ) )
 					move += movementData.acceleration * deltaTime.asSeconds();
@@ -63,33 +63,35 @@ void Player::onUpdate( sf::Time deltaTime ) {
 			}
 
 			// Friction
-			if( !move && m_velocity.x ) {
+			if( !move && m_velocity.x && frictionData.enabled ) {
 				float friction = frictionData.power * abs( m_velocity.x ) * deltaTime.asSeconds();
 
 				// Air resistance
 				if( !jumpData.canJump )
 					friction *= frictionData.airMultiplier;
 
-				friction = std::clamp( friction, frictionData.min * deltaTime.asSeconds(), frictionData.max * deltaTime.asSeconds() );
-				if( abs( m_velocity.x ) < friction )
-					m_velocity.x = 0.0;
-				else
-					m_velocity.x -= friction * ( m_velocity.x / abs( m_velocity.x ) );
+					friction = std::clamp( friction, frictionData.min * deltaTime.asSeconds(), frictionData.max * deltaTime.asSeconds() );
+					if( abs( m_velocity.x ) < friction )
+						m_velocity.x = 0.0;
+					else
+						m_velocity.x -= friction * ( m_velocity.x / abs( m_velocity.x ) );
 			}
 		}
 
 		// Vertical
 		{
 			// Gravity
-			m_velocity.y += gravityData.power * deltaTime.asSeconds();
-			m_velocity.y = m_velocity.y > gravityData.max ? gravityData.max : m_velocity.y;
+			if( gravityData.enabled ) {
+				m_velocity.y += gravityData.power * deltaTime.asSeconds();
+				m_velocity.y = m_velocity.y > gravityData.max ? gravityData.max : m_velocity.y;
+			}
 
 			// Jump Release
 			if( !sf::Keyboard::isKeyPressed( sf::Keyboard::Space ) )
 				m_velocity.y = std::max( m_velocity.y, -jumpData.release );
 
 			// Wall Cling
-			if( wallClingData.isClinging ) {
+			if( wallClingData.isClinging && wallClingData.enabled ) {
 				float friction = wallClingData.multiplier * abs( m_velocity.y ) * deltaTime.asSeconds();
 				friction = std::clamp( friction, wallClingData.min * deltaTime.asSeconds(), wallClingData.max * deltaTime.asSeconds() );
 				if( abs( m_velocity.y ) < friction )
@@ -160,6 +162,11 @@ void Player::onProcessCollisions()
 	Debug::startTimer( "Player::Resolve Collisions" );
 	resolveCollisions( targets, true );
 	Debug::stopTimer( "Player::Resolve Collisions" );
+
+	Debug::startTimer( "Player::Checkpoint Collision" );
+	const vector< shared_ptr< Object > > checkpoints = getObjects( System::getWorld(), "Checkpoint" );
+	processCollisions( checkpoints );
+	Debug::stopTimer( "Player::Checkpoint Collision" );
 }
 
 //--------------------------------------------------------------------------------
@@ -190,6 +197,9 @@ void Player::onEvent( sf::Event e ) {
 		case sf::Keyboard::E:
 			dashData.wait = false;
 			break;
+		case sf::Keyboard::R:
+			kill();
+			break;
 		default:
 			break;
 		}
@@ -212,6 +222,14 @@ void Player::onRender() {
 
 void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object > target ) {
 	// Check for Trap or Wall
+	if( target->getName() == "Checkpoint" ) {
+		shared_ptr< RigidRect > checkpoint = std::dynamic_pointer_cast< RigidRect >( target );
+		Math::Vec2 position = checkpoint->getPosition();
+		position.x += checkpoint->getSize().x / 2.0f;
+		m_spawn = position;
+		checkpoint->destroy();
+		return;
+	}
 	if( target->getName() == "Trap" )
 		return kill();
 	if( target->getName() == "Platform" )
@@ -237,7 +255,7 @@ void Player::jump()
 	if( jumpData.wait )
 		return;
 
-	if( jumpData.canJump ) {
+	if( jumpData.canJump && jumpData.enabled ) {
 		if( jumpData.canJumpDown && sf::Keyboard::isKeyPressed( sf::Keyboard::S ) )
 			jumpData.isJumpingDown = true;
 		else {
@@ -245,14 +263,14 @@ void Player::jump()
 			jumpData.canJump = false;
 		}
 	}
-	else if( doubleJumpData.canDoubleJump ) {
-		if( wallClingData.isClinging ) {
-			m_velocity.x = wallJumpData.direction.x * wallJumpData.power * wallJumpData.normal;
-			m_velocity.y = wallJumpData.direction.y * -wallJumpData.power;
-		}
-		else
-			m_velocity.y = -doubleJumpData.power;
-
+	else if( wallClingData.isClinging && wallJumpData.enabled ) {
+		m_velocity.x = wallJumpData.direction.x * wallJumpData.power * wallJumpData.normal;
+		m_velocity.y = wallJumpData.direction.y * -wallJumpData.power;
+	}
+	else if( dashData.enabled && dashData.canDash )
+		dash();
+	else if( doubleJumpData.canDoubleJump && doubleJumpData.enabled ) {
+		m_velocity.y = -doubleJumpData.power;
 		doubleJumpData.canDoubleJump = false;
 	}
 
@@ -262,12 +280,7 @@ void Player::jump()
 //--------------------------------------------------------------------------------
 
 void Player::dash() {
-	if( dashData.wait )
-		return;
-
-	dashData.wait = true;
-
-	if( !dashData.canDash )
+	if( !dashData.canDash || !dashData.enabled )
 		return;
 
 	Math::Vec2 direction;

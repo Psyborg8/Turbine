@@ -15,14 +15,14 @@ namespace Tileset {
 
 struct Tilemap {
 	vector< int > indices;
-	sf::Vector2u tileSize;
-	sf::Vector2u mapSize;
+	Math::Vec2 tileSize;
+	Math::Vec2 mapSize;
 };
 
 //--------------------------------------------------------------------------------
 
 // Load the tileset from file into memory
-void loadTileset( string name, sf::Vector2u tileSize, string path );
+void loadTileset( string name, Math::Vec2 tileSize, string path );
 
 // Unload tileset from memory
 void unloadTileset( string name );

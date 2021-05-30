@@ -35,7 +35,7 @@ vector< Tileset > tilesets;
 
 //================================================================================
 
-void loadTileset( string name, sf::Vector2u tileSize, string path ) {
+void loadTileset( string name, Math::Vec2 tileSize, string path ) {
 	Tileset tileset = getTileset( name );
 	
 	if( tileset.name == name )
@@ -50,9 +50,8 @@ void loadTileset( string name, sf::Vector2u tileSize, string path ) {
 	tileset.texture->loadFromFile( path );
 	tileset.texture->setSmooth( true );
 
-	sf::Vector2u mapSize;
-	mapSize.x = tileset.texture->getSize().x / tileSize.x;
-	mapSize.y = tileset.texture->getSize().y / tileSize.y;
+	Math::Vec2 mapSize;
+	mapSize = Math::Vec2( tileset.texture->getSize() ) / tileSize;
 
 	for( size_t y = 0u; y < mapSize.y; ++y )
 		for( size_t x = 0u; x < mapSize.x; ++x ) {

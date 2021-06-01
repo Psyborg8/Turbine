@@ -38,19 +38,16 @@ void Player::onSpawnChildren() {
 	m_bottomCollider= make_shared< RigidRect >();
 	m_bottomCollider->setCollisionType( CollisionType::Static );
 	m_bottomCollider->setSize( Math::Vec2( getSize().x, wallClingData.leniency ) );
-	m_bottomCollider->setColor( sf::Color::Red );
 	m_bottomCollider->setVelocity( Math::Vec2( 0.0f, 1.0f ) );
 
 	m_leftCollider = make_shared< RigidRect >();
 	m_leftCollider->setCollisionType( CollisionType::Static );
 	m_leftCollider->setSize( Math::Vec2( wallClingData.leniency, getSize().y ) );
-	m_leftCollider->setColor( sf::Color::Red );
 	m_leftCollider->setVelocity( Math::Vec2( -1.0f, 0.0f ) );
 
 	m_rightCollider = make_shared< RigidRect >();
 	m_rightCollider->setCollisionType( CollisionType::Static );
 	m_rightCollider->setSize( Math::Vec2( wallClingData.leniency, getSize().y ) );
-	m_rightCollider->setColor( sf::Color::Red );
 	m_rightCollider->setVelocity( Math::Vec2( 1.0f, 0.0 ) );
 }
 
@@ -220,9 +217,6 @@ void Player::onRender() {
 	for( shared_ptr< RigidRect > shadow : spriteData.dashShadows )
 		System::getWindow()->draw( shadow->getRect() );
 
-	System::getWindow()->draw( m_bottomCollider->getRect() );
-	System::getWindow()->draw( m_leftCollider->getRect() );
-	System::getWindow()->draw( m_rightCollider->getRect() );
 	System::getWindow()->draw( m_rect );
 
 	Debug::stopTimer( "Player::Render" );
@@ -356,7 +350,27 @@ void Player::dash() {
 
 												 spriteData.dashShadows.push_back( rect );
 
-												 Timers::addTimer( 500, nullptr,
+												 Timers::addTimer( 500, 
+																   [this, rect]( float alpha ) {
+																	   if( this == nullptr )
+																		   return;
+																	   if( spriteData.dashShadows.empty() )
+																		   return;
+																	   if( spriteData.dashShadows.size() > 255u )
+																		   return;
+
+																	   const auto it = std::find( spriteData.dashShadows.begin(),
+																								  spriteData.dashShadows.end(),
+																								  rect );
+																	   if( it != spriteData.dashShadows.end() ) {
+																		   sf::Color color = ( *it )->getRect().getFillColor();
+																		   sf::Color outline = ( *it )->getRect().getOutlineColor();
+																		   color.a = 1.0f - alpha;
+																		   outline.a = 1.0f - alpha;
+																		   ( *it )->setColor( color );
+																		   ( *it )->getRect().setOutlineColor( outline );
+																	   }
+																   },
 																   [this, rect] {
 																	   if( this == nullptr )
 																		   return;
@@ -398,10 +412,6 @@ void Player::extendedHitbox( vector< shared_ptr< Object > > targets ) {
 	jumpData.canJump = false;
 	wallClingData.isClinging = false;
 
-	m_bottomCollider->setColor( sf::Color::Red );
-	m_leftCollider->setColor( sf::Color::Red );
-	m_rightCollider->setColor( sf::Color::Red );
-
 	// Bottom
 	for( shared_ptr< Object > target : targets ) {
 		Collision::CollisionResult result = m_bottomCollider->isColliding( target );
@@ -409,7 +419,6 @@ void Player::extendedHitbox( vector< shared_ptr< Object > > targets ) {
 		if( result.success ) {
 			jumpData.canJump = true;
 			doubleJumpData.canDoubleJump = true;
-			m_bottomCollider->setColor( sf::Color::Green );
 			return;
 		}
 	}
@@ -421,7 +430,6 @@ void Player::extendedHitbox( vector< shared_ptr< Object > > targets ) {
 		if( result.success ) {
 			wallClingData.isClinging = true;
 			wallJumpData.normal = 1.0f;
-			m_leftCollider->setColor( sf::Color::Green );
 			return;
 		}
 	}
@@ -433,7 +441,6 @@ void Player::extendedHitbox( vector< shared_ptr< Object > > targets ) {
 		if( result.success ) {
 			wallClingData.isClinging = true;
 			wallJumpData.normal = -1.0f;
-			m_rightCollider->setColor( sf::Color::Green );
 			return;
 		}
 	}

@@ -23,10 +23,9 @@ void SFMLWorld::onSpawnChildren() {
 
 	m_camera.setDistance( 256.0f );
 
-	makeObject< Debug::DebugWindow >( this );
+	// makeObject< Debug::DebugWindow >( this );
 
 	m_timer = makeObject< Gfx::GameTimer >( this );
-	m_timer->setVisibility( false );
 }
 
 //--------------------------------------------------------------------------------

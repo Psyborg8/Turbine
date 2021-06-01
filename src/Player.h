@@ -65,7 +65,7 @@ private:
 
 	struct {
 		bool enabled{ true };
-		float acceleration{ 650.0f };
+		float acceleration{ 850.0f };
 		float maxSpeed{ 85.0f };
 		float airMultiplier{ 0.8f };
 	} movementData;
@@ -90,7 +90,7 @@ private:
 		bool canJumpDown{ false };
 		bool isJumpingDown{ false };
 
-		float power{ 168.0f };
+		float power{ 160.0f };
 		float release{ 72.0f };
 	} jumpData;
 
@@ -117,7 +117,7 @@ private:
 		bool enabled{ true };
 		bool isClinging{ false };
 		
-		float leniency{ 3.0f };
+		float leniency{ 2.5f };
 		float multiplier{ 0.2f };
 		float min{ 32.0f };
 		float max{ 128.0f };

@@ -3,13 +3,15 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon_1-1.json",
     "expandedProjectPaths": [
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data",
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "": {
-            "scaleInEditor": 1
+            "scaleInEditor": 5.5
         },
         "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon-1_1.json": {
             "scale": 1,
@@ -40,6 +42,23 @@
         "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/DungeonMap.json#Dungeon_Spikes": {
             "scaleInDock": 5.5
         },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon_1-1.json": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 344,
+                "y": 147.25
+            }
+        },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon_1-1.json#Developer_Symbols": {
+            "scaleInDock": 3
+        },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon_1-1.json#Dungeon_Spikes": {
+            "scaleInDock": 3
+        },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon_1-1.json#Dungeon_Terrain": {
+            "scaleInDock": 3
+        },
         "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Template.json": {
             "scale": 1,
             "selectedLayer": 0,
@@ -65,12 +84,15 @@
     "map.fixedSize": false,
     "map.lastUsedFormat": "json",
     "openFiles": [
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon_1-1.json",
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/DungeonMap.json"
     ],
     "project": "",
     "property.type": "int",
     "recentFiles": [
-        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon-1_1.json",
-        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/DungeonMap.json"
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/DungeonMap.json",
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon_1-1.json",
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon-1_1.json"
     ],
     "tileset.embedInMap": true,
     "tileset.tileSize": {

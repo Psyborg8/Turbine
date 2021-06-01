@@ -32,8 +32,6 @@ shared_ptr< Worlds::World > getWorld();
 
 sf::RenderWindow* getWindow();
 
-sf::RenderTexture* getScreen();
-
 sf::Time getDeltaTime();
 
 

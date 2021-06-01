@@ -40,6 +40,7 @@ public:
 	void onStart() override;
 	void onUpdate( sf::Time deltaTime ) override;
 	void onRender() override;
+	void onEvent( sf::Event e ) override;
 
 private:
 	array< sf::Time, 100 > m_deltaTimes;

@@ -217,7 +217,7 @@ void DebugWindow::onUpdate( sf::Time deltaTime ) {
 		Math::Vec2 position = Math::Vec2( window->mapPixelToCoords( sf::Vector2i( System::getSystemInfo().width, 0 ) ) );
 		position.y += y;
 		const float width = message.text.getGlobalBounds().width;
-		position.x -= width;
+		position.x -= width * 1.1f;
 		message.text.setPosition( position.sf() );
 
 		// Move next line down
@@ -243,6 +243,60 @@ void DebugWindow::onRender() {
 	}
 
 	stopTimer( "Debug::Render" );
+}
+
+//--------------------------------------------------------------------------------
+
+void DebugWindow::onEvent( sf::Event e ) {
+	if( e.type == sf::Event::JoystickConnected ) {
+		const unsigned int id = e.joystickConnect.joystickId;
+		const string name = sf::Joystick::getIdentification( id ).name;
+
+		char buffer[ 128 ];
+		sprintf_s( buffer, "Joystick %i \"%s\" connected", id, name.c_str() );
+		addMessage( buffer );
+		return;
+	}
+
+	if( e.type == sf::Event::JoystickDisconnected ) {
+		const unsigned int id = e.joystickConnect.joystickId;
+		const string name = sf::Joystick::getIdentification( id ).name;
+
+		char buffer[ 128 ];
+		sprintf_s( buffer, "Joystick %i \"%s\" disconnected", id, name.c_str() );
+		addMessage( buffer );
+		return;
+	}
+
+	if( e.type == sf::Event::JoystickButtonPressed ) {
+		
+		const unsigned int id = e.joystickButton.joystickId;
+		const unsigned int button = e.joystickButton.button;
+		
+		char buffer[ 64 ];
+		sprintf_s( buffer, "Joystick %i pressed button %i", id, button );
+		addMessage( buffer );
+		return;
+	}
+
+	if( e.type == sf::Event::JoystickButtonReleased ) {
+		const unsigned int id = e.joystickButton.joystickId;
+		const unsigned int button = e.joystickButton.button;
+		char buffer[ 64 ];
+		sprintf_s( buffer, "Joystick %i released button %i", id, button );
+		addMessage( buffer );
+		return;
+	}
+
+	if( e.type == sf::Event::JoystickMoved ) {
+		const unsigned int id = e.joystickMove.joystickId;
+		const unsigned int axis = e.joystickMove.axis;
+		const float position = e.joystickMove.position;
+		char buffer[ 64 ];
+		sprintf_s( buffer, "Joystick %i moved axis %i to %.3f", id, axis, position );
+		addMessage( buffer );
+		return;
+	}
 }
 
 //--------------------------------------------------------------------------------

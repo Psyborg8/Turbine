@@ -34,9 +34,31 @@ Player::Player( Math::Vec2 pos ) : RigidRect() {
 
 //--------------------------------------------------------------------------------
 
-void Player::onUpdate( sf::Time deltaTime ) {
-	Debug::startTimer( "Player::Update" );
+void Player::onSpawnChildren() {
+	m_bottomCollider= make_shared< RigidRect >();
+	m_bottomCollider->setCollisionType( CollisionType::Static );
+	m_bottomCollider->setSize( Math::Vec2( getSize().x, wallClingData.leniency ) );
+	m_bottomCollider->setColor( sf::Color::Red );
+	m_bottomCollider->setVelocity( Math::Vec2( 0.0f, 1.0f ) );
 
+	m_leftCollider = make_shared< RigidRect >();
+	m_leftCollider->setCollisionType( CollisionType::Static );
+	m_leftCollider->setSize( Math::Vec2( wallClingData.leniency, getSize().y ) );
+	m_leftCollider->setColor( sf::Color::Red );
+	m_leftCollider->setVelocity( Math::Vec2( -1.0f, 0.0f ) );
+
+	m_rightCollider = make_shared< RigidRect >();
+	m_rightCollider->setCollisionType( CollisionType::Static );
+	m_rightCollider->setSize( Math::Vec2( wallClingData.leniency, getSize().y ) );
+	m_rightCollider->setColor( sf::Color::Red );
+	m_rightCollider->setVelocity( Math::Vec2( 1.0f, 0.0 ) );
+}
+
+//--------------------------------------------------------------------------------
+
+void Player::onUpdate( sf::Time deltaTime ) {
+
+	Debug::startTimer( "Player::Update Physics" );
 	// Ignore physics while dashing
 	if( !dashData.isDashing ) {
 		// Horizontal
@@ -101,11 +123,9 @@ void Player::onUpdate( sf::Time deltaTime ) {
 			}
 		}
 	}
+	Debug::stopTimer( "Player::Update Physics" );
 
-	// Reset flags
-	wallClingData.isClinging = false;
-	jumpData.canJump = false;
-
+	Debug::startTimer( "Player::Update Animations" );
 	// Animations
 	for( shared_ptr< RigidRect > shadow : spriteData.dashShadows ) {
 		sf::RectangleShape& rect = shadow->getRect();
@@ -121,8 +141,7 @@ void Player::onUpdate( sf::Time deltaTime ) {
 		}
 		
 	}
-
-	Debug::stopTimer( "Player::Update" );
+	Debug::stopTimer( "Player::Update Animations" );
 }
 
 //--------------------------------------------------------------------------------
@@ -130,18 +149,17 @@ void Player::onUpdate( sf::Time deltaTime ) {
 void Player::onProcessCollisions()
 {
 	Debug::startTimer( "Player::Find Colliders" );
-	vector< shared_ptr< Object > > targets;
 	const vector< shared_ptr< Object > > walls = getObjects( System::getWorld(), "Wall" );
 	const vector< shared_ptr< Object > > traps = getObjects( System::getWorld(), "Trap" );
 	const vector< shared_ptr< Object > > platforms = getObjects( System::getWorld(), "Platform" );
+	const vector< shared_ptr< Object > > checkpoints = getObjects( System::getWorld(), "Checkpoint" );
+	const vector< shared_ptr< Object > > levelEnds = getObjects( System::getWorld(), "Level End" );
 	Debug::stopTimer( "Player::Find Colliders" );
 
-	targets.insert( targets.end(), walls.begin(), walls.end() );
-	targets.insert( targets.end(), traps.begin(), traps.end() );
+	vector< shared_ptr< Object > > targets;
 
 	// Check if we're supposed to collide with platforms
-
-	Debug::startTimer( "Player::Platform Collision" );
+	Debug::startTimer( "Player::Platform Detection" );
 	bool collision = false;
 	for( shared_ptr< Object > platform : platforms ) {
 		Collision::CollisionResult result = isColliding( platform );
@@ -157,18 +175,25 @@ void Player::onProcessCollisions()
 			targets.insert( targets.end(), platforms.begin(), platforms.end() );
 		else if( collision )
 			jumpData.isJumpingDown = true;
-	Debug::stopTimer( "Player::Platform Collision" );
+	Debug::stopTimer( "Player::Platform Detection" );
 
 	Debug::startTimer( "Player::Resolve Collisions" );
+	targets.insert( targets.end(), walls.begin(), walls.end() );
 	resolveCollisions( targets, true );
 	Debug::stopTimer( "Player::Resolve Collisions" );
 
-	Debug::startTimer( "Player::Checkpoint Collision" );
-	vector< shared_ptr< Object > > checkpoints = getObjects( System::getWorld(), "Checkpoint" );
-	const vector< shared_ptr< Object > > levelEnds = getObjects( System::getWorld(), "Level End" );
-	checkpoints.insert( checkpoints.end(), levelEnds.begin(), levelEnds.end() );
-	processCollisions( checkpoints );
-	Debug::stopTimer( "Player::Checkpoint Collision" );
+	// Extended hitbox detection
+	Debug::startTimer( "Player::Extended Hitbox Detection" );
+	extendedHitbox( targets );
+	Debug::stopTimer( "Player::Extended Hitbox Detection" );
+
+	Debug::startTimer( "Player::Checkpoint Detection" );
+	targets.clear();
+	targets.insert( targets.end(), checkpoints.begin(), checkpoints.end() );
+	targets.insert( targets.end(), levelEnds.begin(), levelEnds.end() );
+	targets.insert( targets.end(), traps.begin(), traps.end() );
+	processCollisions( targets );
+	Debug::stopTimer( "Player::Checkpoint Detection" );
 }
 
 //--------------------------------------------------------------------------------
@@ -181,27 +206,10 @@ void Player::onDestroy() {
 
 void Player::onEvent( sf::Event e ) {
 	if( e.type == sf::Event::KeyPressed )
-		switch( e.key.code ) {
-		case sf::Keyboard::Space:
-			jump();
-			break;
-		case sf::Keyboard::E:
-			dash();
-			break;
-		default:
-			break;
-	}
-	else if( e.type == sf::Event::KeyReleased )
-		switch( e.key.code ) {
-		case sf::Keyboard::Space:
-			jumpData.wait = false;
-			break;
-		case sf::Keyboard::E:
-			dashData.wait = false;
-			break;
-		default:
-			break;
-		}
+		if( e.key.code == sf::Keyboard::Space )
+				jump();
+		else if( e.key.code == sf::Keyboard::E )
+				dash();
 }
 
 //--------------------------------------------------------------------------------
@@ -212,6 +220,9 @@ void Player::onRender() {
 	for( shared_ptr< RigidRect > shadow : spriteData.dashShadows )
 		System::getWindow()->draw( shadow->getRect() );
 
+	System::getWindow()->draw( m_bottomCollider->getRect() );
+	System::getWindow()->draw( m_leftCollider->getRect() );
+	System::getWindow()->draw( m_rightCollider->getRect() );
 	System::getWindow()->draw( m_rect );
 
 	Debug::stopTimer( "Player::Render" );
@@ -220,7 +231,7 @@ void Player::onRender() {
 //--------------------------------------------------------------------------------
 
 void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object > target ) {
-	// Check for Trap or Wall
+	// Checkpoints
 	if( target->getName() == "Checkpoint" ) {
 		shared_ptr< RigidRect > checkpoint = std::dynamic_pointer_cast< RigidRect >( target );
 		Math::Vec2 position = checkpoint->getPosition();
@@ -237,22 +248,13 @@ void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object 
 		return;
 	}
 
-
+	// Traps
 	if( target->getName() == "Trap" )
 		return kill();
 
+	// Platforms
 	if( target->getName() == "Platform" )
 		jumpData.canJumpDown = true;
-
-	if( result.normal.y == -1.0 ) {
-		jumpData.canJump = true;
-		doubleJumpData.canDoubleJump = true;
-	}
-
-	if( result.normal.x ) {
-		wallClingData.isClinging = true;
-		wallJumpData.normal = result.normal.x;
-	}
 
 	Timers::triggerTimer( m_dashTimer );
 }
@@ -261,9 +263,6 @@ void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object 
 
 void Player::jump()
 {
-	if( jumpData.wait )
-		return;
-
 	// Jump
 	if( jumpData.canJump && jumpData.enabled ) {
 		if( jumpData.canJumpDown && sf::Keyboard::isKeyPressed( sf::Keyboard::S ) )
@@ -297,8 +296,6 @@ void Player::jump()
 		m_velocity.y = -doubleJumpData.power;
 		doubleJumpData.canDoubleJump = false;
 	}
-
-	jumpData.wait = true;
 }
 
 //--------------------------------------------------------------------------------
@@ -327,7 +324,6 @@ void Player::dash() {
 
 	dashData.canDash = false;
 	dashData.isDashing = true;
-	dashData.wait = true;
 	doubleJumpData.canDoubleJump = true;
 
 	m_dashCooldownTimer = Timers::addTimer( dashData.cooldown, nullptr, [this] { dashData.canDash = true; }, false );
@@ -366,6 +362,8 @@ void Player::dash() {
 																		   return;
 																	   if( spriteData.dashShadows.empty() )
 																		   return;
+																	   if( spriteData.dashShadows.size() > 255u )
+																		   return;
 
 																	   const auto it = std::find( spriteData.dashShadows.begin(),
 																								  spriteData.dashShadows.end(),
@@ -387,6 +385,58 @@ void Player::kill() {
 	spriteData.dashShadows.clear();
 
 	System::getWorld()->reset();
+}
+
+//--------------------------------------------------------------------------------
+
+void Player::extendedHitbox( vector< shared_ptr< Object > > targets ) {
+
+	m_bottomCollider->setPosition( Math::Vec2( getPosition().x, getPosition().y + getSize().y ) );
+	m_leftCollider->setPosition( Math::Vec2( getPosition().x - wallClingData.leniency, getPosition().y ) );
+	m_rightCollider->setPosition( Math::Vec2( getPosition().x + getSize().x, getPosition().y ) );
+
+	jumpData.canJump = false;
+	wallClingData.isClinging = false;
+
+	m_bottomCollider->setColor( sf::Color::Red );
+	m_leftCollider->setColor( sf::Color::Red );
+	m_rightCollider->setColor( sf::Color::Red );
+
+	// Bottom
+	for( shared_ptr< Object > target : targets ) {
+		Collision::CollisionResult result = m_bottomCollider->isColliding( target );
+
+		if( result.success ) {
+			jumpData.canJump = true;
+			doubleJumpData.canDoubleJump = true;
+			m_bottomCollider->setColor( sf::Color::Green );
+			return;
+		}
+	}
+
+	// Left
+	for( shared_ptr< Object > target : targets ) {
+		Collision::CollisionResult result = m_leftCollider->isColliding( target );
+
+		if( result.success ) {
+			wallClingData.isClinging = true;
+			wallJumpData.normal = 1.0f;
+			m_leftCollider->setColor( sf::Color::Green );
+			return;
+		}
+	}
+
+	// Right
+	for( shared_ptr< Object > target : targets ) {
+		Collision::CollisionResult result = m_rightCollider->isColliding( target );
+
+		if( result.success ) {
+			wallClingData.isClinging = true;
+			wallJumpData.normal = -1.0f;
+			m_rightCollider->setColor( sf::Color::Green );
+			return;
+		}
+	}
 }
 
 //================================================================================

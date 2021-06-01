@@ -27,6 +27,10 @@ public:
 
 	void reset() override;
 
+	void enableInput();
+	void disableInput();
+
+
 protected:
 	Math::Vec2 m_levelStart;
 	shared_ptr< Gfx::GameTimer > m_timer;

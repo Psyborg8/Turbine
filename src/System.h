@@ -14,8 +14,8 @@ namespace System {
 //================================================================================
 
 struct SystemInfo {
-	int width{ 800 };
-	int height{ 450 };
+	unsigned int width{ 1920 };
+	unsigned int height{ 1080 };
 };
 
 //================================================================================
@@ -31,6 +31,8 @@ SystemInfo getSystemInfo();
 shared_ptr< Worlds::World > getWorld();
 
 sf::RenderWindow* getWindow();
+
+sf::RenderTexture* getScreen();
 
 sf::Time getDeltaTime();
 

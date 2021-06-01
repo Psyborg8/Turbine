@@ -23,16 +23,17 @@ void SFMLWorld::onSpawnChildren() {
 
 	m_camera.setDistance( 256.0f );
 
-	//makeObject< Debug::DebugWindow >( this );
+	makeObject< Debug::DebugWindow >( this );
 
 	m_timer = makeObject< Gfx::GameTimer >( this );
+	m_timer->setVisibility( false );
 }
 
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onStart() {
-	Gfx::Map::loadMap( "Dungeon_1-1" );
-	Gfx::Map::constructMap( "Dungeon_1-1", this );
+	Gfx::Map::loadMap( "Dungeon 1-1" );
+	Gfx::Map::constructMap( "Dungeon 1-1", this );
 
 	m_backgroundColor = Math::Color( sf::Color( 22u, 22u, 22u, 255u ) );
 
@@ -48,8 +49,8 @@ void SFMLWorld::onStart() {
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onRender() {
-	if( m_visibility )
-		Gfx::Map::renderMap( "Dungeon_1-1" );
+	if( m_visibility );
+		Gfx::Map::renderMap( "Dungeon 1-1" );
 }
 
 //--------------------------------------------------------------------------------
@@ -97,10 +98,12 @@ void SFMLWorld::onEvent( sf::Event e ) {
 
 void SFMLWorld::onMessage( string message ) {
 	if( message == "Checkpoint" ) {
+		Debug::addMessage( "Checkpoint Hit" );
 		m_timer->split();
 		return;
 	}
 	if( message == "Level End" ) {
+		Debug::addMessage( "Level End Hit" );
 		m_timer->stop();
 		return;
 	}

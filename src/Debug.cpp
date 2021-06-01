@@ -127,7 +127,7 @@ void addMessage( string message, DebugType type  ) {
 	if( out.type == DebugType::None )
 		color = sf::Color::White;
 	else if( out.type == DebugType::Info )
-		color = sf::Color( 200, 150, 200, 255 );
+		color = sf::Color( 100, 200, 200, 255 );
 	else if( out.type == DebugType::Warning )
 		color = sf::Color( 200, 150, 50, 255 );
 	else if( out.type == DebugType::Error )
@@ -154,55 +154,22 @@ void DebugWindow::onStart() {
 
 void DebugWindow::onUpdate( sf::Time deltaTime ) {
 	startTimer( "Debug::Update" );
+
+	// Update FPS
 	if( m_first ) {
 		std::fill( m_deltaTimes.begin(), m_deltaTimes.end(), deltaTime );
 		m_iterator = m_deltaTimes.begin();
 		m_first = false;
-		return;
+	}
+	else {
+		sf::Time& time = *m_iterator;
+		time = deltaTime;
+
+		if( ++m_iterator == m_deltaTimes.end() )
+			m_iterator = m_deltaTimes.begin();
 	}
 
-	sf::Time& time = *m_iterator;
-	time = deltaTime;
-
-	if( ++m_iterator == m_deltaTimes.end() )
-		m_iterator = m_deltaTimes.begin();
-
-	float pos = 0.0;
-	for( DebugMessage& message : messages ) {
-		message.alpha -= 2.0f * deltaTime.asSeconds();
-		if( message.alpha < 0.0f ) {
-			const auto it = std::find_if( messages.begin(), messages.end(),
-										  [message]( const DebugMessage& rh ) {
-											  return rh.text.getString() == message.text.getString() &&
-												  rh.alpha == message.alpha;
-										  } );
-			if( it != messages.end() )
-				messages.erase( it );
-			continue;
-		}
-
-		sf::Color color = message.text.getFillColor();
-		color.a = sf::Uint8( message.alpha * 255.0f );
-		message.text.setFillColor( color );
-
-		Math::Vec2 position = Math::Vec2( System::getWindow()->mapPixelToCoords( sf::Vector2i( System::getSystemInfo().width, 0 ) ) );
-		position.y += pos;
-		position.x -= message.text.getLocalBounds().width;
-
-		message.text.setPosition( position.sf() );
-
-		pos += 10.0f;
-	}
-
-	stopTimer( "Debug::Update" );
-}
-
-//--------------------------------------------------------------------------------
-
-void DebugWindow::onRender() {
-
-	startTimer( "Debug::Render" );
-	// FPS
+	// Get FPS average
 	float total = 0.0f;
 	for( const sf::Time& time : m_deltaTimes )
 		total += time.asSeconds();
@@ -213,13 +180,11 @@ void DebugWindow::onRender() {
 	// Get screen position
 	sf::RenderWindow* window = System::getWindow();
 	sf::Vector2f pos = window->mapPixelToCoords( sf::Vector2i() );
+	m_text.setPosition( pos );
 
-	m_text.setPosition( pos + sf::Vector2f( 0.0f, 0.0f ) );
-
-	// Construct string
+	// Construct strings
+	// FPS
 	string s = std::to_string( fps ) + "fps\n";
-	int i = 2;
-
 	for( auto& timer : timers ) {
 		char buffer[ 40 ];
 		s += timer.name + ": ";
@@ -227,9 +192,49 @@ void DebugWindow::onRender() {
 		s += buffer;
 		s += "ms\n";
 	}
-
-	// Render string
 	m_text.setString( sf::String( s ) );
+
+	// Messages
+	float y = 0.0;
+	for( int i = messages.size() - 1; i > 0; --i ) {
+		DebugMessage& message = messages.at( i );
+		// Fade out message
+		message.alpha -= 0.1f * deltaTime.asSeconds();
+		// Delete invisible messages
+		if( message.alpha < 0.0f ) {
+			messages.erase( messages.begin() + i );
+			continue;
+		}
+		// Set alpha
+		{
+			sf::Color color = message.text.getFillColor();
+			sf::Color outline = message.text.getOutlineColor();
+			color.a = outline.a = sf::Uint8( message.alpha * 255.0f );
+			message.text.setFillColor( color );
+			message.text.setOutlineColor( outline );
+		}
+		// Set position
+		Math::Vec2 position = Math::Vec2( window->mapPixelToCoords( sf::Vector2i( System::getSystemInfo().width, 0 ) ) );
+		position.y += y;
+		const float width = message.text.getGlobalBounds().width;
+		position.x -= width;
+		message.text.setPosition( position.sf() );
+
+		// Move next line down
+		y += 5.0f;
+	}
+
+	stopTimer( "Debug::Update" );
+}
+
+//--------------------------------------------------------------------------------
+
+void DebugWindow::onRender() {
+
+	startTimer( "Debug::Render" );
+	sf::RenderWindow* window = System::getWindow();
+
+	// Times
 	window->draw( m_text );
 
 	// Messages

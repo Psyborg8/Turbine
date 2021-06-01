@@ -325,7 +325,7 @@ bool loadTileset( rapidjson::Value& data, Tileset& tileset ) {
 //================================================================================
 
 void constructMap( string name, Object* world ) {
-	Debug::addMessage( "Constructing map\"" + name + "\"" );
+	Debug::addMessage( "Constructing Map \"" + name + "\"", DebugType::Info );
 	Debug::startTimer( "Map::Construct" );
 
 	// Constructing map without parent will leak memory

@@ -130,21 +130,6 @@ CollisionResult collision( shared_ptr< Game::RigidRect > a, shared_ptr< Game::Ri
 	if( !out.success )
 		return out;
 
-	// Ignore if they're overlapping exactly
-	out.success = false;
-	if( out.normal.x > 0.0 )
-		if( d->getPosition().x == s->getPosition().x + s->getSize().x )
-			return out;
-	if( out.normal.x < 0.0 )
-		if( d->getPosition().x + d->getSize().x == s->getPosition().x )
-			return out;
-	if( out.normal.y > 0.0 )
-		if( d->getPosition().y == s->getPosition().y + s->getSize().y )
-			return out;
-	if( out.normal.y < 0.0 )
-		if( d->getPosition().y + d->getSize().y == s->getPosition().y )
-			return out;
-
 	out.success = true;
 
 	// Set point and distance data
@@ -188,11 +173,10 @@ bool staticRectCollision( shared_ptr< Game::RigidRect > rectA, shared_ptr< Game:
 	bool out = true;
 
 	const Math::Vec2 midPointA = rectA->getPosition() + ( rectA->getSize() / 2.0 );
-
 	const Math::Vec2 midPointB = rectB->getPosition() + ( rectB->getSize() / 2.0 );
 
-	out &= abs( midPointA.x - midPointB.x ) < ( rectA->getPosition().x / 2.0 ) + ( rectB->getSize().x / 2.0 );
-	out &= abs( midPointA.y - midPointB.y ) < ( rectA->getPosition().y / 2.0 ) + ( rectB->getSize().y / 2.0 );
+	out &= abs( midPointA.x - midPointB.x ) < ( rectA->getSize().x / 2.0 ) + ( rectB->getSize().x / 2.0 );
+	out &= abs( midPointA.y - midPointB.y ) < ( rectA->getSize().y / 2.0 ) + ( rectB->getSize().y / 2.0 );
 
 	return out;
 }

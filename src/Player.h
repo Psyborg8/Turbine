@@ -20,6 +20,7 @@ public:
 
 	// Events
 public:
+	void onSpawnChildren() override;
 	void onUpdate( sf::Time deltaTime ) override;
 	void onProcessCollisions() override;
 	void onDestroy() override;
@@ -37,9 +38,15 @@ public:
 	Math::Vec2 getSpawn() const { return m_spawn; }
 	void setSpawn( Math::Vec2 pos ) { m_spawn = pos; }
 
+private:
+	void extendedHitbox( vector< shared_ptr< Object > > targets );
+
 	// Variables
 private:
 	Math::Vec2 m_spawn;
+	shared_ptr< RigidRect > m_bottomCollider;
+	shared_ptr< RigidRect > m_leftCollider;
+	shared_ptr< RigidRect > m_rightCollider;
 
 	// Timers
 private:
@@ -82,9 +89,8 @@ private:
 		bool canJump{ false };
 		bool canJumpDown{ false };
 		bool isJumpingDown{ false };
-		bool wait{ false };
 
-		float power{ 152.0f };
+		float power{ 168.0f };
 		float release{ 72.0f };
 	} jumpData;
 
@@ -98,7 +104,6 @@ private:
 		bool enabled{ true };
 		bool canDash{ true };
 		bool isDashing{ false };
-		bool wait{ false };
 
 		float power{ 280.0f };
 		Math::Vec2 release{ 32.0f, 32.0f };
@@ -112,6 +117,7 @@ private:
 		bool enabled{ true };
 		bool isClinging{ false };
 		
+		float leniency{ 3.0f };
 		float multiplier{ 0.2f };
 		float min{ 32.0f };
 		float max{ 128.0f };

@@ -33,10 +33,6 @@ bool shouldExit{ false };
 
 //--------------------------------------------------------------------------------
 
-sf::Font font;
-
-//--------------------------------------------------------------------------------
-
 sf::RenderWindow window;
 sf::Clock clock;
 
@@ -49,8 +45,9 @@ sf::Clock clock;
 bool init( int argc, char** argv ) {
 
 	//window.create( sf::VideoMode::getFullscreenModes()[0], "Project Bullet", sf::Style::Fullscreen  );
-	window.create( sf::VideoMode( 1920u, 1080u ), "Project Bullet" );
-	window.setVerticalSyncEnabled( true );
+	window.create( sf::VideoMode( systemInfo.width, systemInfo.height ), "Project Bullet" );
+	window.setVerticalSyncEnabled( false );
+	window.setKeyRepeatEnabled( false );
 
 	systemInfo.width = window.getSize().x;
 	systemInfo.height = window.getSize().y;
@@ -76,8 +73,6 @@ int start() {
 	
 	for( shared_ptr< Object > object : objects )
 		object->onStart();
-
-	font.loadFromFile( Folders::Fonts + "arial.ttf" );
 
 	while( window.isOpen() )
 		update();
@@ -140,11 +135,10 @@ void update() {
 	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true );
 	Debug::stopTimer( "System::Get World Objects" );
 
-	Debug::startTimer( "System::Event Handling" );
 	// Event handling
+	Debug::startTimer( "System::Event Handling" );
 	sf::Event e;
 	while( window.pollEvent( e ) ) {
-		Debug::startTimer( "System::Event Notify" );
 		for( shared_ptr< Object > object : objects ) {
 			object->onEvent( e );
 
@@ -154,17 +148,17 @@ void update() {
 			if( e.type == sf::Event::Resized ) {
 				systemInfo.width = e.size.width;
 				systemInfo.height = e.size.height;
+				window.setSize( sf::Vector2u( systemInfo.width, systemInfo.height ) );
 				world->getCamera().calculate();
 			}
 			if( e.type == sf::Event::Closed )
 				window.close();
 		}
-		Debug::stopTimer( "System::Event Notify" );
 	}
 	Debug::stopTimer( "System::Event Handling" );
 
-	Debug::startTimer( "System::Update" );
 	// Update physics
+	Debug::startTimer( "System::Update" );
 	for( shared_ptr< Object > object : objects )
 		object->onUpdate( time );
 	Debug::stopTimer( "System::Update" );
@@ -177,8 +171,8 @@ void update() {
 		object->onPostUpdate( time );
 	Debug::stopTimer( "System::Post Update" );
 
-	Debug::startTimer( "System::Cleanup" );
 	// Cleanup
+	Debug::startTimer( "System::Cleanup" );
 	Object::cleanupObjects();
 	Debug::stopTimer( "System::Cleanup" );
 

@@ -29,7 +29,12 @@ public:
 
 protected:
 	Math::Vec2 m_levelStart;
+	shared_ptr< Object > m_physicsPage;
+	shared_ptr< Object > m_performancePage;
+	shared_ptr< Object > m_joystickPage;
 	shared_ptr< Gfx::GameTimer > m_timer;
+
+	int m_debugPage{ 0 };
 
 };
 

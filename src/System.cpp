@@ -65,9 +65,6 @@ int start() {
 	world = Object::makeObject< Worlds::SFMLWorld >( nullptr );
 	// world = Object::makeObject< CollisionWorld >( nullptr );
 	Debug::stopTimer( "System::Make World" );
-
-	world->loadWorld( "Dash Precision World" );
-	// world->loadWorld( "Juggle Time Tower" );
 	
 	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true );
 	

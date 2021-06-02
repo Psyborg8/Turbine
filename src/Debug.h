@@ -12,8 +12,12 @@ enum class DebugType {
 	None = 0,
 	Info,
 	Warning,
-	Error
+	Error,
+	Input,
+	Performance,
 };
+
+//--------------------------------------------------------------------------------
 
 namespace Debug {
 
@@ -29,11 +33,9 @@ void addMessage( string message, DebugType type = DebugType::None );
 
 //--------------------------------------------------------------------------------
 
-class DebugWindow : public Object {
-private:
-
+class PerformanceWindow : public Object {
 public:
-	DebugWindow() = default;
+	PerformanceWindow() = default;
 
 public:
 	// Events
@@ -47,6 +49,40 @@ private:
 	array< sf::Time, 100 >::iterator m_iterator;
 	sf::Text m_text;
 	bool m_first{ true };
+};
+
+//--------------------------------------------------------------------------------
+
+class JoystickWindow : public Object {
+public:
+	JoystickWindow() = default;
+
+public:
+	// Events
+	void onStart() override;
+	void onUpdate( sf::Time deltaTime ) override;
+	void onRender() override;
+	void onEvent( sf::Event e ) override;
+
+private:
+	sf::Text m_text;
+	set< int > buttons;
+};
+
+//--------------------------------------------------------------------------------
+
+class PhysicsWindow : public Object {
+public:
+	PhysicsWindow() = default;
+
+public:
+	// Events
+	void onStart() override;
+	void onUpdate( sf::Time deltaTime ) override;
+	void onRender() override;
+
+private:
+	sf::Text m_text;
 };
 
 //--------------------------------------------------------------------------------

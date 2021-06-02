@@ -121,24 +121,6 @@ void Player::onUpdate( sf::Time deltaTime ) {
 		}
 	}
 	Debug::stopTimer( "Player::Update Physics" );
-
-	Debug::startTimer( "Player::Update Animations" );
-	// Animations
-	for( shared_ptr< RigidRect > shadow : spriteData.dashShadows ) {
-		sf::RectangleShape& rect = shadow->getRect();
-		{
-			sf::Color color = rect.getFillColor();
-			color.a = sf::Uint8( color.a * 0.8f );
-			rect.setFillColor( color );
-		}
-		{
-			sf::Color color = rect.getOutlineColor();
-			color.a = sf::Uint8( color.a * 0.8f );
-			rect.setOutlineColor( color );
-		}
-		
-	}
-	Debug::stopTimer( "Player::Update Animations" );
 }
 
 //--------------------------------------------------------------------------------
@@ -350,7 +332,7 @@ void Player::dash() {
 
 												 spriteData.dashShadows.push_back( rect );
 
-												 Timers::addTimer( 500, 
+												 Timers::addTimer( 100, 
 																   [this, rect]( float alpha ) {
 																	   if( this == nullptr )
 																		   return;
@@ -362,14 +344,15 @@ void Player::dash() {
 																	   const auto it = std::find( spriteData.dashShadows.begin(),
 																								  spriteData.dashShadows.end(),
 																								  rect );
-																	   if( it != spriteData.dashShadows.end() ) {
-																		   sf::Color color = ( *it )->getRect().getFillColor();
-																		   sf::Color outline = ( *it )->getRect().getOutlineColor();
-																		   color.a = 1.0f - alpha;
-																		   outline.a = 1.0f - alpha;
-																		   ( *it )->setColor( color );
-																		   ( *it )->getRect().setOutlineColor( outline );
-																	   }
+																	   if( it == spriteData.dashShadows.end() )
+																		   return;
+
+																		sf::Color color = ( *it )->getRect().getFillColor();
+																		sf::Color outline = ( *it )->getRect().getOutlineColor();
+																		color.a = sf::Uint8( ( 0.6f - alpha * 0.6 )  * 255.0f );
+																		outline.a = sf::Uint8( ( 0.6f - alpha * 0.6 ) * 255.0f );
+																		( *it )->setColor( color );
+																		( *it )->getRect().setOutlineColor( outline );
 																   },
 																   [this, rect] {
 																	   if( this == nullptr )

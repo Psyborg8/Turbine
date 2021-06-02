@@ -23,10 +23,16 @@ void SFMLWorld::onSpawnChildren() {
 
 	m_camera.setDistance( 256.0f );
 
-	makeObject< Debug::DebugWindow >( this );
+	m_physicsPage = makeObject< Debug::PhysicsWindow >( this );
+	m_physicsPage->setVisibility( false );
+
+	m_performancePage = makeObject< Debug::PerformanceWindow >( this );
+	m_performancePage->setVisibility( false );
+
+	m_joystickPage = makeObject< Debug::JoystickWindow >( this );
+	m_joystickPage->setVisibility( false );
 
 	m_timer = makeObject< Gfx::GameTimer >( this );
-	m_timer->setVisibility( false );
 }
 
 //--------------------------------------------------------------------------------
@@ -49,7 +55,7 @@ void SFMLWorld::onStart() {
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onRender() {
-	if( m_visibility );
+	if( m_visibility )
 		Gfx::Map::renderMap( "Dungeon 1-1" );
 }
 
@@ -90,6 +96,27 @@ void SFMLWorld::onEvent( sf::Event e ) {
 			if( e.key.shift )
 				player->setSpawn( m_levelStart );
 			player->kill();
+			return;
+		}
+
+		if( e.key.code == sf::Keyboard::Z ) {
+			m_timer->setVisibility( false );
+			m_physicsPage->setVisibility( false );
+			m_performancePage->setVisibility( false );
+			m_joystickPage->setVisibility( false );
+
+			if( m_debugPage == 0 )
+				m_physicsPage->setVisibility( true );
+			else if( m_debugPage == 1 )
+				m_performancePage->setVisibility( true );
+			else if( m_debugPage == 2 )
+				m_joystickPage->setVisibility( true );
+			else
+				m_timer->setVisibility( true );
+
+			m_debugPage++;
+			if( m_debugPage > 3 )
+				m_debugPage = 0;
 		}
 	}
 }

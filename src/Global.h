@@ -96,4 +96,38 @@ enum class CollisionType {
 	Dynamic
 };
 
+//--------------------------------------------------------------------------------
+
+enum class ControllerButton {
+	Bottom,
+	Left,
+	Top,
+	Right,
+	R,
+	L,
+	RTrigger,
+	LTrigger,
+	LeftStick,
+	RightStick,
+	Select,
+	Start,
+	Special,
+	Logo,
+	None,
+};
+
+//--------------------------------------------------------------------------------
+
+enum class ControllerAxis {
+	RightStickX,
+	RightStickY,
+	LeftStickX,
+	LeftStickY,
+	RTrigger,
+	LTrigger,
+	DPadX,
+	DPadY,
+	None
+};
+
 //================================================================================

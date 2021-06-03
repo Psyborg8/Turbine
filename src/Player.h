@@ -6,6 +6,7 @@
 
 #include "RigidRect.h"
 #include "Timer.h"
+#include "PlayerController.h"
 
 //================================================================================
 
@@ -31,8 +32,8 @@ public:
 
 	// Methods
 public:
-	void jump();
-	void dash();
+	void jump( bool pressed );
+	void dash( bool pressed );
 	void kill();
 
 	Math::Vec2 getSpawn() const { return m_spawn; }
@@ -56,6 +57,24 @@ private:
 
 	// Attributes
 public:
+	struct {
+		shared_ptr< Input::PlayerController > controller;
+
+		struct {
+			ControllerButton jump{ ControllerButton::Bottom };
+			ControllerButton dash{ ControllerButton::Left };
+			ControllerAxis moveX{ ControllerAxis::LeftStickX };
+			ControllerAxis moveY{ ControllerAxis::LeftStickY };
+		} controllerBindings;
+
+		struct {
+			sf::Keyboard::Key jump{ sf::Keyboard::Space };
+			sf::Keyboard::Key dash{ sf::Keyboard::E };
+			pair< sf::Keyboard::Key, sf::Keyboard::Key > moveX{ sf::Keyboard::A, sf::Keyboard::D };
+			pair< sf::Keyboard::Key, sf::Keyboard::Key > moveY{ sf::Keyboard::S, sf::Keyboard::W };
+		} keyboardBindings;
+	} controllerData;
+
 	struct {
 		const Math::Vec2 size{ 8.0f, 12.0f };
 		const Math::Color color{ 0.2f, 0.2f, 0.2f, 1.0f };

@@ -35,7 +35,7 @@ Player::Player( Math::Vec2 pos ) : RigidRect() {
 //--------------------------------------------------------------------------------
 
 void Player::onSpawnChildren() {
-	m_bottomCollider= make_shared< RigidRect >();
+	m_bottomCollider = make_shared< RigidRect >();
 	m_bottomCollider->setCollisionType( CollisionType::Static );
 	m_bottomCollider->setSize( Math::Vec2( getSize().x, wallClingData.leniency ) );
 	m_bottomCollider->setVelocity( Math::Vec2( 0.0f, 1.0f ) );
@@ -49,6 +49,15 @@ void Player::onSpawnChildren() {
 	m_rightCollider->setCollisionType( CollisionType::Static );
 	m_rightCollider->setSize( Math::Vec2( wallClingData.leniency, getSize().y ) );
 	m_rightCollider->setVelocity( Math::Vec2( 1.0f, 0.0 ) );
+
+	controllerData.controller = makeObject< Input::PlayerController >( m_parent );
+
+	using namespace std::placeholders;
+	controllerData.controller->bindButton( "Jump", controllerData.controllerBindings.jump, controllerData.keyboardBindings.jump, bind( &Player::jump, this, _1 ) );
+	controllerData.controller->bindButton( "Dash", controllerData.controllerBindings.dash, controllerData.keyboardBindings.dash, bind( &Player::dash, this, _1 ) );
+	controllerData.controller->bindAxis( "Move X", controllerData.controllerBindings.moveX, controllerData.keyboardBindings.moveX.first, controllerData.keyboardBindings.moveX.second, nullptr );
+	controllerData.controller->bindAxis( "Move Y", controllerData.controllerBindings.moveY, controllerData.keyboardBindings.moveY.first, controllerData.keyboardBindings.moveY.second, nullptr );
+
 }
 
 //--------------------------------------------------------------------------------
@@ -64,10 +73,7 @@ void Player::onUpdate( sf::Time deltaTime ) {
 			// Movement
 			if( abs( m_velocity.x ) <= movementData.maxSpeed && movementData.enabled ) {
 				// Input
-				if( sf::Keyboard::isKeyPressed( sf::Keyboard::D ) )
-					move += movementData.acceleration * deltaTime.asSeconds();
-				if( sf::Keyboard::isKeyPressed( sf::Keyboard::A ) )
-					move -= movementData.acceleration * deltaTime.asSeconds();
+				move = controllerData.controller->getAxisState( "Move X" );
 
 				// Air control
 				if( !jumpData.canJump )
@@ -106,7 +112,7 @@ void Player::onUpdate( sf::Time deltaTime ) {
 			}
 
 			// Jump Release
-			if( !sf::Keyboard::isKeyPressed( sf::Keyboard::Space ) )
+			if( !controllerData.controller->getButtonState( "Jump" ) )
 				m_velocity.y = std::max( m_velocity.y, -jumpData.release );
 
 			// Wall Cling
@@ -127,6 +133,7 @@ void Player::onUpdate( sf::Time deltaTime ) {
 
 void Player::onProcessCollisions()
 {
+	// Find relevant colliders
 	Debug::startTimer( "Player::Find Colliders" );
 	const vector< shared_ptr< Object > > walls = getObjects( System::getWorld(), "Wall" );
 	const vector< shared_ptr< Object > > traps = getObjects( System::getWorld(), "Trap" );
@@ -156,6 +163,7 @@ void Player::onProcessCollisions()
 			jumpData.isJumpingDown = true;
 	Debug::stopTimer( "Player::Platform Detection" );
 
+	// Physics resolution
 	Debug::startTimer( "Player::Resolve Collisions" );
 	targets.insert( targets.end(), walls.begin(), walls.end() );
 	resolveCollisions( targets, true );
@@ -166,6 +174,7 @@ void Player::onProcessCollisions()
 	extendedHitbox( targets );
 	Debug::stopTimer( "Player::Extended Hitbox Detection" );
 
+	// Checkpoint detection
 	Debug::startTimer( "Player::Checkpoint Detection" );
 	targets.clear();
 	targets.insert( targets.end(), checkpoints.begin(), checkpoints.end() );
@@ -184,11 +193,7 @@ void Player::onDestroy() {
 //--------------------------------------------------------------------------------
 
 void Player::onEvent( sf::Event e ) {
-	if( e.type == sf::Event::KeyPressed )
-		if( e.key.code == sf::Keyboard::Space )
-				jump();
-		else if( e.key.code == sf::Keyboard::E )
-				dash();
+
 }
 
 //--------------------------------------------------------------------------------
@@ -237,8 +242,11 @@ void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object 
 
 //--------------------------------------------------------------------------------
 
-void Player::jump()
+void Player::jump( bool pressed )
 {
+	if( !pressed )
+		return;
+
 	// Jump
 	if( jumpData.canJump && jumpData.enabled ) {
 		if( jumpData.canJumpDown && sf::Keyboard::isKeyPressed( sf::Keyboard::S ) )
@@ -266,7 +274,7 @@ void Player::jump()
 	}
 	// Dash
 	else if( dashData.enabled && dashData.canDash )
-		dash();
+		dash( true );
 	// Double Jump
 	else if( doubleJumpData.canDoubleJump && doubleJumpData.enabled ) {
 		m_velocity.y = -doubleJumpData.power;
@@ -276,19 +284,15 @@ void Player::jump()
 
 //--------------------------------------------------------------------------------
 
-void Player::dash() {
+void Player::dash( bool pressed ) {
+	if( !pressed )
+		return;
 	if( !dashData.canDash || !dashData.enabled )
 		return;
 
 	Math::Vec2 direction;
-	if( sf::Keyboard::isKeyPressed( sf::Keyboard::D ) )
-		direction.x += 1.0;
-	if( sf::Keyboard::isKeyPressed( sf::Keyboard::A ) )
-		direction.x -= 1.0;
-	if( sf::Keyboard::isKeyPressed( sf::Keyboard::W ) )
-		direction.y -= 1.0;
-	if( sf::Keyboard::isKeyPressed( sf::Keyboard::S ) )
-		direction.y += 1.0;
+	direction.x = controllerData.controller->getAxisState( "Move X" );
+	direction.y = controllerData.controller->getAxisState( "Move Y" );
 
 	if( direction == Math::Vec2() )
 		return;

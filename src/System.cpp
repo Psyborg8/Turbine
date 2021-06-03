@@ -68,8 +68,10 @@ int start() {
 	
 	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true );
 	
+	Debug::startTimer( "System::Start" );
 	for( shared_ptr< Object > object : objects )
 		object->onStart();
+	Debug::stopTimer( "System::Start" );
 
 	while( window.isOpen() )
 		update();
@@ -128,9 +130,7 @@ void update() {
 	Timers::update();
 
 	// Update the current world
-	Debug::startTimer( "System::Get World Objects" );
 	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true );
-	Debug::stopTimer( "System::Get World Objects" );
 
 	// Event handling
 	Debug::startTimer( "System::Event Handling" );

@@ -28,6 +28,9 @@
     <Filter Include="Engine\Debug">
       <UniqueIdentifier>{429d7e7b-752b-4d30-ba7b-f141219b76e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Input">
+      <UniqueIdentifier>{af0b66b1-cf2c-43db-9433-9ceef2b6b644}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ProjectBullet.cpp">
@@ -84,6 +87,12 @@
     <ClCompile Include="src\GameTimer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\Controller.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PlayerController.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -136,6 +145,12 @@
     </ClInclude>
     <ClInclude Include="src\GameTimer.h">
       <Filter>Engine\GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Controller.h">
+      <Filter>Engine\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PlayerController.h">
+      <Filter>Engine\Input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

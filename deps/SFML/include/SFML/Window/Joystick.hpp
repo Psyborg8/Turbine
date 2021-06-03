@@ -66,7 +66,8 @@ public:
         U,    ///< The U axis
         V,    ///< The V axis
         PovX, ///< The X axis of the point-of-view hat
-        PovY  ///< The Y axis of the point-of-view hat
+        PovY,  ///< The Y axis of the point-of-view hat
+        Unbound,
     };
 
     ////////////////////////////////////////////////////////////

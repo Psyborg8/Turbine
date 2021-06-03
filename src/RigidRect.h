@@ -34,7 +34,7 @@ public:
 
 	inline Math::Vec2 getSize() const { return Math::Vec2( m_rect.getSize() ); }
 	inline void setSize( Math::Vec2 size ) { m_rect.setSize( size.sf() ); }
-
+		
 	inline const sf::RectangleShape& getRect() const { return m_rect; }
 	inline sf::RectangleShape& getRect() { return m_rect; }
 	inline void setRect( const sf::RectangleShape& rect ) { m_rect = rect; }

@@ -24,8 +24,7 @@ protected:
 	struct AxisBind {
 		string name;
 		ControllerAxis axis;
-		sf::Keyboard::Key positiveKey;
-		sf::Keyboard::Key negativeKey;
+		KeyPair keys;
 		function< void( float ) > callback = nullptr;
 	};
 
@@ -38,7 +37,7 @@ public:
 
 public:
 	void bindButton( string name, ControllerButton button, sf::Keyboard::Key key, function< void( bool ) > callback = nullptr );
-	void bindAxis( string name, ControllerAxis axis, sf::Keyboard::Key negative, sf::Keyboard::Key positive, function< void( float ) > callback = nullptr );
+	void bindAxis( string name, ControllerAxis axis, KeyPair keys, function< void( float ) > callback = nullptr );
 	void unbind();
 
 	bool getButtonState( string name );

@@ -53,10 +53,10 @@ void Player::onSpawnChildren() {
 	m_controller = makeObject< Input::PlayerController >( m_parent );
 
 	using namespace std::placeholders;
-	m_controller->bindButton( "Jump", controllerData.controllerBindings.jump, controllerData.keyboardBindings.jump, bind( &Player::jump, this, _1 ) );
-	m_controller->bindButton( "Dash", controllerData.controllerBindings.dash, controllerData.keyboardBindings.dash, bind( &Player::dash, this, _1 ) );
-	m_controller->bindAxis( "Move X", controllerData.controllerBindings.moveX, controllerData.keyboardBindings.moveX.first, controllerData.keyboardBindings.moveX.second, nullptr );
-	m_controller->bindAxis( "Move Y", controllerData.controllerBindings.moveY, controllerData.keyboardBindings.moveY.first, controllerData.keyboardBindings.moveY.second, nullptr );
+	m_controller->bindButton( "Jump", bindings.controller.jump, bindings.keyboard.jump, bind( &Player::jump, this, _1 ) );
+	m_controller->bindButton( "Dash", bindings.controller.dash, bindings.keyboard.dash, bind( &Player::dash, this, _1 ) );
+	m_controller->bindAxis( "Move X", bindings.controller.moveX, bindings.keyboard.moveX, nullptr );
+	m_controller->bindAxis( "Move Y", bindings.controller.moveY, bindings.keyboard.moveY, nullptr );
 
 }
 
@@ -73,7 +73,7 @@ void Player::onUpdate( sf::Time deltaTime ) {
 			// Movement
 			if( abs( m_velocity.x ) <= movementData.maxSpeed && movementData.enabled ) {
 				// Input
-				move = m_controller->getAxisState( "Move X" );
+				move = m_controller->getAxisState( "Move X" ) * movementData.acceleration * deltaTime.asSeconds();
 
 				// Air control
 				if( !jumpData.canJump )
@@ -267,8 +267,9 @@ void Player::jump( bool pressed )
 
 		Timers::addTimer( wallJumpData.duration,
 						  [this, acceleration, friction]( float alpha ) {
-							  movementData.airMultiplier = alpha * acceleration;
-							  frictionData.airMultiplier = alpha * friction;
+							  const float a = ( log( 10.0f * pow( alpha, 9.0f ) ) + 6.0f ) * 0.1428557f;
+							  movementData.airMultiplier = a * acceleration;
+							  frictionData.airMultiplier = a * friction;
 						  },
 						  nullptr, false );
 	}

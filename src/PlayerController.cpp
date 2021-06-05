@@ -9,7 +9,7 @@ namespace Input {
 //--------------------------------------------------------------------------------------------------
 
 void PlayerController::onSpawnChildren() {
-	for( size_t i = 0u; i < sf::Joystick::Count; ++i ) {
+	for( uint32_t i = 0u; i < sf::Joystick::Count; ++i ) {
 		if( sf::Joystick::isConnected( i ) ) {
 			shared_ptr< Controller > controller = makeObject< Controller >( m_parent );
 			sf::Event::JoystickConnectEvent e;
@@ -184,10 +184,10 @@ void PlayerController::bindButton( string name, ControllerButton button, sf::Key
 	{
 		AxisBind* bind = getAxisBind( key );
 		if( bind != nullptr )
-			if( bind->negativeKey == key )
-				bind->negativeKey = sf::Keyboard::Unbound;
-			else if( bind->positiveKey == key )
-				bind->positiveKey = sf::Keyboard::Unbound;
+			if( bind->keys.first == key )
+				bind->keys.first = sf::Keyboard::Unbound;
+			else if( bind->keys.second == key )
+				bind->keys.second = sf::Keyboard::Unbound;
 	}
 
 	KeyBind bind;
@@ -201,13 +201,12 @@ void PlayerController::bindButton( string name, ControllerButton button, sf::Key
 
 //--------------------------------------------------------------------------------------------------
 
-void PlayerController::bindAxis( string name, ControllerAxis axis, sf::Keyboard::Key negative, sf::Keyboard::Key positive, function< void( float ) > callback ) {
+void PlayerController::bindAxis( string name, ControllerAxis axis, KeyPair keys, function< void( float ) > callback ) {
 	{
 		AxisBind* bind = getAxisBind( name );
 		if( bind != nullptr ) {
 			bind->axis = axis;
-			bind->negativeKey = negative;
-			bind->positiveKey = positive;
+			bind->keys = keys;
 			bind->callback = callback;
 			return;
 		}
@@ -218,28 +217,28 @@ void PlayerController::bindAxis( string name, ControllerAxis axis, sf::Keyboard:
 			bind->axis = ControllerAxis::None;
 	}
 	{
-		AxisBind* bind = getAxisBind( negative );
+		AxisBind* bind = getAxisBind( keys.first );
 		if( bind != nullptr )
-			if( bind->negativeKey == negative )
-				bind->negativeKey = sf::Keyboard::Unbound;
-			else if( bind->positiveKey == negative )
-				bind->positiveKey = sf::Keyboard::Unbound;
+			if( bind->keys.first == keys.first )
+				bind->keys.first = sf::Keyboard::Unbound;
+			else if( bind->keys.second == keys.first )
+				bind->keys.second = sf::Keyboard::Unbound;
 	}
 	{
-		AxisBind* bind = getAxisBind( positive );
+		AxisBind* bind = getAxisBind( keys.second );
 		if( bind != nullptr )
-			if( bind->negativeKey == positive )
-				bind->negativeKey = sf::Keyboard::Unbound;
-			else if( bind->positiveKey == positive )
-				bind->positiveKey = sf::Keyboard::Unbound;
+			if( bind->keys.first == keys.second )
+				bind->keys.first = sf::Keyboard::Unbound;
+			else if( bind->keys.second == keys.second )
+				bind->keys.second = sf::Keyboard::Unbound;
 	}
 	{
-		KeyBind* bind = getKeyBind( negative );
+		KeyBind* bind = getKeyBind( keys.first );
 		if( bind != nullptr )
 			bind->key = sf::Keyboard::Unbound;
 	}
 	{
-		KeyBind* bind = getKeyBind( positive );
+		KeyBind* bind = getKeyBind( keys.second );
 		if( bind != nullptr )
 			bind->key = sf::Keyboard::Unbound;
 	}
@@ -247,8 +246,7 @@ void PlayerController::bindAxis( string name, ControllerAxis axis, sf::Keyboard:
 	AxisBind bind;
 	bind.name = name;
 	bind.axis = axis;
-	bind.positiveKey = positive;
-	bind.negativeKey = negative;
+	bind.keys = keys;
 	bind.callback = callback;
 
 	m_axisBindings.push_back( bind );
@@ -285,10 +283,10 @@ float PlayerController::getAxisState( string name ) {
 	const auto it = getController( uint32_t( m_activeController ) );
 	if( it == m_controllers.end() ) {
 		float out = 0.0f;
-		if( sf::Keyboard::isKeyPressed( bind->positiveKey ) )
-			out += 1.0f;
-		if( sf::Keyboard::isKeyPressed( bind->negativeKey ) )
-			out -= 1.0f;
+		if( sf::Keyboard::isKeyPressed( bind->keys.second ) )
+			out += 100.0f;
+		if( sf::Keyboard::isKeyPressed( bind->keys.first ) )
+			out -= 100.0f;
 
 		return out;
 	}
@@ -375,7 +373,7 @@ PlayerController::AxisBind* PlayerController::getAxisBind( ControllerAxis axis )
 PlayerController::AxisBind* PlayerController::getAxisBind( sf::Keyboard::Key key ) {
 	const auto it = std::find_if( m_axisBindings.begin(), m_axisBindings.end(),
 								  [key]( const AxisBind& bind ) {
-									  return bind.positiveKey == key || bind.negativeKey == key;
+									  return bind.keys.first == key || bind.keys.second == key;
 								  } );
 	if( it != m_axisBindings.end() )
 		return &*it;

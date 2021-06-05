@@ -67,17 +67,17 @@ public:
 			ControllerButton restart{ ControllerButton::Start };
 			ControllerAxis moveX{ ControllerAxis::LeftStickX };
 			ControllerAxis moveY{ ControllerAxis::LeftStickY };
-		} controllerBindings;
+		} controller;
 
 		struct {
 			sf::Keyboard::Key jump{ sf::Keyboard::Space };
 			sf::Keyboard::Key dash{ sf::Keyboard::E };
 			sf::Keyboard::Key reset{ sf::Keyboard::R };
 			sf::Keyboard::Key restart{ sf::Keyboard::Backspace };
-			pair< sf::Keyboard::Key, sf::Keyboard::Key > moveX{ sf::Keyboard::A, sf::Keyboard::D };
-			pair< sf::Keyboard::Key, sf::Keyboard::Key > moveY{ sf::Keyboard::S, sf::Keyboard::W };
-		} keyboardBindings;
-	} controllerData;
+			KeyPair moveX{ sf::Keyboard::A, sf::Keyboard::D };
+			KeyPair moveY{ sf::Keyboard::W, sf::Keyboard::S };
+		} keyboard;
+	} bindings;
 
 	struct {
 		const Math::Vec2 size{ 8.0f, 12.0f };
@@ -88,9 +88,9 @@ public:
 
 	struct {
 		bool enabled{ true };
-		float acceleration{ 850.0f };
+		float acceleration{ 9.0f };
 		float maxSpeed{ 85.0f };
-		float airMultiplier{ 0.9f };
+		float airMultiplier{ 0.85f };
 	} movementData;
 
 	struct {
@@ -150,9 +150,9 @@ public:
 		bool enabled{ true };
 		float normal{ 0.0f };
 
-		float power{ 250.0f };
+		float power{ 245.0f };
 		Math::Vec2 direction{ 0.55f, 0.45f };
-		milliseconds duration{ 200 };
+		milliseconds duration{ 550 };
 	} wallJumpData;
 };
 

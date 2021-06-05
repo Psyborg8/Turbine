@@ -61,10 +61,7 @@ using chronoClockPoint = std::chrono::time_point< std::chrono::high_resolution_c
 using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
 
-using Callback = function< void() >;
-using KeyCallback = function< void( int key ) >;
-using AxisCallback = function< void( float x, float y ) >;
-using Vec2Callback = function< void( int x, int y ) >;
+using KeyPair = pair< sf::Keyboard::Key, sf::Keyboard::Key >;
 
 //================================================================================
 

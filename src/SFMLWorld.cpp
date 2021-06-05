@@ -90,35 +90,6 @@ void SFMLWorld::onEvent( sf::Event e ) {
 		return;
 
 	const shared_ptr< Game::Player > player = Object::getObjects< Game::Player >().at( 0 );
-
-	if( e.type == e.KeyPressed ) {
-		if( e.key.code == sf::Keyboard::R ) {
-			if( e.key.shift )
-				player->setSpawn( m_levelStart );
-			player->kill();
-			return;
-		}
-
-		if( e.key.code == sf::Keyboard::Z ) {
-			m_timer->setVisibility( false );
-			m_physicsPage->setVisibility( false );
-			m_performancePage->setVisibility( false );
-			m_joystickPage->setVisibility( false );
-
-			if( m_debugPage == 0 )
-				m_physicsPage->setVisibility( true );
-			else if( m_debugPage == 1 )
-				m_performancePage->setVisibility( true );
-			else if( m_debugPage == 2 )
-				m_joystickPage->setVisibility( true );
-			else
-				m_timer->setVisibility( true );
-
-			m_debugPage++;
-			if( m_debugPage > 3 )
-				m_debugPage = 0;
-		}
-	}
 }
 
 //--------------------------------------------------------------------------------
@@ -133,6 +104,33 @@ void SFMLWorld::onMessage( string message ) {
 		Debug::addMessage( "Level End Hit" );
 		m_timer->stop();
 		return;
+	}
+	if( message == "Player Restart" ) {
+		const vector< shared_ptr< Game::Player > > players = Object::getObjects< Game::Player >();
+		if( players.empty() )
+			return;
+
+		const shared_ptr< Game::Player > player = Object::getObjects< Game::Player >().at( 0 );
+		player->setSpawn( m_levelStart );
+	}
+	if( message == "Flip Debug Page" ) {
+		m_timer->setVisibility( false );
+		m_physicsPage->setVisibility( false );
+		m_performancePage->setVisibility( false );
+		m_joystickPage->setVisibility( false );
+
+		if( m_debugPage == 0 )
+			m_physicsPage->setVisibility( true );
+		else if( m_debugPage == 1 )
+			m_performancePage->setVisibility( true );
+		else if( m_debugPage == 2 )
+			m_joystickPage->setVisibility( true );
+		else
+			m_timer->setVisibility( true );
+
+		m_debugPage++;
+		if( m_debugPage > 3 )
+			m_debugPage = 0;
 	}
 }
 

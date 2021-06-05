@@ -30,11 +30,12 @@ public:
 	void onRender() override;
 	void onCollision( Collision::CollisionResult collision, shared_ptr< Object > target ) override;
 
-	// Methods
+	// Keybinds
 public:
 	void jump( bool pressed );
 	void dash( bool pressed );
-	void kill();
+	void kill( bool pressed, bool restart );
+	void debug( bool pressed );
 
 	Math::Vec2 getSpawn() const { return m_spawn; }
 	void setSpawn( Math::Vec2 pos ) { m_spawn = pos; }
@@ -63,8 +64,9 @@ public:
 		struct {
 			ControllerButton jump{ ControllerButton::Bottom };
 			ControllerButton dash{ ControllerButton::Left };
-			ControllerButton reset{ ControllerButton::Select };
-			ControllerButton restart{ ControllerButton::Start };
+			ControllerButton reset{ ControllerButton::Start };
+			ControllerButton restart{ ControllerButton::Select };
+			ControllerButton debug{ ControllerButton::Logo };
 			ControllerAxis moveX{ ControllerAxis::LeftStickX };
 			ControllerAxis moveY{ ControllerAxis::LeftStickY };
 		} controller;
@@ -74,6 +76,7 @@ public:
 			sf::Keyboard::Key dash{ sf::Keyboard::E };
 			sf::Keyboard::Key reset{ sf::Keyboard::R };
 			sf::Keyboard::Key restart{ sf::Keyboard::Backspace };
+			sf::Keyboard::Key debug{ sf::Keyboard::Z };
 			KeyPair moveX{ sf::Keyboard::A, sf::Keyboard::D };
 			KeyPair moveY{ sf::Keyboard::W, sf::Keyboard::S };
 		} keyboard;

@@ -89,7 +89,7 @@ void stopTimer( string name ) {
 	const float average = getAverageTime( name ) * 1000.0f;
 	const float threshold = average * 15.0f;
 	if( t > threshold && average > 1.0f ) {
-		char buffer[ 64 ];
+		char buffer[ 128 ];
 		sprintf_s( buffer, "%s spiked at %.3fms(%.3fms average)", name.c_str(), t, average );
 		addMessage( buffer, DebugType::Performance );
 	}

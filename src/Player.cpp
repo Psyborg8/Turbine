@@ -53,11 +53,18 @@ void Player::onSpawnChildren() {
 	m_controller = makeObject< Input::PlayerController >( m_parent );
 
 	using namespace std::placeholders;
+	// Movement
 	m_controller->bindButton( "Jump", bindings.controller.jump, bindings.keyboard.jump, bind( &Player::jump, this, _1 ) );
 	m_controller->bindButton( "Dash", bindings.controller.dash, bindings.keyboard.dash, bind( &Player::dash, this, _1 ) );
 	m_controller->bindAxis( "Move X", bindings.controller.moveX, bindings.keyboard.moveX, nullptr );
 	m_controller->bindAxis( "Move Y", bindings.controller.moveY, bindings.keyboard.moveY, nullptr );
 
+	// System
+	m_controller->bindButton( "Reset", bindings.controller.reset, bindings.keyboard.reset, bind( &Player::kill, this, _1, false ) );
+	m_controller->bindButton( "Restart", bindings.controller.restart, bindings.keyboard.restart, bind( &Player::kill, this, _1, true ) );
+
+	// Debug
+	m_controller->bindButton( "Debug", bindings.controller.debug, bindings.keyboard.debug, bind( &Player::debug, this, _1 ) );
 }
 
 //--------------------------------------------------------------------------------
@@ -231,7 +238,7 @@ void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object 
 
 	// Traps
 	if( target->getName() == "Trap" )
-		return kill();
+		return kill( true, false );
 
 	// Platforms
 	if( target->getName() == "Platform" )
@@ -381,7 +388,12 @@ void Player::dash( bool pressed ) {
 
 //--------------------------------------------------------------------------------
 
-void Player::kill() {
+void Player::kill( bool pressed, bool restart ) {
+	if( !pressed )
+		return;
+	if( restart )
+		System::getWorld()->onMessage( "Player Restart" );
+
 	Timers::removeTimer( m_dashAnimationTimer );
 	Timers::removeTimer( m_dashCooldownTimer );
 	Timers::removeTimer( m_dashTimer );
@@ -390,6 +402,15 @@ void Player::kill() {
 	m_controller->destroy();
 
 	System::getWorld()->reset();
+}
+
+//--------------------------------------------------------------------------------
+
+void Player::debug( bool pressed ) {
+	if( !pressed )
+		return;
+
+	System::getWorld()->onMessage( "Flip Debug Page" );
 }
 
 //--------------------------------------------------------------------------------

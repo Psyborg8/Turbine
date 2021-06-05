@@ -106,7 +106,11 @@ float Controller::getAxisState( ControllerAxis axis ) {
 	if( this == nullptr )
 		return 0.0f;
 
-	return sf::Joystick::getAxisPosition( m_id, axisMap.at( sf::Joystick::getIdentification( m_id ).name ).at( axis ) );
+	float position = sf::Joystick::getAxisPosition( m_id, axisMap.at( sf::Joystick::getIdentification( m_id ).name ).at( axis ) );
+	if( abs( position ) < 10.0f )
+		return 0.0f;
+
+	return sf::Joystick::getAxisPosition( m_id, axisMap.at( sf::Joystick::getIdentification( m_id ).name ).at( axis ) ) / 25.0f;
 }
 
 //--------------------------------------------------------------------------------

@@ -50,13 +50,13 @@ void Player::onSpawnChildren() {
 	m_rightCollider->setSize( Math::Vec2( wallClingData.leniency, getSize().y ) );
 	m_rightCollider->setVelocity( Math::Vec2( 1.0f, 0.0 ) );
 
-	controllerData.controller = makeObject< Input::PlayerController >( m_parent );
+	m_controller = makeObject< Input::PlayerController >( m_parent );
 
 	using namespace std::placeholders;
-	controllerData.controller->bindButton( "Jump", controllerData.controllerBindings.jump, controllerData.keyboardBindings.jump, bind( &Player::jump, this, _1 ) );
-	controllerData.controller->bindButton( "Dash", controllerData.controllerBindings.dash, controllerData.keyboardBindings.dash, bind( &Player::dash, this, _1 ) );
-	controllerData.controller->bindAxis( "Move X", controllerData.controllerBindings.moveX, controllerData.keyboardBindings.moveX.first, controllerData.keyboardBindings.moveX.second, nullptr );
-	controllerData.controller->bindAxis( "Move Y", controllerData.controllerBindings.moveY, controllerData.keyboardBindings.moveY.first, controllerData.keyboardBindings.moveY.second, nullptr );
+	m_controller->bindButton( "Jump", controllerData.controllerBindings.jump, controllerData.keyboardBindings.jump, bind( &Player::jump, this, _1 ) );
+	m_controller->bindButton( "Dash", controllerData.controllerBindings.dash, controllerData.keyboardBindings.dash, bind( &Player::dash, this, _1 ) );
+	m_controller->bindAxis( "Move X", controllerData.controllerBindings.moveX, controllerData.keyboardBindings.moveX.first, controllerData.keyboardBindings.moveX.second, nullptr );
+	m_controller->bindAxis( "Move Y", controllerData.controllerBindings.moveY, controllerData.keyboardBindings.moveY.first, controllerData.keyboardBindings.moveY.second, nullptr );
 
 }
 
@@ -73,7 +73,7 @@ void Player::onUpdate( sf::Time deltaTime ) {
 			// Movement
 			if( abs( m_velocity.x ) <= movementData.maxSpeed && movementData.enabled ) {
 				// Input
-				move = controllerData.controller->getAxisState( "Move X" );
+				move = m_controller->getAxisState( "Move X" );
 
 				// Air control
 				if( !jumpData.canJump )
@@ -112,7 +112,7 @@ void Player::onUpdate( sf::Time deltaTime ) {
 			}
 
 			// Jump Release
-			if( !controllerData.controller->getButtonState( "Jump" ) )
+			if( !m_controller->getButtonState( "Jump" ) )
 				m_velocity.y = std::max( m_velocity.y, -jumpData.release );
 
 			// Wall Cling
@@ -291,8 +291,10 @@ void Player::dash( bool pressed ) {
 		return;
 
 	Math::Vec2 direction;
-	direction.x = controllerData.controller->getAxisState( "Move X" );
-	direction.y = controllerData.controller->getAxisState( "Move Y" );
+	if( m_controller == nullptr )
+		return;
+	direction.x = m_controller->getAxisState( "Move X" );
+	direction.y = m_controller->getAxisState( "Move Y" );
 
 	if( direction == Math::Vec2() )
 		return;
@@ -384,6 +386,7 @@ void Player::kill() {
 	Timers::removeTimer( m_dashTimer );
 
 	spriteData.dashShadows.clear();
+	m_controller->destroy();
 
 	System::getWorld()->reset();
 }

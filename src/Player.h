@@ -49,6 +49,8 @@ private:
 	shared_ptr< RigidRect > m_leftCollider;
 	shared_ptr< RigidRect > m_rightCollider;
 
+	shared_ptr< Input::PlayerController > m_controller;
+
 	// Timers
 private:
 	Timers::TimerID m_dashCooldownTimer;
@@ -58,11 +60,11 @@ private:
 	// Attributes
 public:
 	struct {
-		shared_ptr< Input::PlayerController > controller;
-
 		struct {
 			ControllerButton jump{ ControllerButton::Bottom };
 			ControllerButton dash{ ControllerButton::Left };
+			ControllerButton reset{ ControllerButton::Select };
+			ControllerButton restart{ ControllerButton::Start };
 			ControllerAxis moveX{ ControllerAxis::LeftStickX };
 			ControllerAxis moveY{ ControllerAxis::LeftStickY };
 		} controllerBindings;
@@ -70,6 +72,8 @@ public:
 		struct {
 			sf::Keyboard::Key jump{ sf::Keyboard::Space };
 			sf::Keyboard::Key dash{ sf::Keyboard::E };
+			sf::Keyboard::Key reset{ sf::Keyboard::R };
+			sf::Keyboard::Key restart{ sf::Keyboard::Backspace };
 			pair< sf::Keyboard::Key, sf::Keyboard::Key > moveX{ sf::Keyboard::A, sf::Keyboard::D };
 			pair< sf::Keyboard::Key, sf::Keyboard::Key > moveY{ sf::Keyboard::S, sf::Keyboard::W };
 		} keyboardBindings;

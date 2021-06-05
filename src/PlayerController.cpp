@@ -8,6 +8,20 @@ namespace Input {
 
 //--------------------------------------------------------------------------------------------------
 
+void PlayerController::onSpawnChildren() {
+	for( size_t i = 0u; i < sf::Joystick::Count; ++i ) {
+		if( sf::Joystick::isConnected( i ) ) {
+			shared_ptr< Controller > controller = makeObject< Controller >( m_parent );
+			sf::Event::JoystickConnectEvent e;
+			e.joystickId = i;
+			controller->loadController( e );
+			m_controllers.push_back( controller );
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void PlayerController::onEvent( sf::Event e ) {
 	if( e.type == sf::Event::JoystickConnected ) {
 		shared_ptr< Controller > controller = makeObject< Controller >( m_parent );
@@ -238,6 +252,13 @@ void PlayerController::bindAxis( string name, ControllerAxis axis, sf::Keyboard:
 	bind.callback = callback;
 
 	m_axisBindings.push_back( bind );
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void PlayerController::unbind() {
+	m_keyBindings = vector< KeyBind >();
+	m_axisBindings = vector< AxisBind >();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -36,18 +36,6 @@ protected:
 	uint32_t m_vendorid;
 	uint32_t m_productid;
 	unordered_map< ControllerButton, bool > m_buttonStates;
-
-	struct {
-		float rightStick = 10.0f;
-		float leftStick = 10.0f;
-		float trigger;
-	} m_deadZones;
-
-	struct {
-		float rightStick = 1.0f;
-		float leftStick = 1.0f;
-		float trigger = 0.5f;
-	} m_sensitivities;
 };
 
 //--------------------------------------------------------------------------------

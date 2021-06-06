@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon_1-1.json",
+    "activeFile": "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-2.json",
     "expandedProjectPaths": [
         "D:/Repos/ProjectBullet/bin/x64/Debug/Data",
         "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps"
@@ -12,6 +12,40 @@
     "fileStates": {
         "": {
             "scaleInEditor": 5.5
+        },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-1.json": {
+            "scale": 1.6105468749999998,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 246.1896677176813,
+                "y": 156.77904438515642
+            }
+        },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-1.json#Developer_Symbols": {
+            "scaleInDock": 1
+        },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-1.json#Dungeon_Spikes": {
+            "scaleInDock": 1
+        },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-1.json#Dungeon_Terrain": {
+            "scaleInDock": 1
+        },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-2.json": {
+            "scale": 3,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 356.16666666666663,
+                "y": 131.5
+            }
+        },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-2.json#Developer_Symbols": {
+            "scaleInDock": 1
+        },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-2.json#Dungeon_Spikes": {
+            "scaleInDock": 4
+        },
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-2.json#Dungeon_Terrain": {
+            "scaleInDock": 2
         },
         "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon-1_1.json": {
             "scale": 1,
@@ -28,8 +62,8 @@
             "scale": 3,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 223.66666666666669,
-                "y": 138.83333333333334
+                "x": 225.16666666666669,
+                "y": 108.16666666666667
             }
         },
         "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/DungeonMap.json#Developer_Symbols": {
@@ -63,7 +97,7 @@
             "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": -21,
+                "x": -20.5,
                 "y": -247.5
             }
         },
@@ -84,13 +118,18 @@
     "map.fixedSize": false,
     "map.lastUsedFormat": "json",
     "openFiles": [
-        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon_1-1.json",
-        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/DungeonMap.json"
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/DungeonMap.json",
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-1.json",
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Template.json",
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-2.json"
     ],
     "project": "",
     "property.type": "int",
     "recentFiles": [
         "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/DungeonMap.json",
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-1.json",
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Template.json",
+        "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon 1-2.json",
         "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon_1-1.json",
         "D:/Repos/ProjectBullet/bin/x64/Debug/Data/Maps/Dungeon-1_1.json"
     ],

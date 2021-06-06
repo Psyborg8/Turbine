@@ -95,7 +95,7 @@ void Player::onUpdate( sf::Time deltaTime ) {
 			}
 
 			// Friction
-			if( !move && m_velocity.x && frictionData.enabled ) {
+			if( m_velocity.x && frictionData.enabled ) {
 				float friction = frictionData.power * abs( m_velocity.x ) * deltaTime.asSeconds();
 
 				// Air resistance
@@ -119,8 +119,11 @@ void Player::onUpdate( sf::Time deltaTime ) {
 			}
 
 			// Jump Release
-			if( !m_controller->getButtonState( "Jump" ) )
-				m_velocity.y = std::max( m_velocity.y, -jumpData.release );
+			if( jumpData.isJumping )
+				if( !m_controller->getButtonState( "Jump" ) ) {
+					m_velocity.y = std::max( m_velocity.y, -jumpData.release );
+					jumpData.isJumping = false;
+				}
 
 			// Wall Cling
 			if( wallClingData.isClinging && wallClingData.enabled ) {
@@ -244,7 +247,28 @@ void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object 
 	if( target->getName() == "Platform" )
 		jumpData.canJumpDown = true;
 
-	Timers::triggerTimer( m_dashTimer );
+	jumpData.isJumping = false;
+
+	if( dashData.isDashing ) {
+		Timers::triggerTimer( m_dashTimer );
+
+		dashBounceData.canDashBounce = true;
+		
+		Math::Vec2 direction = result.velocity;
+		if( result.normal.x )
+			direction.x *= -1.0f;
+		if( result.normal.y )
+			direction.y *= -1.0f;
+
+		dashBounceData.direction = direction;
+
+		Timers::removeTimer( m_dashBounceTimer );
+		m_dashBounceTimer = Timers::addTimer( dashBounceData.leniency, nullptr,
+											  [this] {
+												  dashBounceData.canDashBounce = false;
+												  dashBounceData.direction = Math::Vec2();
+											  }, false );
+	}
 }
 
 //--------------------------------------------------------------------------------
@@ -261,8 +285,13 @@ void Player::jump( bool pressed )
 		else {
 			m_velocity.y = -jumpData.power;
 			jumpData.canJump = false;
+			jumpData.isJumping = true;
 		}
 	}
+
+	// Dash Bounce
+	else if( dashBounceData.enabled && dashBounceData.canDashBounce )
+		dashBounce();
 
 	// Wall Jump
 	else if( wallClingData.isClinging && wallJumpData.enabled ) {
@@ -274,7 +303,12 @@ void Player::jump( bool pressed )
 
 		Timers::addTimer( wallJumpData.duration,
 						  [this, acceleration, friction]( float alpha ) {
-							  const float a = ( log( 10.0f * pow( alpha, 9.0f ) ) + 6.0f ) * 0.1428557f;
+							  float a;
+							  if( alpha == 1.0f )
+								  a = 1.0f;
+							  else
+								  a = ( log( 10.0f * pow( alpha, 9.0f ) ) + 6.0f ) * 0.1428557f;
+
 							  movementData.airMultiplier = a * acceleration;
 							  frictionData.airMultiplier = a * friction;
 						  },
@@ -283,6 +317,7 @@ void Player::jump( bool pressed )
 	// Dash
 	else if( dashData.enabled && dashData.canDash )
 		dash( true );
+
 	// Double Jump
 	else if( doubleJumpData.canDoubleJump && doubleJumpData.enabled ) {
 		m_velocity.y = -doubleJumpData.power;
@@ -295,12 +330,17 @@ void Player::jump( bool pressed )
 void Player::dash( bool pressed ) {
 	if( !pressed )
 		return;
+	if( dashBounceData.canDashBounce && dashBounceData.enabled ) {
+		dashBounce();
+		return;
+	}
 	if( !dashData.canDash || !dashData.enabled )
 		return;
 
-	Math::Vec2 direction;
 	if( m_controller == nullptr )
 		return;
+
+	Math::Vec2 direction;
 	direction.x = m_controller->getAxisState( "Move X" );
 	direction.y = m_controller->getAxisState( "Move Y" );
 
@@ -384,6 +424,97 @@ void Player::dash( bool pressed ) {
 																  }, false );
 											}, true );
 
+}
+
+//--------------------------------------------------------------------------------
+
+void Player::dashBounce() {
+	if( dashBounceData.direction.length() == 0.0f )
+		return;
+
+	if( abs( dashBounceData.direction.normalize().y ) < abs( wallJumpData.direction.y ) ) {
+		Math::Vec2 v = wallJumpData.direction * dashBounceData.direction.length();
+		v.x *= dashBounceData.direction.x / ( abs( dashBounceData.direction.x ) );
+		v.y *= -1.0f;
+		m_velocity = v;
+	}
+	else {
+		m_velocity = dashBounceData.direction;
+	}
+
+	m_velocity *= dashBounceData.power;
+
+	Timers::removeTimer( m_dashTimer );
+	Timers::removeTimer( m_dashAnimationTimer );
+
+	m_dashTimer = Timers::addTimer( int( float( dashData.duration.count() ) * dashBounceData.durationMultiplier ),
+									nullptr,
+									[this] {
+										dashData.isDashing = false;
+										Timers::removeTimer( m_dashAnimationTimer );
+									}, false );
+
+
+
+	m_dashAnimationTimer = Timers::addTimer( dashData.animationStep,
+											 nullptr,
+											 [this] {
+												 shared_ptr< RigidRect > rect = makeObject< RigidRect >( this );
+												 rect->setRect( m_rect );
+												 sf::RectangleShape& r = rect->getRect();
+												 {
+													 sf::Color color = r.getFillColor();
+													 color.a = sf::Uint8( color.a * 0.9f );
+													 r.setFillColor( color );
+												 }
+												 {
+													 sf::Color color = r.getOutlineColor();
+													 color.a = sf::Uint8( color.a * 0.75f );
+													 r.setOutlineColor( color );
+												 }
+
+												 spriteData.dashShadows.push_back( rect );
+
+												 Timers::addTimer( 100,
+																   [this, rect]( float alpha ) {
+																	   if( this == nullptr )
+																		   return;
+																	   if( spriteData.dashShadows.empty() )
+																		   return;
+																	   if( spriteData.dashShadows.size() > 255u )
+																		   return;
+
+																	   const auto it = std::find( spriteData.dashShadows.begin(),
+																								  spriteData.dashShadows.end(),
+																								  rect );
+																	   if( it == spriteData.dashShadows.end() )
+																		   return;
+
+																	   sf::Color color = ( *it )->getRect().getFillColor();
+																	   sf::Color outline = ( *it )->getRect().getOutlineColor();
+																	   color.a = sf::Uint8( ( 0.6f - alpha * 0.6 ) * 255.0f );
+																	   outline.a = sf::Uint8( ( 0.6f - alpha * 0.6 ) * 255.0f );
+																	   ( *it )->setColor( color );
+																	   ( *it )->getRect().setOutlineColor( outline );
+																   },
+																   [this, rect] {
+																	   if( this == nullptr )
+																		   return;
+																	   if( spriteData.dashShadows.empty() )
+																		   return;
+																	   if( spriteData.dashShadows.size() > 255u )
+																		   return;
+
+																	   const auto it = std::find( spriteData.dashShadows.begin(),
+																								  spriteData.dashShadows.end(),
+																								  rect );
+																	   if( it != spriteData.dashShadows.end() )
+																		   spriteData.dashShadows.erase( it );
+																   }, false );
+											 }, true );
+
+	dashBounceData.canDashBounce = false;
+	dashBounceData.direction = Math::Vec2();
 }
 
 //--------------------------------------------------------------------------------

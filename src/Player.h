@@ -34,6 +34,7 @@ public:
 public:
 	void jump( bool pressed );
 	void dash( bool pressed );
+	void dashBounce();
 	void kill( bool pressed, bool restart );
 	void debug( bool pressed );
 
@@ -57,6 +58,7 @@ private:
 	Timers::TimerID m_dashCooldownTimer;
 	Timers::TimerID m_dashAnimationTimer;
 	Timers::TimerID m_dashTimer;
+	Timers::TimerID m_dashBounceTimer;
 
 	// Attributes
 public:
@@ -91,27 +93,31 @@ public:
 
 	struct {
 		bool enabled{ true };
-		float acceleration{ 9.0f };
+
+		float acceleration{ 16.0f };
 		float maxSpeed{ 85.0f };
-		float airMultiplier{ 0.85f };
+		float airMultiplier{ 0.8f };
 	} movementData;
 
 	struct {
 		bool enabled{ true };
+
 		float power{ 288.0f };
 		float max{ 196.0f };
 	} gravityData;
 
 	struct {
 		bool enabled{ true };
-		float power{ 10.0f };
+
+		float power{ 12.5f };
 		float min{ 128.0f };
 		float max{ 800.0f };
-		float airMultiplier{ 0.2f };
+		float airMultiplier{ 0.002f };
 	} frictionData;
 
 	struct {
 		bool enabled{ true };
+		bool isJumping{ false };
 		bool canJump{ false };
 		bool canJumpDown{ false };
 		bool isJumpingDown{ false };
@@ -123,6 +129,7 @@ public:
 	struct {
 		bool enabled{ false };
 		bool canDoubleJump{ true };
+
 		float power{ 96.0f };
 	} doubleJumpData;
 
@@ -138,6 +145,16 @@ public:
 		
 		milliseconds animationStep{ 15 };
 	} dashData;
+
+	struct {
+		bool enabled{ true };
+		bool canDashBounce{ false };
+
+		float power{ 0.8f };
+		Math::Vec2 direction{ 0.0f, 0.0f };
+		float durationMultiplier{ 0.75f };
+		milliseconds leniency{ 200 };
+	} dashBounceData;
 
 	struct {
 		bool enabled{ true };

@@ -38,8 +38,8 @@ void SFMLWorld::onSpawnChildren() {
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onStart() {
-	Gfx::Map::loadMap( "Dungeon 1-1" );
-	Gfx::Map::constructMap( "Dungeon 1-1", this );
+	Gfx::Map::loadMap( "Dungeon 1-2" );
+	Gfx::Map::constructMap( "Dungeon 1-2", this );
 
 	m_backgroundColor = Math::Color( sf::Color( 22u, 22u, 22u, 255u ) );
 
@@ -56,7 +56,7 @@ void SFMLWorld::onStart() {
 
 void SFMLWorld::onRender() {
 	if( m_visibility )
-		Gfx::Map::renderMap( "Dungeon 1-1" );
+		Gfx::Map::renderMap( "Dungeon 1-2" );
 }
 
 //--------------------------------------------------------------------------------

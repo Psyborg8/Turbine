@@ -28,6 +28,8 @@ enum class LayerType {
 	Terrain,
 	Checkpoints,
 	Colliders,
+	Camera,
+	Events,
 };
 
 //--------------------------------------------------------------------------------
@@ -37,6 +39,8 @@ enum class ObjectType {
 	Checkpoint,
 	Wall,
 	Trap,
+	Camera,
+	Event,
 };
 
 //--------------------------------------------------------------------------------
@@ -114,6 +118,8 @@ const map< string, LayerType > layerMap{
 	{ "Terrain", LayerType::Terrain },
 	{ "Checkpoints", LayerType::Checkpoints },
 	{ "Colliders", LayerType::Colliders },
+	{ "Camera", LayerType::Camera },
+	{ "Events", LayerType::Events },
 };
 
 //--------------------------------------------------------------------------------
@@ -122,6 +128,8 @@ const map< string, ObjectType > objectMap{
 	{ "Checkpoint", ObjectType::Checkpoint },
 	{ "Wall", ObjectType::Wall },
 	{ "Trap", ObjectType::Trap },
+	{ "Camera", ObjectType::Camera },
+	{ "Event", ObjectType::Event },
 };
 
 //================================================================================

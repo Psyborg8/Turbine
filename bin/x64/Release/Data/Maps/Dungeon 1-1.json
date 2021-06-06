@@ -385,15 +385,15 @@
                  "y":-30.625
                 }, 
                 {
-                 "height":2.54545454545455,
+                 "height":2.28458498023716,
                  "id":76,
                  "name":"",
                  "rotation":0,
                  "type":"Trap",
                  "visible":true,
-                 "width":46,
-                 "x":560.545454545455,
-                 "y":32.1818181818182
+                 "width":44.391304347826,
+                 "x":561.110671936759,
+                 "y":32.4426877470356
                 }, 
                 {
                  "height":16,
@@ -705,7 +705,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":true,
+         "visible":false,
          "x":0,
          "y":0
         }, 
@@ -801,12 +801,12 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":true,
+         "visible":false,
          "x":0,
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":87,
+ "nextobjectid":88,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.6.0",

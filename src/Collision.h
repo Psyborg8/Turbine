@@ -47,6 +47,7 @@ struct CollisionResult {
 	bool success = false;
 	Math::Vec2 normal;
 	Math::Vec2 point;
+	Math::Vec2 velocity;
 	float distance;
 	DynamicCollision dynamic;
 };

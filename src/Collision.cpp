@@ -136,6 +136,8 @@ CollisionResult collision( shared_ptr< Game::RigidRect > a, shared_ptr< Game::Ri
 	Math::Vec2 distance = out.point - ( e.getPosition() + e.getSize() / 2.0 );
 	distance = ( distance / e.getSize() ) * s->getSize();
 	out.point = ( e.getPosition() + e.getSize() / 2.0 ) + distance;
+	out.velocity = d->getVelocity();
+
 
 	// Set Dynamic collision data
 	DynamicCollision dynamic;

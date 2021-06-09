@@ -2921,7 +2921,7 @@ public:
     ValueIterator end() const { return value_.End(); }
 #endif
 
-private:
+public:
     GenericArray();
     GenericArray(ValueType& value) : value_(value) {}
     ValueType& value_;

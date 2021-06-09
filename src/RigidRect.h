@@ -24,6 +24,7 @@ public:
 			setPosition( getPosition() + m_velocity * deltaTime.asSeconds() ); 
 	}
 
+	virtual void onRender() override;
 	virtual Collision::CollisionResult isColliding( shared_ptr< Object > target ) override;
 
 	inline Math::Vec2 getVelocity() const { return m_velocity; }

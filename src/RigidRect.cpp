@@ -29,6 +29,13 @@ RigidRect::RigidRect( Math::Vec2 position, Math::Vec2 size, Math::Color color = 
 
 //--------------------------------------------------------------------------------
 
+void RigidRect::onRender() {
+	if( m_visibility )
+		System::getWindow()->draw( m_rect );
+}
+
+//--------------------------------------------------------------------------------
+
 Collision::CollisionResult RigidRect::isColliding( shared_ptr< Object > target ) {
 	Collision::CollisionResult out;
 

@@ -35,6 +35,8 @@ public:
 	void jump( bool pressed );
 	void dash( bool pressed );
 	void dashBounce();
+	void attack( bool pressed );
+
 	void kill( bool pressed, bool restart );
 	void debug( bool pressed );
 
@@ -43,6 +45,7 @@ public:
 
 private:
 	void extendedHitbox( vector< shared_ptr< Object > > targets );
+	void attackHitbox( vector< shared_ptr< Object > > targets );
 
 	// Variables
 private:
@@ -50,6 +53,7 @@ private:
 	shared_ptr< RigidRect > m_bottomCollider;
 	shared_ptr< RigidRect > m_leftCollider;
 	shared_ptr< RigidRect > m_rightCollider;
+	shared_ptr< RigidRect > m_attackCollider;
 
 	// Timers
 private:
@@ -57,13 +61,15 @@ private:
 	Timers::TimerID m_dashAnimationTimer;
 	Timers::TimerID m_dashTimer;
 	Timers::TimerID m_dashBounceTimer;
+	Timers::TimerID m_attackTimer;
+	Timers::TimerID m_attackRenderTimer;
 
 	// Attributes
 public:
 	struct {
 		struct {
 			ControllerButton jump{ ControllerButton::Bottom };
-			ControllerButton dash{ ControllerButton::Left };
+			ControllerButton attack{ ControllerButton::RTrigger };
 			ControllerButton reset{ ControllerButton::Start };
 			ControllerButton restart{ ControllerButton::Select };
 			ControllerButton debug{ ControllerButton::Logo };
@@ -73,7 +79,7 @@ public:
 
 		struct {
 			sf::Keyboard::Key jump{ sf::Keyboard::Space };
-			sf::Keyboard::Key dash{ sf::Keyboard::E };
+			sf::Keyboard::Key attack{ sf::Keyboard::E };
 			sf::Keyboard::Key reset{ sf::Keyboard::R };
 			sf::Keyboard::Key restart{ sf::Keyboard::Backspace };
 			sf::Keyboard::Key debug{ sf::Keyboard::Z };
@@ -101,8 +107,8 @@ public:
 	struct {
 		bool enabled{ true };
 
-		float power{ 20.0f };
-		float max{ 250.0f };
+		float power{ 15.0f };
+		float max{ 300.0f };
 		float min{ 20.0f };
 	} gravityData;
 
@@ -112,7 +118,7 @@ public:
 		float power{ 17.5f };
 		float min{ 8.0f };
 		float max{ 800.0f };
-		float airMultiplier{ 0.2f };
+		float airMultiplier{ 0.05f };
 	} frictionData;
 
 	struct {
@@ -122,8 +128,8 @@ public:
 		bool canJumpDown{ false };
 		bool isJumpingDown{ false };
 
-		float power{ 180.0f };
-		float release{ 96.0f };
+		float power{ 160.0f };
+		float release{ 70.0f };
 	} jumpData;
 
 	struct {
@@ -136,9 +142,15 @@ public:
 	struct {
 		bool enabled{ true };
 		bool canAttack{ true };
+		bool isAttacking{ false };
+		bool isVisible{ false };
 
-		Math::Vec2 size{ 8.0f, 8.0f };
-		float power{ 50.0f };
+		float power{ 25.0f };
+		float fallTransferMultiplier{ 0.5f };
+		Math::Vec2 direction{ 0.0f, 0.0f };
+		Math::Vec2 size{ 12.0f, 6.0f };
+		Math::Vec2 min{ 150.0f, 180.0f };
+		milliseconds duration{ 600 };
 	} attackData;
 
 	struct {
@@ -151,14 +163,14 @@ public:
 		milliseconds cooldown{ 1000 };
 		milliseconds duration{ 175 };
 		
-		milliseconds animationStep{ 35 };
+		milliseconds animationStep{ 25 };
 	} dashData;
 
 	struct {
 		bool enabled{ true };
 		bool canDashBounce{ false };
 
-		float power{ 0.75f };
+		float power{ 0.6f };
 		Math::Vec2 direction{ 0.0f, 0.0f };
 		float durationMultiplier{ 0.5f };
 		milliseconds leniency{ 200 };
@@ -171,7 +183,7 @@ public:
 		float power{ 2.0f };
 		float leniency{ 2.5f };
 		float min{ 32.0f };
-		float max{ 512.0f };
+		float max{ 256.0f };
 	} wallClingData;
 
 	struct {

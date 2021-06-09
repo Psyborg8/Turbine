@@ -33,6 +33,9 @@ void SFMLWorld::onSpawnChildren() {
 	m_joystickPage->setVisibility( false );
 
 	m_timer = makeObject< Gfx::GameTimer >( this );
+	m_timer->setVisibility( true );
+
+	m_visibility = true;
 }
 
 //--------------------------------------------------------------------------------

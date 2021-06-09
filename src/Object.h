@@ -70,7 +70,7 @@ protected:
 	string m_name{ "" };
 	CollisionType m_collisionType{ CollisionType::None };
 	Math::Vec2 m_position;
-	bool m_visibility{ true };
+	bool m_visibility{ false };
 
 
 	/* Static */

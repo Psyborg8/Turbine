@@ -50,10 +50,14 @@ void Player::onSpawnChildren() {
 	m_rightCollider->setSize( Math::Vec2( wallClingData.leniency, getSize().y ) );
 	m_rightCollider->setVelocity( Math::Vec2( 1.0f, 0.0 ) );
 
+	m_attackCollider = make_shared< RigidRect >();
+	m_attackCollider->setCollisionType( CollisionType::Static );
+	m_attackCollider->setColor( Colors::CYAN );
+
 	using namespace std::placeholders;
 	// Movement
 	Input::bindButton( "Jump", bindings.controller.jump, bindings.keyboard.jump, bind( &Player::jump, this, _1 ) );
-	Input::bindButton( "Dash", bindings.controller.dash, bindings.keyboard.dash, bind( &Player::dash, this, _1 ) );
+	Input::bindButton( "Attack", bindings.controller.attack, bindings.keyboard.attack, bind( &Player::attack, this, _1 ) );
 	Input::bindAxis( "Move X", bindings.controller.moveX, bindings.keyboard.moveX, nullptr );
 	Input::bindAxis( "Move Y", bindings.controller.moveY, bindings.keyboard.moveY, nullptr );
 
@@ -194,6 +198,15 @@ void Player::onProcessCollisions()
 	targets.insert( targets.end(), traps.begin(), traps.end() );
 	processCollisions( targets );
 	Debug::stopTimer( "Player::Checkpoint Detection" );
+
+	// Attack detection
+	if( attackData.isAttacking ) {
+		Debug::startTimer( "Player::Attack Detection" );
+		targets.clear();
+		targets.insert( targets.end(), walls.begin(), walls.end() );
+		attackHitbox( targets );
+		Debug::stopTimer( "Player::Attack Detection" );
+	}
 }
 
 //--------------------------------------------------------------------------------
@@ -215,6 +228,9 @@ void Player::onRender() {
 
 	for( shared_ptr< RigidRect > shadow : spriteData.dashShadows )
 		System::getWindow()->draw( shadow->getRect() );
+
+	if( attackData.isVisible )
+		System::getWindow()->draw( m_attackCollider->getRect() );
 
 	System::getWindow()->draw( m_rect );
 
@@ -407,8 +423,8 @@ void Player::dash( bool pressed ) {
 
 																		sf::Color color = ( *it )->getRect().getFillColor();
 																		sf::Color outline = ( *it )->getRect().getOutlineColor();
-																		color.a = sf::Uint8( ( 0.6f - alpha * 0.6 )  * 255.0f );
-																		outline.a = sf::Uint8( ( 0.6f - alpha * 0.6 ) * 255.0f );
+																		color.a = sf::Uint8( ( 1.0f - alpha * 0.6 )  * 255.0f );
+																		outline.a = sf::Uint8( ( 1.0f - alpha * 0.6 ) * 255.0f );
 																		( *it )->setColor( color );
 																		( *it )->getRect().setOutlineColor( outline );
 																   },
@@ -463,6 +479,36 @@ void Player::dashBounce() {
 						  frictionData.airMultiplier = alpha * friction;
 					  },
 					  nullptr, false );
+}
+
+//--------------------------------------------------------------------------------
+
+void Player::attack( bool pressed ) {
+	if( !pressed )
+		return;
+	if( !attackData.enabled || !attackData.canAttack )
+		return;
+
+	// Get direction
+	attackData.direction.x = Input::getAxisState( "Move X" );
+	attackData.direction.y = Input::getAxisState( "Move Y" );
+
+	// Find direction
+	if( attackData.direction.x && attackData.direction.y ) {
+		if( attackData.direction.x >= attackData.direction.y )
+			attackData.direction.y = 0.0f;
+		else
+			attackData.direction.x = 0.0f;
+	}
+
+	if( !attackData.direction.length() )
+		return;
+
+	attackData.isAttacking = true;
+	attackData.isVisible = true;
+
+	Timers::removeTimer( m_attackRenderTimer );
+	m_attackRenderTimer = Timers::addTimer( 10, nullptr, [this] { attackData.isVisible = false; }, false );
 }
 
 //--------------------------------------------------------------------------------
@@ -532,6 +578,94 @@ void Player::extendedHitbox( vector< shared_ptr< Object > > targets ) {
 			wallClingData.isClinging = true;
 			wallJumpData.normal = -1.0f;
 			return;
+		}
+	}
+}
+
+
+
+void Player::attackHitbox( vector< shared_ptr< Object > > targets ) {
+	attackData.isAttacking = false;
+	jumpData.isJumping = false;
+
+	// Calculate size from direction
+	Math::Vec2 size;
+	size.x = attackData.direction.x ? attackData.size.x : attackData.size.y;
+	size.y = attackData.direction.y ? attackData.size.x : attackData.size.y;
+
+	// Calculate position from direction and size
+	Math::Vec2 position;
+	if( attackData.direction.x ) {
+		if( attackData.direction.x > 0.0f )
+			position.x = getPosition().x + getSize().x;
+		else
+			position.x = getPosition().x - size.x;
+
+		position.y = getPosition().y + ( getSize().y / 2.0f ) - ( size.y / 2.0f );
+	}
+	else {
+		if( attackData.direction.y > 0.0f )
+			position.y = getPosition().y + getSize().y;
+		else
+			position.y = getPosition().y - size.y;
+
+		position.x = getPosition().x + ( getSize().x / 2.0f ) - ( size.x / 2.0f );
+	}
+
+	// Update collider
+	m_attackCollider->setPosition( position );
+	m_attackCollider->setSize( size );
+	m_attackCollider->setCollisionType( CollisionType::Static );
+	m_attackCollider->setVelocity( attackData.direction.normalize() * ( getVelocity().length() + 1.0f ) );
+
+	bool collision = false;
+	for( shared_ptr< Object > target : targets ) {
+		const Collision::CollisionResult result = m_attackCollider->isColliding( target );
+
+		if( result.success ) {
+			collision = true;
+			break;
+		}
+	}
+
+	if( !collision )
+		return;
+
+	if( attackData.direction.x ) {
+		m_velocity.x *= -1.0f;
+		m_velocity.x += attackData.power * -attackData.direction.normalize().x;
+
+		if( abs( m_velocity.x ) < attackData.min.x )
+			m_velocity.x = attackData.min.x * -attackData.direction.normalize().x;
+
+		if( m_velocity.y > 0.0f )
+			m_velocity.x += m_velocity.y * attackData.fallTransferMultiplier * -attackData.direction.normalize().x;
+
+		m_velocity.y -= attackData.power * 1.5f;
+		if( m_velocity.y > -( attackData.min.y / 4.0f ) )
+			m_velocity.y = -( attackData.min.y / 4.0f );
+
+		Timers::triggerTimer( m_attackTimer );
+		float acceleration = movementData.airMultiplier;
+		float friction = frictionData.airMultiplier;
+		m_attackTimer = Timers::addTimer( attackData.duration,
+						  [this, acceleration, friction]( float alpha ) {
+							  movementData.airMultiplier = alpha * acceleration;
+							  frictionData.airMultiplier = alpha * friction;
+						  },
+						  nullptr, false );
+	}
+	else {
+		m_velocity.y *= -1.0f;
+		m_velocity.y += attackData.power * -attackData.direction.normalize().y;
+
+		if( abs( m_velocity.y ) < attackData.min.y )
+			m_velocity.y = attackData.min.y * -attackData.direction.normalize().y;
+
+		if( abs( m_velocity.x ) > attackData.min.x / 10.0f ) {
+			m_velocity.x += ( attackData.power / 4.0f ) * ( m_velocity.x / abs( m_velocity.x ) );
+			if( abs( m_velocity.x ) < attackData.min.y / 4.0f )
+				m_velocity.x = attackData.min.x / 4.0f * ( m_velocity.x / abs( m_velocity.x ) );
 		}
 	}
 }

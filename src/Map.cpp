@@ -22,41 +22,11 @@ namespace Map {
 
 //================================================================================
 
-enum class LayerType {
-	Background = 0,
-	BackgroundDetails,
-	Terrain,
-	Checkpoints,
-	Colliders,
-	Camera,
-	Events,
-};
-
-//--------------------------------------------------------------------------------
-
-enum class ObjectType {
-	None = 0,
-	Checkpoint,
-	Wall,
-	Trap,
-	Camera,
-	Event,
-};
-
-//--------------------------------------------------------------------------------
-
-enum class DevSymbol {
-	Num0, Num1, Num2, Num3, Num4, Num5, Num6, Num7, Num8, Num9,
-	A, B, C, D, E, S, Cross, Tick, Warning, Dash
-};
-
-//================================================================================
-
 struct Rect {
 	string name;
 	Math::Vec2 position;
 	Math::Vec2 size;
-	ObjectType type;
+	string type;
 };
 
 //--------------------------------------------------------------------------------
@@ -64,7 +34,7 @@ struct Rect {
 struct Point {
 	string name;
 	Math::Vec2 position;
-	ObjectType type;
+	string type;
 };
 
 //--------------------------------------------------------------------------------
@@ -89,22 +59,31 @@ struct Chunk {
 struct TileLayer {
 	vector< Chunk > chunks;
 	Math::Vec2 position;
-	LayerType type;
+	string name;
+};
+
+//--------------------------------------------------------------------------------
+
+struct Tile {
+	int uid;
+	int id;
+	string type;
 };
 
 //--------------------------------------------------------------------------------
 
 struct ObjectLayer {
 	vector< Rect > objects;
-	LayerType type;
+	string name;
 };
 
 //--------------------------------------------------------------------------------
 
 struct Map {
-	map< LayerType, TileLayer > tileLayers;
-	map< LayerType, ObjectLayer > objectLayers;
+	map< string, TileLayer > tileLayers;
+	map< string, ObjectLayer > objectLayers;
 	vector< Tileset > tilesets;
+	map< int, Tile > tilemap;
 	string name;
 	Math::Vec2 tileSize;
 	Math::Vec2 mapSize;
@@ -112,41 +91,25 @@ struct Map {
 
 //================================================================================
 
-const map< string, LayerType > layerMap{
-	{ "Background", LayerType::Background },
-	{ "Background Details", LayerType::BackgroundDetails },
-	{ "Terrain", LayerType::Terrain },
-	{ "Checkpoints", LayerType::Checkpoints },
-	{ "Colliders", LayerType::Colliders },
-	{ "Camera", LayerType::Camera },
-	{ "Events", LayerType::Events },
-};
-
-//--------------------------------------------------------------------------------
-
-const map< string, ObjectType > objectMap{
-	{ "Checkpoint", ObjectType::Checkpoint },
-	{ "Wall", ObjectType::Wall },
-	{ "Trap", ObjectType::Trap },
-	{ "Camera", ObjectType::Camera },
-	{ "Event", ObjectType::Event },
-};
-
-//================================================================================
-
 // Loading
-bool loadLayer( rapidjson::Value& data, TileLayer& layer );
-bool loadLayer( rapidjson::Value& data, ObjectLayer& layer );
-bool loadTileset( rapidjson::Value& data, Tileset& tileset );
+bool loadLayer( const rapidjson::Value& data, TileLayer& layer );
+bool loadLayer( const rapidjson::Value& data, ObjectLayer& layer );
+bool loadTileset( const rapidjson::Value& data, Tileset& tileset, Map& map );
 
 //--------------------------------------------------------------------------------
 
 // Construction
-void constructObject( const Rect& object, Object* parent );
+void constructObject( const Rect& object, Object* world );
+void constructCollider( const Tile& tile, Math::Vec2 position, Object* world );
 
 //================================================================================
 
 vector< Map >::iterator getMap( string name );
+
+bool getString( const rapidjson::Value& data, string name, string& out );
+bool getBool( const rapidjson::Value& data, string name, bool& out );
+bool getInt( const rapidjson::Value& data, string name, int& out );
+bool getFloat( const rapidjson::Value& data, string name, float& out );
 
 //--------------------------------------------------------------------------------
 
@@ -188,43 +151,51 @@ void loadMap( string name ) {
 
 	// Meta Data
 	{
-		map.tileSize.x = float( document[ "tilewidth" ].GetInt() );
-		map.tileSize.y = float( document[ "tileheight" ].GetInt() );
-		map.mapSize.x = float( document[ "width" ].GetInt() );
-		map.mapSize.y = float( document[ "height" ].GetInt() );
+		getFloat( document, "tilewidth", map.tileSize.x );
+		getFloat( document, "tileheight", map.tileSize.y );
+		getFloat( document, "width", map.mapSize.x );
+		getFloat( document, "height", map.mapSize.y );
 	}
 
 	// Layers
-	GenericArray< false, Value > layers = document[ "layers" ].GetArray();
-	for( SizeType i = 0; i < layers.Size(); ++i ) {
-		// Tile Layer
-		if( layers[ i ][ "type" ] == "tilelayer" ) {
-			TileLayer layer;
-			if( loadLayer( layers[ i ], layer ) )
-				map.tileLayers[ layer.type ] = layer;
-		}
+	if( document.HasMember( "layers" ) ) {
+		const auto layers = document[ "layers" ].GetArray();
+		for( SizeType i = 0; i < layers.Size(); ++i ) {
+			string type;
+			if( !getString( layers[ i ], "type", type ) )
+				continue;
 
-		// Object Layer
-		else if( layers[ i ][ "type" ] == "objectgroup" ) {
-			ObjectLayer layer;
-			if( loadLayer( layers[ i ], layer ) )
-				map.objectLayers[ layer.type ] = layer;
+			// Tile Layer
+			if( type == "tilelayer" ) {
+				TileLayer layer;
+				if( loadLayer( layers[ i ], layer ) )
+					map.tileLayers[ layer.name ] = layer;
+			}
+
+			// Object Layer
+			else if( type == "objectgroup" ) {
+				ObjectLayer layer;
+				if( loadLayer( layers[ i ], layer ) )
+					map.objectLayers[ layer.name ] = layer;
+			}
 		}
 	}
 
 	// Tilesets
-	GenericArray< false, Value > tilesets = document[ "tilesets" ].GetArray();
-	for( SizeType i = 0; i < tilesets.Size(); ++i ) {
-		Tileset tileset;
+	if( document.HasMember( "tilesets" ) ) {
+		const auto tilesets = document[ "tilesets" ].GetArray();
+		for( SizeType i = 0; i < tilesets.Size(); ++i ) {
+			Tileset tileset;
 
-		if( loadTileset( tilesets[ i ], tileset ) )
-			map.tilesets.push_back( tileset );
+			if( loadTileset( tilesets[ i ], tileset, map ) )
+				map.tilesets.push_back( tileset );
+
+			std::sort( map.tilesets.begin(), map.tilesets.end(),
+					   []( const Tileset& a, const Tileset& b ) {
+						   return a.uid > b.uid;
+					   } );
+		}
 	}
-
-	std::sort( map.tilesets.begin(), map.tilesets.end(),
-			   []( const Tileset& a, const Tileset& b ) {
-				   return a.uid > b.uid;
-			   } );
 
 	maps.push_back( map );
 
@@ -248,37 +219,33 @@ void unloadMap( string name ) {
 
 //--------------------------------------------------------------------------------
 
-bool loadLayer( rapidjson::Value& data, TileLayer& layer ) {
+bool loadLayer( const rapidjson::Value& data, TileLayer& layer ) {
 	using namespace rapidjson;
 
-	if( !data[ "name" ].IsString() )
+	if( !getString( data, "name", layer.name ) )
 		return false;
 
-	const string name = data[ "name" ].GetString();
-	layer.type = layerMap.at( name );
-
 	// Chunks
-	GenericArray< false, Value > chunks = data[ "chunks" ].GetArray();
-	for( SizeType j = 0; j < chunks.Size(); ++j ) {
-		Chunk chunk;
+	if( data.HasMember( "chunks" ) ) {
+		const auto chunks = data[ "chunks" ].GetArray();
 
-		// Chunk position
-		Math::Vec2 position;
-		if( !chunks[ j ][ "x" ].IsInt() | !chunks[ j ][ "y" ].IsInt() )
-			continue;
+		for( SizeType j = 0; j < chunks.Size(); ++j ) {
+			Chunk chunk;
 
-		chunk.position.x = float( chunks[ j ][ "x" ].GetInt() ) * 16.0f;
-		chunk.position.y = float( chunks[ j ][ "y" ].GetInt() ) * 16.0f;
+			// Chunk position
+			getFloat( chunks[ j ], "x", chunk.position.x );
+			getFloat( chunks[ j ], "y", chunk.position.y );
 
-		// Block data
-		if( !chunks[ j ][ "data" ].IsArray() )
-			continue;
+			chunk.position *= 16.0f;
 
-		GenericArray< false, Value > data = chunks[ j ][ "data" ].GetArray();
-		for( SizeType k = 0; k < data.Size(); ++k )
-			chunk.blockData[ k ] = data[ k ].GetInt();
+			if( chunks[ j ].HasMember( "data" ) ) {
+					const auto chunkData = chunks[ j ][ "data" ].GetArray();
+					for( SizeType k = 0; k < chunkData.Size(); ++k )
+						chunk.blockData[ k ] = chunkData[ k ].GetInt();
 
-		layer.chunks.push_back( chunk );
+					layer.chunks.push_back( chunk );
+			}
+		}
 	}
 
 	return true;
@@ -286,24 +253,29 @@ bool loadLayer( rapidjson::Value& data, TileLayer& layer ) {
 
 //--------------------------------------------------------------------------------
 
-bool loadLayer( rapidjson::Value& data, ObjectLayer& layer ) {
+bool loadLayer( const rapidjson::Value& data, ObjectLayer& layer ) {
 	using namespace rapidjson;
 
-	const string name = data[ "name" ].GetString();
-	layer.type = layerMap.at( name );
+	if( !getString( data, "name", layer.name ) )
+		return false;
 
 	// Load objects
-	GenericArray< false, Value > objects = data[ "objects" ].GetArray();
+	if( !data.HasMember( "objects" ) )
+		return false;
+
+	const auto objects = data[ "objects" ].GetArray();
+
 	for( SizeType i = 0u; i < objects.Size(); ++i ) {
 
 		// Get object data
 		Rect rect;
-		rect.type = objectMap.at( objects[ i ][ "type" ].GetString() );
-		rect.position.x = objects[ i ][ "x" ].GetFloat();
-		rect.position.y = objects[ i ][ "y" ].GetFloat();
-		rect.size.x = objects[ i ][ "width" ].GetFloat();
-		rect.size.y = objects[ i ][ "height" ].GetFloat();
-		rect.name = objects[ i ][ "name" ].GetString();
+
+		getString( objects[ i ], "name", rect.name );
+		getString( objects[ i ], "type", rect.type );
+		getFloat( objects[ i ], "x", rect.position.x );
+		getFloat( objects[ i ], "y", rect.position.y );
+		getFloat( objects[ i ], "width", rect.size.x );
+		getFloat( objects[ i ], "height", rect.size.y );
 
 		layer.objects.push_back( rect );
 	}
@@ -313,15 +285,30 @@ bool loadLayer( rapidjson::Value& data, ObjectLayer& layer ) {
 
 //--------------------------------------------------------------------------------
 
-bool loadTileset( rapidjson::Value& data, Tileset& tileset ) {
+bool loadTileset( const rapidjson::Value& data, Tileset& tileset, Map& map ) {
 	using namespace rapidjson;
 
 	// Get meta data
-	tileset.uid = data[ "firstgid" ].GetInt();
-	tileset.path = Folders::Maps + data[ "image" ].GetString();
-	tileset.name = data[ "name" ].GetString();
-	tileset.tileSize.y = float( data[ "tileheight" ].GetInt() );
-	tileset.tileSize.x = float( data[ "tilewidth" ].GetInt() );
+	getInt( data, "firstgid", tileset.uid );
+	getString( data, "image", tileset.path );
+	tileset.path = Folders::Maps + tileset.path;
+	getString( data, "name", tileset.name );
+	getFloat( data, "tilewidth", tileset.tileSize.x );
+	getFloat( data, "tileheight", tileset.tileSize.y );
+
+	if( !data.HasMember( "tiles" ) )
+		return false;
+
+	const auto tiles = data[ "tiles" ].GetArray();
+	for( SizeType i = 0u; i < tiles.Size(); ++i ) {
+		Tile tile;
+
+		getInt( tiles[ i ], "id", tile.id );
+		tile.uid = tile.id + tileset.uid;
+		getString( tiles[ i ], "type", tile.type );
+
+		map.tilemap[ tile.uid ] = tile;
+	}
 
 	return true;
 }
@@ -362,7 +349,7 @@ void constructMap( string name, Object* world ) {
 			texture.create( 256u, 256u );
 			texture.clear( sf::Color( 0u, 0u, 0u, 0u ) );
 
-			if( layer.type == LayerType::Background )
+			if( layer.name == "Background" )
 				texture.setSmooth( true );
 
 			// Construct objects and render tiles
@@ -373,15 +360,15 @@ void constructMap( string name, Object* world ) {
 					continue;
 
 				// Find the tileset
-				const auto it = std::find_if( tilesets.begin(), tilesets.end(),
+				const auto jt = std::find_if( tilesets.begin(), tilesets.end(),
 											  [id]( const Tileset& tileset ) {
 												  return id >= tileset.uid;
 											  } );
 
-				if( it == tilesets.end() )
+				if( jt == tilesets.end() )
 					continue;
 
-				const Tileset& tileset = *it;
+				const Tileset& tileset = *jt;
 
 				// Calculate position
 				Math::Vec2 position;
@@ -391,6 +378,16 @@ void constructMap( string name, Object* world ) {
 
 				// Render to texture
 				Gfx::Tileset::renderTile( tileset.name, id - tileset.uid, &texture, position );
+
+				if( layer.name == "Terrain" ) {
+					// Construct the collider
+					const auto kt = it->tilemap.find( id );
+					if( kt != it->tilemap.end() )
+						constructCollider( kt->second, worldPosition, world );
+					else
+						constructCollider( Tile(), worldPosition, world );
+				}
+
 			}
 
 			texture.display();
@@ -416,13 +413,13 @@ void constructMap( string name, Object* world ) {
 
 //--------------------------------------------------------------------------------
 
-void constructObject( const Rect& object, Object* parent ) {
-	if( object.type == ObjectType::Checkpoint ) {
+void constructObject( const Rect& object, Object* world ) {
+	if( object.type == "Checkpoint" ) {
 		// Player Start
 		if( object.name == "S" ) {
 			Math::Vec2 position = object.position;
 			position.x += object.size.x / 2.0f;
-			shared_ptr< Game::Player > player = Object::makeObject< Game::Player >( parent );
+			shared_ptr< Game::Player > player = Object::makeObject< Game::Player >( world );
 			player->setPosition( position );
 			player->setSpawn( position );
 			return;
@@ -430,7 +427,7 @@ void constructObject( const Rect& object, Object* parent ) {
 
 		// Level End
 		if( object.name == "E" ) {
-			shared_ptr< Game::RigidRect > levelEnd = Object::makeObject< Game::RigidRect >( parent );
+			shared_ptr< Game::RigidRect > levelEnd = Object::makeObject< Game::RigidRect >( world );
 			levelEnd->setPosition( object.position );
 			levelEnd->setSize( object.size );
 			levelEnd->setName( "Level End" );
@@ -439,35 +436,73 @@ void constructObject( const Rect& object, Object* parent ) {
 		}
 		
 		// Checkpoint
-		const int id = std::stoi( object.name );
-		if( id > 0 ) {
-			shared_ptr< Game::RigidRect > checkpoint = Object::makeObject< Game::RigidRect >( parent );
-			checkpoint->setPosition( object.position );
-			checkpoint->setSize( object.size );
-			checkpoint->setName( "Checkpoint" );
-			checkpoint->setCollisionType( CollisionType::Static );
+		shared_ptr< Game::RigidRect > checkpoint = Object::makeObject< Game::RigidRect >( world );
+		checkpoint->setPosition( object.position );
+		checkpoint->setSize( object.size );
+		checkpoint->setName( "Checkpoint" );
+		checkpoint->setCollisionType( CollisionType::Static );
+		return;
+	}
+}
+
+//--------------------------------------------------------------------------------
+
+void constructCollider( const Tile& tile, Math::Vec2 position, Object* world ) {
+	if( tile.type == "Trap" ) {
+		array< Math::Vec2, 9u > normalMap = {
+			{ { 1.0f, 1.0f }, { 0.0f, 1.0f }, { -1.0f, 1.0f },
+			{ 1.0f, 0.0f }, { 0.0f, 0.0f }, { -1.0f, 0.0f },
+			{ 1.0f, -1.0f }, { 0.0f, -1.0f }, { -1.0f, -1.0f } } };
+
+		if( tile.id >= normalMap.size() )
 			return;
+
+		Math::Vec2 normal = normalMap.at( tile.id );
+
+		if( normal.x ) {
+			shared_ptr< Game::RigidRect > trap = Object::makeObject< Game::RigidRect >( world );
+			trap->setSize( Math::Vec2( 3.0f, 13.0f ) );
+			trap->setCollisionType( CollisionType::Static );
+			trap->setName( "Trap" );
+
+			Math::Vec2 pos;
+			pos.x = normal.x > 0.0f ? position.x : position.x + 16.0f - trap->getSize().x;
+			pos.y = position.y + ( 16.0f - trap->getSize().y ) / 2.0f;
+			trap->setPosition( pos );
+			trap->setColor( Colors::CLEAR );
+			trap->getRect().setOutlineColor( sf::Color::Red );
+			trap->getRect().setOutlineThickness( 0.2f );
+			trap->setVisibility( true );
+		}
+
+		if( normal.y ) {
+			shared_ptr< Game::RigidRect > trap = Object::makeObject< Game::RigidRect >( world );
+			trap->setSize( Math::Vec2( 13.0f, 3.0f ) );
+			trap->setCollisionType( CollisionType::Static );
+			trap->setName( "Trap" );
+			trap->setColor( Colors::CLEAR );
+			trap->getRect().setOutlineColor( sf::Color::Red );
+			trap->getRect().setOutlineThickness( 0.35f );
+			trap->setVisibility( true );
+
+			Math::Vec2 pos;
+			pos.y = normal.y > 0.0f ? position.y : position.y + 16.0f - trap->getSize().y;
+			pos.x = position.x + ( 16.0f - trap->getSize().x ) / 2.0f;
+			trap->setPosition( pos );
 		}
 
 		return;
 	}
 
-	if( object.type == ObjectType::Wall ) {
-		shared_ptr< Game::RigidRect > wall = Object::makeObject< Game::RigidRect >( parent );
-		wall->setName( "Wall" );
-		wall->setPosition( object.position );
-		wall->setSize( object.size );
-		wall->setCollisionType( CollisionType::Static );
-		return;
-	}
-
-	if( object.type == ObjectType::Trap ) {
-		shared_ptr< Game::RigidRect > trap = Object::makeObject< Game::RigidRect >( parent );
-		trap->setName( "Trap" );
-		trap->setPosition( object.position );
-		trap->setSize( object.size );
-		trap->setCollisionType( CollisionType::Static );
-	}
+	shared_ptr< Game::RigidRect > object = Object::makeObject< Game::RigidRect >( world );
+	object->setPosition( position );
+	object->setSize( Math::Vec2( 16.0f, 16.0f ) );
+	object->setCollisionType( CollisionType::Static );
+	object->setColor( Colors::CLEAR );
+	object->getRect().setOutlineColor( sf::Color( 180u, 180u, 180u, 255u ) );
+	object->getRect().setOutlineThickness( 0.25f );
+	object->setVisibility( true );
+	object->setName( "Wall" );
 }
 
 //================================================================================
@@ -483,9 +518,9 @@ void renderMap( string name ) {
 	if( it == maps.end() )
 		return;
 
-	for( const Chunk& chunk : it->tileLayers[ LayerType::Background ].chunks ) {
+	for( const Chunk& chunk : it->tileLayers[ "Background" ].chunks ) {
 		sf::Sprite sprite( chunk.texture );
-		Math::Vec2 position = chunk.position + it->tileLayers[ LayerType::Background ].position;
+		Math::Vec2 position = chunk.position + it->tileLayers[ "Background" ].position;
 		sprite.setPosition( position.sf() );
 		System::getWindow()->draw( sprite );
 
@@ -497,17 +532,17 @@ void renderMap( string name ) {
 		System::getWindow()->draw( rect );
 	}
 
-	for( const Chunk& chunk : it->tileLayers[ LayerType::BackgroundDetails ].chunks ) {
+	for( const Chunk& chunk : it->tileLayers[ "Background Details" ].chunks ) {
 
 		sf::Sprite sprite( chunk.texture );
-		Math::Vec2 position = chunk.position + it->tileLayers[ LayerType::BackgroundDetails ].position;
+		Math::Vec2 position = chunk.position + it->tileLayers[ "Background Details" ].position;
 		sprite.setPosition( position.sf() );
 		System::getWindow()->draw( sprite );
 	}
 
-	for( const Chunk& chunk : it->tileLayers[ LayerType::Terrain ].chunks ) {
+	for( const Chunk& chunk : it->tileLayers[ "Terrain" ].chunks ) {
 		sf::Sprite sprite( chunk.texture );
-		Math::Vec2 position = chunk.position + it->tileLayers[ LayerType::Terrain ].position;
+		Math::Vec2 position = chunk.position + it->tileLayers[ "Terrain" ].position;
 		sprite.setPosition( position.sf() );
 		System::getWindow()->draw( sprite );
 	}
@@ -524,6 +559,70 @@ vector< Map >::iterator getMap( string name ) {
 							 } );
 
 	return it;
+}
+
+//--------------------------------------------------------------------------------
+
+bool getString( const rapidjson::Value& data, string name, string& out ) {
+	const auto it = data.FindMember( name.c_str() );
+	if( it != data.MemberEnd() ) {
+		if( it->value.IsString() ) {
+			out = it->value.GetString();
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//--------------------------------------------------------------------------------
+
+bool getBool( const rapidjson::Value& data, string name, bool& out ) {
+	const auto it = data.FindMember( name.c_str() );
+	if( it != data.MemberEnd() ) {
+		if( it->value.IsBool() ) {
+			out = it->value.GetBool();
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//--------------------------------------------------------------------------------
+
+bool getInt( const rapidjson::Value& data, string name, int& out ) {
+	const auto it = data.FindMember( name.c_str() );
+	if( it != data.MemberEnd() ) {
+		if( it->value.IsInt() ) {
+			out = it->value.GetInt();
+			return true;
+		}
+		else if( it->value.IsFloat() ) {
+			out = int( it->value.GetFloat() );
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//--------------------------------------------------------------------------------
+
+bool getFloat( const rapidjson::Value& data, string name, float& out ) {
+	const auto it = data.FindMember( name.c_str() );
+	if( it != data.MemberEnd() ) {
+		if( it->value.IsFloat() ) {
+			out = it->value.GetFloat();
+			return true;
+		}
+		else if( it->value.IsInt() ) {
+			out = float( it->value.GetInt() );
+			return true;
+		}
+	}
+
+	return false;
 }
 
 //================================================================================

@@ -9,6 +9,10 @@
 
 //================================================================================
 
+namespace Debug {
+
+//--------------------------------------------------------------------------------
+
 struct Timer {
 	string name;
 	sf::Clock clock;
@@ -35,10 +39,6 @@ vector< DebugMessage > messages;
 sf::Font font;
 
 //================================================================================
-
-namespace Debug {
-
-//--------------------------------------------------------------------------------
 
 void startTimer( string name ) {
 	const auto it = std::find_if( timers.begin(), timers.end(),
@@ -471,7 +471,7 @@ void PhysicsWindow::onUpdate( sf::Time deltaTime ) {
 			   jumpData.enabled ? "True" : "False", jumpData.canJump ? "True" : "False", jumpData.canJumpDown ? "True" : "False", jumpData.isJumpingDown ? "True" : "False",
 			   doubleJumpData.enabled ? "True" : "False", doubleJumpData.canDoubleJump ? "True" : "False", doubleJumpData.power,
 			   dashData.enabled ? "True" : "False", dashData.canDash ? "True" : "False", dashData.isDashing ? "True" : "False", dashData.power, dashData.release.x, dashData.release.y, dashData.cooldown.count(), dashData.duration.count(), dashData.animationStep.count(),
-			   wallClingData.enabled ? "True" : "False", wallClingData.isClinging ? "True" : "False", wallClingData.leniency, wallClingData.multiplier, wallClingData.min, wallClingData.max,
+			   wallClingData.enabled ? "True" : "False", wallClingData.isClinging ? "True" : "False", wallClingData.leniency, wallClingData.power, wallClingData.min, wallClingData.max,
 			   wallJumpData.enabled ? "True" : "False", wallJumpData.normal, wallJumpData.power, wallJumpData.direction.x, wallJumpData.direction.y, wallJumpData.duration.count() );
 
 	m_text.setString( sf::String( buffer ) );

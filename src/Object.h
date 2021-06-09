@@ -16,7 +16,12 @@ public:
 
 	// System
 public:
-	inline void destroy() { destroyObject( shared_from_this() ); }
+	inline void destroy() { 
+		destroyObject( shared_from_this() ); 
+		vector< shared_ptr< Object > > objects = getObjects( shared_from_this(), "" );
+		for( shared_ptr< Object > object : objects )
+			object->destroy();
+	}
 
 	// Events
 public:
@@ -31,7 +36,7 @@ public:
 	virtual inline void onPostRender() {} // For things that need to be done after all renders are complete
 	virtual inline void onExit() {} // When the game exits
 	virtual inline void onMessage( string message ) {} // When the object is sent a generic event message
-	virtual void onDestroy(); // When the object is marked for deletion
+	virtual void onDestroy() {} // When the object is marked for deletion
 
 // Collision
 public:

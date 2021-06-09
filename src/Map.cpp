@@ -159,7 +159,7 @@ vector< Map > maps;
 //================================================================================
 
 void loadMap( string name ) {
-	Debug::addMessage( "Loading Map: " + name, DebugType::Info );
+	Debug::addMessage( "Loading Map: " + name, Debug::DebugType::Info );
 	Debug::startTimer( "Map::Load" );
 
 	using namespace rapidjson;
@@ -182,7 +182,7 @@ void loadMap( string name ) {
 	fclose( pFile );
 
 	if( document.HasParseError() ) {
-		Debug::addMessage( "Map \"" + name + "\" has JSON parse error", DebugType::Error );
+		Debug::addMessage( "Map \"" + name + "\" has JSON parse error", Debug::DebugType::Error );
 		return;
 	}
 
@@ -230,13 +230,13 @@ void loadMap( string name ) {
 
 	Debug::stopTimer( "Map::Load" );
 
-	Debug::addMessage( "Map \"" + name + "\" loaded successfully.", DebugType::Info );
+	Debug::addMessage( "Map \"" + name + "\" loaded successfully.", Debug::DebugType::Info );
 }
 
 //--------------------------------------------------------------------------------
 
 void unloadMap( string name ) {
-	Debug::addMessage( "Map \"" + name + "\" unloaded.", DebugType::Info );
+	Debug::addMessage( "Map \"" + name + "\" unloaded.", Debug::DebugType::Info );
 	Debug::startTimer( "Map::Unload" );
 
 	const auto it = getMap( name );
@@ -333,16 +333,16 @@ bool loadTileset( rapidjson::Value& data, Tileset& tileset ) {
 //================================================================================
 
 void constructMap( string name, Object* world ) {
-	Debug::addMessage( "Constructing Map \"" + name + "\"", DebugType::Info );
+	Debug::addMessage( "Constructing Map \"" + name + "\"", Debug::DebugType::Info );
 	Debug::startTimer( "Map::Construct" );
 
 	// Constructing map without parent will leak memory
 	if( world == nullptr )
-		return Debug::addMessage( "Map \"" + name + "\" attempting construction without parent.", DebugType::Error );
+		return Debug::addMessage( "Map \"" + name + "\" attempting construction without parent.", Debug::DebugType::Error );
 
 	const auto it = getMap( name );
 	if( it == maps.end() )
-		return Debug::addMessage( "Map \"" + name + "\" not found for construction.", DebugType::Error );
+		return Debug::addMessage( "Map \"" + name + "\" not found for construction.", Debug::DebugType::Error );
 
 	const vector< Tileset >& tilesets = it->tilesets;
 	const Math::Vec2 mapTileSize = it->tileSize;
@@ -411,7 +411,7 @@ void constructMap( string name, Object* world ) {
 		Gfx::Tileset::unloadTileset( tileset.name );
 
 	Debug::stopTimer( "Map::Construct" );
-	Debug::addMessage( "Map \"" + name + "\" constructed successfully.", DebugType::Info );
+	Debug::addMessage( "Map \"" + name + "\" constructed successfully.", Debug::DebugType::Info );
 }
 
 //--------------------------------------------------------------------------------

@@ -50,21 +50,19 @@ void Player::onSpawnChildren() {
 	m_rightCollider->setSize( Math::Vec2( wallClingData.leniency, getSize().y ) );
 	m_rightCollider->setVelocity( Math::Vec2( 1.0f, 0.0 ) );
 
-	m_controller = makeObject< Input::PlayerController >( m_parent );
-
 	using namespace std::placeholders;
 	// Movement
-	m_controller->bindButton( "Jump", bindings.controller.jump, bindings.keyboard.jump, bind( &Player::jump, this, _1 ) );
-	m_controller->bindButton( "Dash", bindings.controller.dash, bindings.keyboard.dash, bind( &Player::dash, this, _1 ) );
-	m_controller->bindAxis( "Move X", bindings.controller.moveX, bindings.keyboard.moveX, nullptr );
-	m_controller->bindAxis( "Move Y", bindings.controller.moveY, bindings.keyboard.moveY, nullptr );
+	Input::bindButton( "Jump", bindings.controller.jump, bindings.keyboard.jump, bind( &Player::jump, this, _1 ) );
+	Input::bindButton( "Dash", bindings.controller.dash, bindings.keyboard.dash, bind( &Player::dash, this, _1 ) );
+	Input::bindAxis( "Move X", bindings.controller.moveX, bindings.keyboard.moveX, nullptr );
+	Input::bindAxis( "Move Y", bindings.controller.moveY, bindings.keyboard.moveY, nullptr );
 
 	// System
-	m_controller->bindButton( "Reset", bindings.controller.reset, bindings.keyboard.reset, bind( &Player::kill, this, _1, false ) );
-	m_controller->bindButton( "Restart", bindings.controller.restart, bindings.keyboard.restart, bind( &Player::kill, this, _1, true ) );
+	Input::bindButton( "Reset", bindings.controller.reset, bindings.keyboard.reset, bind( &Player::kill, this, _1, false ) );
+	Input::bindButton( "Restart", bindings.controller.restart, bindings.keyboard.restart, bind( &Player::kill, this, _1, true ) );
 
 	// Debug
-	m_controller->bindButton( "Debug", bindings.controller.debug, bindings.keyboard.debug, bind( &Player::debug, this, _1 ) );
+	Input::bindButton( "Debug", bindings.controller.debug, bindings.keyboard.debug, bind( &Player::debug, this, _1 ) );
 }
 
 //--------------------------------------------------------------------------------
@@ -76,26 +74,27 @@ void Player::onUpdate( sf::Time deltaTime ) {
 	if( !dashData.isDashing ) {
 		// Horizontal
 		{
-			float move = 0.0;
+			float move = 0.0f;
+			float axis = Input::getAxisState( "Move X" );
+			if( axis ) {
+				axis = pow( axis / 100.0f, 2.0f ) * 100.0f * ( axis / abs( axis ) );
+				move = axis * movementData.acceleration* deltaTime.asSeconds();
+			}
+
 			// Movement
-			if( abs( m_velocity.x ) <= movementData.maxSpeed && movementData.enabled ) {
-				// Input
-				move = m_controller->getAxisState( "Move X" ) * movementData.acceleration * deltaTime.asSeconds();
+			if( movementData.enabled && movementData.canMove && move &&
+				!( m_velocity.abs().x > movementData.maxSpeed * ( abs( axis ) / 100.0f ) && m_velocity.x / abs( m_velocity.x ) == move / abs( move ) ) ) {
 
 				// Air control
 				if( !jumpData.canJump )
 					move *= movementData.airMultiplier;
 
 				// Apply movement
-				if( abs( m_velocity.x + move ) > movementData.maxSpeed &&
-					m_velocity.x / abs( m_velocity.x ) == move / abs( move ) )
-					m_velocity.x = movementData.maxSpeed * ( move / abs( move ) );
-				else
-					m_velocity.x += move;
+				m_velocity.x += move;
 			}
 
 			// Friction
-			if( m_velocity.x && frictionData.enabled ) {
+			else if( m_velocity.x && frictionData.enabled ) {
 				float friction = frictionData.power * abs( m_velocity.x ) * deltaTime.asSeconds();
 
 				// Air resistance
@@ -114,20 +113,23 @@ void Player::onUpdate( sf::Time deltaTime ) {
 		{
 			// Gravity
 			if( gravityData.enabled ) {
-				m_velocity.y += gravityData.power * deltaTime.asSeconds();
+				float gravity = m_velocity.y < 0.0f ? m_velocity.y : 0.0f;
+				gravity = gravity > gravityData.min ? gravity : gravityData.min;
+				gravity = gravity * gravityData.power * deltaTime.asSeconds();
+				m_velocity.y += gravity;
 				m_velocity.y = m_velocity.y > gravityData.max ? gravityData.max : m_velocity.y;
 			}
 
 			// Jump Release
 			if( jumpData.isJumping )
-				if( !m_controller->getButtonState( "Jump" ) ) {
+				if( !Input::getButtonState( "Jump" ) ) {
 					m_velocity.y = std::max( m_velocity.y, -jumpData.release );
 					jumpData.isJumping = false;
 				}
 
 			// Wall Cling
 			if( wallClingData.isClinging && wallClingData.enabled ) {
-				float friction = wallClingData.multiplier * abs( m_velocity.y ) * deltaTime.asSeconds();
+				float friction = wallClingData.power * abs( m_velocity.y ) * deltaTime.asSeconds();
 				friction = std::clamp( friction, wallClingData.min * deltaTime.asSeconds(), wallClingData.max * deltaTime.asSeconds() );
 				if( abs( m_velocity.y ) < friction )
 					m_velocity.y = 0.0;
@@ -278,6 +280,12 @@ void Player::jump( bool pressed )
 	if( !pressed )
 		return;
 
+	// Dash Bounce
+	if( dashBounceData.enabled && dashBounceData.canDashBounce ) {
+		dashBounce();
+		return;
+	}
+
 	// Jump
 	if( jumpData.canJump && jumpData.enabled ) {
 		if( jumpData.canJumpDown && sf::Keyboard::isKeyPressed( sf::Keyboard::S ) )
@@ -287,14 +295,14 @@ void Player::jump( bool pressed )
 			jumpData.canJump = false;
 			jumpData.isJumping = true;
 		}
+		return;
 	}
 
-	// Dash Bounce
-	else if( dashBounceData.enabled && dashBounceData.canDashBounce )
-		dashBounce();
+	if( dashData.isDashing )
+		return;
 
 	// Wall Jump
-	else if( wallClingData.isClinging && wallJumpData.enabled ) {
+	if( wallClingData.isClinging && wallJumpData.enabled ) {
 		m_velocity.x = wallJumpData.direction.x * wallJumpData.power * wallJumpData.normal;
 		m_velocity.y = wallJumpData.direction.y * -wallJumpData.power;
 
@@ -303,25 +311,24 @@ void Player::jump( bool pressed )
 
 		Timers::addTimer( wallJumpData.duration,
 						  [this, acceleration, friction]( float alpha ) {
-							  float a;
-							  if( alpha == 1.0f )
-								  a = 1.0f;
-							  else
-								  a = ( log( 10.0f * pow( alpha, 9.0f ) ) + 6.0f ) * 0.1428557f;
-
-							  movementData.airMultiplier = a * acceleration;
-							  frictionData.airMultiplier = a * friction;
+							  movementData.airMultiplier = alpha * acceleration;
+							  frictionData.airMultiplier = alpha * friction;
 						  },
 						  nullptr, false );
+		return;
 	}
+
 	// Dash
-	else if( dashData.enabled && dashData.canDash )
+	if( dashData.enabled && dashData.canDash ) {
 		dash( true );
+		return;
+	}
 
 	// Double Jump
-	else if( doubleJumpData.canDoubleJump && doubleJumpData.enabled ) {
+	if( doubleJumpData.canDoubleJump && doubleJumpData.enabled ) {
 		m_velocity.y = -doubleJumpData.power;
 		doubleJumpData.canDoubleJump = false;
+		return;
 	}
 }
 
@@ -337,12 +344,9 @@ void Player::dash( bool pressed ) {
 	if( !dashData.canDash || !dashData.enabled )
 		return;
 
-	if( m_controller == nullptr )
-		return;
-
 	Math::Vec2 direction;
-	direction.x = m_controller->getAxisState( "Move X" );
-	direction.y = m_controller->getAxisState( "Move Y" );
+	direction.x = Input::getAxisState( "Move X" );
+	direction.y = Input::getAxisState( "Move Y" );
 
 	if( direction == Math::Vec2() )
 		return;
@@ -444,77 +448,21 @@ void Player::dashBounce() {
 
 	m_velocity *= dashBounceData.power;
 
-	Timers::removeTimer( m_dashTimer );
-	Timers::removeTimer( m_dashAnimationTimer );
-
-	m_dashTimer = Timers::addTimer( int( float( dashData.duration.count() ) * dashBounceData.durationMultiplier ),
-									nullptr,
-									[this] {
-										dashData.isDashing = false;
-										Timers::removeTimer( m_dashAnimationTimer );
-									}, false );
-
-
-
-	m_dashAnimationTimer = Timers::addTimer( dashData.animationStep,
-											 nullptr,
-											 [this] {
-												 shared_ptr< RigidRect > rect = makeObject< RigidRect >( this );
-												 rect->setRect( m_rect );
-												 sf::RectangleShape& r = rect->getRect();
-												 {
-													 sf::Color color = r.getFillColor();
-													 color.a = sf::Uint8( color.a * 0.9f );
-													 r.setFillColor( color );
-												 }
-												 {
-													 sf::Color color = r.getOutlineColor();
-													 color.a = sf::Uint8( color.a * 0.75f );
-													 r.setOutlineColor( color );
-												 }
-
-												 spriteData.dashShadows.push_back( rect );
-
-												 Timers::addTimer( 100,
-																   [this, rect]( float alpha ) {
-																	   if( this == nullptr )
-																		   return;
-																	   if( spriteData.dashShadows.empty() )
-																		   return;
-																	   if( spriteData.dashShadows.size() > 255u )
-																		   return;
-
-																	   const auto it = std::find( spriteData.dashShadows.begin(),
-																								  spriteData.dashShadows.end(),
-																								  rect );
-																	   if( it == spriteData.dashShadows.end() )
-																		   return;
-
-																	   sf::Color color = ( *it )->getRect().getFillColor();
-																	   sf::Color outline = ( *it )->getRect().getOutlineColor();
-																	   color.a = sf::Uint8( ( 0.6f - alpha * 0.6 ) * 255.0f );
-																	   outline.a = sf::Uint8( ( 0.6f - alpha * 0.6 ) * 255.0f );
-																	   ( *it )->setColor( color );
-																	   ( *it )->getRect().setOutlineColor( outline );
-																   },
-																   [this, rect] {
-																	   if( this == nullptr )
-																		   return;
-																	   if( spriteData.dashShadows.empty() )
-																		   return;
-																	   if( spriteData.dashShadows.size() > 255u )
-																		   return;
-
-																	   const auto it = std::find( spriteData.dashShadows.begin(),
-																								  spriteData.dashShadows.end(),
-																								  rect );
-																	   if( it != spriteData.dashShadows.end() )
-																		   spriteData.dashShadows.erase( it );
-																   }, false );
-											 }, true );
-
 	dashBounceData.canDashBounce = false;
 	dashBounceData.direction = Math::Vec2();
+
+	dashData.isDashing = false;
+	Timers::removeTimer( m_dashTimer );
+	Timers::removeTimer( m_dashAnimationTimer ); 
+
+	float acceleration = movementData.airMultiplier;
+	float friction = frictionData.airMultiplier;
+	Timers::addTimer( wallJumpData.duration,
+					  [this, acceleration, friction]( float alpha ) {
+						  movementData.airMultiplier = alpha * acceleration;
+						  frictionData.airMultiplier = alpha * friction;
+					  },
+					  nullptr, false );
 }
 
 //--------------------------------------------------------------------------------
@@ -530,7 +478,6 @@ void Player::kill( bool pressed, bool restart ) {
 	Timers::removeTimer( m_dashTimer );
 
 	spriteData.dashShadows.clear();
-	m_controller->destroy();
 
 	System::getWorld()->reset();
 }

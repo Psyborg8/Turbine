@@ -6,7 +6,7 @@
 
 #include "RigidRect.h"
 #include "Timer.h"
-#include "PlayerController.h"
+#include "Input.h"
 
 //================================================================================
 
@@ -51,8 +51,6 @@ private:
 	shared_ptr< RigidRect > m_leftCollider;
 	shared_ptr< RigidRect > m_rightCollider;
 
-	shared_ptr< Input::PlayerController > m_controller;
-
 	// Timers
 private:
 	Timers::TimerID m_dashCooldownTimer;
@@ -93,26 +91,28 @@ public:
 
 	struct {
 		bool enabled{ true };
+		bool canMove{ true };
 
-		float acceleration{ 16.0f };
-		float maxSpeed{ 85.0f };
-		float airMultiplier{ 0.8f };
+		float acceleration{ 22.0f };
+		float maxSpeed{ 100.0f };
+		float airMultiplier{ 0.7f };
 	} movementData;
 
 	struct {
 		bool enabled{ true };
 
-		float power{ 288.0f };
-		float max{ 196.0f };
+		float power{ 20.0f };
+		float max{ 250.0f };
+		float min{ 20.0f };
 	} gravityData;
 
 	struct {
 		bool enabled{ true };
 
-		float power{ 12.5f };
-		float min{ 128.0f };
+		float power{ 17.5f };
+		float min{ 8.0f };
 		float max{ 800.0f };
-		float airMultiplier{ 0.002f };
+		float airMultiplier{ 0.2f };
 	} frictionData;
 
 	struct {
@@ -122,8 +122,8 @@ public:
 		bool canJumpDown{ false };
 		bool isJumpingDown{ false };
 
-		float power{ 160.0f };
-		float release{ 72.0f };
+		float power{ 180.0f };
+		float release{ 96.0f };
 	} jumpData;
 
 	struct {
@@ -135,24 +135,32 @@ public:
 
 	struct {
 		bool enabled{ true };
+		bool canAttack{ true };
+
+		Math::Vec2 size{ 8.0f, 8.0f };
+		float power{ 50.0f };
+	} attackData;
+
+	struct {
+		bool enabled{ true };
 		bool canDash{ true };
 		bool isDashing{ false };
 
-		float power{ 280.0f };
+		float power{ 300.0f };
 		Math::Vec2 release{ 32.0f, 32.0f };
 		milliseconds cooldown{ 1000 };
-		milliseconds duration{ 150 };
+		milliseconds duration{ 175 };
 		
-		milliseconds animationStep{ 15 };
+		milliseconds animationStep{ 35 };
 	} dashData;
 
 	struct {
 		bool enabled{ true };
 		bool canDashBounce{ false };
 
-		float power{ 0.8f };
+		float power{ 0.75f };
 		Math::Vec2 direction{ 0.0f, 0.0f };
-		float durationMultiplier{ 0.75f };
+		float durationMultiplier{ 0.5f };
 		milliseconds leniency{ 200 };
 	} dashBounceData;
 
@@ -160,19 +168,19 @@ public:
 		bool enabled{ true };
 		bool isClinging{ false };
 		
+		float power{ 2.0f };
 		float leniency{ 2.5f };
-		float multiplier{ 0.2f };
 		float min{ 32.0f };
-		float max{ 128.0f };
+		float max{ 512.0f };
 	} wallClingData;
 
 	struct {
 		bool enabled{ true };
 		float normal{ 0.0f };
 
-		float power{ 245.0f };
-		Math::Vec2 direction{ 0.55f, 0.45f };
-		milliseconds duration{ 550 };
+		float power{ 300.0f };
+		Math::Vec2 direction{ 0.45f, 0.55f };
+		milliseconds duration{ 500 };
 	} wallJumpData;
 };
 

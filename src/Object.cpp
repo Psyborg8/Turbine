@@ -8,15 +8,6 @@
 
 //================================================================================
 
-void Object::onDestroy() {
-	vector< shared_ptr< Object > > objects = getObjects( shared_from_this(), "" );
-	for( shared_ptr< Object > object : objects )
-		object->destroy();
-
-}
-
-//--------------------------------------------------------------------------------
-
 void Object::processCollisions( vector< shared_ptr< Object > > targets ) {
 	for( shared_ptr< Object > target : targets ) {
 		const Collision::CollisionResult result = isColliding( target );

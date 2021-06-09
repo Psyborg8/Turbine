@@ -8,6 +8,7 @@
 #include "Random.h"
 #include "Timer.h"
 #include "Debug.h"
+#include "Input.h"
 
 // Worlds
 #include "SFMLWorld.h"
@@ -44,8 +45,8 @@ sf::Clock clock;
 
 bool init( int argc, char** argv ) {
 
-	//window.create( sf::VideoMode::getFullscreenModes()[0], "Project Bullet", sf::Style::Fullscreen  );
-	window.create( sf::VideoMode( systemInfo.width, systemInfo.height ), "Project Bullet" );
+	window.create( sf::VideoMode::getFullscreenModes()[0], "Project Bullet", sf::Style::Fullscreen  );
+	//window.create( sf::VideoMode( systemInfo.width, systemInfo.height ), "Project Bullet" );
 	window.setVerticalSyncEnabled( false );
 	window.setKeyRepeatEnabled( false );
 
@@ -63,8 +64,10 @@ bool init( int argc, char** argv ) {
 int start() {
 	Debug::startTimer( "System::Make World" );
 	world = Object::makeObject< Worlds::SFMLWorld >( nullptr );
-	// world = Object::makeObject< CollisionWorld >( nullptr );
+	//world = Object::makeObject< CollisionWorld >( nullptr );
 	Debug::stopTimer( "System::Make World" );
+
+	Input::start( world.get() );
 	
 	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true );
 	

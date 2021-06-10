@@ -54,6 +54,17 @@ void Player::onSpawnChildren() {
 	m_attackCollider->setCollisionType( CollisionType::Static );
 	m_attackCollider->setColor( Colors::CYAN );
 
+	{
+		m_wallAttackCollider = make_shared< RigidRect >();
+		Math::Vec2 size;
+		size.x = attackData.size.x * 2.0f + getSize().x;
+		size.y = attackData.size.y;
+		m_wallAttackCollider->setSize( size );
+		m_wallAttackCollider->setVelocity( Math::Vec2( 0.1f, 0.0f ) );
+		m_wallAttackCollider->setCollisionType( CollisionType::Static );
+		m_wallAttackCollider->setColor( Math::Color( 1.0f, 1.0f, 1.0f, 0.5f ) );
+	}
+
 	using namespace std::placeholders;
 	// Movement
 	Input::bindButton( "Jump", bindings.controller.jump, bindings.keyboard.jump, bind( &Player::jump, this, _1 ) );
@@ -84,6 +95,9 @@ void Player::onUpdate( sf::Time deltaTime ) {
 				axis = pow( axis / 100.0f, 2.0f ) * 100.0f * ( axis / abs( axis ) );
 				move = axis * movementData.acceleration* deltaTime.asSeconds();
 			}
+
+			if( move )
+				movementData.direction = move / abs( move );
 
 			// Movement
 			if( movementData.enabled && movementData.canMove && move &&
@@ -182,6 +196,7 @@ void Player::onProcessCollisions()
 	// Physics resolution
 	Debug::startTimer( "Player::Resolve Collisions" );
 	targets.insert( targets.end(), walls.begin(), walls.end() );
+	targets = sortObjectsByDistance( targets, getPosition(), 64.0f );
 	resolveCollisions( targets, true );
 	Debug::stopTimer( "Player::Resolve Collisions" );
 
@@ -196,6 +211,7 @@ void Player::onProcessCollisions()
 	targets.insert( targets.end(), checkpoints.begin(), checkpoints.end() );
 	targets.insert( targets.end(), levelEnds.begin(), levelEnds.end() );
 	targets.insert( targets.end(), traps.begin(), traps.end() );
+	targets = sortObjectsByDistance( targets, getPosition(), 64.0f );
 	processCollisions( targets );
 	Debug::stopTimer( "Player::Checkpoint Detection" );
 
@@ -204,6 +220,7 @@ void Player::onProcessCollisions()
 		Debug::startTimer( "Player::Attack Detection" );
 		targets.clear();
 		targets.insert( targets.end(), walls.begin(), walls.end() );
+		targets = sortObjectsByDistance( targets, getPosition(), 64.0f );
 		attackHitbox( targets );
 		Debug::stopTimer( "Player::Attack Detection" );
 	}
@@ -229,8 +246,8 @@ void Player::onRender() {
 	for( shared_ptr< RigidRect > shadow : spriteData.dashShadows )
 		System::getWindow()->draw( shadow->getRect() );
 
-	if( attackData.isVisible )
-		System::getWindow()->draw( m_attackCollider->getRect() );
+	m_attackCollider->onRender();
+	m_wallAttackCollider->onRender();
 
 	System::getWindow()->draw( m_rect );
 
@@ -501,14 +518,19 @@ void Player::attack( bool pressed ) {
 			attackData.direction.x = 0.0f;
 	}
 
+	// Neutral attack
 	if( !attackData.direction.length() )
-		return;
+		// While on the ground we use the direction the player is facing
+		if( !jumpData.canJump )
+			attackData.direction = Math::Vec2( movementData.direction, 0.0f );
+
+	// While in the air, we need to look for walls to hit in attackHitbox
 
 	attackData.isAttacking = true;
-	attackData.isVisible = true;
+	m_attackCollider->setVisibility( true );
 
 	Timers::removeTimer( m_attackRenderTimer );
-	m_attackRenderTimer = Timers::addTimer( 10, nullptr, [this] { attackData.isVisible = false; }, false );
+	m_attackRenderTimer = Timers::addTimer( 34, nullptr, [this] { m_attackCollider->setVisibility( false ); }, false );
 }
 
 //--------------------------------------------------------------------------------
@@ -522,6 +544,8 @@ void Player::kill( bool pressed, bool restart ) {
 	Timers::removeTimer( m_dashAnimationTimer );
 	Timers::removeTimer( m_dashCooldownTimer );
 	Timers::removeTimer( m_dashTimer );
+	Timers::removeTimer( m_attackTimer );
+	Timers::removeTimer( m_attackRenderTimer );
 
 	spriteData.dashShadows.clear();
 
@@ -582,11 +606,31 @@ void Player::extendedHitbox( vector< shared_ptr< Object > > targets ) {
 	}
 }
 
+//--------------------------------------------------------------------------------
 
-
-void Player::attackHitbox( vector< shared_ptr< Object > > targets ) {
+void Player::attackHitbox( vector< shared_ptr< Object > > targets, bool firstPass ) {
 	attackData.isAttacking = false;
-	jumpData.isJumping = false;
+
+	// Look for walls to hit if the attack was neutral and we're in the air
+	if( !attackData.direction.length() ) {
+		Math::Vec2 position;
+		position.x = getPosition().x - attackData.size.x;
+		position.y = getPosition().y + ( getSize().y / 2.0f ) - ( m_wallAttackCollider->getSize().y / 2.0f );
+		m_wallAttackCollider->setPosition( position );
+
+		for( shared_ptr< Object > target : targets ) {
+			const Collision::CollisionResult result = m_wallAttackCollider->isColliding( target );
+
+			if( result.success ) {
+				attackData.direction.x = result.point.x - getPosition().x;
+				attackData.direction.x /= abs( attackData.direction.x );
+				break;
+			}
+		}
+	}
+
+	if( !attackData.direction.length() )
+		return;
 
 	// Calculate size from direction
 	Math::Vec2 size;
@@ -603,7 +647,7 @@ void Player::attackHitbox( vector< shared_ptr< Object > > targets ) {
 
 		position.y = getPosition().y + ( getSize().y / 2.0f ) - ( size.y / 2.0f );
 	}
-	else {
+	if( attackData.direction.y ) {
 		if( attackData.direction.y > 0.0f )
 			position.y = getPosition().y + getSize().y;
 		else
@@ -628,23 +672,34 @@ void Player::attackHitbox( vector< shared_ptr< Object > > targets ) {
 		}
 	}
 
-	if( !collision )
-		return;
+	// If we're attempting a vertical attack and there's nothing to hit, check the sides instead
+	if( !collision ) {
+		if( firstPass ) {
+			attackData.direction = Math::Vec2();
+			attackHitbox( targets, false );
+			return;
+		}
+	}
 
+	// Horizontal Attack
 	if( attackData.direction.x ) {
-		m_velocity.x *= -1.0f;
-		m_velocity.x += attackData.power * -attackData.direction.normalize().x;
+		// Carry over existing X momentum
+		m_velocity.x *= -1.0f; 
 
+		// Raise to the minimum if necessary
 		if( abs( m_velocity.x ) < attackData.min.x )
 			m_velocity.x = attackData.min.x * -attackData.direction.normalize().x;
 
+		// If the player is falling, use that momentum too
 		if( m_velocity.y > 0.0f )
 			m_velocity.x += m_velocity.y * attackData.fallTransferMultiplier * -attackData.direction.normalize().x;
 
-		m_velocity.y -= attackData.power * 1.5f;
-		if( m_velocity.y > -( attackData.min.y / 4.0f ) )
-			m_velocity.y = -( attackData.min.y / 4.0f );
+		// Add some height too
+		m_velocity.y -= attackData.power;
+		if( m_velocity.y > -( attackData.min.y / 1.75f ) )
+			m_velocity.y = -( attackData.min.y / 1.75f );
 
+		// LERP air movement from 0 back up to the original. So the player can't halt their momentum immediately
 		Timers::triggerTimer( m_attackTimer );
 		float acceleration = movementData.airMultiplier;
 		float friction = frictionData.airMultiplier;
@@ -655,19 +710,29 @@ void Player::attackHitbox( vector< shared_ptr< Object > > targets ) {
 						  },
 						  nullptr, false );
 	}
+	// Vertical attack
 	else {
+		// Carry over existing Y momentum
 		m_velocity.y *= -1.0f;
-		m_velocity.y += attackData.power * -attackData.direction.normalize().y;
 
+		// Raise to the minimum if necessary
 		if( abs( m_velocity.y ) < attackData.min.y )
 			m_velocity.y = attackData.min.y * -attackData.direction.normalize().y;
 
+		// If we already have a minimum of X momentum, add some more
 		if( abs( m_velocity.x ) > attackData.min.x / 10.0f ) {
 			m_velocity.x += ( attackData.power / 4.0f ) * ( m_velocity.x / abs( m_velocity.x ) );
-			if( abs( m_velocity.x ) < attackData.min.y / 4.0f )
-				m_velocity.x = attackData.min.x / 4.0f * ( m_velocity.x / abs( m_velocity.x ) );
+			if( abs( m_velocity.x ) < attackData.min.y / 3.0f )
+				m_velocity.x = attackData.min.x / 3.0f * ( m_velocity.x / abs( m_velocity.x ) );
 		}
 	}
+
+	jumpData.isJumping = false;
+	dashData.isDashing = false;
+	dashData.canDash = true;
+	Timers::removeTimer( m_dashTimer );
+	Timers::removeTimer( m_dashCooldownTimer );
+	Timers::removeTimer( m_dashAnimationTimer );
 }
 
 //================================================================================

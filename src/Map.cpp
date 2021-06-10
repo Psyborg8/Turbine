@@ -472,7 +472,6 @@ void constructCollider( const Tile& tile, Math::Vec2 position, Object* world ) {
 			trap->setColor( Colors::CLEAR );
 			trap->getRect().setOutlineColor( sf::Color::Red );
 			trap->getRect().setOutlineThickness( 0.2f );
-			trap->setVisibility( true );
 		}
 
 		if( normal.y ) {
@@ -483,7 +482,6 @@ void constructCollider( const Tile& tile, Math::Vec2 position, Object* world ) {
 			trap->setColor( Colors::CLEAR );
 			trap->getRect().setOutlineColor( sf::Color::Red );
 			trap->getRect().setOutlineThickness( 0.35f );
-			trap->setVisibility( true );
 
 			Math::Vec2 pos;
 			pos.y = normal.y > 0.0f ? position.y : position.y + 16.0f - trap->getSize().y;
@@ -499,9 +497,8 @@ void constructCollider( const Tile& tile, Math::Vec2 position, Object* world ) {
 	object->setSize( Math::Vec2( 16.0f, 16.0f ) );
 	object->setCollisionType( CollisionType::Static );
 	object->setColor( Colors::CLEAR );
-	object->getRect().setOutlineColor( sf::Color( 180u, 180u, 180u, 255u ) );
+	object->getRect().setOutlineColor( sf::Color( 150u, 150u, 150u, 255u ) );
 	object->getRect().setOutlineThickness( 0.25f );
-	object->setVisibility( true );
 	object->setName( "Wall" );
 }
 

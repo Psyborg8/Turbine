@@ -45,8 +45,8 @@ sf::Clock clock;
 
 bool init( int argc, char** argv ) {
 
-	window.create( sf::VideoMode::getFullscreenModes()[0], "Project Bullet", sf::Style::Fullscreen  );
-	//window.create( sf::VideoMode( systemInfo.width, systemInfo.height ), "Project Bullet" );
+	//window.create( sf::VideoMode::getFullscreenModes()[0], "Project Bullet", sf::Style::Fullscreen  );
+	window.create( sf::VideoMode( systemInfo.width, systemInfo.height ), "Project Bullet" );
 	window.setVerticalSyncEnabled( false );
 	window.setKeyRepeatEnabled( false );
 

@@ -119,8 +119,8 @@ public:
 
 	// Return all objects made using Object::makeObject
 	inline static vector< shared_ptr< Object > > getObjects( shared_ptr< Object > parent = nullptr,
-												  string name = "",
-												  bool inclusive = false )
+															 string name = "",
+															 bool inclusive = false )
 	{
 		// If there's no name or parent, we just want everything
 		if( parent == nullptr && name == "" )
@@ -184,6 +184,30 @@ public:
 			if( ptr != nullptr )
 				out.insert( out.begin(), ptr );
 		}
+
+		return out;
+	}
+
+	//--------------------------------------------------------------------------------
+
+	inline static vector< shared_ptr< Object > > sortObjectsByDistance( vector< shared_ptr< Object > > targets,
+																		Math::Vec2 position,
+																		float maxDistance = 0.0f )
+	{
+		vector< shared_ptr< Object > > out;
+		if( maxDistance == 0.0f )
+			out = targets;
+		else {
+			for( shared_ptr< Object > object : targets ) {
+				if( ( object->getPosition() - position ).length() <= maxDistance )
+					out.push_back( object );
+			}
+		}
+
+		std::sort( out.begin(), out.end(),
+				   [position]( const shared_ptr< Object >& a, const shared_ptr< Object >& b ) {
+					   return ( a->getPosition() - position ).length() < ( b->getPosition() - position ).length();
+				   } );
 
 		return out;
 	}

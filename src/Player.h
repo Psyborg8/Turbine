@@ -45,7 +45,7 @@ public:
 
 private:
 	void extendedHitbox( vector< shared_ptr< Object > > targets );
-	void attackHitbox( vector< shared_ptr< Object > > targets );
+	void attackHitbox( vector< shared_ptr< Object > > targets, bool firstPass = true );
 
 	// Variables
 private:
@@ -54,6 +54,7 @@ private:
 	shared_ptr< RigidRect > m_leftCollider;
 	shared_ptr< RigidRect > m_rightCollider;
 	shared_ptr< RigidRect > m_attackCollider;
+	shared_ptr< RigidRect > m_wallAttackCollider;
 
 	// Timers
 private:
@@ -99,6 +100,7 @@ public:
 		bool enabled{ true };
 		bool canMove{ true };
 
+		float direction{ 1.0f };
 		float acceleration{ 22.0f };
 		float maxSpeed{ 100.0f };
 		float airMultiplier{ 0.7f };
@@ -143,12 +145,11 @@ public:
 		bool enabled{ true };
 		bool canAttack{ true };
 		bool isAttacking{ false };
-		bool isVisible{ false };
 
 		float power{ 25.0f };
-		float fallTransferMultiplier{ 0.5f };
+		float fallTransferMultiplier{ 0.3f };
 		Math::Vec2 direction{ 0.0f, 0.0f };
-		Math::Vec2 size{ 12.0f, 6.0f };
+		Math::Vec2 size{ 16.0f, 6.0f };
 		Math::Vec2 min{ 150.0f, 180.0f };
 		milliseconds duration{ 600 };
 	} attackData;
@@ -158,10 +159,10 @@ public:
 		bool canDash{ true };
 		bool isDashing{ false };
 
-		float power{ 300.0f };
+		float power{ 250.0f };
 		Math::Vec2 release{ 32.0f, 32.0f };
 		milliseconds cooldown{ 1000 };
-		milliseconds duration{ 175 };
+		milliseconds duration{ 200 };
 		
 		milliseconds animationStep{ 25 };
 	} dashData;
@@ -183,11 +184,11 @@ public:
 		float power{ 2.0f };
 		float leniency{ 2.5f };
 		float min{ 32.0f };
-		float max{ 256.0f };
+		float max{ 128.0f };
 	} wallClingData;
 
 	struct {
-		bool enabled{ true };
+		bool enabled{ false };
 		float normal{ 0.0f };
 
 		float power{ 300.0f };

@@ -9,7 +9,6 @@
 #include "RigidRect.h"
 #include "Map.h"
 #include "System.h"
-#include "Player.h"
 #include "Debug.h"
 
 //================================================================================
@@ -41,16 +40,13 @@ void SFMLWorld::onSpawnChildren() {
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onStart() {
-	Gfx::Map::loadMap( "Dungeon 1-2" );
-	Gfx::Map::constructMap( "Dungeon 1-2", this );
-
+	m_currentMap = "Dungeon 1-2";
+	Gfx::Map::loadMap( m_currentMap );
+	Gfx::Map::constructMap( m_currentMap, this );
 	m_backgroundColor = Math::Color( sf::Color( 22u, 22u, 22u, 255u ) );
 
-	const vector< shared_ptr< Game::Player > > players = Object::getObjects< Game::Player >();
-	if( players.empty() )
-		return;
-	const shared_ptr< Game::Player > player = Object::getObjects< Game::Player >().at( 0 );
-	m_levelStart = player->getSpawn();
+	m_player = Object::getObjects< Game::Player >().at( 0 );
+	m_levelStart = m_player->getSpawn();
 
 	m_timer->reset();
 }
@@ -59,18 +55,14 @@ void SFMLWorld::onStart() {
 
 void SFMLWorld::onRender() {
 	if( m_visibility )
-		Gfx::Map::renderMap( "Dungeon 1-2" );
+		Gfx::Map::renderMap( m_currentMap );
 }
 
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onUpdate( sf::Time deltaTime ) {
-	const vector< shared_ptr< Game::Player > > players = Object::getObjects< Game::Player >();
-	if( players.empty() )
-		return;
-
-	const shared_ptr< Game::Player > player = Object::getObjects< Game::Player >().at( 0 );
-	Math::Vec2 pos = player->getPosition();
+	Debug::startTimer( "World::Update" );
+	Math::Vec2 pos = m_player->getPosition();
 	pos.y += 0.5;
 
 	const Math::Vec2 direction = pos - m_camera.getPosition();
@@ -83,16 +75,13 @@ void SFMLWorld::onUpdate( sf::Time deltaTime ) {
 
 		m_camera.setPosition( newPos );
 	}
+	Debug::stopTimer( "World::Update" );
 }
 
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onEvent( sf::Event e ) {
-	const vector< shared_ptr< Game::Player > > players = Object::getObjects< Game::Player >();
-	if( players.empty() )
-		return;
-
-	const shared_ptr< Game::Player > player = Object::getObjects< Game::Player >().at( 0 );
+	//
 }
 
 //--------------------------------------------------------------------------------
@@ -109,12 +98,7 @@ void SFMLWorld::onMessage( string message ) {
 		return;
 	}
 	if( message == "Player Restart" ) {
-		const vector< shared_ptr< Game::Player > > players = Object::getObjects< Game::Player >();
-		if( players.empty() )
-			return;
-
-		const shared_ptr< Game::Player > player = Object::getObjects< Game::Player >().at( 0 );
-		player->setSpawn( m_levelStart );
+		m_player->setSpawn( m_levelStart );
 	}
 	if( message == "Flip Debug Page" ) {
 		m_timer->setVisibility( false );
@@ -141,34 +125,26 @@ void SFMLWorld::onMessage( string message ) {
 
 Timers::TimerID playerSpawnTimer;
 void SFMLWorld::reset() {
-	const vector< shared_ptr< Game::Player > > players = Object::getObjects< Game::Player >();
-	if( players.empty() )
-		return;
-
-	const shared_ptr< Game::Player > player = Object::getObjects< Game::Player >().at( 0 );
-	Math::Vec2 spawn = player->getSpawn();
-	player->destroy();
+	Math::Vec2 spawn = m_player->getSpawn();
+	m_player->destroy();
 
 	if( Timers::timerStillActive( playerSpawnTimer ) )
 		return;
 
 	playerSpawnTimer = Timers::addTimer( 1000, nullptr,
-					  [spawn, this] {
-						  shared_ptr< Game::Player > player = Object::makeObject< Game::Player >( this );
-						  player->setPosition( spawn );
-						  player->setSpawn( spawn );
-						  if( spawn == m_levelStart ) {
-							  m_timer->reset();
+										 [spawn, this] {
+											 m_player = Object::makeObject< Game::Player >( this );
+											 m_player->setPosition( spawn );
+											 m_player->setSpawn( spawn );
+											 if( spawn == m_levelStart ) {
+												 m_timer->reset();
 
-
-							  vector< shared_ptr< Object > > checkpoints = Object::getObjects( nullptr, "Checkpoint" );
-							  const vector< shared_ptr< Object > > levelEnds = Object::getObjects( nullptr, "Level End" );
-							  checkpoints.insert( checkpoints.end(), levelEnds.begin(), levelEnds.end() );
-							  for( shared_ptr< Object > checkpoint : checkpoints )
-								  checkpoint->setParent( this );
-						  }
-					  },
-					  false );
+												 vector< shared_ptr< Object > > checkpoints = Gfx::Map::getObjects( m_currentMap, "Checkpoint" );
+												 for( shared_ptr< Object > checkpoint : checkpoints )
+													 checkpoint->setCollisionType( CollisionType::Static );
+											 }
+										 },
+										 false );
 }
 
 //================================================================================

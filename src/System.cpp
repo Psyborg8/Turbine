@@ -69,11 +69,8 @@ int start() {
 
 	Input::start( world.get() );
 	
-	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true );
-	
 	Debug::startTimer( "System::Start" );
-	for( shared_ptr< Object > object : objects )
-		object->onStart();
+	world->start();
 	Debug::stopTimer( "System::Start" );
 
 	while( window.isOpen() )
@@ -124,51 +121,53 @@ void update() {
 
 	// Limit the deltaTime if the frame took too long.
 	// So we can stop the game during breakpoints.
+#ifdef _DEBUG
 	if( time.asMilliseconds() > 100 )
 		time = sf::Time( sf::milliseconds( 17 ) );
+#endif
 
 	deltaTime = time;
 
 	// Update timers
 	Timers::update();
 
-	// Update the current world
-	vector< shared_ptr< Object > > objects = Object::getObjects( getWorld(), "", true );
-
+	// Update the current worl
 	// Event handling
 	Debug::startTimer( "System::Event Handling" );
 	sf::Event e;
 	while( window.pollEvent( e ) ) {
-		for( shared_ptr< Object > object : objects ) {
-			object->onEvent( e );
+		// Filter out the most expensive events.
+		// Use sf::Mouse::getPosition or sf::Joystick::getAxisPosition instead
+		if( e.type == sf::Event::MouseMoved )
+			break;
+		if( e.type == sf::Event::JoystickMoved )
+			break;
 
-			if( e.type == sf::Event::KeyPressed )
-				if( e.key.code == sf::Keyboard::Escape )
-					window.close();
-			if( e.type == sf::Event::Resized ) {
-				systemInfo.width = e.size.width;
-				systemInfo.height = e.size.height;
-				window.setSize( sf::Vector2u( systemInfo.width, systemInfo.height ) );
-				world->getCamera().calculate();
-			}
-			if( e.type == sf::Event::Closed )
+		world->event( e );
+
+		if( e.type == sf::Event::KeyPressed )
+			if( e.key.code == sf::Keyboard::Escape )
 				window.close();
+		if( e.type == sf::Event::Resized ) {
+			systemInfo.width = e.size.width;
+			systemInfo.height = e.size.height;
+			window.setSize( sf::Vector2u( systemInfo.width, systemInfo.height ) );
+			world->getCamera().calculate();
 		}
+		if( e.type == sf::Event::Closed )
+			window.close();
 	}
 	Debug::stopTimer( "System::Event Handling" );
 
 	// Update physics
 	Debug::startTimer( "System::Update" );
-	for( shared_ptr< Object > object : objects )
-		object->onUpdate( time );
+	world->update( time );
 	Debug::stopTimer( "System::Update" );
 	Debug::startTimer( "System::Process Collisions" );
-	for( shared_ptr< Object > object : objects )
-		object->onProcessCollisions();
+	world->processCollisions();
 	Debug::stopTimer( "System::Process Collisions" );
 	Debug::startTimer( "System::Post Update" );
-	for( shared_ptr< Object > object : objects )
-		object->onPostUpdate( time );
+	world->postUpdate( time );
 	Debug::stopTimer( "System::Post Update" );
 
 	// Cleanup
@@ -180,12 +179,10 @@ void update() {
 	window.clear( world->getBackgroundColor().sf() );
 
 	Debug::startTimer( "System::Render" );
-	for( shared_ptr< Object > object : objects )
-		object->onRender();
+	world->render();
 	Debug::stopTimer( "System::Render" );
 	Debug::startTimer( "System::Post Render" );
-	for( shared_ptr< Object > object : objects )
-		object->onPostRender();
+	world->postRender();
 	Debug::stopTimer( "System::Post Render" );
 
 	Debug::startTimer( "System::Display" );

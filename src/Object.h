@@ -16,11 +16,13 @@ public:
 
 	// System
 public:
-	inline void destroy() { 
-		destroyObject( shared_from_this() ); 
-		vector< shared_ptr< Object > > objects = getObjects( shared_from_this(), "" );
-		for( shared_ptr< Object > object : objects )
-			object->destroy();
+	inline void addChild( shared_ptr< Object > child ) { if( isMarkedForRemoval() ) return; m_children.push_back( child ); }
+	inline void removeChild( shared_ptr< Object > child ) {
+		if( isMarkedForRemoval() ) 
+			return;
+		const auto it = std::find( m_children.begin(), m_children.end(), child );
+		if( it != m_children.end() )
+			m_children.erase( it );
 	}
 
 	// Events
@@ -37,6 +39,19 @@ public:
 	virtual inline void onExit() {} // When the game exits
 	virtual inline void onMessage( string message ) {} // When the object is sent a generic event message
 	virtual void onDestroy() {} // When the object is marked for deletion
+
+public:
+	// Call events for object and children of object
+	inline void event( sf::Event e ) { if( isMarkedForRemoval() ) return; onEvent( e ); for( shared_ptr< Object > child : m_children ) child->event( e ); }
+	inline void spawnChildren() { if( isMarkedForRemoval() ) return; onSpawnChildren(); for( shared_ptr< Object > child : m_children ) child->spawnChildren(); }
+	inline void start() { onStart(); if( isMarkedForRemoval() ) return; for( shared_ptr< Object > child : m_children ) child->start(); }
+	inline void update( sf::Time dt ) { if( isMarkedForRemoval() ) return; onUpdate( dt ); for( shared_ptr< Object > child : m_children ) child->update( dt ); }
+	inline void processCollisions() { if( isMarkedForRemoval() ) return; onProcessCollisions(); for( shared_ptr< Object > child : m_children ) child->processCollisions(); }
+	inline void postUpdate( sf::Time dt ) { if( isMarkedForRemoval() ) return; onPostUpdate( dt ); for( shared_ptr< Object > child : m_children ) child->postUpdate( dt ); }
+	inline void render() { if( isMarkedForRemoval() ) return; onRender(); for( shared_ptr< Object > child : m_children ) child->render(); }
+	inline void postRender() { if( isMarkedForRemoval() ) return; onPostRender(); for( shared_ptr< Object > child : m_children ) child->postRender(); }
+	inline void exit() { if( isMarkedForRemoval() ) return; onExit(); for( shared_ptr< Object > child : m_children ) child->exit(); }
+	inline void destroy() { if( isMarkedForRemoval() ) return; s_markedForDeletion.push_back( shared_from_this() ); for( shared_ptr< Object > child : m_children ) child->destroy(); }
 
 // Collision
 public:
@@ -64,13 +79,17 @@ public:
 	inline bool getVisibility() const { return m_visibility; }
 	inline void setVisibility( bool visible ) { m_visibility = visible; }
 
+	inline bool isMarkedForRemoval() const { return m_markedForRemoval; }
+
 	// Variables
 protected:
 	Object* m_parent{ nullptr };
+	vector< shared_ptr< Object > > m_children;
 	string m_name{ "" };
 	CollisionType m_collisionType{ CollisionType::None };
 	Math::Vec2 m_position;
 	bool m_visibility{ false };
+	bool m_markedForRemoval{ false };
 
 
 	/* Static */
@@ -84,20 +103,19 @@ public:
 
 		shared_ptr< Object > ptrObj = std::dynamic_pointer_cast< Object >( ptr );
 		if( ptrObj != nullptr ) {
-			ptrObj->setParent( parent );
-			ptrObj->onSpawnChildren();
+			if( parent != nullptr ) {
+				if( parent->isMarkedForRemoval() )
+					return nullptr;
 
+				ptrObj->setParent( parent );
+				parent->addChild( ptrObj );
+			}
+
+			ptrObj->spawnChildren();
 			s_objects.push_back( ptrObj );
 		}
 
 		return ptr;
-	}
-
-	//--------------------------------------------------------------------------------
-
-	// Mark an objects to be destroyed
-	inline static void destroyObject( shared_ptr< Object > object ) {
-		s_markedForDeletion.push_back( object );
 	}
 
 	//--------------------------------------------------------------------------------
@@ -107,7 +125,8 @@ public:
 		for( shared_ptr< Object > marked : s_markedForDeletion ) {
 			vector< shared_ptr< Object > >::iterator it = find( s_objects.begin(), s_objects.end(), marked );
 			if( it != s_objects.end() ) {
-				( *it )->onDestroy();
+				if( ( *it )->getParent() != nullptr )
+					( *it )->getParent()->removeChild( ( *it ) );
 				s_objects.erase( it );
 			}
 		}

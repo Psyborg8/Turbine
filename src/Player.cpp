@@ -6,9 +6,10 @@
 
 #include "MathTypes.h"
 #include "System.h"
-#include "World.h"
+#include "SFMLWorld.h"
 #include "Timer.h"
 #include "Debug.h"
+#include "Map.h"
 
 //================================================================================
 
@@ -165,11 +166,15 @@ void Player::onProcessCollisions()
 {
 	// Find relevant colliders
 	Debug::startTimer( "Player::Find Colliders" );
-	const vector< shared_ptr< Object > > walls = getObjects( System::getWorld(), "Wall" );
-	const vector< shared_ptr< Object > > traps = getObjects( System::getWorld(), "Trap" );
-	const vector< shared_ptr< Object > > platforms = getObjects( System::getWorld(), "Platform" );
-	const vector< shared_ptr< Object > > checkpoints = getObjects( System::getWorld(), "Checkpoint" );
-	const vector< shared_ptr< Object > > levelEnds = getObjects( System::getWorld(), "Level End" );
+	shared_ptr< Worlds::SFMLWorld > world = std::dynamic_pointer_cast< Worlds::SFMLWorld >( System::getWorld() );
+	if( world == nullptr )
+		return;
+
+	string mapName = world->getCurrentMap();
+	const vector< shared_ptr< Object > > walls = Gfx::Map::getObjects( mapName, "Wall" );
+	const vector< shared_ptr< Object > > traps = Gfx::Map::getObjects( mapName, "Trap" );
+	const vector< shared_ptr< Object > > platforms = Gfx::Map::getObjects( mapName, "Platform" );
+	const vector< shared_ptr< Object > > checkpoints = Gfx::Map::getObjects( mapName, "Checkpoint" );
 	Debug::stopTimer( "Player::Find Colliders" );
 
 	vector< shared_ptr< Object > > targets;
@@ -209,7 +214,6 @@ void Player::onProcessCollisions()
 	Debug::startTimer( "Player::Checkpoint Detection" );
 	targets.clear();
 	targets.insert( targets.end(), checkpoints.begin(), checkpoints.end() );
-	targets.insert( targets.end(), levelEnds.begin(), levelEnds.end() );
 	targets.insert( targets.end(), traps.begin(), traps.end() );
 	targets = sortObjectsByDistance( targets, getPosition(), 64.0f );
 	processCollisions( targets );
@@ -263,13 +267,13 @@ void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object 
 		Math::Vec2 position = checkpoint->getPosition();
 		position.x += checkpoint->getSize().x / 2.0f;
 		m_spawn = position;
-		checkpoint->setParent( nullptr );
+		checkpoint->setCollisionType( CollisionType::None );
 		System::getWorld()->onMessage( "Checkpoint" );
 		return;
 	}
 
 	if( target->getName() == "Level End" ) {
-		target->setParent( nullptr );
+		target->setCollisionType( CollisionType::None );
 		System::getWorld()->onMessage( "Level End" );
 		return;
 	}
@@ -521,7 +525,7 @@ void Player::attack( bool pressed ) {
 	// Neutral attack
 	if( !attackData.direction.length() )
 		// While on the ground we use the direction the player is facing
-		if( !jumpData.canJump )
+		if( jumpData.canJump )
 			attackData.direction = Math::Vec2( movementData.direction, 0.0f );
 
 	// While in the air, we need to look for walls to hit in attackHitbox
@@ -629,8 +633,10 @@ void Player::attackHitbox( vector< shared_ptr< Object > > targets, bool firstPas
 		}
 	}
 
+	// A neutral attack in the air, if there's no valid targets, 
+	// should attack in the direction the character is facing
 	if( !attackData.direction.length() )
-		return;
+		attackData.direction.x = movementData.direction;
 
 	// Calculate size from direction
 	Math::Vec2 size;

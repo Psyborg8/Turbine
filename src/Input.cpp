@@ -2,6 +2,10 @@
 
 #include "Input.h"
 
+//--------------------------------------------------------------------------------------------------
+
+#include "Debug.h"
+
 //==================================================================================================
 
 namespace Input {
@@ -69,7 +73,9 @@ public:
 	}
 
 	void onEvent( sf::Event e ) override {
+		Debug::startTimer( "Input::Process Event" );
 		processEvent( e );
+		Debug::stopTimer( "Input::Process Event" );
 	}
 };
 
@@ -366,6 +372,8 @@ void processEvent( sf::Event e ) {
 		shared_ptr< Controller > controller = Object::makeObject< Controller >( nullptr );
 		controller->loadController( e.joystickConnect );
 		controllers.push_back( controller );
+
+		return;
 	}
 
 	if( e.type == sf::Event::JoystickDisconnected ) {

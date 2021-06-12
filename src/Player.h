@@ -182,7 +182,7 @@ public:
 		bool isClinging{ false };
 		
 		float power{ 2.0f };
-		float leniency{ 2.5f };
+		float leniency{ 1.5f };
 		float min{ 32.0f };
 		float max{ 128.0f };
 	} wallClingData;

@@ -164,6 +164,7 @@ void PerformanceWindow::onStart() {
 //--------------------------------------------------------------------------------
 
 void PerformanceWindow::onUpdate( sf::Time deltaTime ) {
+	Debug::startTimer( "Debug::Performance Update" );
 	// Update FPS
 	if( m_first ) {
 		std::fill( m_deltaTimes.begin(), m_deltaTimes.end(), deltaTime );
@@ -233,6 +234,7 @@ void PerformanceWindow::onUpdate( sf::Time deltaTime ) {
 		// Move next line down
 		y += 5.0f;
 	}
+	Debug::stopTimer( "Debug::Performance Update" );
 }
 
 //--------------------------------------------------------------------------------
@@ -389,10 +391,9 @@ void PhysicsWindow::onStart() {
 //--------------------------------------------------------------------------------
 
 void PhysicsWindow::onUpdate( sf::Time deltaTime ) {
-	const vector< shared_ptr< Game::Player > > players = Object::getObjects< Game::Player >();
-	if( players.empty() )
+	shared_ptr< Game::Player > player = System::getWorld()->getPlayer();
+	if( player == nullptr )
 		return;
-	const shared_ptr< Game::Player > player = Object::getObjects< Game::Player >().at( 0 );
 
 	const Math::Vec2 position = player->getPosition();
 	const Math::Vec2 velocity = player->getVelocity();

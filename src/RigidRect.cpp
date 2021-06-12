@@ -39,7 +39,7 @@ void RigidRect::onRender() {
 Collision::CollisionResult RigidRect::isColliding( shared_ptr< Object > target ) {
 	Collision::CollisionResult out;
 
-	if( m_collisionType == CollisionType::None )
+	if( m_collisionType == CollisionType::None || target->getCollisionType() == CollisionType::None )
 		return out;
 
 	if( target == shared_from_this() )

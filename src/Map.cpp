@@ -80,8 +80,9 @@ struct ObjectLayer {
 //--------------------------------------------------------------------------------
 
 struct Map {
-	map< string, TileLayer > tileLayers;
-	map< string, ObjectLayer > objectLayers;
+	unordered_map< string, TileLayer > tileLayers;
+	unordered_map< string, ObjectLayer > objectLayers;
+	unordered_map< string, vector< shared_ptr< Object > > > objects;
 	vector< Tileset > tilesets;
 	map< int, Tile > tilemap;
 	string name;
@@ -99,8 +100,8 @@ bool loadTileset( const rapidjson::Value& data, Tileset& tileset, Map& map );
 //--------------------------------------------------------------------------------
 
 // Construction
-void constructObject( const Rect& object, Object* world );
-void constructCollider( const Tile& tile, Math::Vec2 position, Object* world );
+void constructObject( const Rect& object, Map& map, Object* world );
+void constructCollider( const Tile& tile, Map& map, Math::Vec2 position, Object* world );
 
 //================================================================================
 
@@ -383,9 +384,9 @@ void constructMap( string name, Object* world ) {
 					// Construct the collider
 					const auto kt = it->tilemap.find( id );
 					if( kt != it->tilemap.end() )
-						constructCollider( kt->second, worldPosition, world );
+						constructCollider( kt->second, *it, worldPosition, world );
 					else
-						constructCollider( Tile(), worldPosition, world );
+						constructCollider( Tile(), *it, worldPosition, world );
 				}
 
 			}
@@ -400,7 +401,7 @@ void constructMap( string name, Object* world ) {
 		const ObjectLayer& layer = pair.second;
 
 		for( const Rect& object : layer.objects )
-			constructObject( object, world );
+			constructObject( object, *it, world );
 	}
 
 	// Unload Tilesets
@@ -413,15 +414,17 @@ void constructMap( string name, Object* world ) {
 
 //--------------------------------------------------------------------------------
 
-void constructObject( const Rect& object, Object* world ) {
+void constructObject( const Rect& object, Map& map, Object* world ) {
 	if( object.type == "Checkpoint" ) {
 		// Player Start
 		if( object.name == "S" ) {
-			Math::Vec2 position = object.position;
-			position.x += object.size.x / 2.0f;
 			shared_ptr< Game::Player > player = Object::makeObject< Game::Player >( world );
+			Math::Vec2 position;
+			position.y = object.position.y + object.size.y - player->getSize().y;
+			position.x = object.position.x + object.size.x / 2.0f;
 			player->setPosition( position );
 			player->setSpawn( position );
+			map.objects[ "Player" ].push_back( player );
 			return;
 		}
 
@@ -432,6 +435,7 @@ void constructObject( const Rect& object, Object* world ) {
 			levelEnd->setSize( object.size );
 			levelEnd->setName( "Level End" );
 			levelEnd->setCollisionType( CollisionType::Static );
+			map.objects[ object.type ].push_back( levelEnd );
 			return;
 		}
 		
@@ -441,13 +445,14 @@ void constructObject( const Rect& object, Object* world ) {
 		checkpoint->setSize( object.size );
 		checkpoint->setName( "Checkpoint" );
 		checkpoint->setCollisionType( CollisionType::Static );
+		map.objects[ object.type ].push_back( checkpoint );
 		return;
 	}
 }
 
 //--------------------------------------------------------------------------------
 
-void constructCollider( const Tile& tile, Math::Vec2 position, Object* world ) {
+void constructCollider( const Tile& tile, Map& map, Math::Vec2 position, Object* world ) {
 	if( tile.type == "Trap" ) {
 		array< Math::Vec2, 9u > normalMap = {
 			{ { 1.0f, 1.0f }, { 0.0f, 1.0f }, { -1.0f, 1.0f },
@@ -472,6 +477,8 @@ void constructCollider( const Tile& tile, Math::Vec2 position, Object* world ) {
 			trap->setColor( Colors::CLEAR );
 			trap->getRect().setOutlineColor( sf::Color::Red );
 			trap->getRect().setOutlineThickness( 0.2f );
+
+			map.objects[ tile.type ].push_back( trap );
 		}
 
 		if( normal.y ) {
@@ -487,6 +494,8 @@ void constructCollider( const Tile& tile, Math::Vec2 position, Object* world ) {
 			pos.y = normal.y > 0.0f ? position.y : position.y + 16.0f - trap->getSize().y;
 			pos.x = position.x + ( 16.0f - trap->getSize().x ) / 2.0f;
 			trap->setPosition( pos );
+
+			map.objects[ tile.type ].push_back( trap );
 		}
 
 		return;
@@ -500,6 +509,8 @@ void constructCollider( const Tile& tile, Math::Vec2 position, Object* world ) {
 	object->getRect().setOutlineColor( sf::Color( 150u, 150u, 150u, 255u ) );
 	object->getRect().setOutlineThickness( 0.25f );
 	object->setName( "Wall" );
+
+	map.objects[ "Wall" ].push_back( object );
 }
 
 //================================================================================
@@ -545,6 +556,33 @@ void renderMap( string name ) {
 	}
 
 	Debug::stopTimer( "Map::Render" );
+}
+
+//================================================================================
+
+vector< shared_ptr< Object > > getObjects( string mapName, string objectName ) {
+	vector< shared_ptr< Object > > out;
+
+	const auto it = getMap( mapName );
+	if( it == maps.end() )
+		return out;
+
+	const unordered_map < string, vector< shared_ptr< Object > > >& objectMap = it->objects;
+
+	if( objectName != "" ) {
+		const auto jt = objectMap.find( objectName );
+		if( jt == objectMap.end() )
+			return out;
+
+		out.insert( out.end(), jt->second.begin(), jt->second.end() );
+		return out;
+	}
+
+	// If there's no given name then just return everything
+	for( const auto& pair : objectMap )
+		out.insert( out.end(), pair.second.begin(), pair.second.end() );
+
+	return out;
 }
 
 //================================================================================

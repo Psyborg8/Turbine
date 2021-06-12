@@ -21,6 +21,8 @@ void unloadMap( string name );
 
 void constructMap( string name, Object* parent );
 
+vector< shared_ptr< Object > > getObjects( string mapName, string objectName = "" );
+
 //--------------------------------------------------------------------------------
 
 } // Map

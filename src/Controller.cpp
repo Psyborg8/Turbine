@@ -32,7 +32,7 @@ unordered_map< string, unordered_map< ControllerAxis, sf::Joystick::Axis > > axi
 		{ ControllerAxis::RTrigger, sf::Joystick::V },
 		{ ControllerAxis::DPadX, sf::Joystick::PovX },
 		{ ControllerAxis::DPadY, sf::Joystick::PovY },
-} } };
+	} } };
 
 //================================================================================
 
@@ -104,10 +104,6 @@ bool Controller::getButtonState( ControllerButton button ) {
 
 float Controller::getAxisState( ControllerAxis axis ) {
 	if( this == nullptr )
-		return 0.0f;
-
-	float position = sf::Joystick::getAxisPosition( m_id, axisMap.at( sf::Joystick::getIdentification( m_id ).name ).at( axis ) );
-	if( abs( position ) < 10.0f )
 		return 0.0f;
 
 	return sf::Joystick::getAxisPosition( m_id, axisMap.at( sf::Joystick::getIdentification( m_id ).name ).at( axis ) );

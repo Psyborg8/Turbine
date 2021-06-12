@@ -20,7 +20,7 @@ namespace Worlds {
 void SFMLWorld::onSpawnChildren() {
 	World::onSpawnChildren();
 
-	m_camera.setDistance( 256.0f );
+	m_camera.setDistance( 196.0f );
 
 	m_physicsPage = makeObject< Debug::PhysicsWindow >( this );
 	m_physicsPage->setVisibility( false );
@@ -62,26 +62,61 @@ void SFMLWorld::onRender() {
 
 void SFMLWorld::onUpdate( sf::Time deltaTime ) {
 	Debug::startTimer( "World::Update" );
-	Math::Vec2 pos = m_player->getPosition();
-	pos.y += 0.5;
 
-	const Math::Vec2 direction = pos - m_camera.getPosition();
-	if( direction.length() ) {
-		const Math::Vec2 diff = direction * 6.0 * deltaTime.asSeconds();
+	m_cameraTarget.y += 0.5;
 
-		Math::Vec2 newPos = m_camera.getPosition() + diff;
-		if( direction.length() < diff.length() )
-			newPos = pos;
+	// Position
+	{
+		const Math::Vec2 direction = m_cameraTarget - m_camera.getPosition();
+		if( direction.length() ) {
+			const Math::Vec2 diff = direction * 3.0f * deltaTime.asSeconds();
 
-		m_camera.setPosition( newPos );
+			Math::Vec2 newPos = m_camera.getPosition() + diff;
+			if( direction.length() < diff.length() )
+				newPos = m_cameraTarget;
+
+			m_camera.setPosition( newPos );
+		}
 	}
+
+	// Distance
+	{
+		const float direction = m_cameraDistanceTarget - m_camera.getDistance();
+		if( direction ) {
+			const float diff = direction * 2.0f * deltaTime.asSeconds();
+
+			float newDistance = m_camera.getDistance() + diff;
+			if( abs( direction ) < abs( diff ) )
+				newDistance = m_cameraDistanceTarget;
+
+			m_camera.setDistance( newDistance );
+		}
+	}
+
 	Debug::stopTimer( "World::Update" );
 }
 
 //--------------------------------------------------------------------------------
 
-void SFMLWorld::onEvent( sf::Event e ) {
-	//
+void SFMLWorld::onProcessCollisions() {
+	vector< shared_ptr< Object > > cameras = Gfx::Map::getObjects( m_currentMap, "Camera" );
+
+	bool collision = false;
+	for( shared_ptr< Object > camera : cameras ) {
+		Collision::CollisionResult result = m_player->isColliding( camera );
+		if( result.success ) {
+			shared_ptr< Game::RigidRect > volume = std::dynamic_pointer_cast< Game::RigidRect >( camera );
+			m_cameraTarget = volume->getPosition() + volume->getSize() / 2.0f;
+			m_cameraDistanceTarget = volume->getSize().y;
+			collision = true;
+			break;
+		}
+	}
+
+	if( !collision ) {
+		m_cameraTarget = m_player->getPosition() + m_player->getSize() / 2.0f;
+		m_cameraDistanceTarget = 196.0f;
+	}
 }
 
 //--------------------------------------------------------------------------------

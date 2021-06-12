@@ -41,6 +41,9 @@ vector< KeyBind > keyBindings;
 vector< AxisBind > axisBindings;
 vector< MouseBind > mouseBindings;
 
+float innerDeadzone = 10.0f;
+float outerDeadzone = 10.0f;
+
 //--------------------------------------------------------------------------------------------------
 
 void processEvent( sf::Event e );
@@ -233,17 +236,33 @@ float getAxisState( string name ) {
 		return 0.0f;
 
 	const auto it = getController( uint32_t( activeController ) );
-	if( it == controllers.end() ) {
+
+	float controllerAxis = 0.0f;
+	if( it != controllers.end() )
+		controllerAxis = ( *it )->getAxisState( bind->axis );
+
+	if( controllerAxis <= innerDeadzone )
+		controllerAxis = 0.0f;
+
+	if( it == controllers.end() || !controllerAxis ) {
 		float out = 0.0f;
 		if( sf::Keyboard::isKeyPressed( bind->keys.second ) )
 			out += 100.0f;
 		if( sf::Keyboard::isKeyPressed( bind->keys.first ) )
 			out -= 100.0f;
 
+		if( out )
+			return out;
+	}
+	else {
+		float out = std::clamp( controllerAxis, innerDeadzone, outerDeadzone );
+		out -= innerDeadzone;
+		out /= 100.0f - innerDeadzone - outerDeadzone;
+		out *= 100.0f;
 		return out;
 	}
 
-	return ( *it )->getAxisState( bind->axis );
+	return 0.0f;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -387,10 +406,8 @@ void processEvent( sf::Event e ) {
 	}
 
 	if( e.type == sf::Event::JoystickButtonPressed ) {
-		if( e.joystickButton.joystickId != activeController ) {
+		if( e.joystickButton.joystickId != activeController )
 			activeController = e.joystickButton.joystickId;
-			return;
-		}
 
 		// Notify on button press
 		const auto it = getController( e.joystickButton.joystickId );
@@ -422,34 +439,12 @@ void processEvent( sf::Event e ) {
 		return;
 	}
 
-	if( e.type == sf::Event::JoystickMoved ) {
-		if( e.joystickMove.joystickId != activeController ) {
-			activeController = e.joystickMove.joystickId;
-			return;
-		}
-
-		// Notify on axis moved
-		const auto it = getController( e.joystickMove.joystickId );
-		if( it == controllers.end() )
-			return;
-		AxisBind* bind = getAxisBind( ( *it )->getAxis( e.joystickMove.axis ) );
-		if( bind == nullptr )
-			return;
-		if( bind->callback == nullptr )
-			return;
-
-		bind->callback( e.joystickMove.position );
-		return;
-	}
-
 	if( e.type == sf::Event::KeyPressed ) {
 		if( e.key.code == sf::Keyboard::Unbound )
 			return;
 
-		if( activeController >= 0 ) {
+		if( activeController >= 0 )
 			activeController = -1;
-			return;
-		}
 
 		// Look for key and axis bindings for the key
 		{
@@ -471,7 +466,7 @@ void processEvent( sf::Event e ) {
 			return;
 
 		if( activeController >= 0 )
-			return;
+			activeController = -1;
 
 		// Notify on key release
 		{
@@ -490,21 +485,9 @@ void processEvent( sf::Event e ) {
 	if( e.type == sf::Event::MouseButtonPressed ) {
 		if( activeController >= 0 ) {
 			activeController = -1;
-			return;
 		}
 
 		// Notify on mouse press
-
-		return;
-	}
-
-	if( e.type == sf::Event::MouseMoved ) {
-		if( activeController >= 0 ) {
-			activeController = -1;
-			return;
-		}
-
-		// Notify on mouse move
 
 		return;
 	}

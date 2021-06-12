@@ -138,7 +138,8 @@ void loadMap( string name ) {
 	// Parse JSON
 	string path = Folders::Maps + name + ".json";
 	FILE* pFile;
-	fopen_s( &pFile, path.c_str(), "rb" );
+	if( fopen_s( &pFile, path.c_str(), "rb" ) )
+		return;
 	char buffer[ 65536 ];
 	FileReadStream is( pFile, buffer, sizeof( buffer ) );
 	Document document;
@@ -423,7 +424,8 @@ void constructObject( const Rect& object, Map& map, Object* world ) {
 			position.y = object.position.y + object.size.y - player->getSize().y;
 			position.x = object.position.x + object.size.x / 2.0f;
 			player->setPosition( position );
-			player->setSpawn( position );
+ 			player->setSpawn( position );
+			player->setName( "Player" );
 			map.objects[ "Player" ].push_back( player );
 			return;
 		}
@@ -448,6 +450,13 @@ void constructObject( const Rect& object, Map& map, Object* world ) {
 		map.objects[ object.type ].push_back( checkpoint );
 		return;
 	}
+
+	shared_ptr< Game::RigidRect > collider = Object::makeObject< Game::RigidRect >( world );
+	collider->setPosition( object.position );
+	collider->setSize( object.size );
+	collider->setName( object.name );
+	collider->setCollisionType( CollisionType::Static );
+	map.objects[ object.type ].push_back( collider );
 }
 
 //--------------------------------------------------------------------------------

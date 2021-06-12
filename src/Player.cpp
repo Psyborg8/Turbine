@@ -248,10 +248,10 @@ void Player::onRender() {
 	Debug::startTimer( "Player::Render" );
 
 	for( shared_ptr< RigidRect > shadow : spriteData.dashShadows )
-		System::getWindow()->draw( shadow->getRect() );
+		shadow->render();
 
-	m_attackCollider->onRender();
-	m_wallAttackCollider->onRender();
+	m_attackCollider->render();
+	m_wallAttackCollider->render();
 
 	System::getWindow()->draw( m_rect );
 
@@ -287,27 +287,6 @@ void Player::onCollision( Collision::CollisionResult result, shared_ptr< Object 
 		jumpData.canJumpDown = true;
 
 	jumpData.isJumping = false;
-
-	if( dashData.isDashing ) {
-		Timers::triggerTimer( m_dashTimer );
-
-		dashBounceData.canDashBounce = true;
-		
-		Math::Vec2 direction = result.velocity;
-		if( result.normal.x )
-			direction.x *= -1.0f;
-		if( result.normal.y )
-			direction.y *= -1.0f;
-
-		dashBounceData.direction = direction;
-
-		Timers::removeTimer( m_dashBounceTimer );
-		m_dashBounceTimer = Timers::addTimer( dashBounceData.leniency, nullptr,
-											  [this] {
-												  dashBounceData.canDashBounce = false;
-												  dashBounceData.direction = Math::Vec2();
-											  }, false );
-	}
 }
 
 //--------------------------------------------------------------------------------
@@ -683,8 +662,9 @@ void Player::attackHitbox( vector< shared_ptr< Object > > targets, bool firstPas
 		if( firstPass ) {
 			attackData.direction = Math::Vec2();
 			attackHitbox( targets, false );
-			return;
 		}
+		
+		return;
 	}
 
 	// Horizontal Attack

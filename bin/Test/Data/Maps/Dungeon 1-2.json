@@ -533,7 +533,18 @@
          "draworder":"topdown",
          "id":9,
          "name":"Events",
-         "objects":[],
+         "objects":[
+                {
+                 "height":16,
+                 "id":677,
+                 "name":"Dash Prompt",
+                 "rotation":0,
+                 "type":"Event",
+                 "visible":true,
+                 "width":38.25,
+                 "x":542.875,
+                 "y":155.75
+                }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
@@ -541,7 +552,7 @@
          "y":0
         }],
  "nextlayerid":11,
- "nextobjectid":677,
+ "nextobjectid":679,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.6.0",

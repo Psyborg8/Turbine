@@ -247,9 +247,6 @@ void Player::onEvent( sf::Event e ) {
 void Player::onRender() {
 	Debug::startTimer( "Player::Render" );
 
-	for( shared_ptr< RigidRect > shadow : spriteData.dashShadows )
-		shadow->render();
-
 	m_attackCollider->render();
 	m_wallAttackCollider->render();
 
@@ -367,6 +364,8 @@ void Player::dash( bool pressed ) {
 	if( direction == Math::Vec2() )
 		return;
 
+	System::getWorld()->message( "Dash" );
+
 	direction = direction.normalize();
 	direction *= dashData.power;
 
@@ -404,6 +403,8 @@ void Player::dash( bool pressed ) {
 													 r.setOutlineColor( color );
 												 }
 
+												 rect->setVisibility( true );
+
 												 spriteData.dashShadows.push_back( rect );
 
 												 Timers::addTimer( 100, 
@@ -423,8 +424,8 @@ void Player::dash( bool pressed ) {
 
 																		sf::Color color = ( *it )->getRect().getFillColor();
 																		sf::Color outline = ( *it )->getRect().getOutlineColor();
-																		color.a = sf::Uint8( ( 1.0f - alpha * 0.6 )  * 255.0f );
-																		outline.a = sf::Uint8( ( 1.0f - alpha * 0.6 ) * 255.0f );
+																		color.a = sf::Uint8( ( 0.6f - alpha * 0.6 )  * 255.0f );
+																		outline.a = sf::Uint8( ( 0.6f - alpha * 0.6 ) * 255.0f );
 																		( *it )->setColor( color );
 																		( *it )->getRect().setOutlineColor( outline );
 																   },
@@ -439,8 +440,10 @@ void Player::dash( bool pressed ) {
 																	   const auto it = std::find( spriteData.dashShadows.begin(),
 																								  spriteData.dashShadows.end(),
 																								  rect );
-																	   if( it != spriteData.dashShadows.end() )
+																	   if( it != spriteData.dashShadows.end() ) {
+																		   ( *it )->destroy();
 																		   spriteData.dashShadows.erase( it );
+																	   }
 																  }, false );
 											}, true );
 

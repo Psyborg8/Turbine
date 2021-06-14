@@ -51,6 +51,7 @@ public:
 	inline void render() { if( isMarkedForRemoval() ) return; onRender(); for( shared_ptr< Object > child : m_children ) child->render(); }
 	inline void postRender() { if( isMarkedForRemoval() ) return; onPostRender(); for( shared_ptr< Object > child : m_children ) child->postRender(); }
 	inline void exit() { if( isMarkedForRemoval() ) return; onExit(); for( shared_ptr< Object > child : m_children ) child->exit(); }
+	inline void message( string message ) { if( isMarkedForRemoval() ) return; onMessage( message ); for( shared_ptr< Object > child : m_children ) child->message( message ); }
 	inline void destroy() { if( isMarkedForRemoval() ) return; s_markedForDeletion.push_back( shared_from_this() ); for( shared_ptr< Object > child : m_children ) child->destroy(); }
 
 // Collision

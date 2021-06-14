@@ -241,7 +241,7 @@ float getAxisState( string name ) {
 	if( it != controllers.end() )
 		controllerAxis = ( *it )->getAxisState( bind->axis );
 
-	if( controllerAxis <= innerDeadzone )
+	if( abs( controllerAxis ) <= innerDeadzone )
 		controllerAxis = 0.0f;
 
 	if( it == controllers.end() || !controllerAxis ) {
@@ -251,14 +251,15 @@ float getAxisState( string name ) {
 		if( sf::Keyboard::isKeyPressed( bind->keys.first ) )
 			out -= 100.0f;
 
-		if( out )
-			return out;
+		return out;
 	}
 	else {
-		float out = std::clamp( controllerAxis, innerDeadzone, outerDeadzone );
+		float out = std::clamp( abs( controllerAxis ), innerDeadzone, 100.0f - outerDeadzone );
 		out -= innerDeadzone;
 		out /= 100.0f - innerDeadzone - outerDeadzone;
 		out *= 100.0f;
+
+		out *= controllerAxis / abs( controllerAxis );
 		return out;
 	}
 
@@ -442,9 +443,6 @@ void processEvent( sf::Event e ) {
 	if( e.type == sf::Event::KeyPressed ) {
 		if( e.key.code == sf::Keyboard::Unbound )
 			return;
-
-		if( activeController >= 0 )
-			activeController = -1;
 
 		// Look for key and axis bindings for the key
 		{

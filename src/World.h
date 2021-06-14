@@ -26,6 +26,9 @@ public:
 	virtual void unloadWorld() {};
 	virtual void setCheckpoint( size_t checkpoint ) {};
 
+	void update( sf::Time deltaTime );
+	void postUpdate( sf::Time deltaTime );
+
 public:
 	inline Gfx::Camera& getCamera() { return m_camera; }
 	inline Math::Color getBackgroundColor() const { return m_backgroundColor; }
@@ -37,6 +40,7 @@ protected:
 	Math::Color m_backgroundColor;
 	string m_currentMap{ "" };
 	shared_ptr< Game::Player > m_player;
+	float m_speed{ 1.0f };
 };
 
 //================================================================================

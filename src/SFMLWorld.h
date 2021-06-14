@@ -33,12 +33,17 @@ protected:
 	Math::Vec2 m_cameraTarget;
 	float m_cameraDistanceTarget;
 
+	Timers::TimerID m_dashPromptTimer;
+	Math::Vec2 m_dashPromptPosition;
+
 // Debug
 protected:
 	shared_ptr< Object > m_physicsPage;
 	shared_ptr< Object > m_performancePage;
 	shared_ptr< Object > m_joystickPage;
 	shared_ptr< Gfx::GameTimer > m_timer;
+
+	vector< string > m_activeEvents;
 
 	int m_debugPage{ 0 };
 };

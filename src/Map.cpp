@@ -451,6 +451,18 @@ void constructObject( const Rect& object, Map& map, Object* world ) {
 		return;
 	}
 
+	// Events
+	if( object.type == "Event" ) {
+		shared_ptr< Game::RigidRect > event = Object::makeObject< Game::RigidRect >( world );
+		event->setPosition( object.position );
+		event->setSize( object.size );
+		event->setName( object.name );
+		event->setCollisionType( CollisionType::Static );
+		event->getRect().setFillColor( sf::Color( 255u, 255, 0u, 100u ) );
+		map.objects[ object.type ].push_back( event );
+		return;
+	}
+
 	shared_ptr< Game::RigidRect > collider = Object::makeObject< Game::RigidRect >( world );
 	collider->setPosition( object.position );
 	collider->setSize( object.size );
@@ -486,6 +498,7 @@ void constructCollider( const Tile& tile, Map& map, Math::Vec2 position, Object*
 			trap->setColor( Colors::CLEAR );
 			trap->getRect().setOutlineColor( sf::Color::Red );
 			trap->getRect().setOutlineThickness( 0.2f );
+			//trap->setVisibility( true );
 
 			map.objects[ tile.type ].push_back( trap );
 		}
@@ -498,6 +511,7 @@ void constructCollider( const Tile& tile, Map& map, Math::Vec2 position, Object*
 			trap->setColor( Colors::CLEAR );
 			trap->getRect().setOutlineColor( sf::Color::Red );
 			trap->getRect().setOutlineThickness( 0.35f );
+			//trap->setVisibility( true );
 
 			Math::Vec2 pos;
 			pos.y = normal.y > 0.0f ? position.y : position.y + 16.0f - trap->getSize().y;
@@ -518,6 +532,7 @@ void constructCollider( const Tile& tile, Map& map, Math::Vec2 position, Object*
 	object->getRect().setOutlineColor( sf::Color( 150u, 150u, 150u, 255u ) );
 	object->getRect().setOutlineThickness( 0.25f );
 	object->setName( "Wall" );
+	//object->setVisibility( true );
 
 	map.objects[ "Wall" ].push_back( object );
 }

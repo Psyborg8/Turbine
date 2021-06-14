@@ -93,6 +93,7 @@ void renderTile( string name, size_t index, sf::RenderTarget* target, Math::Vec2
 
 	const Tile& tile = tileset.tiles.at( index );
 	tile.sprite->setPosition( pos.sf() );
+	tile.sprite->setScale( scale.sf() );
 	target->draw( *tile.sprite );
 }
 

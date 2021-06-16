@@ -80,6 +80,9 @@ public:
 	inline bool getVisibility() const { return m_visibility; }
 	inline void setVisibility( bool visible ) { m_visibility = visible; }
 
+	inline int getUid() const { return m_uid; }
+	inline void setUid( int uid ) { m_uid = uid; }
+
 	inline bool isMarkedForRemoval() const { return m_markedForRemoval; }
 
 	// Variables
@@ -91,6 +94,7 @@ protected:
 	Math::Vec2 m_position;
 	bool m_visibility{ false };
 	bool m_markedForRemoval{ false };
+	int m_uid{ -1 };
 
 
 	/* Static */

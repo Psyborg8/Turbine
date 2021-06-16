@@ -99,32 +99,15 @@ void SFMLWorld::onUpdate( sf::Time deltaTime ) {
 		}
 	}
 
+	m_cameraTarget = m_player->getPosition() + m_player->getSize() / 2.0f;
+	m_cameraDistanceTarget = 196.0f;
+
 	Debug::stopTimer( "World::Update" );
 }
 
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onProcessCollisions() {
-	vector< shared_ptr< Object > > cameras = Gfx::Map::getObjects( m_currentMap, "Camera" );
-
-	bool collision = false;
-	for( shared_ptr< Object > camera : cameras ) {
-		Collision::CollisionResult result = m_player->isColliding( camera );
-		if( result.success ) {
-			shared_ptr< Game::RigidRect > volume = std::dynamic_pointer_cast< Game::RigidRect >( camera );
-			m_cameraTarget = m_player->getPosition() + m_player->getSize() / 2.0f;
-			// m_cameraTarget = volume->getPosition() + volume->getSize() / 2.0f;
-			m_cameraDistanceTarget = volume->getSize().y;
-			collision = true;
-			break;
-		}
-	}
-
-	if( !collision ) {
-		m_cameraTarget = m_player->getPosition() + m_player->getSize() / 2.0f;
-		m_cameraDistanceTarget = 196.0f;
-	}
-
 	vector< shared_ptr< Object > > events = Gfx::Map::getObjects( m_currentMap, "Event" );
 
 	for( shared_ptr< Object > event : events ) {

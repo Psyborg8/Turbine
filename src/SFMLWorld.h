@@ -27,6 +27,13 @@ public:
 	void onMessage( string message ) override;
 
 	void reset() override;
+
+public:
+	inline Math::Vec2 getCameraTarget() const { return m_cameraTarget; }
+	inline void setCameraTarget( Math::Vec2 target ) { m_cameraTarget = target; }
+
+	inline float getCameraDistanceTarget() const { return m_cameraDistanceTarget; }
+	inline void setCameraDistanceTarget( float target ) { m_cameraDistanceTarget = target; }
 	
 protected:
 	Math::Vec2 m_levelStart;

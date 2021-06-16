@@ -93,6 +93,9 @@
     <ClCompile Include="src\Controller.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\CameraVolume.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -151,6 +154,9 @@
     </ClInclude>
     <ClInclude Include="src\Controller.h">
       <Filter>Engine\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CameraVolume.h">
+      <Filter>Game\Objects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

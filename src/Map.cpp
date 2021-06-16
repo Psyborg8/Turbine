@@ -12,6 +12,7 @@
 #include "RigidRect.h"
 #include "Player.h"
 #include "System.h"
+#include "CameraVolume.h"
 
 #include "Debug.h"
 
@@ -22,19 +23,27 @@ namespace Map {
 
 //================================================================================
 
-struct Rect {
+struct Property {
 	string name;
-	Math::Vec2 position;
-	Math::Vec2 size;
 	string type;
+
+	bool boolValue{ false };
+	float floatValue{ 0.0f };
+	int intValue{ -1 };
+	string stringValue{ "" };
+	int objectValue{ -1 };
 };
 
 //--------------------------------------------------------------------------------
 
-struct Point {
+struct MapObject {
+	vector< Property > properties;
+
 	string name;
-	Math::Vec2 position;
 	string type;
+	int id;
+	Math::Vec2 position;
+	Math::Vec2 size;
 };
 
 //--------------------------------------------------------------------------------
@@ -73,7 +82,7 @@ struct Tile {
 //--------------------------------------------------------------------------------
 
 struct ObjectLayer {
-	vector< Rect > objects;
+	vector< MapObject > objects;
 	string name;
 };
 
@@ -82,9 +91,13 @@ struct ObjectLayer {
 struct Map {
 	unordered_map< string, TileLayer > tileLayers;
 	unordered_map< string, ObjectLayer > objectLayers;
+
 	unordered_map< string, vector< shared_ptr< Object > > > objects;
+	map< int, MapObject > objectIds;
+
 	vector< Tileset > tilesets;
 	map< int, Tile > tilemap;
+
 	string name;
 	Math::Vec2 tileSize;
 	Math::Vec2 mapSize;
@@ -94,13 +107,13 @@ struct Map {
 
 // Loading
 bool loadLayer( const rapidjson::Value& data, TileLayer& layer );
-bool loadLayer( const rapidjson::Value& data, ObjectLayer& layer );
+bool loadLayer( const rapidjson::Value& data, ObjectLayer& layer, Map& map );
 bool loadTileset( const rapidjson::Value& data, Tileset& tileset, Map& map );
 
 //--------------------------------------------------------------------------------
 
 // Construction
-void constructObject( const Rect& object, Map& map, Object* world );
+void constructObject( const MapObject& object, Map& map, Object* world );
 void constructCollider( const Tile& tile, Map& map, Math::Vec2 position, Object* world );
 
 //================================================================================
@@ -177,7 +190,7 @@ void loadMap( string name ) {
 			// Object Layer
 			else if( type == "objectgroup" ) {
 				ObjectLayer layer;
-				if( loadLayer( layers[ i ], layer ) )
+				if( loadLayer( layers[ i ], layer, map ) )
 					map.objectLayers[ layer.name ] = layer;
 			}
 		}
@@ -255,7 +268,7 @@ bool loadLayer( const rapidjson::Value& data, TileLayer& layer ) {
 
 //--------------------------------------------------------------------------------
 
-bool loadLayer( const rapidjson::Value& data, ObjectLayer& layer ) {
+bool loadLayer( const rapidjson::Value& data, ObjectLayer& layer, Map& map ) {
 	using namespace rapidjson;
 
 	if( !getString( data, "name", layer.name ) )
@@ -270,16 +283,48 @@ bool loadLayer( const rapidjson::Value& data, ObjectLayer& layer ) {
 	for( SizeType i = 0u; i < objects.Size(); ++i ) {
 
 		// Get object data
-		Rect rect;
+		MapObject object;
 
-		getString( objects[ i ], "name", rect.name );
-		getString( objects[ i ], "type", rect.type );
-		getFloat( objects[ i ], "x", rect.position.x );
-		getFloat( objects[ i ], "y", rect.position.y );
-		getFloat( objects[ i ], "width", rect.size.x );
-		getFloat( objects[ i ], "height", rect.size.y );
+		getString( objects[ i ], "name", object.name );
+		getString( objects[ i ], "type", object.type );
+		getFloat( objects[ i ], "x", object.position.x );
+		getFloat( objects[ i ], "y", object.position.y );
+		getFloat( objects[ i ], "width", object.size.x );
+		getFloat( objects[ i ], "height", object.size.y );
+		getInt( objects[ i ], "id", object.id );
 
-		layer.objects.push_back( rect );
+		if( objects[ i ].HasMember( "properties" ) && objects[ i ][ "properties" ].IsArray() ) {
+			GenericArray< true, Value > properties = objects[ i ][ "properties" ].GetArray();
+
+			for( const Value& property : properties ) {
+				Property p;
+
+				if( !getString( property, "name", p.name ) )
+					continue;
+				if( !getString( property, "type", p.type ) )
+					continue;
+
+				if( p.type == "bool" )
+					getBool( property, "value", p.boolValue );
+				if( p.type == "float" )
+					getFloat( property, "value", p.floatValue );
+				if( p.type == "int" )
+					getInt( property, "value", p.intValue );
+				if( p.type == "object" )
+					getInt( property, "value", p.objectValue );
+				if( p.type == "string" )
+					getString( property, "value", p.stringValue );
+
+				object.properties.push_back( p );
+			}
+		}
+
+		layer.objects.push_back( object );
+
+		if( object.id == -1 )
+			return true;
+
+		map.objectIds[ object.id ] = object;
 	}
 
 	return true;
@@ -401,7 +446,7 @@ void constructMap( string name, Object* world ) {
 	for( const auto& pair : it->objectLayers ) {
 		const ObjectLayer& layer = pair.second;
 
-		for( const Rect& object : layer.objects )
+		for( const MapObject& object : layer.objects )
 			constructObject( object, *it, world );
 	}
 
@@ -415,7 +460,7 @@ void constructMap( string name, Object* world ) {
 
 //--------------------------------------------------------------------------------
 
-void constructObject( const Rect& object, Map& map, Object* world ) {
+void constructObject( const MapObject& object, Map& map, Object* world ) {
 	if( object.type == "Checkpoint" ) {
 		// Player Start
 		if( object.name == "S" ) {
@@ -437,6 +482,7 @@ void constructObject( const Rect& object, Map& map, Object* world ) {
 			levelEnd->setSize( object.size );
 			levelEnd->setName( "Level End" );
 			levelEnd->setCollisionType( CollisionType::Static );
+			levelEnd->setUid( object.id );
 			map.objects[ object.type ].push_back( levelEnd );
 			return;
 		}
@@ -447,6 +493,7 @@ void constructObject( const Rect& object, Map& map, Object* world ) {
 		checkpoint->setSize( object.size );
 		checkpoint->setName( "Checkpoint" );
 		checkpoint->setCollisionType( CollisionType::Static );
+		checkpoint->setUid( object.id );
 		map.objects[ object.type ].push_back( checkpoint );
 		return;
 	}
@@ -459,8 +506,44 @@ void constructObject( const Rect& object, Map& map, Object* world ) {
 		event->setName( object.name );
 		event->setCollisionType( CollisionType::Static );
 		event->getRect().setFillColor( sf::Color( 255u, 255, 0u, 100u ) );
+		event->setUid( object.id );
 		map.objects[ object.type ].push_back( event );
 		return;
+	}
+
+	// Camera Volumes
+	if( object.type == "Camera" ) {
+		shared_ptr< Game::CameraVolume > volume = Object::makeObject< Game::CameraVolume >( world );
+		volume->setPosition( object.position );
+		volume->setSize( object.size );
+		volume->setName( object.name );
+		volume->setCollisionType( CollisionType::Static );
+		volume->getRect().setOutlineColor( Colors::CYAN.sf() );
+		volume->setUid( object.id );
+		map.objects[ object.type ].push_back( volume );
+
+		const auto it = std::find_if( object.properties.begin(), object.properties.end(),
+									  []( const Property& property ) {
+										  return property.name == "Position";
+									  } );
+		if( it == object.properties.end() )
+			volume->setCameraPosition( volume->getPosition() + volume->getSize() / 2.0f );
+		
+		for( Property property : object.properties ) {
+			if( property.name == "Position" ) {
+				const int id = property.objectValue;
+				if( id == -1 || !map.objectIds.count( id ) )
+					volume->setCameraPosition( volume->getPosition() + volume->getSize() / 2.0f );
+				else
+					volume->setCameraPosition( map.objectIds[ id ].position );
+				continue;
+			}
+
+			if( property.name == "Distance" ) {
+				volume->setDistance( property.floatValue );
+				continue;
+			}
+		}
 	}
 
 	shared_ptr< Game::RigidRect > collider = Object::makeObject< Game::RigidRect >( world );
@@ -468,6 +551,7 @@ void constructObject( const Rect& object, Map& map, Object* world ) {
 	collider->setSize( object.size );
 	collider->setName( object.name );
 	collider->setCollisionType( CollisionType::Static );
+	collider->setUid( object.id );
 	map.objects[ object.type ].push_back( collider );
 }
 

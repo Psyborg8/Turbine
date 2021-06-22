@@ -71,8 +71,11 @@ public:
 	inline string getName() const { return m_name; }
 	inline void setName( string name ) { m_name = name; }
 
-	virtual inline Math::Vec2 getPosition() const { return Math::Vec2(); }
+	virtual inline Math::Vec2 getPosition() const { return m_position; }
 	virtual inline void setPosition( Math::Vec2 position ) { m_position = position; }
+
+	virtual inline Math::Vec2 getSize() const { return m_size; }
+	virtual inline void setSize( Math::Vec2 size ) { m_size = size; }
 
 	inline CollisionType getCollisionType() const { return m_collisionType; }
 	inline void setCollisionType( CollisionType type ) { m_collisionType = type; }
@@ -92,6 +95,7 @@ protected:
 	string m_name{ "" };
 	CollisionType m_collisionType{ CollisionType::None };
 	Math::Vec2 m_position;
+	Math::Vec2 m_size;
 	bool m_visibility{ false };
 	bool m_markedForRemoval{ false };
 	int m_uid{ -1 };

@@ -131,6 +131,8 @@ void SFMLWorld::onProcessCollisions() {
 				shared_ptr< Game::RigidRect > ptr = std::dynamic_pointer_cast< Game::RigidRect >( event );
 				m_dashPromptPosition.x = ptr->getPosition().x + 64.0f;
 				m_dashPromptPosition.y = ptr->getPosition().y - 16.0f;
+
+				m_player->dashData.enabled = true;
 			}
 		}
 	}

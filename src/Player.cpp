@@ -38,7 +38,7 @@ Player::Player( Math::Vec2 pos ) : RigidRect() {
 void Player::onSpawnChildren() {
 	m_bottomCollider = make_shared< RigidRect >();
 	m_bottomCollider->setCollisionType( CollisionType::Static );
-	m_bottomCollider->setSize( Math::Vec2( getSize().x, wallClingData.leniency ) );
+	m_bottomCollider->setSize( Math::Vec2( getSize().x, jumpData.leniency ) );
 	m_bottomCollider->setVelocity( Math::Vec2( 0.0f, 1.0f ) );
 
 	m_leftCollider = make_shared< RigidRect >();

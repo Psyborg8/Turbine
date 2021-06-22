@@ -440,11 +440,22 @@
                  "height":240,
                  "id":293,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"Distance",
+                         "type":"float",
+                         "value":256
+                        }, 
+                        {
+                         "name":"Position",
+                         "type":"object",
+                         "value":683
+                        }],
                  "rotation":0,
                  "type":"Camera",
                  "visible":true,
-                 "width":256,
-                 "x":192,
+                 "width":192,
+                 "x":256,
                  "y":304
                 }, 
                 {
@@ -491,6 +502,18 @@
                  "width":0,
                  "x":560,
                  "y":160
+                }, 
+                {
+                 "height":0,
+                 "id":683,
+                 "name":"",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":256,
+                 "y":464
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -507,6 +530,22 @@
                  "height":16,
                  "id":669,
                  "name":"S",
+                 "properties":[
+                        {
+                         "name":"Attack",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"Dash",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"Jump",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "rotation":0,
                  "type":"Checkpoint",
                  "visible":true,
@@ -587,10 +626,10 @@
          "y":0
         }],
  "nextlayerid":11,
- "nextobjectid":683,
+ "nextobjectid":684,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.6.0",
+ "tiledversion":"1.7.0",
  "tileheight":16,
  "tilesets":[
         {

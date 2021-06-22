@@ -95,6 +95,12 @@ CollisionResult collision( shared_ptr< Game::RigidRect > a, shared_ptr< Game::Ri
 	if( a->getVelocity().length() > 0.0 && b->getVelocity().length() > 0.0 )
 		return out;
 
+	// Static collision
+	if( !a->getVelocity().length() && !b->getVelocity().length() ) {
+		out.success = staticRectCollision( a, b );
+		return out;
+	}
+
 	shared_ptr< Game::RigidRect > d = a->getVelocity().length() > 0.0 ? a : b;
 	shared_ptr< Game::RigidRect > s = a->getVelocity().length() == 0.0 ? a : b;
 
@@ -103,12 +109,6 @@ CollisionResult collision( shared_ptr< Game::RigidRect > a, shared_ptr< Game::Ri
 	Math::Vec2 size = ( s->getSize() / 2.0f ) + ( d->getSize() / 2.0f ) + ( d->getVelocity().abs() * System::getDeltaTime().asSeconds() );
 	if( diff.x > size.x || diff.y > size.y )
 		return out;
-
-	// Static collision
-	if( &s == &d ) {
-		out.success = staticRectCollision( d, s );
-		return out;
-	}
 
 	// Narrow Phase
 	// Create a combined radius

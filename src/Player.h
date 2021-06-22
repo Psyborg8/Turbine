@@ -53,6 +53,8 @@ private:
 	shared_ptr< RigidRect > m_bottomCollider;
 	shared_ptr< RigidRect > m_leftCollider;
 	shared_ptr< RigidRect > m_rightCollider;
+	shared_ptr< RigidRect > m_extendedCollider;
+
 	shared_ptr< RigidRect > m_attackCollider;
 	shared_ptr< RigidRect > m_wallAttackCollider;
 
@@ -130,6 +132,7 @@ public:
 		bool canJumpDown{ false };
 		bool isJumpingDown{ false };
 
+		float leniency{ 1.5f };
 		float power{ 160.0f };
 		float release{ 70.0f };
 	} jumpData;

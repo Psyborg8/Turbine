@@ -471,6 +471,16 @@ void constructObject( const MapObject& object, Map& map, Object* world ) {
 			player->setPosition( position );
  			player->setSpawn( position );
 			player->setName( "Player" );
+
+			for( Property property : object.properties ) {
+				if( property.name == "Jump" )
+					player->jumpData.enabled = property.boolValue;
+				else if( property.name == "Dash" )
+					player->dashData.enabled = property.boolValue;
+				else if( property.name == "Attack" )
+					player->attackData.enabled = property.boolValue;
+			}
+
 			map.objects[ "Player" ].push_back( player );
 			return;
 		}

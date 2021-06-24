@@ -60,6 +60,7 @@ using std::chrono::nanoseconds;
 using chronoClockPoint = std::chrono::time_point< std::chrono::high_resolution_clock >;
 using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
+using namespace std::chrono_literals;
 
 using KeyPair = pair< sf::Keyboard::Key, sf::Keyboard::Key >;
 

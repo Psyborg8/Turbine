@@ -64,6 +64,24 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 	Debug::stopTimer( "Collision::Narrow Phase" );
 }
 
+//--------------------------------------------------------------------------------
+
+Math::Vec2 Object::getWorldPosition() const {
+	if( m_parent == nullptr )
+		return getPosition();
+
+	return getPosition() + m_parent->getWorldPosition();
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::setWorldPosition( Math::Vec2 position ) {
+	if( m_parent != nullptr )
+		position -= m_parent->getWorldPosition();
+
+	setPosition( position );
+}
+
 //================================================================================
 
 vector< shared_ptr< Object > > Object::s_objects;

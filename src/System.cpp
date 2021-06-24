@@ -12,6 +12,7 @@
 
 // Worlds
 #include "SFMLWorld.h"
+#include "BulletWorld.h"
 
 //================================================================================
 
@@ -63,8 +64,8 @@ bool init( int argc, char** argv ) {
 
 int start() {
 	Debug::startTimer( "System::Make World" );
-	world = Object::makeObject< Worlds::SFMLWorld >( nullptr );
-	//world = Object::makeObject< CollisionWorld >( nullptr );
+	world = Object::makeObject< Worlds::BulletWorld >( nullptr );
+	//world = Object::makeObject< Worlds::SFMLWorld >( nullptr );
 	Debug::stopTimer( "System::Make World" );
 
 	Input::start( world.get() );

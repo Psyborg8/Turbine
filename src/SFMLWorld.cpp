@@ -15,7 +15,7 @@
 
 namespace Worlds {
 
-//================================================================================
+//--------------------------------------------------------------------------------
 
 void SFMLWorld::onSpawnChildren() {
 	World::onSpawnChildren();
@@ -204,6 +204,7 @@ void SFMLWorld::reset() {
 											 m_player = Object::makeObject< Game::Player >( this );
 											 m_player->setPosition( spawn );
 											 m_player->setSpawn( spawn );
+											 m_player->setVisibility( true );
 											 if( spawn == m_levelStart ) {
 												 m_timer->reset();
 
@@ -219,7 +220,7 @@ void SFMLWorld::reset() {
 										 false );
 }
 
-//================================================================================
+//--------------------------------------------------------------------------------
 
 }
 

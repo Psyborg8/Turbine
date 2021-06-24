@@ -471,6 +471,7 @@ void constructObject( const MapObject& object, Map& map, Object* world ) {
 			player->setPosition( position );
  			player->setSpawn( position );
 			player->setName( "Player" );
+			player->setVisibility( true );
 
 			for( Property property : object.properties ) {
 				if( property.name == "Jump" )

@@ -96,6 +96,12 @@
     <ClCompile Include="src\CameraVolume.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\Bullet.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BulletWorld.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -157,6 +163,12 @@
     </ClInclude>
     <ClInclude Include="src\CameraVolume.h">
       <Filter>Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Bullet.h">
+      <Filter>Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BulletWorld.h">
+      <Filter>Game\Worlds</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

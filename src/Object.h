@@ -47,8 +47,8 @@ public:
 	inline void start() { onStart(); if( isMarkedForRemoval() ) return; for( shared_ptr< Object > child : m_children ) child->start(); }
 	inline void update( sf::Time dt ) { if( isMarkedForRemoval() ) return; onUpdate( dt ); for( shared_ptr< Object > child : m_children ) child->update( dt ); }
 	inline void processCollisions() { if( isMarkedForRemoval() ) return; onProcessCollisions(); for( shared_ptr< Object > child : m_children ) child->processCollisions(); }
-	inline void postUpdate( sf::Time dt ) { if( isMarkedForRemoval() ) return; onPostUpdate( dt ); for( shared_ptr< Object > child : m_children ) child->postUpdate( dt ); }
-	inline void render() { if( isMarkedForRemoval() ) return; onRender(); for( shared_ptr< Object > child : m_children ) child->render(); }
+	inline void postUpdate( sf::Time dt ) { if( isMarkedForRemoval() ) return; setPosition( getPosition() + getVelocity() * dt.asSeconds() ); onPostUpdate( dt ); for( shared_ptr< Object > child : m_children ) child->postUpdate( dt ); }
+	inline void render() { if( isMarkedForRemoval() || !m_visibility ) return; onRender(); for( shared_ptr< Object > child : m_children ) child->render(); }
 	inline void postRender() { if( isMarkedForRemoval() ) return; onPostRender(); for( shared_ptr< Object > child : m_children ) child->postRender(); }
 	inline void exit() { if( isMarkedForRemoval() ) return; onExit(); for( shared_ptr< Object > child : m_children ) child->exit(); }
 	inline void message( string message ) { if( isMarkedForRemoval() ) return; onMessage( message ); for( shared_ptr< Object > child : m_children ) child->message( message ); }
@@ -74,8 +74,14 @@ public:
 	virtual inline Math::Vec2 getPosition() const { return m_position; }
 	virtual inline void setPosition( Math::Vec2 position ) { m_position = position; }
 
+	Math::Vec2 getWorldPosition() const;
+	void setWorldPosition( Math::Vec2 position );
+
 	virtual inline Math::Vec2 getSize() const { return m_size; }
 	virtual inline void setSize( Math::Vec2 size ) { m_size = size; }
+
+	virtual inline Math::Vec2 getVelocity() const { return m_velocity; }
+	virtual inline void setVelocity( Math::Vec2 velocity ) { m_velocity = velocity; }
 
 	inline CollisionType getCollisionType() const { return m_collisionType; }
 	inline void setCollisionType( CollisionType type ) { m_collisionType = type; }
@@ -83,6 +89,7 @@ public:
 	inline bool getVisibility() const { return m_visibility; }
 	inline void setVisibility( bool visible ) { m_visibility = visible; }
 
+	// Unique ID set by the level editor for objects placed there
 	inline int getUid() const { return m_uid; }
 	inline void setUid( int uid ) { m_uid = uid; }
 
@@ -94,8 +101,11 @@ protected:
 	vector< shared_ptr< Object > > m_children;
 	string m_name{ "" };
 	CollisionType m_collisionType{ CollisionType::None };
+
 	Math::Vec2 m_position;
 	Math::Vec2 m_size;
+	Math::Vec2 m_velocity;
+
 	bool m_visibility{ false };
 	bool m_markedForRemoval{ false };
 	int m_uid{ -1 };
@@ -113,11 +123,10 @@ public:
 		shared_ptr< Object > ptrObj = std::dynamic_pointer_cast< Object >( ptr );
 		if( ptrObj != nullptr ) {
 			if( parent != nullptr ) {
-				if( parent->isMarkedForRemoval() )
-					return nullptr;
-
-				ptrObj->setParent( parent );
-				parent->addChild( ptrObj );
+				if( !parent->isMarkedForRemoval() ) {
+					ptrObj->setParent( parent );
+					parent->addChild( ptrObj );
+				}
 			}
 
 			ptrObj->spawnChildren();

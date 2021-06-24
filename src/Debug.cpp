@@ -155,7 +155,7 @@ void PerformanceWindow::onStart() {
 	font.loadFromFile( Folders::Fonts + "MonospaceTypewriter.ttf" );
 	m_text = sf::Text();
 	m_text.setCharacterSize( 40u );
-	m_text.setScale( sf::Vector2f( 0.1f, 0.1f ) );
+	m_text.setScale( sf::Vector2f( 0.2f, 0.2f ) );
 	m_text.setFont( font );
 	m_text.setOutlineColor( sf::Color::Black );
 	m_text.setOutlineThickness( 3.0f );
@@ -240,9 +240,6 @@ void PerformanceWindow::onUpdate( sf::Time deltaTime ) {
 //--------------------------------------------------------------------------------
 
 void PerformanceWindow::onRender() {
-	if( !m_visibility )
-		return;
-
 	sf::RenderWindow* window = System::getWindow();
 
 	// Times

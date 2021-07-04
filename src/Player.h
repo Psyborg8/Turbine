@@ -7,6 +7,7 @@
 #include "RigidRect.h"
 #include "Timer.h"
 #include "Input.h"
+#include "Particle.h"
 
 //================================================================================
 
@@ -96,6 +97,11 @@ public:
 		const Math::Color color{ 0.2f, 0.2f, 0.2f, 1.0f };
 
 		vector< shared_ptr< RigidRect > > dashShadows;
+
+		struct {
+			Gfx::Particle::Pattern jump;
+			Gfx::Particle::Pattern wallSlash;
+		} particlePatterns;
 	} spriteData;
 
 	struct {

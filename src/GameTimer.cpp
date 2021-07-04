@@ -63,13 +63,13 @@ void GameTimer::onStart() {
 
 	m_timerText.setFont( m_font );
 	m_timerText.setCharacterSize( 40u );
-	m_timerText.setScale( sf::Vector2f( 0.25f, 0.25f ) );
+	m_timerText.setScale( sf::Vector2f( 0.25f, 0.25f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
 	m_timerText.setOutlineThickness( 3.0f );
 	m_timerText.setOutlineColor( sf::Color::Black );
 
 	m_splitText.setFont( m_font );
 	m_splitText.setCharacterSize( 40u );
-	m_splitText.setScale( sf::Vector2f( 0.1f, 0.1f ) );
+	m_splitText.setScale( sf::Vector2f( 0.1f, 0.1f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
 	m_splitText.setOutlineThickness( 3.0f );
 	m_splitText.setOutlineColor( sf::Color::Black );
 

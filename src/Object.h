@@ -42,17 +42,17 @@ public:
 
 public:
 	// Call events for object and children of object
-	inline void event( sf::Event e ) { if( isMarkedForRemoval() ) return; onEvent( e ); for( shared_ptr< Object > child : m_children ) child->event( e ); }
-	inline void spawnChildren() { if( isMarkedForRemoval() ) return; onSpawnChildren(); for( shared_ptr< Object > child : m_children ) child->spawnChildren(); }
-	inline void start() { onStart(); if( isMarkedForRemoval() ) return; for( shared_ptr< Object > child : m_children ) child->start(); }
-	inline void update( sf::Time dt ) { if( isMarkedForRemoval() ) return; onUpdate( dt ); for( shared_ptr< Object > child : m_children ) child->update( dt ); }
-	inline void processCollisions() { if( isMarkedForRemoval() ) return; onProcessCollisions(); for( shared_ptr< Object > child : m_children ) child->processCollisions(); }
-	inline void postUpdate( sf::Time dt ) { if( isMarkedForRemoval() ) return; setPosition( getPosition() + getVelocity() * dt.asSeconds() ); onPostUpdate( dt ); for( shared_ptr< Object > child : m_children ) child->postUpdate( dt ); }
-	inline void render() { if( isMarkedForRemoval() || !m_visibility ) return; onRender(); for( shared_ptr< Object > child : m_children ) child->render(); }
-	inline void postRender() { if( isMarkedForRemoval() ) return; onPostRender(); for( shared_ptr< Object > child : m_children ) child->postRender(); }
-	inline void exit() { if( isMarkedForRemoval() ) return; onExit(); for( shared_ptr< Object > child : m_children ) child->exit(); }
-	inline void message( string message ) { if( isMarkedForRemoval() ) return; onMessage( message ); for( shared_ptr< Object > child : m_children ) child->message( message ); }
-	inline void destroy() { if( isMarkedForRemoval() ) return; s_markedForDeletion.push_back( shared_from_this() ); for( shared_ptr< Object > child : m_children ) child->destroy(); }
+	void event( sf::Event e );
+	void spawnChildren();
+	void start();
+	void update( sf::Time dt );
+	void processCollisions();
+	void postUpdate( sf::Time dt );
+	void render();
+	void postRender();
+	void exit();
+	void message( string message );
+	void destroy();
 
 // Collision
 public:

@@ -123,7 +123,7 @@ void addMessage( string message, DebugType type  ) {
 	DebugMessage out;
 	out.text.setFont( font );
 	out.text.setCharacterSize( 40u );
-	out.text.setScale( sf::Vector2f( 0.1f, 0.1f ) );
+	out.text.setScale( sf::Vector2f( 0.1f, 0.1f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
 	out.text.setOutlineColor( sf::Color::Black );
 	out.text.setOutlineThickness( 3.0f );
 	out.text.setString( message );
@@ -155,7 +155,7 @@ void PerformanceWindow::onStart() {
 	font.loadFromFile( Folders::Fonts + "MonospaceTypewriter.ttf" );
 	m_text = sf::Text();
 	m_text.setCharacterSize( 40u );
-	m_text.setScale( sf::Vector2f( 0.2f, 0.2f ) );
+	m_text.setScale( sf::Vector2f( 0.2f, 0.2f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
 	m_text.setFont( font );
 	m_text.setOutlineColor( sf::Color::Black );
 	m_text.setOutlineThickness( 3.0f );
@@ -281,7 +281,7 @@ void JoystickWindow::onStart() {
 	font.loadFromFile( Folders::Fonts + "MonospaceTypewriter.ttf" );
 	m_text = sf::Text();
 	m_text.setCharacterSize( 40u );
-	m_text.setScale( sf::Vector2f( 0.1f, 0.1f ) );
+	m_text.setScale( sf::Vector2f( 0.1f, 0.1f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
 	m_text.setFont( font );
 	m_text.setOutlineColor( sf::Color::Black );
 	m_text.setOutlineThickness( 3.0f );
@@ -378,7 +378,7 @@ void PhysicsWindow::onStart() {
 	font.loadFromFile( Folders::Fonts + "MonospaceTypewriter.ttf" );
 	m_text = sf::Text();
 	m_text.setCharacterSize( 20u );
-	m_text.setScale( sf::Vector2f( 0.17f, 0.17f ) );
+	m_text.setScale( sf::Vector2f( 0.17f, 0.17f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
 	m_text.setFont( font );
 	m_text.setLineSpacing( 0.9f );
 	m_text.setOutlineColor( sf::Color::Black );

@@ -426,6 +426,15 @@ void constructMap( string name, Object* world ) {
 				// Render to texture
 				Gfx::Tileset::renderTile( tileset.name, id - tileset.uid, &texture, position );
 
+				// Darken the background
+				if( layer.name == "Background" ) {
+					sf::RectangleShape rect;
+					rect.setPosition( position.sf() );
+					rect.setSize( tileset.tileSize.sf() );
+					rect.setFillColor( sf::Color( 0u, 0u, 0u, 64u ) );
+					texture.draw( rect );
+				}
+
 				if( layer.name == "Terrain" ) {
 					// Construct the collider
 					const auto kt = it->tilemap.find( id );
@@ -650,13 +659,6 @@ void renderMap( string name ) {
 		Math::Vec2 position = chunk.position + it->tileLayers[ "Background" ].position;
 		sprite.setPosition( position.sf() );
 		System::getWindow()->draw( sprite );
-
-		// Darken the background
-		sf::RectangleShape rect;
-		rect.setPosition( position.sf() );
-		rect.setSize( sf::Vector2f( 256.0f, 256.0f ) );
-		rect.setFillColor( sf::Color( 0u, 0u, 0u, 64u ) );
-		System::getWindow()->draw( rect );
 	}
 
 	for( const Chunk& chunk : it->tileLayers[ "Background Details" ].chunks ) {

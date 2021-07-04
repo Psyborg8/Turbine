@@ -1,0 +1,288 @@
+{
+    "lifetime": {
+        "value": {
+            "min": 0,
+            "max": 0
+        }
+    },
+    "position": {
+        "value": {
+            "min": {
+                "x": 0.0,
+                "y": -128.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": -128.0
+            }
+        },
+        "relative": false
+    },
+    "velocity": {
+        "value": {
+            "min": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": 0.0
+            }
+        },
+        "relative": false
+    },
+    "size": {
+        "value": {
+            "min": 1.0,
+            "max": 1.0
+        },
+        "relative": {
+            "min": 1.0,
+            "max": 1.0
+        }
+    },
+    "number": {
+        "value": {
+            "min": 1,
+            "max": 1
+        }
+    },
+    "color": {
+        "value": {
+            "min": {
+                "red": 0.0,
+                "green": 0.0,
+                "blue": 0.0,
+                "alpha": 0.0
+            },
+            "max": {
+                "red": 0.0,
+                "green": 0.0,
+                "blue": 0.0,
+                "alpha": 0.0
+            }
+        },
+        "relative": false,
+        "type": 0
+    },
+    "gravity": {
+        "type": 0,
+        "value": {
+            "min": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": 0.0
+            }
+        },
+        "power": {
+            "min": 0.0,
+            "max": 0.0
+        },
+        "multiplier": {
+            "min": 0.0,
+            "max": 0.0
+        }
+    },
+    "emitter": [{
+            "spawnrate": {
+                "min": 120.0,
+                "max": 240.0
+            },
+            "delay": {
+                "min": 0,
+                "max": 0
+            },
+            "patterns": [{
+                    "lifetime": {
+                        "value": {
+                            "min": 1500,
+                            "max": 3000
+                        }
+                    },
+                    "position": {
+                        "value": {
+                            "min": {
+                                "x": -128.0,
+                                "y": 0.0
+                            },
+                            "max": {
+                                "x": 128.0,
+                                "y": 0.0
+                            }
+                        },
+                        "relative": true
+                    },
+                    "velocity": {
+                        "value": {
+                            "min": {
+                                "x": -64.0,
+                                "y": 0.0
+                            },
+                            "max": {
+                                "x": 64.0,
+                                "y": -32.0
+                            }
+                        },
+                        "relative": false
+                    },
+                    "size": {
+                        "value": {
+                            "min": 0.5,
+                            "max": 1.0
+                        },
+                        "relative": {
+                            "min": 0.5,
+                            "max": 1.0
+                        }
+                    },
+                    "number": {
+                        "value": {
+                            "min": 1,
+                            "max": 1
+                        }
+                    },
+                    "color": {
+                        "value": {
+                            "min": {
+                                "red": 0.0,
+                                "green": 0.57,
+                                "blue": 0.69,
+                                "alpha": 1.0
+                            },
+                            "max": {
+                                "red": 0.0,
+                                "green": 0.4,
+                                "blue": 0.8,
+                                "alpha": 1.0
+                            }
+                        },
+                        "relative": false,
+                        "type": 2
+                    },
+                    "gravity": {
+                        "type": 0,
+                        "value": {
+                            "min": {
+                                "x": 0.0,
+                                "y": 1.0
+                            },
+                            "max": {
+                                "x": 0.0,
+                                "y": 1.0
+                            }
+                        },
+                        "power": {
+                            "min": 256.0,
+                            "max": 256.0
+                        },
+                        "multiplier": {
+                            "min": 0.0,
+                            "max": 0.0
+                        }
+                    },
+                    "emitter": [{
+                            "spawnrate": {
+                                "min": 1.0,
+                                "max": 2.5
+                            },
+                            "delay": {
+                                "min": 200,
+                                "max": 200
+                            },
+                            "patterns": [{
+                                    "lifetime": {
+                                        "value": {
+                                            "min": 500,
+                                            "max": 1500
+                                        }
+                                    },
+                                    "position": {
+                                        "value": {
+                                            "min": {
+                                                "x": 0.0,
+                                                "y": 0.0
+                                            },
+                                            "max": {
+                                                "x": 0.0,
+                                                "y": 0.0
+                                            }
+                                        },
+                                        "relative": true
+                                    },
+                                    "velocity": {
+                                        "value": {
+                                            "min": {
+                                                "x": -32.0,
+                                                "y": -32.0
+                                            },
+                                            "max": {
+                                                "x": 32.0,
+                                                "y": 32.0
+                                            }
+                                        },
+                                        "relative": true
+                                    },
+                                    "size": {
+                                        "value": {
+                                            "min": 0.25,
+                                            "max": 1.0
+                                        },
+                                        "relative": {
+                                            "min": 0.25,
+                                            "max": 1.0
+                                        }
+                                    },
+                                    "number": {
+                                        "value": {
+                                            "min": 1,
+                                            "max": 1
+                                        }
+                                    },
+                                    "color": {
+                                        "value": {
+                                            "min": {
+                                                "red": 0.89,
+                                                "green": 0.93,
+                                                "blue": 1.0,
+                                                "alpha": 0.3
+                                            },
+                                            "max": {
+                                                "red": 0.69,
+                                                "green": 0.85,
+                                                "blue": 1.0,
+                                                "alpha": 0.5
+                                            }
+                                        },
+                                        "relative": true,
+                                        "type": 1
+                                    },
+                                    "gravity": {
+                                        "type": 0,
+                                        "value": {
+                                            "min": {
+                                                "x": 0.0,
+                                                "y": 1.0
+                                            },
+                                            "max": {
+                                                "x": 0.0,
+                                                "y": 1.0
+                                            }
+                                        },
+                                        "power": {
+                                            "min": 256.0,
+                                            "max": 256.0
+                                        },
+                                        "multiplier": {
+                                            "min": 0.0,
+                                            "max": 0.0
+                                        }
+                                    },
+                                    "emitter": []
+                                }]
+                        }]
+                }]
+        }]
+}

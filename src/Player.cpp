@@ -10,6 +10,7 @@
 #include "Timer.h"
 #include "Debug.h"
 #include "Map.h"
+#include "ParticleLoader.h"
 
 //================================================================================
 
@@ -79,6 +80,10 @@ void Player::onSpawnChildren() {
 
 	// Debug
 	Input::bindButton( "Debug", bindings.controller.debug, bindings.keyboard.debug, bind( &Player::debug, this, _1 ) );
+
+	// Particles
+	spriteData.particlePatterns.jump = Gfx::Particle::loadPattern( "Player\\Jump" );
+	spriteData.particlePatterns.wallSlash = Gfx::Particle::loadPattern( "Player\\Wall Slash" );
 }
 
 //--------------------------------------------------------------------------------
@@ -307,6 +312,9 @@ void Player::jump( bool pressed )
 			m_velocity.y = -jumpData.power;
 			jumpData.canJump = false;
 			jumpData.isJumping = true;
+
+			spriteData.particlePatterns.jump.getPosition().set( getPosition() );
+			Gfx::Particle::spawnParticle( this, spriteData.particlePatterns.jump );
 		}
 		return;
 	}

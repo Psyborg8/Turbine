@@ -33,6 +33,11 @@
 
 //================================================================================
 
+// Post-Include Definitions
+#undef GetObject
+
+//================================================================================
+
 /* Aliasing */
 using std::string;
 using std::vector;
@@ -79,6 +84,7 @@ static const string Assets = Data + "Assets\\";
 static const string Tilesets = Assets + "Tilesets\\";
 static const string Sprites = Assets + "Sprites\\";
 static const string Fonts = Assets + "Fonts\\";
+static const string Bullets = Assets + "Bullets\\";
 
 static const string Maps = Data + "Maps\\";
 

@@ -4,6 +4,10 @@
 
 //================================================================================
 
+#include "MathTypes.h"
+
+//================================================================================
+
 namespace Random {
 
 //================================================================================
@@ -28,6 +32,23 @@ float getRandomFloatInRange( float min, float max );
 float getRandomFloatInRange( float min, float max, function< float( float randomNumber ) > func );
 RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count );
 RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count, function< float( float randomNumber ) > func );
+
+Math::Vec2 getRandomVec2InRange( Math::Vec2 min, Math::Vec2 max );
+
+//--------------------------------------------------------------------------------
+
+enum class RandomColorType {
+	ShuffleRGB,
+	MixRGB,
+	ShuffleHSV,
+	MixHSV,
+	SortedHSV,
+};
+
+Math::Color getRandomColorInRange( Math::Color a, Math::Color b, RandomColorType type );
+RandomNumbers< Math::Color > getRandomColorInRange( Math::Color a, Math::Color b, RandomColorType type, size_t count );
+
+//--------------------------------------------------------------------------------
 
 uint16_t getSeed();
 void setSeed( uint16_t seed );

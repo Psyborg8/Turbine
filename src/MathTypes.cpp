@@ -46,6 +46,50 @@ float minCol( Color color ) {
 
 //================================================================================
 
+Color& Color::fromHSV( float h, float s, float v, float _a ) {
+	float c = v * s;
+	float x = c * ( 1.0f - std::abs( fmod( h * 6.0f, 2.0f ) -1.0f ) );
+	float m = v - c;
+
+	h *= 360.0f;
+
+	if( h >= 0.0f && h < 60.0f ) {
+		r = c + m;
+		g = x + m;
+		b = m;
+	}
+	else if( h >= 60.0f && h < 120.0f ) {
+		r = x + m;
+		g = c + m;
+		b = m;
+	}
+	else if( h >= 120.0f && h < 180.0f ) {
+		r = m;
+		g = c + m;
+		b = x + m;
+	}
+	else if( h >= 180.0f && h < 240.0f ) {
+		r = m;
+		g = x + m;
+		b = c + m;
+	}
+	else if( h >= 240.0f && h < 300.0f ) {
+		r = x + m;
+		g = m;
+		b = c + m;
+	}
+	else if( h >= 300.0f && h < 360.0f ) {
+		r = c + m;
+		g = m;
+		b = x + m;
+	}
+
+	a = _a;
+	return *this;
+}
+
+//--------------------------------------------------------------------------------
+
 float Color::saturation() const {
 	float maxC = maxCol( *this );
 	float minC = minCol( *this );
@@ -90,7 +134,7 @@ float Color::hue() const {
 	if( out < 0.0f )
 		out += 3.6f;
 
-	return out;
+	return out / 3.6f;
 }
 
 //--------------------------------------------------------------------------------
@@ -212,6 +256,8 @@ float Vec2::determinant( const Vec2& rh ) const {
 
 
 Vec2 Vec2::normalize() const {
+	if( !x && !y )
+		return Math::Vec2( 0.0f, 0.0f );
 	return *this / length();
 }
 

@@ -8,6 +8,151 @@
 
 //================================================================================
 
+void Object::event( sf::Event e ) {
+	if( isMarkedForRemoval() )
+		return;
+
+	onEvent( e );
+
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->event( e );
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::spawnChildren() {
+	if( isMarkedForRemoval() )
+		return;
+
+	onSpawnChildren();
+
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->spawnChildren();
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::start() {
+	if( isMarkedForRemoval() )
+		return;
+
+	onStart();
+	
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->start();
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::update( sf::Time dt ) {
+	if( isMarkedForRemoval() )
+		return;
+
+	onUpdate( dt );
+
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->update( dt );
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::processCollisions() {
+	if( isMarkedForRemoval() )
+		return;
+
+	onProcessCollisions();
+
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->processCollisions();
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::postUpdate( sf::Time dt ) {
+	if( isMarkedForRemoval() )
+		return;
+
+	setPosition( getPosition() + getVelocity() * dt.asSeconds() );
+	onPostUpdate( dt );
+
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->postUpdate( dt );
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::render() {
+	if( isMarkedForRemoval() || !m_visibility )
+		return;
+
+	onRender();
+
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->render();
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::postRender() {
+	if( isMarkedForRemoval() )
+		return;
+
+	onPostRender();
+
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->postRender();
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::exit() {
+	if( isMarkedForRemoval() )
+		return;
+
+	onExit();
+
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->exit();
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::message( string message ) {
+	if( isMarkedForRemoval() )
+		return;
+
+	onMessage( message );
+
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->message( message );
+}
+
+//--------------------------------------------------------------------------------
+
+void Object::destroy() {
+	if( isMarkedForRemoval() )
+		return;
+
+	s_markedForDeletion.push_back( shared_from_this() );
+	onDestroy();
+
+	const size_t size = m_children.size();
+	for( size_t i = 0u ; i < size; ++i )
+		m_children.at( i )->destroy();
+}
+
+//--------------------------------------------------------------------------------
+
 void Object::processCollisions( vector< shared_ptr< Object > > targets ) {
 	for( shared_ptr< Object > target : targets ) {
 		const Collision::CollisionResult result = isColliding( target );

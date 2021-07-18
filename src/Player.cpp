@@ -10,7 +10,7 @@
 #include "Timer.h"
 #include "Debug.h"
 #include "Map.h"
-#include "ParticleLoader.h"
+#include "Particle.h"
 
 //================================================================================
 
@@ -314,7 +314,7 @@ void Player::jump( bool pressed )
 			jumpData.isJumping = true;
 
 			spriteData.particlePatterns.jump.getPosition().set( getPosition() );
-			Gfx::Particle::spawnParticle( this, spriteData.particlePatterns.jump );
+			Gfx::Particle::spawnParticle( m_parent, spriteData.particlePatterns.jump );
 		}
 		return;
 	}

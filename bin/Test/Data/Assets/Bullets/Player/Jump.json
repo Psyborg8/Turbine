@@ -1,197 +1,307 @@
 {
-    "lifetime": {
-        "value": {
-            "min": 1,
-            "max": 1
+  "lifetime": {
+    "value": {
+      "min": 1,
+      "max": 1
+    }
+  },
+  "position": {
+    "value": {
+      "min": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "max": {
+        "x": 0.0,
+        "y": 0.0
+      }
+    },
+    "relative": false
+  },
+  "velocity": {
+    "value": {
+      "min": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "max": {
+        "x": 0.0,
+        "y": 0.0
+      }
+    },
+    "relative": false,
+    "fadex": false,
+    "fadey": false
+  },
+  "size": {
+    "value": {
+      "min": 1.0,
+      "max": 1.0
+    },
+    "relative": {
+      "min": 1.0,
+      "max": 1.0
+    },
+    "fade": false
+  },
+  "number": {
+    "value": {
+      "min": 1,
+      "max": 1
+    }
+  },
+  "color": {
+    "value": {
+      "min": {
+        "red": 0.0,
+        "green": 0.0,
+        "blue": 0.0,
+        "alpha": 0.0
+      },
+      "max": {
+        "red": 0.0,
+        "green": 0.0,
+        "blue": 0.0,
+        "alpha": 0.0
+      }
+    },
+    "relative": false,
+    "type": 0,
+    "fade": false
+  },
+  "gravity": {
+    "type": 0,
+    "value": {
+      "min": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "max": {
+        "x": 0.0,
+        "y": 0.0
+      }
+    },
+    "power": {
+      "min": 0.0,
+      "max": 0.0
+    },
+    "multiplier": {
+      "min": 0.0,
+      "max": 0.0
+    }
+  },
+  "emitter": [
+    {
+      "spawnrate": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "delay": {
+        "min": 0,
+        "max": 0
+      },
+      "patterns": [
+        {
+          "lifetime": {
+            "value": {
+              "min": 300,
+              "max": 500
+            }
+          },
+          "position": {
+            "value": {
+              "min": {
+                "x": 0.0,
+                "y": 9.0
+              },
+              "max": {
+                "x": 8.0,
+                "y": 9.0
+              }
+            },
+            "relative": true
+          },
+          "velocity": {
+            "value": {
+              "min": {
+                "x": -32.0,
+                "y": 0.0
+              },
+              "max": {
+                "x": -64.0,
+                "y": 0.0
+              }
+            },
+            "relative": false,
+            "fadex": false,
+            "fadey": false
+          },
+          "size": {
+            "value": {
+              "min": 2.0,
+              "max": 4.0
+            },
+            "relative": {
+              "min": 2.0,
+              "max": 4.0
+            },
+            "fade": true
+          },
+          "number": {
+            "value": {
+              "min": 2,
+              "max": 5
+            }
+          },
+          "color": {
+            "value": {
+              "min": {
+                "red": 0.35,
+                "green": 0.33,
+                "blue": 0.25,
+                "alpha": 0.3
+              },
+              "max": {
+                "red": 0.55,
+                "green": 0.53,
+                "blue": 0.45,
+                "alpha": 0.5
+              }
+            },
+            "relative": false,
+            "type": 3,
+            "fade": true
+          },
+          "gravity": {
+            "type": 0,
+            "value": {
+              "min": {
+                "x": 0.0,
+                "y": 0.0
+              },
+              "max": {
+                "x": 0.0,
+                "y": 0.0
+              }
+            },
+            "power": {
+              "min": 0.0,
+              "max": 0.0
+            },
+            "multiplier": {
+              "min": 0.0,
+              "max": 0.0
+            }
+          },
+          "emitter": []
         }
-    },
-    "position": {
-        "value": {
-            "min": {
-                "x": 0.0,
-                "y": 0.0
-            },
-            "max": {
-                "x": 0.0,
-                "y": 0.0
+      ]
+  },
+    {
+      "spawnrate": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "delay": {
+        "min": 0,
+        "max": 0
+      },
+      "patterns": [
+        {
+          "lifetime": {
+            "value": {
+              "min": 300,
+              "max": 500
             }
-        },
-        "relative": false
-    },
-    "velocity": {
-        "value": {
-            "min": {
+          },
+          "position": {
+            "value": {
+              "min": {
                 "x": 0.0,
-                "y": 0.0
+                "y": 9.0
+              },
+              "max": {
+                "x": 9.0,
+                "y": 8.0
+              }
             },
-            "max": {
+            "relative": true
+          },
+          "velocity": {
+            "value": {
+              "min": {
+                "x": 32.0,
+                "y": 0.0
+              },
+              "max": {
+                "x": 64.0,
+                "y": 0.0
+              }
+            },
+            "relative": false,
+            "fadex": false,
+            "fadey": false
+          },
+          "size": {
+            "value": {
+              "min": 2.0,
+              "max": 4.0
+            },
+            "relative": {
+              "min": 2.0,
+              "max": 4.0
+            },
+            "fade": true
+          },
+          "number": {
+            "value": {
+              "min": 2,
+              "max": 5
+            }
+          },
+          "color": {
+            "value": {
+              "min": {
+                "red": 0.35,
+                "green": 0.33,
+                "blue": 0.25,
+                "alpha": 0.5
+              },
+              "max": {
+                "red": 0.55,
+                "green": 0.53,
+                "blue": 0.45,
+                "alpha": 0.3
+              }
+            },
+            "relative": false,
+            "type": 3,
+            "fade": true
+          },
+          "gravity": {
+            "type": 0,
+            "value": {
+              "min": {
                 "x": 0.0,
                 "y": 0.0
+              },
+              "max": {
+                "x": 0.0,
+                "y": 0.0
+              }
+            },
+            "power": {
+              "min": 0.0,
+              "max": 0.0
+            },
+            "multiplier": {
+              "min": 0.0,
+              "max": 0.0
             }
-        },
-        "relative": false,
-        "fadex": false,
-        "fadey": false
-    },
-    "size": {
-        "value": {
-            "min": 1.0,
-            "max": 1.0
-        },
-        "relative": {
-            "min": 1.0,
-            "max": 1.0
-        },
-        "fade": false
-    },
-    "number": {
-        "value": {
-            "min": 1,
-            "max": 1
+          },
+          "emitter": []
         }
-    },
-    "color": {
-        "value": {
-            "min": {
-                "red": 0.0,
-                "green": 0.0,
-                "blue": 0.0,
-                "alpha": 0.0
-            },
-            "max": {
-                "red": 0.0,
-                "green": 0.0,
-                "blue": 0.0,
-                "alpha": 0.0
-            }
-        },
-        "relative": false,
-        "type": 0,
-        "fade": false
-    },
-    "gravity": {
-        "type": 0,
-        "value": {
-            "min": {
-                "x": 0.0,
-                "y": 0.0
-            },
-            "max": {
-                "x": 0.0,
-                "y": 0.0
-            }
-        },
-        "power": {
-            "min": 0.0,
-            "max": 0.0
-        },
-        "multiplier": {
-            "min": 0.0,
-            "max": 0.0
-        }
-    },
-    "emitter": [{
-            "spawnrate": {
-                "min": 0.0,
-                "max": 0.0
-            },
-            "delay": {
-                "min": 0,
-                "max": 0
-            },
-            "patterns": [{
-                    "lifetime": {
-                        "value": {
-                            "min": 750,
-                            "max": 1500
-                        }
-                    },
-                    "position": {
-                        "value": {
-                            "min": {
-                                "x": 4.0,
-                                "y": 0.0
-                            },
-                            "max": {
-                                "x": 4.0,
-                                "y": 0.0
-                            }
-                        },
-                        "relative": true
-                    },
-                    "velocity": {
-                        "value": {
-                            "min": {
-                                "x": 16.0,
-                                "y": 0.0
-                            },
-                            "max": {
-                                "x": -16.0,
-                                "y": -4.0
-                            }
-                        },
-                        "relative": false,
-                        "fadex": true,
-                        "fadey": true
-                    },
-                    "size": {
-                        "value": {
-                            "min": 2.0,
-                            "max": 4.0
-                        },
-                        "relative": {
-                            "min": 2.0,
-                            "max": 4.0
-                        },
-                        "fade": true
-                    },
-                    "number": {
-                        "value": {
-                            "min": 5,
-                            "max": 10
-                        }
-                    },
-                    "color": {
-                        "value": {
-                            "min": {
-                                "red": 0.2,
-                                "green": 0.2,
-                                "blue": 0.2,
-                                "alpha": 0.5
-                            },
-                            "max": {
-                                "red": 0.4,
-                                "green": 0.4,
-                                "blue": 0.4,
-                                "alpha": 0.2
-                            }
-                        },
-                        "relative": false,
-                        "type": 3,
-                        "fade": true
-                    },
-                    "gravity": {
-                        "type": 0,
-                        "value": {
-                            "min": {
-                                "x": 0.0,
-                                "y": 0.0
-                            },
-                            "max": {
-                                "x": 0.0,
-                                "y": 0.0
-                            }
-                        },
-                        "power": {
-                            "min": 0.0,
-                            "max": 0.0
-                        },
-                        "multiplier": {
-                            "min": 0.0,
-                            "max": 0.0
-                        }
-                    },
-                    "emitter": []
-                }]
-        }]
+      ]
+    }
+  ]
 }

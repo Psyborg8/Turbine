@@ -336,6 +336,10 @@ public:
 
 void spawnParticle( Object* parent, Pattern pattern );
 
+Pattern loadPattern( string filepath );
+
+void savePattern( Pattern pattern, string filepath );
+
 //--------------------------------------------------------------------------------
 
 }

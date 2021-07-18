@@ -31,9 +31,6 @@
     <Filter Include="Engine\Objects">
       <UniqueIdentifier>{abc69a04-4206-410a-9a57-b899d8d37494}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\GFX\Particles">
-      <UniqueIdentifier>{820e03d7-8a95-4ea3-823d-eee767e66eec}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ProjectBullet.cpp">
@@ -105,9 +102,6 @@
     <ClCompile Include="src\Particle.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\ParticleLoader.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -174,10 +168,7 @@
       <Filter>Game\Worlds</Filter>
     </ClInclude>
     <ClInclude Include="src\Particle.h">
-      <Filter>Engine\GFX\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ParticleLoader.h">
-      <Filter>Engine\GFX\Particles</Filter>
+      <Filter>Engine\GFX</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

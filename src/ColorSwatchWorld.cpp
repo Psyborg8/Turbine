@@ -9,7 +9,6 @@
 #include "Random.h"
 
 #include "Particle.h"
-#include "ParticleLoader.h"
 
 //================================================================================
 

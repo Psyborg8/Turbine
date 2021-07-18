@@ -117,7 +117,7 @@ public:
 	struct {
 		bool enabled{ true };
 
-		float power{ 15.0f };
+		float power{ 25.0f };
 		float max{ 300.0f };
 		float min{ 20.0f };
 	} gravityData;
@@ -139,7 +139,7 @@ public:
 		bool isJumpingDown{ false };
 
 		float leniency{ 1.5f };
-		float power{ 160.0f };
+		float power{ 200.0f };
 		float release{ 70.0f };
 	} jumpData;
 

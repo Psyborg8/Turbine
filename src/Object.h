@@ -9,6 +9,12 @@
 
 //================================================================================
 
+namespace Worlds {
+class World;
+}
+
+//--------------------------------------------------------------------------------
+
 class Object : public std::enable_shared_from_this< Object > {
 public:
 	Object() : m_name( "" ), m_parent( nullptr ) {};
@@ -89,9 +95,17 @@ public:
 	inline bool getVisibility() const { return m_visibility; }
 	inline void setVisibility( bool visible ) { m_visibility = visible; }
 
+	Worlds::World* getWorld() const;
+
+	vector< shared_ptr< Object > > getChildren( bool recursive = false ) const;
+
 	// Unique ID set by the level editor for objects placed there
 	inline int getUid() const { return m_uid; }
 	inline void setUid( int uid ) { m_uid = uid; }
+
+	// Render priority
+	inline int getPriority() const { return m_priority; }
+	inline void setPriority( int priority ) { m_priority = priority; }
 
 	inline bool isMarkedForRemoval() const { return m_markedForRemoval; }
 
@@ -109,6 +123,8 @@ protected:
 	bool m_visibility{ false };
 	bool m_markedForRemoval{ false };
 	int m_uid{ -1 };
+
+	int m_priority{ 0 };
 
 
 	/* Static */

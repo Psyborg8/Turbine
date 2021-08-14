@@ -137,7 +137,7 @@ void Particle::constructParticle( Pattern pattern ) {
 	Math::Vec2 position = Random::getRandomVec2InRange( pattern.getPosition().get().first, pattern.getPosition().get().second );
 	if( pattern.getPosition().getRelative() && m_emitter != nullptr )
 		position += m_emitter->getPosition();
-	setWorldPosition( position );
+	setPosition( position );
 
 	// Radius
 	float radius = Random::getRandomFloatInRange( pattern.getSize().get().first, pattern.getSize().get().second );
@@ -210,6 +210,13 @@ void spawnParticle( Object* parent, Pattern pattern ) {
 		shared_ptr< Particle > particle = Object::makeObject< Particle >( parent );
 		particle->constructParticle( pattern );
 	}
+}
+
+//--------------------------------------------------------------------------------
+
+void spawnParticle( Object* parent, Pattern pattern, Math::Vec2 position ) {
+	pattern.getPosition().set( pattern.getPosition().get().first + position, pattern.getPosition().get().second + position );
+	spawnParticle( parent, pattern );
 }
 
 //================================================================================

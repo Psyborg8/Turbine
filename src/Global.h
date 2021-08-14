@@ -88,6 +88,8 @@ static const string Bullets = Assets + "Bullets\\";
 
 static const string Maps = Data + "Maps\\";
 
+static const string Sound = Data + "Sounds\\";
+
 } // Folders
 
 //================================================================================
@@ -132,6 +134,25 @@ enum class ControllerAxis {
 	DPadX,
 	DPadY,
 	None
+};
+
+//--------------------------------------------------------------------------------
+
+enum class RenderPriority {
+	Background = -100,
+	BackgroundDetail = -50,
+	Terrain = 0,
+	Player = 25,
+	Foreground = 50,
+	UI = 100,
+};
+
+//--------------------------------------------------------------------------------
+
+enum class MapLayer {
+	Background = 0,
+	BackgroundDetail,
+	Terrain
 };
 
 //================================================================================

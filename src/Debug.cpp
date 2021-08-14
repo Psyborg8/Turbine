@@ -123,7 +123,6 @@ void addMessage( string message, DebugType type  ) {
 	DebugMessage out;
 	out.text.setFont( font );
 	out.text.setCharacterSize( 40u );
-	out.text.setScale( sf::Vector2f( 0.1f, 0.1f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
 	out.text.setOutlineColor( sf::Color::Black );
 	out.text.setOutlineThickness( 3.0f );
 	out.text.setString( message );
@@ -154,17 +153,59 @@ void addMessage( string message, DebugType type  ) {
 void PerformanceWindow::onStart() {
 	font.loadFromFile( Folders::Fonts + "MonospaceTypewriter.ttf" );
 	m_text = sf::Text();
-	m_text.setCharacterSize( 40u );
-	m_text.setScale( sf::Vector2f( 0.2f, 0.2f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
+	m_text.setCharacterSize( 20u );
 	m_text.setFont( font );
 	m_text.setOutlineColor( sf::Color::Black );
-	m_text.setOutlineThickness( 3.0f );
+	m_text.setOutlineThickness( 1.5f );
+
+	m_priority = static_cast< int >( RenderPriority::UI );
 }
 
 //--------------------------------------------------------------------------------
 
 void PerformanceWindow::onUpdate( sf::Time deltaTime ) {
+	// Get screen position
+	sf::RenderWindow* window = System::getWindow();
+	sf::Vector2f pos = window->mapPixelToCoords( sf::Vector2i( 3, 0 ) );
+	m_text.setPosition( pos );
+
+	// Messages
+	float y = 0.0;
+	for( int i = int( messages.size() ) - 1; i >= 0; --i ) {
+		DebugMessage& message = messages.at( i );
+		// Fade out message
+		message.alpha -= 0.1f * deltaTime.asSeconds();
+		// Delete invisible messages
+		if( message.alpha < 0.0f ) {
+			messages.erase( messages.begin() + i );
+			continue;
+		}
+		// Set alpha
+		{
+			sf::Color color = message.text.getFillColor();
+			sf::Color outline = message.text.getOutlineColor();
+			color.a = outline.a = sf::Uint8( message.alpha * 255.0f );
+			message.text.setFillColor( color );
+			message.text.setOutlineColor( outline );
+		}
+		// Set position
+		Math::Vec2 position = Math::Vec2( window->mapPixelToCoords( sf::Vector2i( System::getSystemInfo().width, 0 ) ) );
+		position.y += y;
+		const float width = message.text.getGlobalBounds().width;
+		position.x -= width;
+		message.text.setPosition( position.sf() );
+
+		// Move next line down
+		y += getWorld()->getCamera().scale( 5.0f );
+	}
+
+	if( m_renderTimer.getElapsedTime() < sf::Time( sf::milliseconds( 34 ) ) )
+		return;
+
+	m_renderTimer.restart();
+
 	Debug::startTimer( "Debug::Performance Update" );
+
 	// Update FPS
 	if( m_first ) {
 		std::fill( m_deltaTimes.begin(), m_deltaTimes.end(), deltaTime );
@@ -187,12 +228,6 @@ void PerformanceWindow::onUpdate( sf::Time deltaTime ) {
 	const float average = total / m_deltaTimes.size();
 	const int fps = int( 1.0f / average );
 
-	// Get screen position
-	sf::RenderWindow* window = System::getWindow();
-	sf::Vector2f pos = window->mapPixelToCoords( sf::Vector2i() );
-	pos.x += 3.0f;
-	m_text.setPosition( pos );
-
 	// Construct strings
 	// FPS
 	string s = std::to_string( fps ) + "fps\n";
@@ -204,36 +239,6 @@ void PerformanceWindow::onUpdate( sf::Time deltaTime ) {
 		s += "ms\n";
 	}
 	m_text.setString( sf::String( s ) );
-
-	// Messages
-	float y = 0.0;
-	for( int i = int( messages.size() ) - 1; i > 0; --i ) {
-		DebugMessage& message = messages.at( i );
-		// Fade out message
-		message.alpha -= 0.1f * deltaTime.asSeconds();
-		// Delete invisible messages
-		if( message.alpha < 0.0f ) {
-			messages.erase( messages.begin() + i );
-			continue;
-		}
-		// Set alpha
-		{
-			sf::Color color = message.text.getFillColor();
-			sf::Color outline = message.text.getOutlineColor();
-			color.a = outline.a = sf::Uint8( message.alpha * 255.0f );
-			message.text.setFillColor( color );
-			message.text.setOutlineColor( outline );
-		}
-		// Set position
-		Math::Vec2 position = Math::Vec2( window->mapPixelToCoords( sf::Vector2i( System::getSystemInfo().width, 0 ) ) );
-		position.y += y;
-		const float width = message.text.getGlobalBounds().width;
-		position.x -= width + 3.0f;
-		message.text.setPosition( position.sf() );
-
-		// Move next line down
-		y += 5.0f;
-	}
 	Debug::stopTimer( "Debug::Performance Update" );
 }
 
@@ -242,11 +247,16 @@ void PerformanceWindow::onUpdate( sf::Time deltaTime ) {
 void PerformanceWindow::onRender() {
 	sf::RenderWindow* window = System::getWindow();
 
+	startTimer( "Debug::Performance Render" );
 	// Times
+	m_text.setScale( getWorld()->getCamera().scale( Math::Vec2( 0.2f, 0.2f ) ).sf() );
 	window->draw( m_text );
+	stopTimer( "Debug::Performance Render" );
 
 	// Messages
-	for( const DebugMessage& message : messages ) {
+	for( DebugMessage& message : messages ) {
+		string text = message.text.getString();
+		message.text.setScale( getWorld()->getCamera().scale( Math::Vec2( 0.1f, 0.1f ) ).sf() );
 		window->draw( message.text );
 	}
 }
@@ -281,16 +291,16 @@ void JoystickWindow::onStart() {
 	font.loadFromFile( Folders::Fonts + "MonospaceTypewriter.ttf" );
 	m_text = sf::Text();
 	m_text.setCharacterSize( 40u );
-	m_text.setScale( sf::Vector2f( 0.1f, 0.1f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
 	m_text.setFont( font );
 	m_text.setOutlineColor( sf::Color::Black );
 	m_text.setOutlineThickness( 3.0f );
+
+	m_priority = static_cast< int >( RenderPriority::UI );
 }
 
 //--------------------------------------------------------------------------------
 
 void JoystickWindow::onUpdate( sf::Time deltaTime ) {
-
 	float x = sf::Joystick::getAxisPosition( 0, sf::Joystick::X );
 	float y = sf::Joystick::getAxisPosition( 0, sf::Joystick::Y );
 	float z = sf::Joystick::getAxisPosition( 0, sf::Joystick::Z );
@@ -348,8 +358,7 @@ void JoystickWindow::onUpdate( sf::Time deltaTime ) {
 	m_text.setString( text );
 
 	sf::RenderWindow* window = System::getWindow();
-	sf::Vector2f pos = window->mapPixelToCoords( sf::Vector2i() );
-	pos.x += 3.0f;
+	sf::Vector2f pos = window->mapPixelToCoords( sf::Vector2i( 3, 0 ) );
 	m_text.setPosition( pos );
 }
 
@@ -358,6 +367,8 @@ void JoystickWindow::onUpdate( sf::Time deltaTime ) {
 void JoystickWindow::onRender() {
 	if( !m_visibility )
 		return;
+
+	m_text.setScale( getWorld()->getCamera().scale( Math::Vec2( 0.1f, 0.1f ) ).sf() );
 
 	sf::RenderWindow* window = System::getWindow();
 	window->draw( m_text );
@@ -378,11 +389,12 @@ void PhysicsWindow::onStart() {
 	font.loadFromFile( Folders::Fonts + "MonospaceTypewriter.ttf" );
 	m_text = sf::Text();
 	m_text.setCharacterSize( 20u );
-	m_text.setScale( sf::Vector2f( 0.17f, 0.17f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
 	m_text.setFont( font );
 	m_text.setLineSpacing( 0.9f );
 	m_text.setOutlineColor( sf::Color::Black );
 	m_text.setOutlineThickness( 3.0f );
+
+	m_priority = static_cast< int >( RenderPriority::UI );
 }
 
 //--------------------------------------------------------------------------------
@@ -474,9 +486,10 @@ void PhysicsWindow::onUpdate( sf::Time deltaTime ) {
 
 	m_text.setString( sf::String( buffer ) );
 
+	m_text.setScale( getWorld()->getCamera().scale( Math::Vec2( 0.125f, 0.125f ) ).sf() );
+
 	sf::RenderWindow* window = System::getWindow();
-	sf::Vector2f pos = window->mapPixelToCoords( sf::Vector2i() );
-	pos.x += 3.0f;
+	sf::Vector2f pos = window->mapPixelToCoords( sf::Vector2i( 3, 0 ) );
 	m_text.setPosition( pos );
 }
 

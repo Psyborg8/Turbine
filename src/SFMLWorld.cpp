@@ -20,8 +20,6 @@ namespace Worlds {
 void SFMLWorld::onSpawnChildren() {
 	World::onSpawnChildren();
 
-	m_camera.setDistance( 196.0f );
-
 	m_physicsPage = makeObject< Debug::PhysicsWindow >( this );
 	m_physicsPage->setVisibility( false );
 
@@ -56,9 +54,6 @@ void SFMLWorld::onStart() {
 //--------------------------------------------------------------------------------
 
 void SFMLWorld::onRender() {
-	if( m_visibility )
-		Gfx::Map::renderMap( m_currentMap );
-
 	for( const string name : m_activeEvents )
 		if( name == "Dash Prompt" )
 			Gfx::Tileset::renderTile( "Button Prompts", 2u, System::getWindow(), m_dashPromptPosition, Math::Vec2( 0.5f, 0.5f ) );

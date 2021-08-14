@@ -335,6 +335,7 @@ public:
 //================================================================================
 
 void spawnParticle( Object* parent, Pattern pattern );
+void spawnParticle( Object* parent, Pattern pattern, Math::Vec2 position );
 
 Pattern loadPattern( string filepath );
 

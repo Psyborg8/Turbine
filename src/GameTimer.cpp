@@ -14,7 +14,7 @@ namespace Gfx {
 //--------------------------------------------------------------------------------
 
 GameTimer::GameTimer() : Object() {
-
+	m_priority = static_cast< int >( RenderPriority::UI );
 }
 
 //--------------------------------------------------------------------------------
@@ -63,13 +63,11 @@ void GameTimer::onStart() {
 
 	m_timerText.setFont( m_font );
 	m_timerText.setCharacterSize( 40u );
-	m_timerText.setScale( sf::Vector2f( 0.25f, 0.25f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
 	m_timerText.setOutlineThickness( 3.0f );
 	m_timerText.setOutlineColor( sf::Color::Black );
 
 	m_splitText.setFont( m_font );
 	m_splitText.setCharacterSize( 40u );
-	m_splitText.setScale( sf::Vector2f( 0.1f, 0.1f ) / System::getWorld()->getCamera().getDistance() * 256.0f );
 	m_splitText.setOutlineThickness( 3.0f );
 	m_splitText.setOutlineColor( sf::Color::Black );
 
@@ -89,7 +87,7 @@ void GameTimer::onUpdate( sf::Time deltaTime ) {
 	sf::RenderWindow* window = System::getWindow();
 	m_timerText.setPosition( window->mapPixelToCoords( sf::Vector2i() ) );
 
-	m_splitText.setPosition( window->mapPixelToCoords( sf::Vector2i() ) + sf::Vector2f( 0, 16.0f ) );
+	m_splitText.setPosition( window->mapPixelToCoords( sf::Vector2i( 0, 70 ) ) );
 	Debug::stopTimer( "GameTimer::Update" );
 }
 
@@ -101,6 +99,9 @@ void GameTimer::onRender() {
 
 	Debug::startTimer( "GameTimer::Render" );
 	sf::RenderWindow* window = System::getWindow();
+
+	m_timerText.setScale( getWorld()->getCamera().scale( Math::Vec2( 0.25f, 0.25f ) ).sf() );
+	m_splitText.setScale( getWorld()->getCamera().scale( Math::Vec2( 0.1f, 0.1f ) ).sf() );
 
 	window->draw( m_timerText );
 	window->draw( m_splitText );

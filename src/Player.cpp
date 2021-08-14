@@ -30,6 +30,7 @@ Player::Player( Math::Vec2 pos ) : RigidRect() {
 	setSize( spriteData.size );
 	setColor( spriteData.color );
 	setCollisionType( CollisionType::Dynamic );
+	setPriority( static_cast< int >( RenderPriority::Player ) );
 	m_rect.setOutlineColor( sf::Color( 180u, 180u, 180u, 255u ) );
 	m_rect.setOutlineThickness( 0.5f );
 }
@@ -313,8 +314,7 @@ void Player::jump( bool pressed )
 			jumpData.canJump = false;
 			jumpData.isJumping = true;
 
-			spriteData.particlePatterns.jump.getPosition().set( getPosition() );
-			Gfx::Particle::spawnParticle( m_parent, spriteData.particlePatterns.jump );
+			Gfx::Particle::spawnParticle( this, spriteData.particlePatterns.jump, getPosition() );
 		}
 		return;
 	}

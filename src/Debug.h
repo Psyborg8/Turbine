@@ -49,6 +49,8 @@ private:
 	array< sf::Time, 100 >::iterator m_iterator;
 	sf::Text m_text;
 	bool m_first{ true };
+
+	sf::Clock m_renderTimer;
 };
 
 //--------------------------------------------------------------------------------

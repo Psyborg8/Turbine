@@ -463,6 +463,22 @@ void constructMap( string name, Object* world ) {
 	for( const Tileset& tileset : tilesets )
 		Gfx::Tileset::unloadTileset( tileset.name );
 
+	// Setup render layer objects
+	shared_ptr< RenderLayer > background = Object::makeObject< RenderLayer >( world );
+	background->set( name, MapLayer::Background );
+	background->setPriority( static_cast< int >( RenderPriority::Background ) );
+	background->setVisibility( true );
+
+	shared_ptr< RenderLayer > backgroundDetail = Object::makeObject< RenderLayer >( world );
+	backgroundDetail->set( name, MapLayer::BackgroundDetail );
+	backgroundDetail->setPriority( static_cast< int >( RenderPriority::BackgroundDetail ) );
+	backgroundDetail->setVisibility( true );
+
+	shared_ptr< RenderLayer > terrain = Object::makeObject< RenderLayer >( world );
+	terrain->set( name, MapLayer::Terrain );
+	terrain->setPriority( static_cast< int >( RenderPriority::Terrain ) );
+	terrain->setVisibility( true );
+
 	Debug::stopTimer( "Map::Construct" );
 	Debug::addMessage( "Map \"" + name + "\" constructed successfully.", Debug::DebugType::Info );
 }
@@ -650,33 +666,59 @@ void constructCollider( const Tile& tile, Map& map, Math::Vec2 position, Object*
 void renderMap( string name ) {
 	Debug::startTimer( "Map::Render" );
 
+	renderMap( name, MapLayer::Background );
+	renderMap( name, MapLayer::BackgroundDetail );
+	renderMap( name, MapLayer::Terrain );
+
+	Debug::stopTimer( "Map::Render" );
+}
+
+//--------------------------------------------------------------------------------
+
+void renderMap( string name, MapLayer layer, Camera* camera ) {
 	const auto it = getMap( name );
 	if( it == maps.end() )
 		return;
 
-	for( const Chunk& chunk : it->tileLayers[ "Background" ].chunks ) {
-		sf::Sprite sprite( chunk.texture );
-		Math::Vec2 position = chunk.position + it->tileLayers[ "Background" ].position;
-		sprite.setPosition( position.sf() );
-		System::getWindow()->draw( sprite );
+	TileLayer* tileLayer;
+	if( layer == MapLayer::Background )
+		tileLayer = &it->tileLayers[ "Background" ];
+	else if( layer == MapLayer::BackgroundDetail )
+		tileLayer = &it->tileLayers[ "BackgroundDetail" ];
+	else if( layer == MapLayer::Terrain )
+		tileLayer = &it->tileLayers[ "Terrain" ];
+	else
+		return;
+
+	if( camera != nullptr ) {
+		shared_ptr< Game::RigidRect > cameraRect = camera->getRect();
+		cameraRect->setCollisionType( CollisionType::Static );
+
+		for( const Chunk& chunk : tileLayer->chunks ) {
+			shared_ptr< Game::RigidRect > chunkRect = make_shared< Game::RigidRect >();
+			chunkRect->setSize( Math::Vec2( 256.0f, 256.0f ) );
+			chunkRect->setPosition( chunk.position );
+			chunkRect->setCollisionType( CollisionType::Static );
+
+			Collision::CollisionResult result = chunkRect->isColliding( cameraRect );
+			if( !result.success )
+				continue;
+
+			sf::Sprite sprite( chunk.texture );
+			Math::Vec2 position = chunk.position + tileLayer->position;
+			sprite.setPosition( position.sf() );
+			System::getWindow()->draw( sprite );
+		}
 	}
-
-	for( const Chunk& chunk : it->tileLayers[ "Background Details" ].chunks ) {
-
-		sf::Sprite sprite( chunk.texture );
-		Math::Vec2 position = chunk.position + it->tileLayers[ "Background Details" ].position;
-		sprite.setPosition( position.sf() );
-		System::getWindow()->draw( sprite );
+	else
+	{
+		for( const Chunk& chunk : tileLayer->chunks ) {
+			sf::Sprite sprite( chunk.texture );
+			Math::Vec2 position = chunk.position + tileLayer->position;
+			sprite.setPosition( position.sf() );
+			System::getWindow()->draw( sprite );
+		}
 	}
-
-	for( const Chunk& chunk : it->tileLayers[ "Terrain" ].chunks ) {
-		sf::Sprite sprite( chunk.texture );
-		Math::Vec2 position = chunk.position + it->tileLayers[ "Terrain" ].position;
-		sprite.setPosition( position.sf() );
-		System::getWindow()->draw( sprite );
-	}
-
-	Debug::stopTimer( "Map::Render" );
 }
 
 //================================================================================

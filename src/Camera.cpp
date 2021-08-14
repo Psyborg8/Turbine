@@ -16,8 +16,19 @@ namespace Gfx {
 
 //================================================================================
 
-Camera::Camera() : m_distance( Math::Vec2( 0.0, 1.0 ) ), m_position( Math::Vec2() ) {
+Camera::Camera() {
 	calculate();
+}
+
+//--------------------------------------------------------------------------------
+
+shared_ptr< Game::RigidRect > Camera::getRect() const {
+	shared_ptr< Game::RigidRect > out = make_shared< Game::RigidRect >();
+
+	out->setSize( m_distance );
+	out->setPosition( m_position - m_distance / 2.0f );
+
+	return out;
 }
 
 //--------------------------------------------------------------------------------
@@ -36,6 +47,30 @@ void Camera::calculate() {
 	sf::View view{ viewport };
 
 	window->setView( view );
+}
+
+//--------------------------------------------------------------------------------
+
+Math::Vec2 Camera::scale( Math::Vec2 in ) {
+	const float factor = getDistance() / 196.0f;
+	const Math::Vec2 out = in * factor;
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+float Camera::scale( float in ) {
+	const float factor = getDistance() / 196.0f;
+	const float out = in * factor;
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+int Camera::scale( int in ) {
+	const float factor = getDistance() / 196.0f;
+	const int out = int( in * factor );
+	return out;
 }
 
 //================================================================================

@@ -31,6 +31,9 @@
     <Filter Include="Engine\Objects">
       <UniqueIdentifier>{abc69a04-4206-410a-9a57-b899d8d37494}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Sound">
+      <UniqueIdentifier>{f0bbe551-cd77-4641-b2a0-314ee8267dec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ProjectBullet.cpp">

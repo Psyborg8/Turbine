@@ -5,6 +5,7 @@
 //--------------------------------------------------------------------------------
 
 #include "Debug.h"
+#include "World.h"
 
 //================================================================================
 
@@ -93,9 +94,14 @@ void Object::render() {
 
 	onRender();
 
-	const size_t size = m_children.size();
-	for( size_t i = 0u; i < size; ++i )
-		m_children.at( i )->render();
+	vector< shared_ptr< Object > > children = m_children;
+	std::sort( children.begin(), children.end(),
+			   []( shared_ptr< Object > a, shared_ptr< Object > b ) {
+				   return a->getPriority() < b->getPriority();
+			   } );
+
+	for( shared_ptr< Object > child : children )
+		child->render();
 }
 
 //--------------------------------------------------------------------------------
@@ -225,6 +231,36 @@ void Object::setWorldPosition( Math::Vec2 position ) {
 		position -= m_parent->getWorldPosition();
 
 	setPosition( position );
+}
+
+//--------------------------------------------------------------------------------
+
+Worlds::World* Object::getWorld() const {
+	Worlds::World* world;
+	world = dynamic_cast< Worlds::World* >( m_parent );
+
+	if( world == nullptr )
+		if( m_parent == nullptr )
+			return nullptr;
+		else
+			return m_parent->getWorld();
+	else
+		return world;
+}
+
+//--------------------------------------------------------------------------------
+
+vector< shared_ptr< Object > > Object::getChildren( bool recursive ) const {
+	if( !recursive )
+		return m_children;
+
+	vector< shared_ptr< Object > > out = m_children;
+	for( shared_ptr< Object > child : m_children ) {
+		vector< shared_ptr< Object > > children = child->getChildren( true );
+		out.insert( out.end(), children.begin(), children.end() );
+	}
+
+	return out;
 }
 
 //================================================================================

@@ -49,9 +49,6 @@ void ColorSwatchWorld::onSpawnChildren() {
 	m_camera.setDistance( 150.0f );
 	m_camera.setPosition( Math::Vec2( 0.0f, 0.0f ) );
 
-	shared_ptr< Debug::PerformanceWindow > performancePage = makeObject< Debug::PerformanceWindow >( this );
-	performancePage->setVisibility( false );
-
 	m_visibility = true;
 
 	m_collider = make_shared< Game::RigidRect >();

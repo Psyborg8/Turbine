@@ -33,24 +33,14 @@ void addMessage( string message, DebugType type = DebugType::None );
 
 //--------------------------------------------------------------------------------
 
-class PerformanceWindow : public Object {
+class MessageWindow : public Object {
 public:
-	PerformanceWindow() = default;
+	MessageWindow() = default;
 
 public:
 	// Events
-	void onStart() override;
 	void onUpdate( sf::Time deltaTime ) override;
 	void onRender() override;
-	void onEvent( sf::Event e ) override;
-
-private:
-	array< sf::Time, 100 > m_deltaTimes;
-	array< sf::Time, 100 >::iterator m_iterator;
-	sf::Text m_text;
-	bool m_first{ true };
-
-	sf::Clock m_renderTimer;
 };
 
 //--------------------------------------------------------------------------------

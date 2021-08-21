@@ -186,20 +186,9 @@ void update() {
 	window.clear( world->getBackgroundColor().sf() );
 
 	Debug::startTimer( "System::Render" );
-
 	window.resetGLStates();
-
 	world->render();
-
 	window.resetGLStates();
-
-	bool closed;
-	ImGui::Begin( "Test", &closed );
-	ImGui::SetWindowPos( ImVec2( 0.0f, 0.0f ) );
-	ImGui::SetWindowSize( ImVec2( float( systemInfo.width ), float( systemInfo.height ) ) );
-	ImGui::Button( "Test", ImVec2( 100.0f, 100.0f ) );
-	ImGui::Button( "Test", ImVec2( 100.0f, 100.0f ) );
-	ImGui::End();
 	ImGui::SFML::Render();
 
 	Debug::stopTimer( "System::Render" );

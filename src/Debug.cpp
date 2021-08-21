@@ -24,7 +24,7 @@ struct Timer {
 //--------------------------------------------------------------------------------
 
 struct DebugMessage {
-	sf::Text text;
+	string text;
 	DebugType type;
 	float alpha;
 };
@@ -121,54 +121,50 @@ float getAverageTime( string name ) {
 
 void addMessage( string message, DebugType type  ) {
 	DebugMessage out;
-	out.text.setFont( font );
-	out.text.setCharacterSize( 40u );
-	out.text.setOutlineColor( sf::Color::Black );
-	out.text.setOutlineThickness( 3.0f );
-	out.text.setString( message );
+	out.text = message;
 	out.alpha = 1.0;
 	out.type = type;
-	
-	sf::Color color;
-	if( out.type == DebugType::None )
-		color = sf::Color::White;
-	else if( out.type == DebugType::Info )
-		color = sf::Color( 100, 200, 200, 255 );
-	else if( out.type == DebugType::Warning )
-		color = sf::Color( 200, 150, 50, 255 );
-	else if( out.type == DebugType::Error )
-		color = sf::Color( 200, 50, 50, 255 );
-	else if( out.type == DebugType::Input )
-		color = sf::Color( 150, 100, 200, 255 );
-	else if( out.type == DebugType::Performance )
-		color = sf::Color( 225, 180, 50, 255 );
-
-	out.text.setFillColor( color );
 
 	messages.push_back( out );
 }
 
 //================================================================================
 
-void PerformanceWindow::onStart() {
-	font.loadFromFile( Folders::Fonts + "MonospaceTypewriter.ttf" );
-	m_text = sf::Text();
-	m_text.setCharacterSize( 20u );
-	m_text.setFont( font );
-	m_text.setOutlineColor( sf::Color::Black );
-	m_text.setOutlineThickness( 1.5f );
+void MessageWindow::onRender() {
+	ImGui::Begin( "Settings" );
+	ImGui::ShowStyleEditor();
+	ImGui::End();
 
-	m_priority = static_cast< int >( RenderPriority::UI );
+	ImGui::Begin( "Debug Messages", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground );
+	ImGui::SetWindowSize( ImVec2( 750.0f, float( System::getSystemInfo().height ) ) );
+	ImGui::SetWindowPos( ImVec2( float( System::getSystemInfo().width - 750.0f ), 0.0f ) );
+
+	for( int i = messages.size() - 1u; i >= 0; --i ) {
+		ImColor color;
+		DebugMessage message = messages.at( i );
+
+		if( message.type == DebugType::None )
+			color = ImColor( 150, 150, 150, int( message.alpha * 255.0f ) );
+		else if( message.type == DebugType::Info )
+			color = ImColor( 100, 200, 200, int( message.alpha * 255.0f ) );
+		else if( message.type == DebugType::Warning )
+			color = ImColor( 200, 150, 50, int( message.alpha * 255.0f ) );
+		else if( message.type == DebugType::Error )
+			color = ImColor( 200, 50, 50, int( message.alpha * 255.0f ) );
+		else if( message.type == DebugType::Input )
+			color = ImColor( 150, 100, 200, int( message.alpha * 255.0f ) );
+		else if( message.type == DebugType::Performance )
+			color = ImColor( 225, 180, 50, int( message.alpha * 255.0f ) );
+
+		ImGui::TextColored( color, message.text.c_str() );
+	}
+
+	ImGui::End();
 }
 
 //--------------------------------------------------------------------------------
 
-void PerformanceWindow::onUpdate( sf::Time deltaTime ) {
-	// Get screen position
-	sf::RenderWindow* window = System::getWindow();
-	sf::Vector2f pos = window->mapPixelToCoords( sf::Vector2i( 3, 0 ) );
-	m_text.setPosition( pos );
-
+void MessageWindow::onUpdate( sf::Time deltaTime ) {
 	// Messages
 	float y = 0.0;
 	for( int i = int( messages.size() ) - 1; i >= 0; --i ) {
@@ -180,108 +176,6 @@ void PerformanceWindow::onUpdate( sf::Time deltaTime ) {
 			messages.erase( messages.begin() + i );
 			continue;
 		}
-		// Set alpha
-		{
-			sf::Color color = message.text.getFillColor();
-			sf::Color outline = message.text.getOutlineColor();
-			color.a = outline.a = sf::Uint8( message.alpha * 255.0f );
-			message.text.setFillColor( color );
-			message.text.setOutlineColor( outline );
-		}
-		// Set position
-		Math::Vec2 position = Math::Vec2( window->mapPixelToCoords( sf::Vector2i( System::getSystemInfo().width, 0 ) ) );
-		position.y += y;
-		const float width = message.text.getGlobalBounds().width;
-		position.x -= width;
-		message.text.setPosition( position.sf() );
-
-		// Move next line down
-		y += getWorld()->getCamera().scale( 5.0f );
-	}
-
-	if( m_renderTimer.getElapsedTime() < sf::Time( sf::milliseconds( 34 ) ) )
-		return;
-
-	m_renderTimer.restart();
-
-	Debug::startTimer( "Debug::Performance Update" );
-
-	// Update FPS
-	if( m_first ) {
-		std::fill( m_deltaTimes.begin(), m_deltaTimes.end(), deltaTime );
-		m_iterator = m_deltaTimes.begin();
-		m_first = false;
-	}
-	else {
-		sf::Time& time = *m_iterator;
-		time = deltaTime;
-
-		if( ++m_iterator == m_deltaTimes.end() )
-			m_iterator = m_deltaTimes.begin();
-	}
-
-	// Get FPS average
-	float total = 0.0f;
-	for( const sf::Time& time : m_deltaTimes )
-		total += time.asSeconds();
-
-	const float average = total / m_deltaTimes.size();
-	const int fps = int( 1.0f / average );
-
-	// Construct strings
-	// FPS
-	string s = std::to_string( fps ) + "fps\n";
-	for( auto& timer : timers ) {
-		char buffer[ 40 ];
-		s += timer.name + ": ";
-		sprintf_s( buffer, "%.3f", getAverageTime( timer.name ) * 1000.0f );
-		s += buffer;
-		s += "ms\n";
-	}
-	m_text.setString( sf::String( s ) );
-	Debug::stopTimer( "Debug::Performance Update" );
-}
-
-//--------------------------------------------------------------------------------
-
-void PerformanceWindow::onRender() {
-	sf::RenderWindow* window = System::getWindow();
-
-	startTimer( "Debug::Performance Render" );
-	// Times
-	m_text.setScale( getWorld()->getCamera().scale( Math::Vec2( 0.2f, 0.2f ) ).sf() );
-	window->draw( m_text );
-	stopTimer( "Debug::Performance Render" );
-
-	// Messages
-	for( DebugMessage& message : messages ) {
-		string text = message.text.getString();
-		message.text.setScale( getWorld()->getCamera().scale( Math::Vec2( 0.1f, 0.1f ) ).sf() );
-		window->draw( message.text );
-	}
-}
-
-//--------------------------------------------------------------------------------
-
-void PerformanceWindow::onEvent( sf::Event e ) {
-	if( e.type == sf::Event::JoystickConnected ) {
-		const unsigned int id = e.joystickConnect.joystickId;
-		const string name = sf::Joystick::getIdentification( id ).name;
-
-		char buffer[ 128 ];
-		sprintf_s( buffer, "Joystick %i \"%s\" connected", id, name.c_str() );
-		addMessage( buffer, DebugType::Input );
-		return;
-	}
-
-	if( e.type == sf::Event::JoystickDisconnected ) {
-		const unsigned int id = e.joystickConnect.joystickId;
-		const string name = sf::Joystick::getIdentification( id ).name;
-
-		char buffer[ 128 ];
-		sprintf_s( buffer, "Joystick %i \"%s\" disconnected", id, name.c_str() );
-		addMessage( buffer, DebugType::Input );
-		return;
 	}
 }
 

@@ -23,8 +23,8 @@ void SFMLWorld::onSpawnChildren() {
 	m_physicsPage = makeObject< Debug::PhysicsWindow >( this );
 	m_physicsPage->setVisibility( false );
 
-	m_performancePage = makeObject< Debug::PerformanceWindow >( this );
-	m_performancePage->setVisibility( false );
+	m_messageWindow = makeObject< Debug::MessageWindow >( this );
+	m_messageWindow->setVisibility( true );
 
 	m_joystickPage = makeObject< Debug::JoystickWindow >( this );
 	m_joystickPage->setVisibility( false );
@@ -153,14 +153,11 @@ void SFMLWorld::onMessage( string message ) {
 	if( message == "Flip Debug Page" ) {
 		m_timer->setVisibility( false );
 		m_physicsPage->setVisibility( false );
-		m_performancePage->setVisibility( false );
 		m_joystickPage->setVisibility( false );
 
 		if( m_debugPage == 0 )
 			m_physicsPage->setVisibility( true );
 		else if( m_debugPage == 1 )
-			m_performancePage->setVisibility( true );
-		else if( m_debugPage == 2 )
 			m_joystickPage->setVisibility( true );
 		else
 			m_timer->setVisibility( true );

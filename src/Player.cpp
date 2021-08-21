@@ -85,6 +85,10 @@ void Player::onSpawnChildren() {
 	// Particles
 	spriteData.particlePatterns.jump = Gfx::Particle::loadPattern( "Player\\Jump" );
 	spriteData.particlePatterns.wallSlash = Gfx::Particle::loadPattern( "Player\\Wall Slash" );
+
+	// Sounds
+	soundData.buffers.jump.loadFromFile( Folders::Sound + "Jump.wav" );
+	soundData.players.jump.setBuffer( soundData.buffers.jump );
 }
 
 //--------------------------------------------------------------------------------
@@ -172,7 +176,7 @@ void Player::onProcessCollisions()
 {
 	// Find relevant colliders
 	Debug::startTimer( "Player::Find Colliders" );
-	shared_ptr< Worlds::SFMLWorld > world = std::dynamic_pointer_cast< Worlds::SFMLWorld >( System::getWorld() );
+	Worlds::World* world = getWorld();
 	if( world == nullptr )
 		return;
 
@@ -315,6 +319,8 @@ void Player::jump( bool pressed )
 			jumpData.isJumping = true;
 
 			Gfx::Particle::spawnParticle( this, spriteData.particlePatterns.jump, getPosition() );
+
+			soundData.players.jump.play();
 		}
 		return;
 	}

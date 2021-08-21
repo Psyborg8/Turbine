@@ -14,7 +14,7 @@ namespace Game {
 //--------------------------------------------------------------------------------
 
 void CameraVolume::onProcessCollisions() {
-	Worlds::World* world = dynamic_cast< Worlds::World* >( m_parent );
+	Worlds::World* world = getWorld();
 	if( world == nullptr )
 		return;
 

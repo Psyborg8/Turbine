@@ -51,6 +51,8 @@ bool init( int argc, char** argv ) {
 	window.setVerticalSyncEnabled( false );
 	window.setKeyRepeatEnabled( false );
 
+	ImGui::SFML::Init( window );
+
 	systemInfo.width = window.getSize().x;
 	systemInfo.height = window.getSize().y;
 
@@ -137,6 +139,7 @@ void update() {
 	Debug::startTimer( "System::Event Handling" );
 	sf::Event e;
 	while( window.pollEvent( e ) ) {
+		ImGui::SFML::ProcessEvent( e );
 		// Filter out the most expensive events.
 		// Use sf::Mouse::getPosition or sf::Joystick::getAxisPosition instead
 		if( e.type == sf::Event::MouseMoved )
@@ -147,8 +150,10 @@ void update() {
 		world->event( e );
 
 		if( e.type == sf::Event::KeyPressed )
-			if( e.key.code == sf::Keyboard::Escape )
+			if( e.key.code == sf::Keyboard::Escape ) {
 				window.close();
+				ImGui::SFML::Shutdown();
+			}
 		if( e.type == sf::Event::Resized ) {
 			systemInfo.width = e.size.width;
 			systemInfo.height = e.size.height;
@@ -162,6 +167,7 @@ void update() {
 
 	// Update physics
 	Debug::startTimer( "System::Update" );
+	ImGui::SFML::Update( window, deltaTime );
 	world->update( time );
 	Debug::stopTimer( "System::Update" );
 	Debug::startTimer( "System::Process Collisions" );
@@ -180,7 +186,22 @@ void update() {
 	window.clear( world->getBackgroundColor().sf() );
 
 	Debug::startTimer( "System::Render" );
+
+	window.resetGLStates();
+
 	world->render();
+
+	window.resetGLStates();
+
+	bool closed;
+	ImGui::Begin( "Test", &closed );
+	ImGui::SetWindowPos( ImVec2( 0.0f, 0.0f ) );
+	ImGui::SetWindowSize( ImVec2( float( systemInfo.width ), float( systemInfo.height ) ) );
+	ImGui::Button( "Test", ImVec2( 100.0f, 100.0f ) );
+	ImGui::Button( "Test", ImVec2( 100.0f, 100.0f ) );
+	ImGui::End();
+	ImGui::SFML::Render();
+
 	Debug::stopTimer( "System::Render" );
 	Debug::startTimer( "System::Post Render" );
 	world->postRender();

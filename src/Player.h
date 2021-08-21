@@ -70,7 +70,9 @@ private:
 
 	// Attributes
 public:
+	// Bindings
 	struct {
+		// Controller
 		struct {
 			ControllerButton jump{ ControllerButton::Bottom };
 			ControllerButton attack{ ControllerButton::RTrigger };
@@ -81,6 +83,7 @@ public:
 			ControllerAxis moveY{ ControllerAxis::LeftStickY };
 		} controller;
 
+		// Keyboard
 		struct {
 			sf::Keyboard::Key jump{ sf::Keyboard::Space };
 			sf::Keyboard::Key attack{ sf::Keyboard::E };
@@ -92,18 +95,34 @@ public:
 		} keyboard;
 	} bindings;
 
+	// Sprite
 	struct {
 		const Math::Vec2 size{ 8.0f, 12.0f };
 		const Math::Color color{ 0.2f, 0.2f, 0.2f, 1.0f };
 
 		vector< shared_ptr< RigidRect > > dashShadows;
 
+		// Particles
 		struct {
 			Gfx::Particle::Pattern jump;
 			Gfx::Particle::Pattern wallSlash;
 		} particlePatterns;
 	} spriteData;
 
+	// Sound
+	struct {
+		// Buffers
+		struct {
+			sf::SoundBuffer jump;
+		} buffers;
+
+		// Players
+		struct {
+			sf::Sound jump;
+		} players;
+	} soundData;
+
+	// Movement
 	struct {
 		bool enabled{ true };
 		bool canMove{ true };
@@ -114,6 +133,7 @@ public:
 		float airMultiplier{ 0.7f };
 	} movementData;
 
+	// Gravity
 	struct {
 		bool enabled{ true };
 
@@ -122,6 +142,7 @@ public:
 		float min{ 20.0f };
 	} gravityData;
 
+	// Friction
 	struct {
 		bool enabled{ true };
 
@@ -131,6 +152,7 @@ public:
 		float airMultiplier{ 0.05f };
 	} frictionData;
 
+	// Jump
 	struct {
 		bool enabled{ true };
 		bool isJumping{ false };
@@ -143,6 +165,7 @@ public:
 		float release{ 70.0f };
 	} jumpData;
 
+	// Double Jump
 	struct {
 		bool enabled{ false };
 		bool canDoubleJump{ true };
@@ -150,6 +173,7 @@ public:
 		float power{ 96.0f };
 	} doubleJumpData;
 
+	// Attack
 	struct {
 		bool enabled{ true };
 		bool canAttack{ true };
@@ -163,6 +187,7 @@ public:
 		milliseconds duration{ 600 };
 	} attackData;
 
+	// Dash
 	struct {
 		bool enabled{ true };
 		bool canDash{ true };
@@ -176,6 +201,7 @@ public:
 		milliseconds animationStep{ 25 };
 	} dashData;
 
+	// Dash Bounce
 	struct {
 		bool enabled{ true };
 		bool canDashBounce{ false };
@@ -186,6 +212,7 @@ public:
 		milliseconds leniency{ 200 };
 	} dashBounceData;
 
+	// Wall Cling
 	struct {
 		bool enabled{ true };
 		bool isClinging{ false };
@@ -196,6 +223,7 @@ public:
 		float max{ 128.0f };
 	} wallClingData;
 
+	// Wall Jump
 	struct {
 		bool enabled{ false };
 		float normal{ 0.0f };

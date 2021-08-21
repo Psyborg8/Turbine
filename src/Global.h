@@ -30,6 +30,10 @@
 #include <array>
 
 #include <SFML/graphics.hpp>
+#include <SFML/Audio.hpp>
+
+#include <imgui.h>
+#include <imgui-sfml.h>
 
 //================================================================================
 

@@ -35,7 +35,7 @@ public:
 	// Events
 public:
 	void onRender() override { 
-		Worlds::World* world = dynamic_cast< Worlds::World* >( m_parent );
+		Worlds::World* world = getWorld();
 
 		if( world == nullptr )
 			renderMap( m_mapName, m_layer );

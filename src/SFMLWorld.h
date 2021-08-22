@@ -4,6 +4,7 @@
 
 //================================================================================
 
+#include "Global.h"
 #include "World.h"
 #include "GameTimer.h"
 #include "Player.h"

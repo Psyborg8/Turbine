@@ -4,6 +4,7 @@
 
 //================================================================================
 
+#include "Global.h"
 #include "RigidRect.h"
 #include "Timer.h"
 #include "Input.h"

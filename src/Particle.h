@@ -4,6 +4,7 @@
 
 //================================================================================
 
+#include "Global.h"
 #include "Object.h"
 #include "Random.h"
 #include "Timer.h"

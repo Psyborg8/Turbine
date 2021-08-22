@@ -9,10 +9,12 @@
 #include "Timer.h"
 #include "Debug.h"
 #include "Input.h"
+#include "UI.h"
 
 // Worlds
 #include "SFMLWorld.h"
 #include "ColorSwatchWorld.h"
+#include "BulletPatternEditor.h"
 
 //================================================================================
 
@@ -51,10 +53,14 @@ bool init( int argc, char** argv ) {
 	window.setVerticalSyncEnabled( false );
 	window.setKeyRepeatEnabled( false );
 
-	ImGui::SFML::Init( window );
-
 	systemInfo.width = window.getSize().x;
 	systemInfo.height = window.getSize().y;
+
+	// Init ImGui
+	ImGui::SFML::Init( window );
+
+	// Init fonts
+	Gfx::UI::init();
 
 	// Init timers
 	Timers::init();
@@ -67,7 +73,8 @@ bool init( int argc, char** argv ) {
 int start() {
 	Debug::startTimer( "System::Make World" );
 	//world = Object::makeObject< Worlds::ColorSwatchWorld >( nullptr );
-	world = Object::makeObject< Worlds::SFMLWorld >( nullptr );
+	//world = Object::makeObject< Worlds::SFMLWorld >( nullptr );
+	world = Object::makeObject< Worlds::BulletPatternEditor >( nullptr );
 	Debug::stopTimer( "System::Make World" );
 
 	Input::start( world.get() );

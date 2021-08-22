@@ -34,6 +34,12 @@
     <Filter Include="Engine\Sound">
       <UniqueIdentifier>{f0bbe551-cd77-4641-b2a0-314ee8267dec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Deps">
+      <UniqueIdentifier>{35c0f18e-64b4-4ee5-b269-dcdd631fa8b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Deps\ImGui">
+      <UniqueIdentifier>{0a35ea27-9c38-42db-a051-ed5d117ee8ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ProjectBullet.cpp">
@@ -105,6 +111,27 @@
     <ClCompile Include="src\Particle.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\UI.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BulletPatternEditor.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\imgui_draw.cpp">
+      <Filter>Deps\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\imgui_widgets.cpp">
+      <Filter>Deps\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\imgui-SFML.cpp">
+      <Filter>Deps\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\imgui.cpp">
+      <Filter>Deps\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\ImGui\imgui_demo.cpp">
+      <Filter>Deps\ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
@@ -172,6 +199,36 @@
     </ClInclude>
     <ClInclude Include="src\Particle.h">
       <Filter>Engine\GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI.h">
+      <Filter>Engine\GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BulletPatternEditor.h">
+      <Filter>Game\Worlds</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\ImGui\imgui_internal.h">
+      <Filter>Deps\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\ImGui\imgui-SFML.h">
+      <Filter>Deps\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\ImGui\imgui-SFML_export.h">
+      <Filter>Deps\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\ImGui\imstb_rectpack.h">
+      <Filter>Deps\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\ImGui\imstb_textedit.h">
+      <Filter>Deps\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\ImGui\imstb_truetype.h">
+      <Filter>Deps\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\ImGui\imconfig.h">
+      <Filter>Deps\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\ImGui\imgui.h">
+      <Filter>Deps\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

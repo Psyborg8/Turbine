@@ -4,6 +4,7 @@
 
 //================================================================================
 
+#include "Global.h"
 #include "Object.h"
 #include "Camera.h"
 #include "Player.h"

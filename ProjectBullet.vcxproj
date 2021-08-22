@@ -27,6 +27,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="deps\ImGui\imgui-SFML.cpp" />
+    <ClCompile Include="deps\ImGui\imgui.cpp" />
+    <ClCompile Include="deps\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="deps\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="deps\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="src\BulletPatternEditor.cpp" />
     <ClCompile Include="src\Particle.cpp" />
     <ClCompile Include="src\ColorSwatchWorld.cpp" />
     <ClCompile Include="src\Camera.cpp" />
@@ -49,9 +55,19 @@
     <ClCompile Include="src\Tileset.cpp" />
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\Traps.cpp" />
+    <ClCompile Include="src\UI.cpp" />
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="deps\ImGui\imconfig.h" />
+    <ClInclude Include="deps\ImGui\imgui-SFML.h" />
+    <ClInclude Include="deps\ImGui\imgui-SFML_export.h" />
+    <ClInclude Include="deps\ImGui\imgui.h" />
+    <ClInclude Include="deps\ImGui\imgui_internal.h" />
+    <ClInclude Include="deps\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="deps\ImGui\imstb_textedit.h" />
+    <ClInclude Include="deps\ImGui\imstb_truetype.h" />
+    <ClInclude Include="src\BulletPatternEditor.h" />
     <ClInclude Include="src\Particle.h" />
     <ClInclude Include="src\ColorSwatchWorld.h" />
     <ClInclude Include="src\Camera.h" />
@@ -73,6 +89,7 @@
     <ClInclude Include="src\MathTypes.h" />
     <ClInclude Include="src\Tileset.h" />
     <ClInclude Include="src\Timer.h" />
+    <ClInclude Include="src\UI.h" />
     <ClInclude Include="src\World.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -156,7 +173,7 @@
     <OutDir>$(ProjectDir)bin\Test\</OutDir>
     <IntDir>$(ProjectDir)intermediate\Test\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
-    <SourcePath>$(VC_SourcePath);$(ProjectDir)deps\ImGui</SourcePath>
+    <SourcePath>$(VC_SourcePath);$(ProjectDir)deps</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)bin\Test\</OutDir>
@@ -190,17 +207,18 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)deps\RapidJSON\include;$(ProjectDir)deps\SFML\include;$(ProjectDir)deps\ImGui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)deps\RapidJSON\include;$(ProjectDir)deps\SFML\include;$(ProjectDir)deps\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ShowIncludes>false</ShowIncludes>
-      <ForcedIncludeFiles>Global.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(ProjectDir)deps\ImGui\lib;$(ProjectDir)deps\SFML\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>imgui-d.lib;sfml-graphics-d.lib;sfml-audio-d.lib;sfml-window-d.lib;sfml-system-d.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)deps\SFML\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-graphics-d.lib;sfml-audio-d.lib;sfml-window-d.lib;sfml-system-d.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <PerUserRedirection>true</PerUserRedirection>
     </Link>

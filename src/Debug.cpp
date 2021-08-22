@@ -131,17 +131,13 @@ void addMessage( string message, DebugType type  ) {
 //================================================================================
 
 void MessageWindow::onRender() {
-	ImGui::Begin( "Settings" );
-	ImGui::ShowStyleEditor();
-	ImGui::End();
-
 	ImGui::Begin( "Debug Messages", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground );
 	ImGui::SetWindowSize( ImVec2( 750.0f, float( System::getSystemInfo().height ) ) );
 	ImGui::SetWindowPos( ImVec2( float( System::getSystemInfo().width - 750.0f ), 0.0f ) );
 
-	for( int i = messages.size() - 1u; i >= 0; --i ) {
+	for( size_t i = messages.size(); i > 0; --i ) {
 		ImColor color;
-		DebugMessage message = messages.at( i );
+		DebugMessage message = messages.at( i - 1u );
 
 		if( message.type == DebugType::None )
 			color = ImColor( 150, 150, 150, int( message.alpha * 255.0f ) );

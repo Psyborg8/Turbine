@@ -4,6 +4,7 @@
 
 //================================================================================
 
+#include "Global.h"
 #include "MathTypes.h"
 #include "Object.h"
 #include "RigidRect.h"

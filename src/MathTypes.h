@@ -75,6 +75,7 @@ struct Vec2 {
 	Vec2( sf::Vector2f v ) : x{ v.x }, y{ v.y } {}
 	Vec2( sf::Vector2i v ) : x{ float( v.x ) }, y{ float( v.y ) } {}
 	Vec2( sf::Vector2u v ) : x{ float( v.x ) }, y{ float( v.y ) } {}
+	Vec2( array< float, 2u > v ) : x{ v[ 0 ] }, y{ v[ 1 ] } {}
 
 	float x;
 	float y;

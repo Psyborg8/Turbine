@@ -41,24 +41,18 @@ void BulletPatternEditor::onRender() {
 	ImGui::Text( "Control" );
 
 	if( ImGui::Button( "Spawn" ) ) {
-		Gfx::Particle::spawnParticle( this, convertPattern( m_basePattern ) );
+		Gfx::Particle::spawnParticle( this, m_basePattern );
 	}
-
 	ImGui::SameLine();
-
 	if( ImGui::Button( "Stop" ) ) {
 		//
 	}
-
 	ImGui::SameLine();
-
 	if( ImGui::Button( "Kill" ) ) {
 		//
 	}
 
 	ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width - ImGui::GetWindowSize().x, System::getSystemInfo().height - ImGui::GetWindowSize().y ) );
-
-
 	ImGui::End();
 
 	// Properties
@@ -84,7 +78,7 @@ void BulletPatternEditor::onRender() {
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderPattern( Pattern& pattern ) {
+void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 	renderLifetime( pattern );
 	renderPosition( pattern );
 	renderVelocity( pattern );
@@ -96,7 +90,9 @@ void BulletPatternEditor::renderPattern( Pattern& pattern ) {
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderPosition( Pattern& pattern ) {
+void BulletPatternEditor::renderPosition( Gfx::Particle::Pattern& pattern ) {
+	using namespace Gfx::Particle;
+
 	ImGui::PushID( "Position" );
 	// Label
 	ImGui::Text( "Position" );
@@ -148,7 +144,9 @@ void BulletPatternEditor::renderPosition( Pattern& pattern ) {
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderVelocity( Pattern& pattern ) {
+void BulletPatternEditor::renderVelocity( Gfx::Particle::Pattern& pattern ) {
+	using namespace Gfx::Particle;
+
 	ImGui::PushID( "Velocity" );
 	// Label
 	ImGui::Text( "Velocity" );
@@ -192,14 +190,14 @@ void BulletPatternEditor::renderVelocity( Pattern& pattern ) {
 
 	// Value
 	if( pattern.velocity.type == ValueType::Static ) {
-		ImGui::InputFloat2( "Value", pattern.velocity.startMin.data() );
+		ImGui::InputFloat( "Value", &pattern.velocity.startMin );
 		pattern.velocity.startMax = pattern.velocity.startMin;
 		pattern.velocity.endMin = pattern.velocity.startMin;
 		pattern.velocity.endMax = pattern.velocity.startMin;
 	}
 	else if( pattern.velocity.type == ValueType::Random ) {
-		ImGui::InputFloat2( "Min", pattern.velocity.startMin.data() );
-		ImGui::InputFloat2( "Max", pattern.velocity.startMax.data() );
+		ImGui::InputFloat( "Min", &pattern.velocity.startMin );
+		ImGui::InputFloat( "Max", &pattern.velocity.startMax );
 		pattern.velocity.endMin = pattern.velocity.startMin;
 		pattern.velocity.endMax = pattern.velocity.startMax;
 	}
@@ -232,12 +230,12 @@ void BulletPatternEditor::renderVelocity( Pattern& pattern ) {
 
 		// Value
 		if( pattern.velocity.startType == ValueType::Static ) {
-			ImGui::InputFloat2( "Value", pattern.velocity.startMin.data() );
+			ImGui::InputFloat2( "Value", &pattern.velocity.startMin );
 			pattern.velocity.startMax = pattern.velocity.startMin;
 		}
 		else if( pattern.velocity.startType == ValueType::Random ) {
-			ImGui::InputFloat2( "Min", pattern.velocity.startMin.data() );
-			ImGui::InputFloat2( "Max", pattern.velocity.startMax.data() );
+			ImGui::InputFloat2( "Min", &pattern.velocity.startMin );
+			ImGui::InputFloat2( "Max", &pattern.velocity.startMax );
 		}
 
 		ImGui::PopID();
@@ -250,9 +248,9 @@ void BulletPatternEditor::renderVelocity( Pattern& pattern ) {
 		ImGui::Text( "End" );
 
 		// Fade Type
-		ImGui::Checkbox( "Fade X", &pattern.velocity.fadeX );
+		ImGui::Checkbox( "Fade X", &pattern.velocity.fade.first );
 		ImGui::SameLine();
-		ImGui::Checkbox( "Fade Y", &pattern.velocity.fadeY );
+		ImGui::Checkbox( "Fade Y", &pattern.velocity.fade.second );
 
 		if( pattern.velocity.endType == ValueType::Static )
 			if( ImGui::Button( "Type: Static" ) )
@@ -263,7 +261,7 @@ void BulletPatternEditor::renderVelocity( Pattern& pattern ) {
 
 		// Type Popup
 		if( ImGui::BeginPopup( "Type",
-								ImGuiWindowFlags_NoTitleBar |
+							   ImGuiWindowFlags_NoTitleBar |
 								ImGuiWindowFlags_NoResize |
 								ImGuiWindowFlags_NoMove |
 								ImGuiWindowFlags_NoCollapse ) ) {
@@ -277,22 +275,11 @@ void BulletPatternEditor::renderVelocity( Pattern& pattern ) {
 
 		// Value
 		if( pattern.velocity.endType == ValueType::Static ) {
-			if( pattern.velocity.fadeX && pattern.velocity.fadeY ) {
-				ImGui::InputFloat2( "Value", pattern.velocity.endMin.data() );
-				pattern.velocity.endMax = pattern.velocity.endMin;
-			}
-			else if( pattern.velocity.fadeX ) {
-				ImGui::InputFloat( "Value", &pattern.velocity.endMin[ 0 ] );
-				pattern.velocity.endMax = pattern.velocity.endMin;
-			}
-			else if( pattern.velocity.fadeY ) {
-				ImGui::InputFloat( "Value", &pattern.velocity.endMin[ 1 ] );
-				pattern.velocity.endMax = pattern.velocity.endMin;
-			}
+			ImGui::InputFloat( "Value", &pattern.velocity.endMin );
 		}
 		else if( pattern.velocity.endType == ValueType::Random ) {
-				ImGui::InputFloat2( "Min", pattern.velocity.endMin.data() );
-				ImGui::InputFloat2( "Max", pattern.velocity.endMax.data() );
+				ImGui::InputFloat( "Min", &pattern.velocity.endMin );
+				ImGui::InputFloat( "Max", &pattern.velocity.endMax );
 		}
 
 		ImGui::PopID();
@@ -307,13 +294,15 @@ void BulletPatternEditor::renderVelocity( Pattern& pattern ) {
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderGravity( Pattern& pattern ) {
-	//
+void BulletPatternEditor::renderGravity( Gfx::Particle::Pattern& pattern ) {
+	//opl
 }
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderColor( Pattern& pattern ) {
+void BulletPatternEditor::renderColor( Gfx::Particle::Pattern& pattern ) {
+	using namespace Gfx::Particle;
+
 	ImGui::PushID( "Color" );
 	// Label
 	ImGui::Text( "Color" );
@@ -586,7 +575,9 @@ void BulletPatternEditor::renderColor( Pattern& pattern ) {
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderNumber( Pattern& pattern ) {
+void BulletPatternEditor::renderNumber( Gfx::Particle::Pattern& pattern ) {
+	using namespace Gfx::Particle;
+
 	ImGui::PushID( "Number" );
 	// Label
 	ImGui::Text( "Number" );
@@ -647,7 +638,9 @@ void BulletPatternEditor::renderNumber( Pattern& pattern ) {
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderSize( Pattern& pattern ) {
+void BulletPatternEditor::renderSize( Gfx::Particle::Pattern& pattern ) {
+	using namespace Gfx::Particle;
+
 	ImGui::PushID( "Size" );
 	// Label
 	ImGui::Text( "Size" );
@@ -792,7 +785,9 @@ void BulletPatternEditor::renderSize( Pattern& pattern ) {
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderLifetime( Pattern& pattern ) {
+void BulletPatternEditor::renderLifetime( Gfx::Particle::Pattern& pattern ) {
+	using namespace Gfx::Particle;
+
 	ImGui::PushID( "Lifetime" );
 	// Label
 	ImGui::Text( "Lifetime" );
@@ -847,30 +842,6 @@ void BulletPatternEditor::renderLifetime( Pattern& pattern ) {
 	ImGui::Separator();
 	ImGui::Spacing();
 	ImGui::PopID();
-}
-
-//--------------------------------------------------------------------------------
-
-Gfx::Particle::Pattern BulletPatternEditor::convertPattern( Pattern& pattern ) {
-	using namespace Gfx;
-
-	Particle::Pattern out;
-
-		out.setPosition( Particle::Pattern::Position().set( Math::Vec2( pattern.position.min[ 0 ], pattern.position.min[ 1 ] ), Math::Vec2( pattern.position.max[ 0 ], pattern.position.max[ 1 ] ) ) );
-		out.setVelocity( Particle::Pattern::Velocity()
-						 .setFade( pattern.velocity.fadeX, pattern.velocity.fadeY )
-						 .set( Math::Vec2( pattern.velocity.startMin[ 0 ], pattern.velocity.startMin[ 1 ] ), Math::Vec2( pattern.velocity.startMax[ 0 ], pattern.velocity.startMax[ 1 ] ) ) );
-		out.setSize( Particle::Pattern::Size()
-					 .setFade( pattern.size.type == ValueType::Fade )
-					 .set( pattern.size.startMin, pattern.size.startMax ) );
-		out.setLifetime( Particle::Pattern::Lifetime()
-						 .set( milliseconds( pattern.lifetime.min ), milliseconds( pattern.lifetime.max ) ) );
-		out.setNumber( Particle::Pattern::Number()
-					   .set( uint16_t( pattern.number.min ), uint16_t( pattern.number.max ) ) );
-		out.setColor( Particle::Pattern::Color()
-					  .set( Math::Color( sf::Color( pattern.color.startMin ) ) ) );
-
-	return out;
 }
 
 //--------------------------------------------------------------------------------

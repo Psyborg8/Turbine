@@ -29,88 +29,13 @@ vector< shared_ptr< Particle > > particles;
 //================================================================================
 
 void Particle::onUpdate( sf::Time deltaTime ) {
-	// Gravity
-	if( m_gravity.length() > 0.0f ) {
-		if( m_gravityType == Pattern::Gravity::Type::Direction ) {
-			m_velocity += m_gravity.normalize() * m_gravityPower * deltaTime.asSeconds();
-		}
-		else if( m_gravityType == Pattern::Gravity::Type::Point ) {
-			Math::Vec2 direction = m_gravity - m_position;
-			direction = direction.normalize();
-			if( m_gravityMultiplier != 0.0f )
-				direction *= m_gravityMultiplier;
-			direction *= m_gravityPower * deltaTime.asSeconds();
-
-			m_velocity += direction;
-		}
-	}
-}
-
-//--------------------------------------------------------------------------------
-
-void Particle::onProcessCollisions() {
-	for( const Pattern::Collider& collider : m_colliders ) {
-		Collision::CollisionResult result = isColliding( collider.get() );
-
-		if( result.success ) {
-			collider.get()->onCollision( result, shared_from_this() );
-
-			for( const Pattern& pattern : collider.getPatterns() ) {
-				shared_ptr< Particle > particle = Object::makeObject< Particle >( m_parent );
-				particle->setEmitter( this );
-				particle->constructParticle( pattern );
-			}
-
-			if( collider.getKill() )
-				destroy();
-		}
-	}
-}
-
-//--------------------------------------------------------------------------------
-
-Collision::CollisionResult Particle::isColliding( shared_ptr< Object > target ) {
-	shared_ptr< Game::RigidRect > ptr = std::dynamic_pointer_cast< Game::RigidRect >( target );
-	if( ptr == nullptr )
-		return Collision::CollisionResult();
-
-	Collision::Ray ray;
-	ray.start = getPosition();
-	ray.end = getPosition() + getVelocity();
-
-	return Collision::collision( ray, ptr );
+	m_shape.setPosition( getWorldPosition().sf() );
 }
 
 //--------------------------------------------------------------------------------
 
 void Particle::onPostUpdate( sf::Time deltaTime ) {
-	m_shape.setPosition( ( getPosition() - Math::Vec2( m_shape.getRadius() / 2.0f, m_shape.getRadius() / 2.0f ) ).sf() );
-
-	// Emitters
-	for( Emitter &emitter : m_emitters ) {
-		if( !emitter.active )
-			continue;
-
-		if( emitter.clock.getElapsedTime().asMilliseconds() > emitter.delay.count() ) {
-			uint16_t count = uint16_t( Random::getRandomIntInRange( int( emitter.pattern.getNumber().get().first ), int( emitter.pattern.getNumber().get().second ) ) );
-
-			for( uint16_t i = 0u; i < count; ++i ) {
-				shared_ptr< Particle > particle = Object::makeObject< Particle >( m_parent );
-				particle->setEmitter( this );
-				particle->constructParticle( emitter.pattern );
-				particle->onPostUpdate( deltaTime );
-			}
-
-			float rate = Random::getRandomFloatInRange( emitter.rate.first, emitter.rate.second );
-			if( rate == 0 ) {
-				emitter.active = false;
-				continue;
-			}
-
-			emitter.delay = milliseconds( int( 1000.0f / rate ) );
-			emitter.clock.restart();
-		}
-	}
+	//
 }
 
 //--------------------------------------------------------------------------------
@@ -127,95 +52,213 @@ void Particle::onDestroy() {
 
 //--------------------------------------------------------------------------------
 
-void Particle::constructParticle( Pattern pattern ) {
+void Particle::init( const Pattern& pattern ) {
 	setName( "Bullet" );
+	setVisibility( true );
+	m_shape.setOrigin( 0.5f, 0.5f );
 
-	// In case this bullet is being reconstructed.
-	Timers::removeTimer( m_timer );
+	// Lifetime
+	if( pattern.lifetime.type == ValueType::Static ) {
+		m_lifetime = milliseconds( pattern.lifetime.min );
+	}
+	else if( pattern.lifetime.type == ValueType::Random ) {
+		m_lifetime = milliseconds( Random::getRandomIntInRange( pattern.lifetime.min, pattern.lifetime.max ) );
+	}
 
 	// Position
-	Math::Vec2 position = Random::getRandomVec2InRange( pattern.getPosition().get().first, pattern.getPosition().get().second );
-	if( pattern.getPosition().getRelative() && m_emitter != nullptr )
-		position += m_emitter->getPosition();
-	setPosition( position );
+	if( pattern.position.type == ValueType::Static ) {
+		setPosition( Math::Vec2( pattern.position.min ) );
+	}
+	else if( pattern.position.type == ValueType::Random ) {
+		setPosition( Random::getRandomVec2InRange( Math::Vec2( pattern.position.min ), Math::Vec2( pattern.position.max ) ) );
+	}
 
-	// Radius
-	float radius = Random::getRandomFloatInRange( pattern.getSize().get().first, pattern.getSize().get().second );
-	if( pattern.getSize().getRelative() && m_emitter != nullptr )
-		radius *= m_emitter->getRadius();
-	setRadius( radius );
+	// Direction
+	if( pattern.direction.type == ValueType::Static ) {
+		m_direction.first = m_direction.second = Math::Vec2( pattern.direction.startMin ).normalize();
+	}
+	else if( pattern.direction.type == ValueType::Random ) {
+		m_direction.first = m_direction.second = Random::getRandomVec2InRange( Math::Vec2( pattern.direction.startMin ), Math::Vec2( pattern.direction.startMax ) ).normalize();
+	}
+	else if( pattern.direction.type == ValueType::Fade ) {
+		if( pattern.direction.startType == ValueType::Static ) {
+			m_direction.first = Math::Vec2( pattern.direction.startMin ).normalize();
+		}
+		else if( pattern.direction.startType == ValueType::Random ) {
+			m_direction.first = Random::getRandomVec2InRange( Math::Vec2( pattern.direction.startMin ), Math::Vec2( pattern.direction.startMax ) ).normalize();
+		}
 
-	// Velocity
-	Math::Vec2 velocity = Random::getRandomVec2InRange( pattern.getVelocity().get().first, pattern.getVelocity().get().second );
-	if( pattern.getVelocity().getRelative() && m_emitter != nullptr )
-		velocity += m_emitter->getVelocity();
-	setVelocity( velocity );
-
-	// Color
-	Math::Color color = Random::getRandomColorInRange( pattern.getColor().get().first, pattern.getColor().get().second, pattern.getColor().getType() );
-	if( pattern.getColor().getRelative() && m_emitter != nullptr )
-		color.a *= m_emitter->getShape().getFillColor().a;
-	m_shape.setFillColor( color.sf() );
-	setVisibility( true );
-
-	// Gravity
-	Math::Vec2 gravity = Random::getRandomVec2InRange( pattern.getGravity().get().first, pattern.getGravity().get().second );
-	float gravityPower = Random::getRandomFloatInRange( pattern.getGravity().getPower().first, pattern.getGravity().getPower().second );
-	float gravityMultiplier = Random::getRandomFloatInRange( pattern.getGravity().getDistanceMultiplier().first, pattern.getGravity().getDistanceMultiplier().second );
-	setGravity( gravity, gravityPower, gravityMultiplier, pattern.getGravity().getType() );
-
-	// Emitter
-	m_emitters.clear();
-	for( Pattern::Emitter emitter : pattern.getEmitters() ) {
-		for( Pattern pattern : emitter.get() ) {
-			milliseconds delay = milliseconds( Random::getRandomIntInRange( int( emitter.getDelay().first.count() ), int( emitter.getDelay().second.count() ) ) );
-			addEmitter( pattern, emitter.getSpawnRate(), delay );
+		if( pattern.direction.endType == ValueType::Static ) {
+			m_direction.second = Math::Vec2( pattern.direction.endMin ).normalize();
+		}
+		else if( pattern.direction.endType == ValueType::Random ) {
+			m_direction.second = Random::getRandomVec2InRange( Math::Vec2( pattern.direction.endMin ), Math::Vec2( pattern.direction.endMax ) ).normalize();
 		}
 	}
 
-	// Colliders
-	m_colliders = pattern.getColliders();
-
-	// Lifetime
-	milliseconds lifetime = milliseconds( Random::getRandomIntInRange( int( pattern.getLifetime().get().first.count() ), int( pattern.getLifetime().get().second.count() ) ) );
-	if( lifetime.count() > 0 ) {
-		m_timer = Timers::addTimer( lifetime,
-									[this, pattern, position, velocity, radius, color, gravity, gravityPower, gravityMultiplier]( float alpha ) {
-										if( pattern.getVelocity().getFade().first || pattern.getVelocity().getFade().second ) {
-											Math::Vec2 v;
-											v.x = pattern.getVelocity().getFade().first ? velocity.x * ( 1.0f - alpha ) : getVelocity().x;
-											v.y = pattern.getVelocity().getFade().second ? velocity.y * ( 1.0f - alpha ) : getVelocity().y;
-											setVelocity( v );
-										}
-
-										if( pattern.getSize().getFade() )
-											setRadius( radius * ( 1.0f - alpha ) );
-
-										if( pattern.getColor().getFade() ) {
-											Math::Color c = color;
-											c.a = color.a * ( 1.0f - alpha );
-											m_shape.setFillColor( c.sf() );
-										}
-
-									}, std::bind( &Particle::destroy, this ), false );
+	// Velocity
+	if( pattern.velocity.type == ValueType::Static ) {
+		m_power.first = m_power.second = pattern.velocity.startMin;
 	}
+	else if( pattern.velocity.type == ValueType::Random ) {
+		m_power.first = m_power.second = Random::getRandomFloatInRange( pattern.velocity.startMin, pattern.velocity.startMax );
+	}
+	else if( pattern.velocity.type == ValueType::Fade ) {
+		if( pattern.velocity.startType == ValueType::Static ) {
+			m_power.first = pattern.velocity.startMin;
+		}
+		else if( pattern.velocity.startType == ValueType::Random ) {
+			m_power.first = Random::getRandomFloatInRange( pattern.velocity.startMin, pattern.velocity.startMax );
+		}
+
+		if( pattern.velocity.endType == ValueType::Static ) {
+			m_power.second = pattern.velocity.endMin;
+		}
+		else if( pattern.velocity.endType == ValueType::Random ) {
+			m_power.first = Random::getRandomFloatInRange( pattern.velocity.endMin, pattern.velocity.endMax );
+		}
+	}
+
+	setVelocity( m_direction.first * m_power.first );
+
+	// Size
+	if( pattern.size.type == ValueType::Static ) {
+		m_size.first = m_size.second = pattern.size.startMin;
+	}
+	else if( pattern.size.type == ValueType::Random ) {
+		m_size.first = m_size.second = Random::getRandomFloatInRange( pattern.size.startMin, pattern.size.startMax );
+	}
+	else if( pattern.size.type == ValueType::Fade ) {
+		if( pattern.size.startType == ValueType::Static ) {
+			m_size.first = pattern.size.startMin;
+		}
+		else if( pattern.size.startType == ValueType::Random ) {
+			m_size.first = Random::getRandomFloatInRange( pattern.size.startMin, pattern.size.startMax );
+		}
+
+		if( pattern.size.endType == ValueType::Static ) {
+			m_size.second = pattern.velocity.endMin;
+		}
+		else if( pattern.size.endType == ValueType::Random ) {
+			m_size.first = Random::getRandomFloatInRange( pattern.size.endMin, pattern.size.endMax );
+		}
+	}
+
+	setSize( m_size.first );
+
+	// Color
+	if( pattern.color.type == ValueType::Static ) {
+		m_color.first = m_color.second = Math::Color( pattern.color.startMin );
+	}
+	else if( pattern.color.type == ValueType::Random ) {
+		m_color.first = m_color.second = Random::getRandomColorInRange( Math::Color( pattern.color.startMin ), Math::Color( pattern.color.startMax ), pattern.color.randomType );
+	}
+	else if( pattern.color.type == ValueType::Fade ) {
+		if( pattern.color.startType == ValueType::Static ) {
+			m_color.first = Math::Color( pattern.color.startMin );
+		}
+		else if( pattern.color.startType == ValueType::Random ) {
+			m_color.first = Random::getRandomColorInRange( Math::Color( pattern.color.startMin ), Math::Color( pattern.color.startMax ), pattern.color.startRandomType );
+		}
+
+		if( pattern.color.endType == ValueType::Static ) {
+			m_color.second = Math::Color( pattern.color.endMin );
+		}
+		else if( pattern.color.endType == ValueType::Random ) {
+			m_color.second = Random::getRandomColorInRange( Math::Color( pattern.color.endMin ), Math::Color( pattern.color.endMax ), pattern.color.endRandomType );
+		}
+	}
+
+	m_shape.setFillColor( m_color.first.sf() );
+
+	m_timer = Timers::addTimer( m_lifetime, 
+								[this, pattern]( float alpha ) {
+									// Direction
+									Math::Vec2 direction = m_direction.first;
+									if( pattern.direction.type == ValueType::Fade ) {
+										if( pattern.direction.fade.first ) {
+											direction.x = m_direction.first.x + ( m_direction.second.x - m_direction.first.x ) * alpha;
+										}
+										if( pattern.direction.fade.second ) {
+											direction.y = m_direction.first.y + ( m_direction.second.y - m_direction.first.y ) * alpha;
+										}
+									}
+
+									// Velocity
+									float power = m_power.first;
+									if( pattern.velocity.type == ValueType::Fade ) {
+										power = m_power.first + ( m_power.second - m_power.first ) * alpha;
+									}
+
+									Math::Vec2 velocity = getVelocity();
+									Math::Vec2 newVelocity = direction.normalize() * power;
+									if( pattern.velocity.fade.first ) {
+										velocity.x = newVelocity.x;
+									}
+									if( pattern.velocity.fade.second ) {
+										velocity.y = newVelocity.y;
+									}
+
+									if( velocity == getVelocity() ) {
+										velocity = direction.normalize() * velocity.length();
+									}
+
+									setVelocity( velocity );
+
+									// Size
+									if( pattern.size.type == ValueType::Fade ) {
+										setSize( m_size.first + ( m_size.second - m_size.first ) * alpha );
+									}
+
+									// Color
+									if( pattern.color.type == ValueType::Fade ) {
+										Math::Color color = Math::Color( m_shape.getFillColor() );
+
+										if( pattern.color.fadeR ) {
+											color.r = m_color.first.r + ( m_color.second.r - m_color.first.r ) * alpha;
+										}
+										if( pattern.color.fadeG ) {
+											color.g = m_color.first.g + ( m_color.second.g - m_color.first.g ) * alpha;
+										}
+										if( pattern.color.fadeB ) {
+											color.b = m_color.first.b + ( m_color.second.b - m_color.first.b ) * alpha;
+										}
+										if( pattern.color.fadeA ) {
+											color.a = m_color.first.a + ( m_color.second.a - m_color.first.a ) * alpha;
+										}
+
+										m_shape.setFillColor( color.sf() );
+									}
+								},
+								std::bind( &Particle::destroy, this ),
+								false );
 }
 
 //================================================================================
 
 void spawnParticle( Object* parent, Pattern pattern ) {
-	uint16_t count = uint16_t( Random::getRandomIntInRange( int( pattern.getNumber().get().first ), int( pattern.getNumber().get().second ) ) );
+	uint16_t count;
+	if( pattern.number.type == ValueType::Static ) {
+		count = uint16_t( pattern.number.min );
+	}
+	else if( pattern.number.type == ValueType::Random ) {
+		count = uint16_t( Random::getRandomIntInRange( pattern.number.min, pattern.number.max ) );
+	}
 
 	for( uint16_t i = 0u; i < count; ++i ) {
 		shared_ptr< Particle > particle = Object::makeObject< Particle >( parent );
-		particle->constructParticle( pattern );
+		particle->init( pattern );
 	}
 }
 
 //--------------------------------------------------------------------------------
 
 void spawnParticle( Object* parent, Pattern pattern, Math::Vec2 position ) {
-	pattern.getPosition().set( pattern.getPosition().get().first + position, pattern.getPosition().get().second + position );
+	pattern.position.min[ 0 ] += position.x;
+	pattern.position.min[ 1 ] += position.y;
+	pattern.position.max[ 0 ] += position.x;
+	pattern.position.max[ 1 ] += position.y;
+
 	spawnParticle( parent, pattern );
 }
 
@@ -224,6 +267,8 @@ void spawnParticle( Object* parent, Pattern pattern, Math::Vec2 position ) {
 // Pattern Loader
 
 //================================================================================
+
+/*
 
 rapidjson::MemoryPoolAllocator < rapidjson::CrtAllocator >* allocator;
 
@@ -241,15 +286,6 @@ rapidjson::Value getValue( bool value );
 rapidjson::Value getValue( string value );
 
 rapidjson::Value getValue( const Pattern& value );
-rapidjson::Value getValue( const Pattern::Position& value );
-rapidjson::Value getValue( const Pattern::Velocity& value );
-rapidjson::Value getValue( const Pattern::Lifetime& value );
-rapidjson::Value getValue( const Pattern::Size& value );
-rapidjson::Value getValue( const Pattern::Number& value );
-rapidjson::Value getValue( const Pattern::Color& value );
-rapidjson::Value getValue( const Pattern::Gravity& value );
-rapidjson::Value getValue( const Pattern::Emitter& value );
-rapidjson::Value getValue( const vector< Pattern::Emitter >& value );
 
 //--------------------------------------------------------------------------------
 
@@ -843,6 +879,8 @@ void getValue( const rapidjson::Value& value, Pattern::Emitter& out ) {
 }
 
 //--------------------------------------------------------------------------------
+
+*/
 
 }
 }

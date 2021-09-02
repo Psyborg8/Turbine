@@ -138,9 +138,6 @@ void update() {
 
 	deltaTime = time;
 
-	// Update timers
-	Timers::update();
-
 	// Update the current world
 	// Event handling
 	Debug::startTimer( "System::Event Handling" );

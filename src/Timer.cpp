@@ -19,7 +19,7 @@ namespace Timers {
 struct Timer : public TimerID {
 	std::chrono::time_point< std::chrono::steady_clock > startTime;
 	std::chrono::milliseconds duration;
-	std::chrono::nanoseconds expirationTime; // ms turned out to not be accurate enough in some cases.
+	std::chrono::microseconds expirationTime; // ms turned out to not be accurate enough in some cases.
 
 	bool loop;
 
@@ -41,7 +41,7 @@ std::chrono::time_point< std::chrono::steady_clock > previousUpdateTime;
 
 //==================================================================================================
 
-void update() {
+void update( sf::Time deltaTime ) {
 	Debug::startTimer( "Timer::Update" );
 	// Lock unsafe functions.
 	threadLock = true;
@@ -49,12 +49,7 @@ void update() {
 	const std::chrono::time_point< std::chrono::steady_clock > time = std::chrono::high_resolution_clock::now();
 
 	//  This is useful for debugging, as time will 'stop' during a breakpoint.
-	std::chrono::nanoseconds dt;
-	if( std::chrono::duration_cast< std::chrono::milliseconds >( time - previousUpdateTime ) > std::chrono::milliseconds( 100 ) )
-		dt = std::chrono::duration_cast< std::chrono::nanoseconds >( std::chrono::milliseconds( 100 ) );
-
-	else
-		dt = time - previousUpdateTime;
+	std::chrono::microseconds dt = microseconds( deltaTime.asMicroseconds() );
 
 	previousUpdateTime = time;
 
@@ -70,7 +65,7 @@ void update() {
 
 		if( timer.expirationTime <= std::chrono::nanoseconds( 0 ) ) {
 			if( timer.loop ) {
-				timer.expirationTime = std::chrono::duration_cast< std::chrono::nanoseconds >( timer.duration );
+				timer.expirationTime = std::chrono::duration_cast< std::chrono::microseconds >( timer.duration );
 				timer.startTime = time;
 			}
 			else
@@ -85,7 +80,7 @@ void update() {
 			if( timer.onUpdate != nullptr ) {
 				const float timeLeft = static_cast< float >( timer.expirationTime.count() );
 				const float totalTime
-					= static_cast< float >( std::chrono::duration_cast< std::chrono::nanoseconds >( timer.duration ).count() );
+					= static_cast< float >( std::chrono::duration_cast< std::chrono::microseconds >( timer.duration ).count() );
 				const float alpha = 1.0f - timeLeft / totalTime;
 
 				timer.onUpdate( alpha );
@@ -163,7 +158,7 @@ TimerID addTimer( std::chrono::milliseconds duration,
 	timer.ID		  = ID;
 	timer.timeStamp = std::chrono::high_resolution_clock::now();
 	timer.duration		 = duration;
-	timer.expirationTime = std::chrono::duration_cast< std::chrono::nanoseconds >( duration );
+	timer.expirationTime = std::chrono::duration_cast< std::chrono::microseconds >( duration );
 	timer.startTime		 = time;
 	timer.loop			 = loop;
 	timer.onUpdate		 = onUpdate;
@@ -203,7 +198,7 @@ void triggerTimer( TimerID ID )
 
 		if( it->loop ) {
 			const std::chrono::time_point< std::chrono::steady_clock > time = std::chrono::high_resolution_clock::now();
-			it->expirationTime = std::chrono::duration_cast< std::chrono::nanoseconds >( it->duration );
+			it->expirationTime = std::chrono::duration_cast< std::chrono::microseconds >( it->duration );
 			it->startTime = time;
 		}
 		else

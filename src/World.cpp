@@ -30,6 +30,8 @@ void World::update( sf::Time deltaTime ) {
 
 	sf::Time dt = sf::seconds( deltaTime.asSeconds() * m_speed );
 
+	Timers::update( dt );
+
 	onUpdate( dt );
 
 	for( shared_ptr< Object > child : m_children )

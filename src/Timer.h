@@ -45,10 +45,14 @@ using FinishCallback = std::function< void() >;
 //==================================================================================================
 
 // Must be called on update.
-void update();
+void update( sf::Time deltaTime );
 
 // Must be called on init.
 void init();
+
+//--------------------------------------------------------------------------------
+
+// Timers
 
 // Add a new timer. onUpdate and onFinish can be nullptr. Returns timer ID for removal.
 TimerID addTimer( int msDuration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop );
@@ -65,6 +69,12 @@ bool timerStillActive( TimerID ID );
 
 /// Remove all timers.
 void clearTimers();
+
+//--------------------------------------------------------------------------------
+
+// Clocks
+
+
 
 //==================================================================================================
 

@@ -23,7 +23,7 @@ struct Color {
 	float b;
 	float a;
 
-	Color() : r( 0.0f ), g( 0.0f ), b( 0.0f ), a( 0.0f ) {}
+	Color() : r( 0.0f ), g( 0.0f ), b( 0.0f ), a( 1.0f ) {}
 	Color( float r, float g, float b, float a ) : r( r ), g( g ), b( b ), a( a ) {}
 
 	Color& fromHSV( float h, float s, float v, float a );
@@ -115,7 +115,9 @@ struct Vec2 {
 //================================================================================
 
 template< class T >
-T mix( T a, T b, float alpha );
+T mix( T a, T b, float alpha ) {
+	return a + ( b - a ) * alpha;
+}
 
 //================================================================================
 

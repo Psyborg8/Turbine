@@ -27,17 +27,18 @@ public:
 
 public:
 	void renderPattern( Gfx::Particle::Pattern& pattern );
-	void renderPosition( Gfx::Particle::Pattern& pattern );
-	void renderDirection( Gfx::Particle::Pattern& pattern );
-	void renderVelocity( Gfx::Particle::Pattern& pattern );
-	void renderGravity( Gfx::Particle::Pattern& pattern );
-	void renderColor( Gfx::Particle::Pattern& pattern );
-	void renderNumber( Gfx::Particle::Pattern& pattern );
-	void renderSize( Gfx::Particle::Pattern& pattern );
-	void renderLifetime( Gfx::Particle::Pattern& pattern );
-
 private:
 	Gfx::Particle::Pattern m_basePattern;
+
+	struct {
+		bool lifetime{ false };
+		bool number{ true };
+		bool direction{ false };
+		bool velocity{ false };
+		bool acceleration{ false };
+		bool size{ false };
+		bool color{ false };
+	} propertyExpanded;
 };
 
 //--------------------------------------------------------------------------------

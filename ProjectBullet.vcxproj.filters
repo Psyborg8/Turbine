@@ -105,9 +105,6 @@
     <ClCompile Include="src\CameraVolume.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\ColorSwatchWorld.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\Particle.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -193,9 +190,6 @@
     </ClInclude>
     <ClInclude Include="src\CameraVolume.h">
       <Filter>Game\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ColorSwatchWorld.h">
-      <Filter>Game\Worlds</Filter>
     </ClInclude>
     <ClInclude Include="src\Particle.h">
       <Filter>Engine\GFX</Filter>

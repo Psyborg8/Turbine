@@ -13,7 +13,6 @@
 
 // Worlds
 #include "SFMLWorld.h"
-#include "ColorSwatchWorld.h"
 #include "BulletPatternEditor.h"
 
 //================================================================================
@@ -72,7 +71,6 @@ bool init( int argc, char** argv ) {
 
 int start() {
 	Debug::startTimer( "System::Make World" );
-	//world = Object::makeObject< Worlds::ColorSwatchWorld >( nullptr );
 	//world = Object::makeObject< Worlds::SFMLWorld >( nullptr );
 	world = Object::makeObject< Worlds::BulletPatternEditor >( nullptr );
 	Debug::stopTimer( "System::Make World" );

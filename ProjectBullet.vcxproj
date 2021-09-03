@@ -34,7 +34,6 @@
     <ClCompile Include="deps\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="src\BulletPatternEditor.cpp" />
     <ClCompile Include="src\Particle.cpp" />
-    <ClCompile Include="src\ColorSwatchWorld.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\CameraVolume.cpp" />
     <ClCompile Include="src\Collision.cpp" />
@@ -69,7 +68,6 @@
     <ClInclude Include="deps\ImGui\imstb_truetype.h" />
     <ClInclude Include="src\BulletPatternEditor.h" />
     <ClInclude Include="src\Particle.h" />
-    <ClInclude Include="src\ColorSwatchWorld.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\CameraVolume.h" />
     <ClInclude Include="src\Collision.h" />

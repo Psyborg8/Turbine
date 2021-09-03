@@ -83,8 +83,7 @@ void Player::onSpawnChildren() {
 	Input::bindButton( "Debug", bindings.controller.debug, bindings.keyboard.debug, bind( &Player::debug, this, _1 ) );
 
 	// Particles
-	spriteData.particlePatterns.jump = Gfx::Particle::loadPattern( "Player\\Jump" );
-	spriteData.particlePatterns.wallSlash = Gfx::Particle::loadPattern( "Player\\Wall Slash" );
+	
 
 	// Sounds
 	soundData.buffers.jump.loadFromFile( Folders::Sound + "Jump.wav" );

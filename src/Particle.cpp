@@ -29,25 +29,37 @@ vector< shared_ptr< Particle > > particles;
 //================================================================================
 
 void processSet( ValueSet< int >& set ) {
-	set.value = Random::getRandomIntInRange( set.min, set.max );
+	if( set.random )
+		set.value = Random::getRandomIntInRange( set.min, set.max );
+	else
+		set.value = set.min;
 }
 
 //--------------------------------------------------------------------------------
 
 void processSet( ValueSet< float >& set ) {
-	set.value = Random::getRandomFloatInRange( set.min, set.max );
+	if( set.random )
+		set.value = Random::getRandomFloatInRange( set.min, set.max );
+	else
+		set.value = set.min;
 }
 
 //--------------------------------------------------------------------------------
 
 void processSet( ValueSet< Math::Vec2 >& set ) {
-	set.value = Random::getRandomVec2InRange( set.min, set.max );
+	if( set.random )
+		set.value = Random::getRandomVec2InRange( set.min, set.max );
+	else
+		set.value = set.min;
 }
 
 //--------------------------------------------------------------------------------
 
 void processSet( ValueSet< Math::Color >& set ) {
-	set.value = Random::getRandomColorInRange( set.min, set.max, Random::RandomColorType::ShuffleHSV );
+	if( set.random )
+		set.value = Random::getRandomColorInRange( set.min, set.max, Random::RandomColorType::ShuffleHSV );
+	else
+		set.value = set.min;
 }
 
 //--------------------------------------------------------------------------------
@@ -98,7 +110,7 @@ void Particle::onUpdate( sf::Time deltaTime ) {
 
 	// Fade Size
 	if( m_pattern.fade.size.active )
-		setSize( getSize() * Math::mix( m_pattern.fade.size.start.value, m_pattern.fade.size.end.value, m_alpha ) );
+		setSize( m_pattern.initial.size.value * Math::mix( m_pattern.fade.size.start.value, m_pattern.fade.size.end.value, m_alpha ) );
 
 	// Fade Colour
 	Math::Color color = m_pattern.initial.color.value;
@@ -145,22 +157,19 @@ void Particle::onPostUpdate( sf::Time deltaTime ) {
 
 	Math::Vec2 velocity = getVelocity();
 
-	if( m_pattern.fade.velocity.x ) {
+	if( m_pattern.fade.velocity.x )
 		velocity.x *= Math::mix( m_pattern.fade.velocity.start.value, m_pattern.fade.velocity.end.value, m_alpha );
-	}
 
-	if( m_pattern.fade.velocity.y ) {
-		velocity.y *= Math::mix( m_pattern.fade.velocity.start.value, m_pattern.fade.velocity.end.value, m_alpha );
-	}
+	if( m_pattern.fade.velocity.y )
+		velocity.y *= Math::mix< float >( m_pattern.fade.velocity.start.value, m_pattern.fade.velocity.end.value, m_alpha );
 
 	setPosition( getPosition() + velocity * deltaTime.asSeconds() );
-
-	m_shape.setPosition( getWorldPosition().sf() );
 }
 
 //--------------------------------------------------------------------------------
 
 void Particle::onRender() {
+	m_shape.setPosition( getWorldPosition().sf() - getSize().sf() );
 	System::getWindow()->draw( m_shape );
 }
 
@@ -185,7 +194,6 @@ void Particle::onDestroy() {
 void Particle::init( const Pattern& pattern ) {
 	setName( "Bullet" );
 	setVisibility( true );
-	m_shape.setOrigin( 0.5f, 0.5f );
 
 	m_pattern = pattern;
 

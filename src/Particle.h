@@ -22,6 +22,8 @@ struct ValueSet {
 	T min;
 	T max;
 	T value;
+
+	bool random;
 };
 
 //--------------------------------------------------------------------------------
@@ -107,7 +109,7 @@ public:
 	void setSize( Math::Vec2 size ) override { setSize( size.x ); }
 	void setSize( float radius ) { m_shape.setRadius( radius ); }
 
-	Math::Vec2 getSize() const override { return Math::Vec2( m_shape.getRadius(), 0.0f ); } 
+	Math::Vec2 getSize() const override { return Math::Vec2( m_shape.getRadius(), m_shape.getRadius() ); } 
 
 public:
 	void init( const Pattern& pattern );

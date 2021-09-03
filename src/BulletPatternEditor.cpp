@@ -9,7 +9,104 @@
 
 //================================================================================
 
+void drawSpacer() {
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+}
+
 //--------------------------------------------------------------------------------
+
+void drawDoubleSpacer() {
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Separator();
+	ImGui::Spacing();
+}
+
+//--------------------------------------------------------------------------------
+
+void drawHeader( const char* label ) {
+	ImGui::SetWindowFontScale( 1.1f );
+	ImGui::Text( label );
+	ImGui::SetWindowFontScale( 1.0f );
+	drawSpacer();
+}
+
+//--------------------------------------------------------------------------------
+
+void drawValueSet( Gfx::Particle::ValueSet< int >& set, const char* id ) {
+	ImGui::PushID( id );
+
+	ImGui::Checkbox( "Random", &set.random );
+
+	if( set.random ) {
+		ImGui::InputInt( "min", &set.min );
+		ImGui::InputInt( "max", &set.max );
+	}
+	else {
+		ImGui::InputInt( "", &set.min );
+	}
+
+	ImGui::PopID();
+}
+
+//--------------------------------------------------------------------------------
+
+void drawValueSet( Gfx::Particle::ValueSet< float >& set, const char* id ) {
+	ImGui::PushID( id );
+
+	ImGui::Checkbox( "Random", &set.random );
+
+	if( set.random ) {
+		ImGui::InputFloat( "min", &set.min );
+		ImGui::InputFloat( "max", &set.max );
+	}
+	else {
+		ImGui::InputFloat( "", &set.min );
+	}
+
+	ImGui::PopID();
+}
+
+//--------------------------------------------------------------------------------
+
+void drawValueSet( Gfx::Particle::ValueSet< Math::Vec2 >& set, const char* id ) {
+	ImGui::PushID( id );
+
+	ImGui::Checkbox( "Random", &set.random );
+
+	if( set.random ) {
+		ImGui::InputFloat2( "min", &set.min.x );
+		ImGui::InputFloat2( "max", &set.max.x );
+	}
+	else {
+		ImGui::InputFloat2( "", &set.min.x );
+	}
+
+	ImGui::PopID();
+}
+
+//--------------------------------------------------------------------------------
+
+void drawValueSet( Gfx::Particle::ValueSet< Math::Color >& set, const char* id ) {
+	ImGui::PushID( id );
+
+	ImGui::Checkbox( "Random", &set.random );
+
+	if( set.random ) {
+		ImGui::ColorEdit4( "min", &set.min.r );
+		ImGui::ColorEdit4( "max", &set.max.r );
+	}
+	else
+	{
+		ImGui::ColorEdit4( "", &set.min.r );
+	}
+
+	ImGui::PopID();
+}
+
+//================================================================================
 
 namespace Worlds {
 
@@ -29,6 +126,99 @@ void BulletPatternEditor::onUpdate( sf::Time deltaTime ) {
 //--------------------------------------------------------------------------------
 
 void BulletPatternEditor::onRender() {
+
+	sf::RenderWindow* window = System::getWindow();
+
+	for( int i = 10000; i >= 0; --i ) {
+		if( i == 0 ) {
+			sf::Vertex line[ 2 ];
+			line[ 0 ].color = sf::Color( 255, 255, 255, 255 );
+			line[ 1 ].color = sf::Color( 255, 255, 255, 255 );
+
+			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
+			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
+			window->draw( line, 2, sf::LineStrip );
+
+			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
+			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
+			window->draw( line, 2, sf::LineStrip );
+
+			continue;
+		}
+
+		if( i % 125 == 0 ) {
+			sf::Vertex line[ 2 ];
+			line[ 0 ].color = sf::Color( 175, 175, 175, 255 );
+			line[ 1 ].color = sf::Color( 175, 175, 175, 255 );
+
+			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
+			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
+			window->draw( line, 2, sf::LineStrip );
+
+			line[ 0 ].position = sf::Vector2f( -float( i ), 10000.0f );
+			line[ 1 ].position = sf::Vector2f( -float( i ), -10000.0f );
+			window->draw( line, 2, sf::LineStrip );
+
+			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
+			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
+			window->draw( line, 2, sf::LineStrip );
+
+			line[ 0 ].position = sf::Vector2f( 10000.0f, -float( i ) );
+			line[ 1 ].position = sf::Vector2f( -10000.0f, -float( i ) );
+			window->draw( line, 2, sf::LineStrip );
+
+			continue;
+		}
+
+		if( i % 25 == 0 ) {
+			sf::Vertex line[ 2 ];
+			line[ 0 ].color = sf::Color( 100, 100, 100, 255 );
+			line[ 1 ].color = sf::Color( 100, 100, 100, 255 );
+
+			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
+			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
+			window->draw( line, 2, sf::LineStrip );
+
+			line[ 0 ].position = sf::Vector2f( -float( i ), 10000.0f );
+			line[ 1 ].position = sf::Vector2f( -float( i ), -10000.0f );
+			window->draw( line, 2, sf::LineStrip );
+
+			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
+			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
+			window->draw( line, 2, sf::LineStrip );
+
+			line[ 0 ].position = sf::Vector2f( 10000.0f, -float( i ) );
+			line[ 1 ].position = sf::Vector2f( -10000.0f, -float( i ) );
+			window->draw( line, 2, sf::LineStrip );
+
+			continue;
+		}
+
+		if( i % 5 == 0 ) {
+			sf::Vertex line[ 2 ];
+			line[ 0 ].color = sf::Color( 25, 25, 25, 255 );
+			line[ 1 ].color = sf::Color( 25, 25, 25, 255 );
+
+			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
+			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
+			window->draw( line, 2, sf::LineStrip );
+
+			line[ 0 ].position = sf::Vector2f( -float( i ), 10000.0f );
+			line[ 1 ].position = sf::Vector2f( -float( i ), -10000.0f );
+			window->draw( line, 2, sf::LineStrip );
+
+			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
+			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
+			window->draw( line, 2, sf::LineStrip );
+
+			line[ 0 ].position = sf::Vector2f( 10000.0f, -float( i ) );
+			line[ 1 ].position = sf::Vector2f( -10000.0f, -float( i ) );
+			window->draw( line, 2, sf::LineStrip );
+
+			continue;
+		}
+	}
+
 	// Control
 	ImGui::Begin( "Control", NULL,
 				  ImGuiWindowFlags_NoTitleBar |
@@ -65,11 +255,11 @@ void BulletPatternEditor::onRender() {
 	ImGui::SetWindowSize( ImVec2( 300.0f, float( System::getSystemInfo().height ) ) );
 	ImGui::SetWindowPos( ImVec2( 0.0f, 0.0f ) );
 
+	ImGui::SetWindowFontScale( 1.2f );
 	ImGui::Text( "PROPERTIES" );
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Separator();
-	ImGui::Spacing();
+	ImGui::SetWindowFontScale( 1.0f );
+
+	drawDoubleSpacer();
 
 	renderPattern( m_basePattern );
 
@@ -79,770 +269,130 @@ void BulletPatternEditor::onRender() {
 //--------------------------------------------------------------------------------
 
 void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
-	renderLifetime( pattern );
-	renderPosition( pattern );
-	renderVelocity( pattern );
-	renderColor( pattern );
-	renderSize( pattern );
-	renderGravity( pattern );
-	renderNumber( pattern );
+
+	if( ImGui::TreeNodeEx( "Lifetime", ImGuiTreeNodeFlags_Framed ) ) {
+		drawValueSet( pattern.initial.lifetime, "Lifetime" );
+
+		ImGui::TreePop();
+	}
+
+	drawDoubleSpacer();
+
+	if( ImGui::TreeNodeEx( "Number", ImGuiTreeNodeFlags_Framed ) ) {
+		drawValueSet( pattern.initial.number, "Number" );
+
+		ImGui::TreePop();
+	}
+
+	drawDoubleSpacer();
+
+	if( ImGui::TreeNodeEx( "Direction", ImGuiTreeNodeFlags_Framed ) ) {
+		drawValueSet( pattern.initial.direction, "Direction" );
+
+		ImGui::TreePop();
+	}
+
+	drawDoubleSpacer();
+
+	if( ImGui::TreeNodeEx( "Velocity", ImGuiTreeNodeFlags_Framed ) ) {
+		drawValueSet( pattern.initial.velocity, "Velocity" );
+
+		drawSpacer();
+
+		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+
+			ImGui::Checkbox( "X", &pattern.fade.velocity.x );
+			ImGui::SameLine();
+			ImGui::Checkbox( "Y", &pattern.fade.velocity.y );
+
+			ImGui::Text( "Start" );
+			drawValueSet( pattern.fade.velocity.start, "FadeVelocityStart" );
+			ImGui::Text( "End" );
+			drawValueSet( pattern.fade.velocity.end, "FadeVelocityEnd" );
+
+			ImGui::TreePop();
+		}
+
+		ImGui::TreePop();
+	}
+
+	drawDoubleSpacer();
+
+	if( ImGui::TreeNodeEx( "Acceleration", ImGuiTreeNodeFlags_Framed ) ) {
+		drawValueSet( pattern.initial.acceleration, "Acceleration" );
+
+		drawSpacer();
+
+		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+
+			ImGui::Checkbox( "X", &pattern.fade.acceleration.x );
+			ImGui::SameLine();
+			ImGui::Checkbox( "Y", &pattern.fade.acceleration.y );
+
+			ImGui::Text( "Start" );
+			drawValueSet( pattern.fade.acceleration.start, "FadeAccelerationStart" );
+			ImGui::Text( "End" );
+			drawValueSet( pattern.fade.acceleration.end, "FadeAccelerationEnd" );
+
+			ImGui::TreePop();
+		}
+
+		ImGui::TreePop();
+	}
+
+	drawDoubleSpacer();
+
+	if( ImGui::TreeNodeEx( "Size", ImGuiTreeNodeFlags_Framed ) ) {
+		drawValueSet( pattern.initial.size, "Size" );
+
+		drawSpacer();
+
+		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+
+			ImGui::Checkbox( "Fade", &pattern.fade.size.active );
+
+			ImGui::Text( "Start" );
+			drawValueSet( pattern.fade.size.start, "FadeSizeStart" );
+			ImGui::Text( "End" );
+			drawValueSet( pattern.fade.size.end, "FadeSizeEnd" );
+
+			ImGui::TreePop();
+		}
+
+		ImGui::TreePop();
+	}
+
+	drawDoubleSpacer();
+
+	if( ImGui::TreeNodeEx( "Color", ImGuiTreeNodeFlags_Framed ) ) {
+		drawValueSet( pattern.initial.color, "Color" );
+
+		drawSpacer();
+
+		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+			ImGui::Checkbox( "R", &pattern.fade.color.r );
+			ImGui::SameLine();
+			ImGui::Checkbox( "G", &pattern.fade.color.g );
+			ImGui::SameLine();
+			ImGui::Checkbox( "B", &pattern.fade.color.b );
+			ImGui::SameLine();
+			ImGui::Checkbox( "A", &pattern.fade.color.a );
+
+			ImGui::Text( "Target" );
+			drawValueSet( pattern.fade.color.target, "ColorTarget" );
+			
+			ImGui::TreePop();
+		}
+
+		ImGui::TreePop();
+	}
+
+	drawDoubleSpacer();
 }
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderPosition( Gfx::Particle::Pattern& pattern ) {
-	using namespace Gfx::Particle;
 
-	ImGui::PushID( "Position" );
-	// Label
-	ImGui::Text( "Position" );
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Spacing();
-
-	// Type
-	if( pattern.position.type == ValueType::Static )
-		if( ImGui::Button( "Type: Static" ) )
-			ImGui::OpenPopup( "PositionType" );
-
-	if( pattern.position.type == ValueType::Random )
-		if( ImGui::Button( "Type: Random" ) )
-			ImGui::OpenPopup( "PositionType" );
-
-	// Type Popup
-	if( ImGui::BeginPopup( "PositionType",
-							ImGuiWindowFlags_NoTitleBar |
-							ImGuiWindowFlags_NoResize |
-							ImGuiWindowFlags_NoMove |
-							ImGuiWindowFlags_NoCollapse ) ) {
-		if( ImGui::MenuItem( "Static" ) )
-			pattern.position.type = ValueType::Static;
-		if( ImGui::MenuItem( "Random" ) )
-			pattern.position.type = ValueType::Random;
-
-		ImGui::EndPopup();
-	}
-
-	ImGui::Spacing();
-
-	// Value
-	if( pattern.position.type == ValueType::Static ) {
-		ImGui::InputFloat2( "Value", pattern.position.min.data() );
-		pattern.position.max = pattern.position.min;
-	}
-	else if( pattern.position.type == ValueType::Random ) {
-		ImGui::InputFloat2( "Min", pattern.position.min.data() );
-		ImGui::InputFloat2( "Max", pattern.position.max.data() );
-	}
-
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Separator();
-	ImGui::Spacing();
-	ImGui::PopID();
-}
-
-//--------------------------------------------------------------------------------
-
-void BulletPatternEditor::renderVelocity( Gfx::Particle::Pattern& pattern ) {
-	using namespace Gfx::Particle;
-
-	ImGui::PushID( "Velocity" );
-	// Label
-	ImGui::Text( "Velocity" );
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Spacing();
-
-	// Type
-	if( pattern.velocity.type == ValueType::Static ) {
-		if( ImGui::Button( "Type: Static" ) )
-			ImGui::OpenPopup( "Type" );
-	}
-
-	else if( pattern.velocity.type == ValueType::Random ) {
-		if( ImGui::Button( "Type: Random" ) )
-			ImGui::OpenPopup( "Type" );
-	}
-
-	else if( pattern.velocity.type == ValueType::Fade ) {
-		if( ImGui::Button( "Type: Fade" ) )
-			ImGui::OpenPopup( "Type" );
-	}
-
-	// Type Popup
-	if( ImGui::BeginPopup( "Type",
-							ImGuiWindowFlags_NoTitleBar |
-							ImGuiWindowFlags_NoResize |
-							ImGuiWindowFlags_NoMove |
-							ImGuiWindowFlags_NoCollapse ) ) {
-		if( ImGui::MenuItem( "Static" ) )
-			pattern.velocity.type = ValueType::Static;
-		if( ImGui::MenuItem( "Random" ) )
-			pattern.velocity.type = ValueType::Random;
-		if( ImGui::MenuItem( "Fade" ) )
-			pattern.velocity.type = ValueType::Fade;
-
-		ImGui::EndPopup();
-	}
-
-	ImGui::Spacing();
-
-	// Value
-	if( pattern.velocity.type == ValueType::Static ) {
-		ImGui::InputFloat( "Value", &pattern.velocity.startMin );
-		pattern.velocity.startMax = pattern.velocity.startMin;
-		pattern.velocity.endMin = pattern.velocity.startMin;
-		pattern.velocity.endMax = pattern.velocity.startMin;
-	}
-	else if( pattern.velocity.type == ValueType::Random ) {
-		ImGui::InputFloat( "Min", &pattern.velocity.startMin );
-		ImGui::InputFloat( "Max", &pattern.velocity.startMax );
-		pattern.velocity.endMin = pattern.velocity.startMin;
-		pattern.velocity.endMax = pattern.velocity.startMax;
-	}
-	else if( pattern.velocity.type == ValueType::Fade ) {
-		// Start
-		ImGui::PushID( "Start" );
-		ImGui::Text( "Start" );
-		if( pattern.velocity.startType == ValueType::Static ) {
-			if( ImGui::Button( "Type: Static" ) )
-				ImGui::OpenPopup( "Type" );
-		}
-		else if( pattern.velocity.startType == ValueType::Random ) {
-			if( ImGui::Button( "Type: Random" ) )
-				ImGui::OpenPopup( "Type" );
-		}
-
-		// Type Popup
-		if( ImGui::BeginPopup( "Type",
-								ImGuiWindowFlags_NoTitleBar |
-								ImGuiWindowFlags_NoResize |
-								ImGuiWindowFlags_NoMove |
-								ImGuiWindowFlags_NoCollapse ) ) {
-			if( ImGui::MenuItem( "Static" ) )
-				pattern.velocity.startType = ValueType::Static;
-			if( ImGui::MenuItem( "Random" ) )
-				pattern.velocity.startType = ValueType::Random;
-
-			ImGui::EndPopup();
-		}
-
-		// Value
-		if( pattern.velocity.startType == ValueType::Static ) {
-			ImGui::InputFloat2( "Value", &pattern.velocity.startMin );
-			pattern.velocity.startMax = pattern.velocity.startMin;
-		}
-		else if( pattern.velocity.startType == ValueType::Random ) {
-			ImGui::InputFloat2( "Min", &pattern.velocity.startMin );
-			ImGui::InputFloat2( "Max", &pattern.velocity.startMax );
-		}
-
-		ImGui::PopID();
-
-		ImGui::Spacing();
-		ImGui::Spacing();
-
-		// End
-		ImGui::PushID( "End" );
-		ImGui::Text( "End" );
-
-		// Fade Type
-		ImGui::Checkbox( "Fade X", &pattern.velocity.fade.first );
-		ImGui::SameLine();
-		ImGui::Checkbox( "Fade Y", &pattern.velocity.fade.second );
-
-		if( pattern.velocity.endType == ValueType::Static )
-			if( ImGui::Button( "Type: Static" ) )
-				ImGui::OpenPopup( "Type" );
-		if( pattern.velocity.endType == ValueType::Random )
-			if( ImGui::Button( "Type: Random" ) )
-				ImGui::OpenPopup( "Type" );
-
-		// Type Popup
-		if( ImGui::BeginPopup( "Type",
-							   ImGuiWindowFlags_NoTitleBar |
-								ImGuiWindowFlags_NoResize |
-								ImGuiWindowFlags_NoMove |
-								ImGuiWindowFlags_NoCollapse ) ) {
-			if( ImGui::MenuItem( "Static" ) )
-				pattern.velocity.endType = ValueType::Static;
-			if( ImGui::MenuItem( "Random" ) )
-				pattern.velocity.endType = ValueType::Random;
-
-			ImGui::EndPopup();
-		}
-
-		// Value
-		if( pattern.velocity.endType == ValueType::Static ) {
-			ImGui::InputFloat( "Value", &pattern.velocity.endMin );
-		}
-		else if( pattern.velocity.endType == ValueType::Random ) {
-				ImGui::InputFloat( "Min", &pattern.velocity.endMin );
-				ImGui::InputFloat( "Max", &pattern.velocity.endMax );
-		}
-
-		ImGui::PopID();
-	}
-
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Separator();
-	ImGui::Spacing();
-	ImGui::PopID();
-}
-
-//--------------------------------------------------------------------------------
-
-void BulletPatternEditor::renderGravity( Gfx::Particle::Pattern& pattern ) {
-	//opl
-}
-
-//--------------------------------------------------------------------------------
-
-void BulletPatternEditor::renderColor( Gfx::Particle::Pattern& pattern ) {
-	using namespace Gfx::Particle;
-
-	ImGui::PushID( "Color" );
-	// Label
-	ImGui::Text( "Color" );
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Spacing();
-
-	// Type
-	if( pattern.color.type == ValueType::Static ) {
-		if( ImGui::Button( "Type: Static" ) )
-			ImGui::OpenPopup( "Type" );
-	}
-
-	else if( pattern.color.type == ValueType::Random ) {
-		if( ImGui::Button( "Type: Random" ) )
-			ImGui::OpenPopup( "Type" );
-	}
-
-	else if( pattern.color.type == ValueType::Fade ) {
-		if( ImGui::Button( "Type: Fade" ) )
-			ImGui::OpenPopup( "Type" );
-	}
-
-	// Type Popup
-	if( ImGui::BeginPopup( "Type",
-						   ImGuiWindowFlags_NoTitleBar |
-						   ImGuiWindowFlags_NoResize |
-						   ImGuiWindowFlags_NoMove |
-						   ImGuiWindowFlags_NoCollapse ) ) {
-		if( ImGui::MenuItem( "Static" ) )
-			pattern.color.type = ValueType::Static;
-		if( ImGui::MenuItem( "Random" ) )
-			pattern.color.type = ValueType::Random;
-		if( ImGui::MenuItem( "Fade" ) )
-			pattern.color.type = ValueType::Fade;
-
-		ImGui::EndPopup();
-	}
-
-	ImGui::Spacing();
-
-	// Value
-	if( pattern.color.type == ValueType::Static ) {
-		ImGui::ColorEdit4( "Value", &pattern.color.startMin.x );
-		pattern.color.startMax = pattern.color.startMin;
-		pattern.color.endMin = pattern.color.startMin;
-		pattern.color.endMax = pattern.color.startMin;
-	}
-	else if( pattern.color.type == ValueType::Random ) {
-		if( pattern.color.randomType == Random::RandomColorType::ShuffleRGB ) {
-			if( ImGui::Button( "Random Type: Shuffle RGB" ) )
-				ImGui::OpenPopup( "RandomType" );
-		}
-		else if( pattern.color.randomType == Random::RandomColorType::MixRGB ) {
-			if( ImGui::Button( "Random Type: Mix RGB" ) )
-				ImGui::OpenPopup( "RandomType" );
-		}
-		else if( pattern.color.randomType == Random::RandomColorType::ShuffleHSV ) {
-			if( ImGui::Button( "Random Type: Shuffle HSV" ) )
-				ImGui::OpenPopup( "RandomType" );
-		}
-		else if( pattern.color.randomType == Random::RandomColorType::MixHSV ) {
-			if( ImGui::Button( "Random Type: Mix HSV" ) )
-				ImGui::OpenPopup( "RandomType" );
-		}
-		else if( pattern.color.randomType == Random::RandomColorType::SortedHSV ) {
-			if( ImGui::Button( "Random Type: Sorted HSV" ) )
-				ImGui::OpenPopup( "RandomType" );
-		}
-
-		if( ImGui::BeginPopup( "RandomType", 
-							   ImGuiWindowFlags_NoTitleBar |
-							   ImGuiWindowFlags_NoResize |
-							   ImGuiWindowFlags_NoMove |
-							   ImGuiWindowFlags_NoCollapse ) ) {
-			if( ImGui::MenuItem( "Shuffle RGB" ) )
-				pattern.color.randomType = Random::RandomColorType::ShuffleRGB;
-			if( ImGui::MenuItem( "Mix RGB" ) )
-				pattern.color.randomType = Random::RandomColorType::MixRGB;
-			if( ImGui::MenuItem( "Shuffle HSV" ) )
-				pattern.color.randomType = Random::RandomColorType::ShuffleHSV;
-			if( ImGui::MenuItem( "Mix HSV" ) )
-				pattern.color.randomType = Random::RandomColorType::MixHSV;
-			if( ImGui::MenuItem( "Sorted HSV" ) )
-				pattern.color.randomType = Random::RandomColorType::SortedHSV;
-
-			ImGui::EndPopup();
-		}
-
-		ImGui::ColorEdit4( "Min", &pattern.color.startMin.x );
-		ImGui::ColorEdit4( "Max", &pattern.color.startMax.x );
-		pattern.color.endMin = pattern.color.startMin;
-		pattern.color.endMax = pattern.color.startMax;
-	}
-	else if( pattern.color.type == ValueType::Fade ) {
-		// Start
-		ImGui::PushID( "Start" );
-		ImGui::Text( "Start" );
-		if( pattern.color.startType == ValueType::Static ) {
-			if( ImGui::Button( "Type: Static" ) )
-				ImGui::OpenPopup( "Type" );
-		}
-		else if( pattern.color.startType == ValueType::Random ) {
-			if( ImGui::Button( "Type: Random" ) )
-				ImGui::OpenPopup( "Type" );
-		}
-
-		// Type Popup
-		if( ImGui::BeginPopup( "Type",
-							   ImGuiWindowFlags_NoTitleBar |
-							   ImGuiWindowFlags_NoResize |
-							   ImGuiWindowFlags_NoMove |
-							   ImGuiWindowFlags_NoCollapse ) ) {
-			if( ImGui::MenuItem( "Static" ) )
-				pattern.color.startType = ValueType::Static;
-			if( ImGui::MenuItem( "Random" ) )
-				pattern.color.startType = ValueType::Random;
-
-			ImGui::EndPopup();
-		}
-
-		// Value
-		if( pattern.color.startType == ValueType::Static ) {
-			ImGui::ColorEdit4( "Value", &pattern.color.startMin.x );
-			pattern.color.startMax = pattern.color.startMin;
-		}
-		else if( pattern.color.startType == ValueType::Random ) {
-			if( pattern.color.startRandomType == Random::RandomColorType::ShuffleRGB ) {
-				if( ImGui::Button( "Random Type: Shuffle RGB" ) )
-					ImGui::OpenPopup( "RandomType" );
-			}
-			else if( pattern.color.startRandomType == Random::RandomColorType::MixRGB ) {
-				if( ImGui::Button( "Random Type: Mix RGB" ) )
-					ImGui::OpenPopup( "RandomType" );
-			}
-			else if( pattern.color.startRandomType == Random::RandomColorType::ShuffleHSV ) {
-				if( ImGui::Button( "Random Type: Shuffle HSV" ) )
-					ImGui::OpenPopup( "RandomType" );
-			}
-			else if( pattern.color.startRandomType == Random::RandomColorType::MixHSV ) {
-				if( ImGui::Button( "Random Type: Mix HSV" ) )
-					ImGui::OpenPopup( "RandomType" );
-			}
-			else if( pattern.color.startRandomType == Random::RandomColorType::SortedHSV ) {
-				if( ImGui::Button( "Random Type: Sorted HSV" ) )
-					ImGui::OpenPopup( "RandomType" );
-			}
-
-			if( ImGui::BeginPopup( "RandomType",
-								   ImGuiWindowFlags_NoTitleBar |
-								   ImGuiWindowFlags_NoResize |
-								   ImGuiWindowFlags_NoMove |
-								   ImGuiWindowFlags_NoCollapse ) ) {
-				if( ImGui::MenuItem( "Shuffle RGB" ) )
-					pattern.color.startRandomType = Random::RandomColorType::ShuffleRGB;
-				if( ImGui::MenuItem( "Mix RGB" ) )
-					pattern.color.startRandomType = Random::RandomColorType::MixRGB;
-				if( ImGui::MenuItem( "Shuffle HSV" ) )
-					pattern.color.startRandomType = Random::RandomColorType::ShuffleHSV;
-				if( ImGui::MenuItem( "Mix HSV" ) )
-					pattern.color.startRandomType = Random::RandomColorType::MixHSV;
-				if( ImGui::MenuItem( "Sorted HSV" ) )
-					pattern.color.startRandomType = Random::RandomColorType::SortedHSV;
-
-				ImGui::EndPopup();
-			}
-
-			ImGui::ColorEdit4( "Min", &pattern.color.startMin.x );
-			ImGui::ColorEdit4( "Max", &pattern.color.startMax.x );
-		}
-
-		ImGui::PopID();
-
-		ImGui::Spacing();
-		ImGui::Spacing();
-
-		// End
-		ImGui::PushID( "End" );
-		ImGui::Text( "End" );
-
-		// Fade Type
-		ImGui::Checkbox( "R", &pattern.color.fadeR );
-		ImGui::SameLine();
-		ImGui::Checkbox( "G", &pattern.color.fadeG );
-		ImGui::SameLine();
-		ImGui::Checkbox( "B", &pattern.color.fadeB );
-		ImGui::SameLine();
-		ImGui::Checkbox( "A", &pattern.color.fadeA );
-
-		if( pattern.color.endType == ValueType::Static )
-			if( ImGui::Button( "Type: Static" ) )
-				ImGui::OpenPopup( "Type" );
-		if( pattern.color.endType == ValueType::Random )
-			if( ImGui::Button( "Type: Random" ) )
-				ImGui::OpenPopup( "Type" );
-
-		// Type Popup
-		if( ImGui::BeginPopup( "Type",
-							   ImGuiWindowFlags_NoTitleBar |
-							   ImGuiWindowFlags_NoResize |
-							   ImGuiWindowFlags_NoMove |
-							   ImGuiWindowFlags_NoCollapse ) ) {
-			if( ImGui::MenuItem( "Static" ) )
-				pattern.color.endType = ValueType::Static;
-			if( ImGui::MenuItem( "Random" ) )
-				pattern.color.endType = ValueType::Random;
-
-			ImGui::EndPopup();
-		}
-
-		// Value
-		if( pattern.color.endType == ValueType::Static ) {
-			ImGui::ColorEdit4( "Value", &pattern.color.endMin.x );
-			pattern.color.endMax = pattern.color.endMin;
-		}
-		else if( pattern.color.endType == ValueType::Random ) {
-			if( pattern.color.endRandomType == Random::RandomColorType::ShuffleRGB ) {
-				if( ImGui::Button( "Random Type: Shuffle RGB" ) )
-					ImGui::OpenPopup( "RandomType" );
-			}
-			else if( pattern.color.endRandomType == Random::RandomColorType::MixRGB ) {
-				if( ImGui::Button( "Random Type: Mix RGB" ) )
-					ImGui::OpenPopup( "RandomType" );
-			}
-			else if( pattern.color.endRandomType == Random::RandomColorType::ShuffleHSV ) {
-				if( ImGui::Button( "Random Type: Shuffle HSV" ) )
-					ImGui::OpenPopup( "RandomType" );
-			}
-			else if( pattern.color.endRandomType == Random::RandomColorType::MixHSV ) {
-				if( ImGui::Button( "Random Type: Mix HSV" ) )
-					ImGui::OpenPopup( "RandomType" );
-			}
-			else if( pattern.color.endRandomType == Random::RandomColorType::SortedHSV ) {
-				if( ImGui::Button( "Random Type: Sorted HSV" ) )
-					ImGui::OpenPopup( "RandomType" );
-			}
-
-			if( ImGui::BeginPopup( "RandomType",
-								   ImGuiWindowFlags_NoTitleBar |
-								   ImGuiWindowFlags_NoResize |
-								   ImGuiWindowFlags_NoMove |
-								   ImGuiWindowFlags_NoCollapse ) ) {
-				if( ImGui::MenuItem( "Shuffle RGB" ) )
-					pattern.color.endRandomType = Random::RandomColorType::ShuffleRGB;
-				if( ImGui::MenuItem( "Mix RGB" ) )
-					pattern.color.endRandomType = Random::RandomColorType::MixRGB;
-				if( ImGui::MenuItem( "Shuffle HSV" ) )
-					pattern.color.endRandomType = Random::RandomColorType::ShuffleHSV;
-				if( ImGui::MenuItem( "Mix HSV" ) )
-					pattern.color.endRandomType = Random::RandomColorType::MixHSV;
-				if( ImGui::MenuItem( "Sorted HSV" ) )
-					pattern.color.endRandomType = Random::RandomColorType::SortedHSV;
-
-				ImGui::EndPopup();
-			}
-
-			ImGui::ColorEdit4( "Min", &pattern.color.endMin.x );
-			ImGui::ColorEdit4( "Max", &pattern.color.endMax.x );
-		}
-
-		ImGui::PopID();
-	}
-
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Separator();
-	ImGui::Spacing();
-	ImGui::PopID();
-}
-
-//--------------------------------------------------------------------------------
-
-void BulletPatternEditor::renderNumber( Gfx::Particle::Pattern& pattern ) {
-	using namespace Gfx::Particle;
-
-	ImGui::PushID( "Number" );
-	// Label
-	ImGui::Text( "Number" );
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Spacing();
-
-	// Type
-	if( pattern.number.type == ValueType::Static ) {
-		if( ImGui::Button( "Type: Static" ) )
-			ImGui::OpenPopup( "Type" );
-	}
-
-	else if( pattern.number.type == ValueType::Random ) {
-		if( ImGui::Button( "Type: Random" ) )
-			ImGui::OpenPopup( "Type" );
-	}
-
-	// Type Popup
-	if( ImGui::BeginPopup( "Type",
-						   ImGuiWindowFlags_NoTitleBar |
-						   ImGuiWindowFlags_NoResize |
-						   ImGuiWindowFlags_NoMove |
-						   ImGuiWindowFlags_NoCollapse ) ) {
-		if( ImGui::MenuItem( "Static" ) )
-			pattern.number.type = ValueType::Static;
-		if( ImGui::MenuItem( "Random" ) )
-			pattern.number.type = ValueType::Random;
-
-		ImGui::EndPopup();
-	}
-
-	ImGui::Spacing();
-
-	if( pattern.number.type == ValueType::Static ) {
-		ImGui::InputInt( "Value", &pattern.number.min );
-		if( pattern.number.min < 0 )
-			pattern.number.min = 0;
-
-		pattern.number.max = pattern.number.min;
-	}
-	else if( pattern.number.type == ValueType::Random ) {
-		ImGui::InputInt( "Min", &pattern.number.min );
-		ImGui::InputInt( "Max", &pattern.number.max );
-
-		if( pattern.number.min < 0 )
-			pattern.number.min = 0;
-		if( pattern.number.max < 0 )
-			pattern.number.max = 0;
-	}
-
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Separator();
-	ImGui::Spacing();
-	ImGui::PopID();
-}
-
-//--------------------------------------------------------------------------------
-
-void BulletPatternEditor::renderSize( Gfx::Particle::Pattern& pattern ) {
-	using namespace Gfx::Particle;
-
-	ImGui::PushID( "Size" );
-	// Label
-	ImGui::Text( "Size" );
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Spacing();
-
-	// Type
-	if( pattern.size.type == ValueType::Static ) {
-		if( ImGui::Button( "Type: Static" ) )
-			ImGui::OpenPopup( "Type" );
-	}
-
-	else if( pattern.size.type == ValueType::Random ) {
-		if( ImGui::Button( "Type: Random" ) )
-			ImGui::OpenPopup( "Type" );
-	}
-
-	else if( pattern.size.type == ValueType::Fade ) {
-		if( ImGui::Button( "Type: Fade" ) )
-			ImGui::OpenPopup( "Type" );
-	}
-
-	// Type Popup
-	if( ImGui::BeginPopup( "Type",
-						   ImGuiWindowFlags_NoTitleBar |
-						   ImGuiWindowFlags_NoResize |
-						   ImGuiWindowFlags_NoMove |
-						   ImGuiWindowFlags_NoCollapse ) ) {
-		if( ImGui::MenuItem( "Static" ) )
-			pattern.size.type = ValueType::Static;
-		if( ImGui::MenuItem( "Random" ) )
-			pattern.size.type = ValueType::Random;
-		if( ImGui::MenuItem( "Fade" ) )
-			pattern.size.type = ValueType::Fade;
-
-		ImGui::EndPopup();
-	}
-
-	ImGui::Spacing();
-
-	// Value
-	if( pattern.size.type == ValueType::Static ) {
-		ImGui::InputFloat( "Value", &pattern.size.startMin );
-		pattern.size.startMax = pattern.size.startMin;
-		pattern.size.endMin = pattern.size.startMin;
-		pattern.size.endMax = pattern.size.startMin;
-	}
-	else if( pattern.size.type == ValueType::Random ) {
-		ImGui::InputFloat( "Min", &pattern.size.startMin );
-		ImGui::InputFloat( "Max", &pattern.size.startMax );
-		pattern.size.endMin = pattern.size.startMin;
-		pattern.size.endMax = pattern.size.startMax;
-	}
-	else if( pattern.size.type == ValueType::Fade ) {
-		// Start
-		ImGui::PushID( "Start" );
-		ImGui::Text( "Start" );
-		if( pattern.size.startType == ValueType::Static ) {
-			if( ImGui::Button( "Type: Static" ) )
-				ImGui::OpenPopup( "Type" );
-		}
-		else if( pattern.size.startType == ValueType::Random ) {
-			if( ImGui::Button( "Type: Random" ) )
-				ImGui::OpenPopup( "Type" );
-		}
-
-		// Type Popup
-		if( ImGui::BeginPopup( "Type",
-							   ImGuiWindowFlags_NoTitleBar |
-							   ImGuiWindowFlags_NoResize |
-							   ImGuiWindowFlags_NoMove |
-							   ImGuiWindowFlags_NoCollapse ) ) {
-			if( ImGui::MenuItem( "Static" ) )
-				pattern.size.startType = ValueType::Static;
-			if( ImGui::MenuItem( "Random" ) )
-				pattern.size.startType = ValueType::Random;
-
-			ImGui::EndPopup();
-		}
-
-		// Value
-		if( pattern.size.startType == ValueType::Static ) {
-			ImGui::InputFloat( "Value", &pattern.size.startMin );
-			pattern.size.startMax = pattern.size.startMin;
-		}
-		else if( pattern.size.startType == ValueType::Random ) {
-			ImGui::InputFloat( "Min", &pattern.size.startMin );
-			ImGui::InputFloat( "Max", &pattern.size.startMax );
-		}
-
-		ImGui::PopID();
-
-		ImGui::Spacing();
-		ImGui::Spacing();
-
-		// End
-		ImGui::PushID( "End" );
-		ImGui::Text( "End" );
-
-		// Type
-		if( pattern.size.endType == ValueType::Static )
-			if( ImGui::Button( "Type: Static" ) )
-				ImGui::OpenPopup( "Type" );
-		if( pattern.size.endType == ValueType::Random )
-			if( ImGui::Button( "Type: Random" ) )
-				ImGui::OpenPopup( "Type" );
-
-		// Type Popup
-		if( ImGui::BeginPopup( "Type",
-							   ImGuiWindowFlags_NoTitleBar |
-							   ImGuiWindowFlags_NoResize |
-							   ImGuiWindowFlags_NoMove |
-							   ImGuiWindowFlags_NoCollapse ) ) {
-			if( ImGui::MenuItem( "Static" ) )
-				pattern.size.endType = ValueType::Static;
-			if( ImGui::MenuItem( "Random" ) )
-				pattern.size.endType = ValueType::Random;
-
-			ImGui::EndPopup();
-		}
-
-		// Value
-		if( pattern.size.endType == ValueType::Static ) {
-			ImGui::InputFloat( "Value", &pattern.size.endMin );
-			pattern.size.endMax = pattern.size.endMin;
-		}
-		else if( pattern.size.endType == ValueType::Random ) {
-			ImGui::InputFloat( "Min", &pattern.size.endMin );
-			ImGui::InputFloat( "Max", &pattern.size.endMax );
-		}
-
-		ImGui::PopID();
-	}
-
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Separator();
-	ImGui::Spacing();
-	ImGui::PopID();
-}
-
-//--------------------------------------------------------------------------------
-
-void BulletPatternEditor::renderLifetime( Gfx::Particle::Pattern& pattern ) {
-	using namespace Gfx::Particle;
-
-	ImGui::PushID( "Lifetime" );
-	// Label
-	ImGui::Text( "Lifetime" );
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Spacing();
-
-	// Type
-	if( pattern.lifetime.type == ValueType::Static )
-		if( ImGui::Button( "Type: Static" ) )
-			ImGui::OpenPopup( "Type" );
-
-	if( pattern.lifetime.type == ValueType::Random )
-		if( ImGui::Button( "Type: Random" ) )
-			ImGui::OpenPopup( "Type" );
-
-	// Type Popup
-	if( ImGui::BeginPopup( "Type",
-						   ImGuiWindowFlags_NoTitleBar |
-						   ImGuiWindowFlags_NoResize |
-						   ImGuiWindowFlags_NoMove |
-						   ImGuiWindowFlags_NoCollapse ) ) {
-		if( ImGui::MenuItem( "Static" ) )
-			pattern.lifetime.type = ValueType::Static;
-		if( ImGui::MenuItem( "Random" ) )
-			pattern.lifetime.type = ValueType::Random;
-
-		ImGui::EndPopup();
-	}
-
-	ImGui::Spacing();
-
-	// Value
-	if( pattern.lifetime.type == ValueType::Static ) {
-		ImGui::InputInt( "Value", &pattern.lifetime.min );
-		if( pattern.lifetime.min < 0 )
-			pattern.lifetime.min = 0;
-		pattern.lifetime.max = pattern.lifetime.min;
-	}
-	else if( pattern.lifetime.type == ValueType::Random ) {
-		ImGui::InputInt( "Min", &pattern.lifetime.min );
-		ImGui::InputInt( "Max", &pattern.lifetime.max );
-
-		if( pattern.lifetime.min < 0 )
-			pattern.lifetime.min = 0;
-		if( pattern.lifetime.max < 0 )
-			pattern.lifetime.max = 0;
-	}
-
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Separator();
-	ImGui::Spacing();
-	ImGui::PopID();
-}
 
 //--------------------------------------------------------------------------------
 

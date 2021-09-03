@@ -50,26 +50,88 @@ void processSet( ValueSet< Math::Color >& set ) {
 	set.value = Random::getRandomColorInRange( set.min, set.max, Random::RandomColorType::ShuffleHSV );
 }
 
+//--------------------------------------------------------------------------------
+
+void processPattern( Pattern& pattern, Pattern::Emitter& emitter ) {
+	processSet( emitter.position );
+	processSet( emitter.lifetime );
+	processSet( emitter.velocity );
+	processSet( emitter.acceleration );
+	processSet( emitter.size );
+	processSet( emitter.alpha );
+	processSet( emitter.number );
+	
+	pattern.initial.position.min += emitter.position.value;
+	pattern.initial.position.max += emitter.position.value;
+
+	pattern.initial.lifetime.min *= emitter.lifetime.value;
+	pattern.initial.lifetime.max *= emitter.lifetime.value;
+
+	pattern.initial.velocity.min *= emitter.velocity.value;
+	pattern.initial.velocity.max *= emitter.velocity.value;
+
+	pattern.initial.acceleration.min *= emitter.acceleration.value;
+	pattern.initial.acceleration.max *= emitter.acceleration.value;
+
+	pattern.initial.size.min *= emitter.size.value;
+	pattern.initial.size.max *= emitter.size.value;
+
+	pattern.initial.color.min.a *= emitter.alpha.value;
+	pattern.initial.color.max.a *= emitter.alpha.value;
+
+	pattern.initial.number.min *= emitter.number.value;
+	pattern.initial.number.max *= emitter.number.value;
+}
+
 //================================================================================
 
 void Particle::onUpdate( sf::Time deltaTime ) {
-	m_shape.setPosition( getWorldPosition().sf() );
+	// Fade Acceleration
+	Math::Vec2 acceleration = m_pattern.initial.acceleration.value;
+	if( m_pattern.fade.acceleration.x )
+		acceleration.x *= Math::mix( m_pattern.fade.acceleration.start.value, m_pattern.fade.acceleration.end.value, m_alpha );
+
+	if( m_pattern.fade.acceleration.y )
+		acceleration.y *= Math::mix( m_pattern.fade.acceleration.start.value, m_pattern.fade.acceleration.end.value, m_alpha );
+
+	setVelocity( getVelocity() + acceleration );
+
+	// Fade Size
+	if( m_pattern.fade.size.active )
+		setSize( getSize() * Math::mix( m_pattern.fade.size.start.value, m_pattern.fade.size.end.value, m_alpha ) );
+
+	// Fade Colour
+	Math::Color color = m_pattern.initial.color.value;
+	if( m_pattern.fade.color.r )
+		color.r = Math::mix( m_pattern.initial.color.value.r, m_pattern.fade.color.target.value.r, m_alpha );
+	if( m_pattern.fade.color.g )
+		color.g = Math::mix( m_pattern.initial.color.value.g, m_pattern.fade.color.target.value.g, m_alpha );
+	if( m_pattern.fade.color.b )
+		color.b = Math::mix( m_pattern.initial.color.value.b, m_pattern.fade.color.target.value.b, m_alpha );
+	if( m_pattern.fade.color.a )
+		color.a = Math::mix( m_pattern.initial.color.value.a, m_pattern.fade.color.target.value.a, m_alpha );
+
+	m_shape.setFillColor( color.sf() );
 
 	// Emitters
-	for( pair< Emitter, float >& emitter : m_pattern.emitters ) {
+	for( pair< Pattern::Emitter, float >& emitter : m_pattern.emitters ) {
 		if( emitter.second == 1.0f )
 			continue;
+		if( emitter.second > m_alpha )
+			continue;
 
-		if( emitter.first.spawnTimer && !Timers::timerStillActive( emitter.first.spawnTimer ) ) {
-			for( const Pattern& pattern : emitter.first.patterns )
+		if( !Timers::timerStillActive( emitter.first.timer ) ) {
+			for( Pattern pattern : emitter.first.patterns ) {
+				processPattern( pattern, emitter.first );
 				spawnParticle( this, pattern );
+			}
 
-			processSet( emitter.first.spawnRate.start );
-			processSet( emitter.first.spawnRate.end );
+			processSet( emitter.first.rate.start );
+			processSet( emitter.first.rate.end );
 
-			float spawnRate = Math::mix( emitter.first.spawnRate.start.value, emitter.first.spawnRate.end.value, m_alpha );
+			float spawnRate = Math::mix( emitter.first.rate.start.value, emitter.first.rate.end.value, m_alpha );
 			milliseconds spawnTime = milliseconds( int( 1000.f / spawnRate ) );
-			emitter.first.spawnTimer = Timers::addTimer( spawnTime, nullptr, nullptr, false );
+			emitter.first.timer = Timers::addTimer( spawnTime, nullptr, nullptr, false );
 		}
 	}
 }
@@ -77,7 +139,23 @@ void Particle::onUpdate( sf::Time deltaTime ) {
 //--------------------------------------------------------------------------------
 
 void Particle::onPostUpdate( sf::Time deltaTime ) {
-	//
+	
+	// Reset standard Post-Update
+	setPosition( getPosition() - getVelocity() * deltaTime.asSeconds() );
+
+	Math::Vec2 velocity = getVelocity();
+
+	if( m_pattern.fade.velocity.x ) {
+		velocity.x *= Math::mix( m_pattern.fade.velocity.start.value, m_pattern.fade.velocity.end.value, m_alpha );
+	}
+
+	if( m_pattern.fade.velocity.y ) {
+		velocity.y *= Math::mix( m_pattern.fade.velocity.start.value, m_pattern.fade.velocity.end.value, m_alpha );
+	}
+
+	setPosition( getPosition() + velocity * deltaTime.asSeconds() );
+
+	m_shape.setPosition( getWorldPosition().sf() );
 }
 
 //--------------------------------------------------------------------------------
@@ -91,13 +169,14 @@ void Particle::onRender() {
 void Particle::onDestroy() {
 	Timers::removeTimer( m_timer );
 
-	for( const Pattern::Emitter& emitter : m_pattern.emitters ) {
-		if( emitter.type == EmitterType::End )
-			for( const Pattern& pattern : emitter.patterns ) {
+	for( pair< Pattern::Emitter, float >& emitter : m_pattern.emitters ) {
+		if( emitter.second == 1.0f )
+			for( Pattern pattern : emitter.first.patterns ) {
+				processPattern( pattern, emitter.first );
 				spawnParticle( this, pattern );
 			}
 
-		Timers::removeTimer( emitter.spawnTimer );
+		Timers::removeTimer( emitter.first.timer );
 	}
 }
 
@@ -111,30 +190,9 @@ void Particle::init( const Pattern& pattern ) {
 	m_pattern = pattern;
 
 	// Lifetime
-	processSet( m_pattern.lifetime );
+	processSet( m_pattern.initial.lifetime );
 
-	// Position
-	processSet( m_pattern.position );
-	setPosition( m_pattern.position.value.start );
-
-	// Direction
-	processSet( m_pattern.direction );
-
-	// Velocity
-	processSet( m_pattern.velocity );
-
-	setVelocity( m_pattern.direction.value.start.normalize() * m_pattern.velocity.value.start );
-
-	// Size
-	processSet( m_pattern.size );
-	setSize( m_pattern.size.value.start );
-
-	// Color
-	processSet( m_pattern.color, pattern.color.types );
-	m_shape.setFillColor( m_pattern.color.value.start.sf() );
-
-	// Lifetime timer
-	milliseconds lifetime = milliseconds( m_pattern.lifetime.value.start );
+	milliseconds lifetime = milliseconds( m_pattern.initial.lifetime.value );
 	if( lifetime > 0ms ) {
 		m_timer = Timers::addTimer( lifetime,
 									[this]( float alpha ) { m_alpha = alpha; },
@@ -142,33 +200,59 @@ void Particle::init( const Pattern& pattern ) {
 									false );
 	}
 
-	// Start Emitters
-	for( Pattern::Emitter& emitter : m_pattern.emitters ) {
-		processSet( emitter.time );
-		processSet( emitter.spawnRate );
+	// Position
+	processSet( m_pattern.initial.position );
+	setPosition( m_pattern.initial.position.value );
 
-		if( emitter.type == EmitterType::Start ) {
-			if( emitter.spawnRate.value.start == .0f )
-				for( const Pattern& pattern : emitter.patterns )
+	// Direction
+	processSet( m_pattern.initial.direction );
+
+	// Velocity
+	processSet( m_pattern.initial.velocity );
+
+	setVelocity( m_pattern.initial.direction.value.normalize() * m_pattern.initial.velocity.value );
+
+	// Size
+	processSet( m_pattern.initial.size );
+	setSize( m_pattern.initial.size.value );
+
+	// Color
+	processSet( m_pattern.initial.color );
+	m_shape.setFillColor( m_pattern.initial.color.value.sf() );
+
+	// Emitters
+	for( pair< Pattern::Emitter, float >& emitter : m_pattern.emitters ) {
+		processSet( emitter.first.rate.start );
+		processSet( emitter.first.rate.end );
+
+		if( emitter.second == .0f ) {
+			if( emitter.first.rate.start.value == .0f )
+				for( const Pattern& pattern : emitter.first.patterns )
 					spawnParticle( this, pattern );
 
 			else {
-				milliseconds spawnTime = milliseconds( int( 1000.f / emitter.spawnRate.value.start ) );
-				emitter.spawnTimer = Timers::addTimer( spawnTime, nullptr, nullptr, false );
+				milliseconds spawnTime = milliseconds( int( 1000.f / emitter.first.rate.start.value ) );
+				emitter.first.timer = Timers::addTimer( spawnTime, nullptr, nullptr, false );
 			}
 		}
 	}
+
+	// Fades
+	processSet( m_pattern.fade.velocity.start );
+	processSet( m_pattern.fade.velocity.end );
+	processSet( m_pattern.fade.acceleration.start );
+	processSet( m_pattern.fade.acceleration.end );
+	processSet( m_pattern.fade.size.start );
+	processSet( m_pattern.fade.size.end );
+	processSet( m_pattern.fade.color.target );
 }
 
 //================================================================================
 
 void spawnParticle( Object* parent, Pattern pattern ) {
-	uint16_t count = uint16_t( pattern.number.min );
-	if( pattern.number.type == ValueType::Random ) {
-		count = uint16_t( Random::getRandomIntInRange( pattern.number.min, pattern.number.max ) );
-	}
+	processSet( pattern.initial.number );
 
-	for( uint16_t i = 0u; i < count; ++i ) {
+	for( uint16_t i = 0u; i < pattern.initial.number.value; ++i ) {
 		shared_ptr< Particle > particle = Object::makeObject< Particle >( parent );
 		particle->init( pattern );
 	}
@@ -177,8 +261,8 @@ void spawnParticle( Object* parent, Pattern pattern ) {
 //--------------------------------------------------------------------------------
 
 void spawnParticle( Object* parent, Pattern pattern, Math::Vec2 position ) {
-	pattern.position.start.min += position;
-	pattern.position.start.max += position;
+	pattern.initial.position.min += position;
+	pattern.initial.position.max += position;
 
 	spawnParticle( parent, pattern );
 }

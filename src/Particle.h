@@ -24,52 +24,70 @@ struct ValueSet {
 	T value;
 };
 
-template< uint16_t n >
-struct FadeSet {
-	ValueSet< float, n > start;
-	ValueSet< float, n > end;
-	array< bool, n > active;
-};
-
-//--------------------------------------------------------------------------------
-
-struct Emitter {
-	ValueSet< float > lifetime;
-	ValueSet< float > velocity;
-	ValueSet< float > size;
-	ValueSet< float > alpha;
-	ValueSet< float > number;
-
-	ValueSet< Math::Vec2 > position;
-
-	FadeSet< 1u > spawnRate;
-
-	vector< Pattern > patterns;
-
-	Timers::TimerID spawnTimer;
-};
-
 //--------------------------------------------------------------------------------
 
 struct Pattern {
 	string name;
 
+	// Initial
 	struct {
 		ValueSet< int > lifetime;
+		ValueSet< Math::Vec2 > position;
+		ValueSet< Math::Vec2 > direction;
 		ValueSet< float > velocity;
 		ValueSet< Math::Vec2 > acceleration;
-		ValueSet< Math::Vec2 > direction;
 		ValueSet< float > size;
 		ValueSet< int > number;
 		ValueSet< Math::Color > color;
 	} initial;
 
+	// Fades
 	struct {
-		FadeSet< 2u > velocity;
-		FadeSet< 2u > acceleration;
-		FadeSet< 1u > size;
-		FadeSet< 4u > color;
+		struct {
+			ValueSet< float > start;
+			ValueSet< float > end;
+			bool x, y;	
+		} velocity;
+
+		struct {
+			ValueSet< float > start;
+			ValueSet< float > end;
+			bool x, y;
+		} acceleration;
+
+		struct {
+			ValueSet< float > start;
+			ValueSet< float > end;
+			bool active;
+		} size;
+
+		struct {
+			ValueSet< Math::Color > target;
+			bool r, g, b, a;
+		} color;
+
 	} fade;
+
+	// Emitters
+	struct Emitter {
+		ValueSet< float > lifetime;
+		ValueSet< float > velocity;
+		ValueSet< float > acceleration;
+		ValueSet< float > size;
+		ValueSet< float > alpha;
+		ValueSet< float > number;
+
+		ValueSet< Math::Vec2 > position;
+
+		struct {
+			ValueSet< float > start;
+			ValueSet< float > end;
+		} rate;
+
+		vector< Pattern > patterns;
+
+		Timers::TimerID timer;
+	};
 
 	vector< pair< Emitter, float > > emitters;
 };

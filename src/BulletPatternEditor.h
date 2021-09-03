@@ -28,7 +28,7 @@ public:
 public:
 	void renderPattern( Gfx::Particle::Pattern& pattern );
 	void renderPosition( Gfx::Particle::Pattern& pattern );
-	void renderDirection( Gfx::Particle::Pattern& pattern );z
+	void renderDirection( Gfx::Particle::Pattern& pattern );
 	void renderVelocity( Gfx::Particle::Pattern& pattern );
 	void renderGravity( Gfx::Particle::Pattern& pattern );
 	void renderColor( Gfx::Particle::Pattern& pattern );

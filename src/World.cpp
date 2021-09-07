@@ -34,8 +34,9 @@ void World::update( sf::Time deltaTime ) {
 
 	onUpdate( dt );
 
-	for( shared_ptr< Object > child : m_children )
-		child->update( dt );
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->update( dt );
 }
 
 //--------------------------------------------------------------------------------

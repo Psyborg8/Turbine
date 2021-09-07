@@ -1,0 +1,534 @@
+{
+    "name": "Fire",
+    "initial": {
+        "lifetime": {
+            "min": 0,
+            "max": 0,
+            "random": false
+        },
+        "position": {
+            "min": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "random": false
+        },
+        "direction": {
+            "min": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "random": false
+        },
+        "velocity": {
+            "min": 0.0,
+            "max": 0.0,
+            "random": false
+        },
+        "acceleration": {
+            "min": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "random": false
+        },
+        "size": {
+            "min": 1.0,
+            "max": 0.0,
+            "random": false
+        },
+        "number": {
+            "min": 1,
+            "max": 0,
+            "random": false
+        },
+        "color": {
+            "min": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0,
+                "alpha": 0.0
+            },
+            "max": {
+                "red": 0.0,
+                "green": 0.0,
+                "blue": 0.0,
+                "alpha": 1.0
+            },
+            "random": false
+        }
+    },
+    "fade": {
+        "velocity": {
+            "start": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "x": false,
+            "y": false
+        },
+        "acceleration": {
+            "start": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "x": false,
+            "y": false
+        },
+        "size": {
+            "start": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "active": false
+        },
+        "color": {
+            "target": {
+                "min": {
+                    "red": 0.0,
+                    "green": 0.0,
+                    "blue": 0.0,
+                    "alpha": 1.0
+                },
+                "max": {
+                    "red": 0.0,
+                    "green": 0.0,
+                    "blue": 0.0,
+                    "alpha": 1.0
+                },
+                "random": false
+            },
+            "r": false,
+            "g": false,
+            "b": false,
+            "a": false
+        }
+    },
+    "emitters": [{
+            "lifetime": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "velocity": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "acceleration": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "size": {
+                "min": 1.5,
+                "max": 0.0,
+                "random": false
+            },
+            "alpha": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "number": {
+                "min": 1.0,
+                "max": 3.0,
+                "random": true
+            },
+            "position": {
+                "min": {
+                    "x": 3.0,
+                    "y": -2.0
+                },
+                "max": {
+                    "x": -3.0,
+                    "y": 0.0
+                },
+                "random": true
+            },
+            "starttime": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "spawnrate": {
+                "start": {
+                    "min": 20.0,
+                    "max": 40.0,
+                    "random": true
+                },
+                "end": {
+                    "min": 0.0,
+                    "max": 0.0,
+                    "random": false
+                },
+                "fade": false
+            },
+            "patterns": [{
+                    "name": "Flames",
+                    "initial": {
+                        "lifetime": {
+                            "min": 100,
+                            "max": 3500,
+                            "random": true
+                        },
+                        "position": {
+                            "min": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
+                            "max": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
+                            "random": false
+                        },
+                        "direction": {
+                            "min": {
+                                "x": -0.25,
+                                "y": -1.0
+                            },
+                            "max": {
+                                "x": 0.25,
+                                "y": -1.0
+                            },
+                            "random": true
+                        },
+                        "velocity": {
+                            "min": 5.0,
+                            "max": 10.0,
+                            "random": true
+                        },
+                        "acceleration": {
+                            "min": {
+                                "x": 10.0,
+                                "y": 0.0
+                            },
+                            "max": {
+                                "x": 0.0,
+                                "y": 0.0
+                            },
+                            "random": false
+                        },
+                        "size": {
+                            "min": 1.0,
+                            "max": 0.2,
+                            "random": true
+                        },
+                        "number": {
+                            "min": 1,
+                            "max": 3,
+                            "random": true
+                        },
+                        "color": {
+                            "min": {
+                                "red": 1.0,
+                                "green": 0.46,
+                                "blue": 0.04,
+                                "alpha": 1.0
+                            },
+                            "max": {
+                                "red": 0.91,
+                                "green": 0.3,
+                                "blue": 0.01,
+                                "alpha": 1.0
+                            },
+                            "random": true
+                        }
+                    },
+                    "fade": {
+                        "velocity": {
+                            "start": {
+                                "min": 0.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "end": {
+                                "min": 0.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "x": false,
+                            "y": false
+                        },
+                        "acceleration": {
+                            "start": {
+                                "min": 0.2,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "end": {
+                                "min": 1.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "x": true,
+                            "y": false
+                        },
+                        "size": {
+                            "start": {
+                                "min": 1.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "end": {
+                                "min": 0.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "active": true
+                        },
+                        "color": {
+                            "target": {
+                                "min": {
+                                    "red": 0.44,
+                                    "green": 0.43,
+                                    "blue": 0.43,
+                                    "alpha": 0.38
+                                },
+                                "max": {
+                                    "red": 0.0,
+                                    "green": 0.0,
+                                    "blue": 0.0,
+                                    "alpha": 1.0
+                                },
+                                "random": false
+                            },
+                            "r": true,
+                            "g": true,
+                            "b": true,
+                            "a": true
+                        }
+                    },
+                    "emitters": [{
+                            "lifetime": {
+                                "min": 1.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "velocity": {
+                                "min": 1.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "acceleration": {
+                                "min": 1.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "size": {
+                                "min": 1.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "alpha": {
+                                "min": 1.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "number": {
+                                "min": 1.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "position": {
+                                "min": {
+                                    "x": 0.0,
+                                    "y": 0.0
+                                },
+                                "max": {
+                                    "x": 0.0,
+                                    "y": 0.0
+                                },
+                                "random": false
+                            },
+                            "starttime": {
+                                "min": 0.0,
+                                "max": 0.0,
+                                "random": false
+                            },
+                            "spawnrate": {
+                                "start": {
+                                    "min": 0.0,
+                                    "max": 10.0,
+                                    "random": false
+                                },
+                                "end": {
+                                    "min": 0.0,
+                                    "max": 0.0,
+                                    "random": false
+                                },
+                                "fade": false
+                            },
+                            "patterns": [{
+                                    "name": "Embers",
+                                    "initial": {
+                                        "lifetime": {
+                                            "min": 500,
+                                            "max": 2000,
+                                            "random": true
+                                        },
+                                        "position": {
+                                            "min": {
+                                                "x": 0.0,
+                                                "y": 0.0
+                                            },
+                                            "max": {
+                                                "x": 0.0,
+                                                "y": 0.0
+                                            },
+                                            "random": false
+                                        },
+                                        "direction": {
+                                            "min": {
+                                                "x": 0.5,
+                                                "y": -1.0
+                                            },
+                                            "max": {
+                                                "x": -0.1,
+                                                "y": -1.0
+                                            },
+                                            "random": true
+                                        },
+                                        "velocity": {
+                                            "min": 15.0,
+                                            "max": 25.0,
+                                            "random": true
+                                        },
+                                        "acceleration": {
+                                            "min": {
+                                                "x": 15.0,
+                                                "y": 10.0
+                                            },
+                                            "max": {
+                                                "x": 0.0,
+                                                "y": 0.0
+                                            },
+                                            "random": false
+                                        },
+                                        "size": {
+                                            "min": 0.1,
+                                            "max": 0.0,
+                                            "random": false
+                                        },
+                                        "number": {
+                                            "min": 1,
+                                            "max": 0,
+                                            "random": false
+                                        },
+                                        "color": {
+                                            "min": {
+                                                "red": 1.0,
+                                                "green": 0.32,
+                                                "blue": 0.0,
+                                                "alpha": 1.0
+                                            },
+                                            "max": {
+                                                "red": 0.0,
+                                                "green": 0.0,
+                                                "blue": 0.0,
+                                                "alpha": 1.0
+                                            },
+                                            "random": false
+                                        }
+                                    },
+                                    "fade": {
+                                        "velocity": {
+                                            "start": {
+                                                "min": 1.0,
+                                                "max": 0.0,
+                                                "random": false
+                                            },
+                                            "end": {
+                                                "min": 0.0,
+                                                "max": 0.0,
+                                                "random": false
+                                            },
+                                            "x": false,
+                                            "y": false
+                                        },
+                                        "acceleration": {
+                                            "start": {
+                                                "min": 0.0,
+                                                "max": 0.0,
+                                                "random": false
+                                            },
+                                            "end": {
+                                                "min": 0.0,
+                                                "max": 0.0,
+                                                "random": false
+                                            },
+                                            "x": false,
+                                            "y": false
+                                        },
+                                        "size": {
+                                            "start": {
+                                                "min": 1.0,
+                                                "max": 0.0,
+                                                "random": false
+                                            },
+                                            "end": {
+                                                "min": 0.0,
+                                                "max": 0.0,
+                                                "random": false
+                                            },
+                                            "active": true
+                                        },
+                                        "color": {
+                                            "target": {
+                                                "min": {
+                                                    "red": 0.0,
+                                                    "green": 0.0,
+                                                    "blue": 0.0,
+                                                    "alpha": 0.0
+                                                },
+                                                "max": {
+                                                    "red": 0.0,
+                                                    "green": 0.0,
+                                                    "blue": 0.0,
+                                                    "alpha": 1.0
+                                                },
+                                                "random": false
+                                            },
+                                            "r": false,
+                                            "g": false,
+                                            "b": false,
+                                            "a": true
+                                        }
+                                    },
+                                    "emitters": []
+                                }]
+                        }]
+                }]
+        }]
+}

@@ -217,6 +217,16 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 
 //--------------------------------------------------------------------------------
 
+void Object::setParent( Object* parent ) {
+	if( m_parent != nullptr )
+		m_parent->removeChild( shared_from_this() );
+
+	parent->addChild( shared_from_this() );
+	m_parent = parent;
+}
+
+//--------------------------------------------------------------------------------
+
 Math::Vec2 Object::getWorldPosition() const {
 	if( m_parent == nullptr )
 		return getPosition();
@@ -236,14 +246,14 @@ void Object::setWorldPosition( Math::Vec2 position ) {
 //--------------------------------------------------------------------------------
 
 Worlds::World* Object::getWorld() const {
+	if( m_parent == nullptr )
+		return nullptr;
+
 	Worlds::World* world;
 	world = dynamic_cast< Worlds::World* >( m_parent );
 
 	if( world == nullptr )
-		if( m_parent == nullptr )
-			return nullptr;
-		else
-			return m_parent->getWorld();
+		return m_parent->getWorld();
 	else
 		return world;
 }

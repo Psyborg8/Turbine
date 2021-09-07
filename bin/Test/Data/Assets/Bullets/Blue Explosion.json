@@ -1,0 +1,138 @@
+{
+    "name": "Blue Explosion",
+    "initial": {
+        "lifetime": {
+            "min": 500,
+            "max": 2000,
+            "random": true
+        },
+        "position": {
+            "min": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "random": false
+        },
+        "direction": {
+            "min": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "max": {
+                "x": -1.0,
+                "y": -1.0
+            },
+            "random": true
+        },
+        "velocity": {
+            "min": 50.0,
+            "max": 100.0,
+            "random": true
+        },
+        "acceleration": {
+            "min": {
+                "x": 0.0,
+                "y": 100.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "random": false
+        },
+        "size": {
+            "min": 0.4,
+            "max": 0.6,
+            "random": true
+        },
+        "number": {
+            "min": 15,
+            "max": 0,
+            "random": false
+        },
+        "color": {
+            "min": {
+                "red": 0.0,
+                "green": 0.74,
+                "blue": 1.0,
+                "alpha": 1.0
+            },
+            "max": {
+                "red": 0.0,
+                "green": 0.0,
+                "blue": 0.0,
+                "alpha": 1.0
+            },
+            "random": false
+        }
+    },
+    "fade": {
+        "velocity": {
+            "start": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "x": false,
+            "y": false
+        },
+        "acceleration": {
+            "start": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "x": false,
+            "y": false
+        },
+        "size": {
+            "start": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "active": true
+        },
+        "color": {
+            "target": {
+                "min": {
+                    "red": 0.0,
+                    "green": 0.0,
+                    "blue": 0.0,
+                    "alpha": 1.0
+                },
+                "max": {
+                    "red": 0.0,
+                    "green": 0.0,
+                    "blue": 0.0,
+                    "alpha": 1.0
+                },
+                "random": false
+            },
+            "r": false,
+            "g": false,
+            "b": false,
+            "a": false
+        }
+    },
+    "emitters": []
+}

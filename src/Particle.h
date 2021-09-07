@@ -29,10 +29,10 @@ struct ValueSet {
 //--------------------------------------------------------------------------------
 
 struct Pattern {
-	string name;
+	string name{ "New Pattern" };
 
 	// Initial
-	struct {
+	struct Initial {
 		ValueSet< int > lifetime;
 		ValueSet< Math::Vec2 > position;
 		ValueSet< Math::Vec2 > direction;
@@ -44,26 +44,26 @@ struct Pattern {
 	} initial;
 
 	// Fades
-	struct {
-		struct {
+	struct Fade {
+		struct Velocity {
 			ValueSet< float > start;
 			ValueSet< float > end;
 			bool x, y;	
 		} velocity;
 
-		struct {
+		struct Acceleration {
 			ValueSet< float > start;
 			ValueSet< float > end;
 			bool x, y;
 		} acceleration;
 
-		struct {
+		struct Size {
 			ValueSet< float > start;
 			ValueSet< float > end;
 			bool active;
 		} size;
 
-		struct {
+		struct Color {
 			ValueSet< Math::Color > target;
 			bool r, g, b, a;
 		} color;
@@ -72,6 +72,8 @@ struct Pattern {
 
 	// Emitters
 	struct Emitter {
+		string name;
+
 		ValueSet< float > lifetime;
 		ValueSet< float > velocity;
 		ValueSet< float > acceleration;
@@ -80,18 +82,21 @@ struct Pattern {
 		ValueSet< float > number;
 
 		ValueSet< Math::Vec2 > position;
+		ValueSet< float > startTime;
 
-		struct {
+		struct SpawnRate {
 			ValueSet< float > start;
 			ValueSet< float > end;
+			bool fade{ false };
 		} rate;
 
 		vector< Pattern > patterns;
 
 		Timers::TimerID timer;
+		bool active{ true };
 	};
 
-	vector< pair< Emitter, float > > emitters;
+	vector< Emitter > emitters;
 };
 
 //================================================================================
@@ -109,7 +114,10 @@ public:
 	void setSize( Math::Vec2 size ) override { setSize( size.x ); }
 	void setSize( float radius ) { m_shape.setRadius( radius ); }
 
-	Math::Vec2 getSize() const override { return Math::Vec2( m_shape.getRadius(), m_shape.getRadius() ); } 
+	Math::Vec2 getSize() const override { return Math::Vec2( m_shape.getRadius(), m_shape.getRadius() ); }
+
+	void deactivate() { m_active = false; }
+	bool isActive() const { return m_active; }
 
 public:
 	void init( const Pattern& pattern );
@@ -120,6 +128,8 @@ private:
 	Pattern m_pattern;
 
 	float m_alpha{ .0f };
+
+	bool m_active{ true };
 };
 
 //================================================================================
@@ -127,9 +137,14 @@ private:
 void spawnParticle( Object* parent, Pattern pattern );
 void spawnParticle( Object* parent, Pattern pattern, Math::Vec2 position );
 
-// Pattern loadPattern( string filepath );
+void killParticles();
 
-// void savePattern( Pattern pattern, string filepath );
+void cleanup();
+
+vector< shared_ptr< Particle > > getParticles();
+
+Pattern loadPattern( string filepath );
+void savePattern( Pattern pattern, string filepath );
 
 //--------------------------------------------------------------------------------
 

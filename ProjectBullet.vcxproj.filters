@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source">
-      <UniqueIdentifier>{2f621186-3722-4f6a-87c3-e49dc7463bdc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game">
       <UniqueIdentifier>{26351a8f-7d6c-4536-9702-2687f7880e10}</UniqueIdentifier>
     </Filter>
@@ -13,106 +10,109 @@
     <Filter Include="Game\Objects">
       <UniqueIdentifier>{160e20d3-866a-44ec-98ee-db4952cda7f9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine">
-      <UniqueIdentifier>{d52dd478-83f2-4212-875e-da86996b624e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\GFX">
-      <UniqueIdentifier>{12a91a57-e64a-478c-b020-ab3bc0465dfc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Math">
-      <UniqueIdentifier>{b31f6836-5dc7-463d-85ad-bd901e554568}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Debug">
-      <UniqueIdentifier>{429d7e7b-752b-4d30-ba7b-f141219b76e0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Input">
-      <UniqueIdentifier>{af0b66b1-cf2c-43db-9433-9ceef2b6b644}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Objects">
-      <UniqueIdentifier>{abc69a04-4206-410a-9a57-b899d8d37494}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Sound">
-      <UniqueIdentifier>{f0bbe551-cd77-4641-b2a0-314ee8267dec}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Deps">
       <UniqueIdentifier>{35c0f18e-64b4-4ee5-b269-dcdd631fa8b6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Deps\ImGui">
       <UniqueIdentifier>{0a35ea27-9c38-42db-a051-ed5d117ee8ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Turbine">
+      <UniqueIdentifier>{d52dd478-83f2-4212-875e-da86996b624e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Turbine\GFX">
+      <UniqueIdentifier>{12a91a57-e64a-478c-b020-ab3bc0465dfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Turbine\Math">
+      <UniqueIdentifier>{b31f6836-5dc7-463d-85ad-bd901e554568}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Turbine\Debug">
+      <UniqueIdentifier>{429d7e7b-752b-4d30-ba7b-f141219b76e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Turbine\Input">
+      <UniqueIdentifier>{af0b66b1-cf2c-43db-9433-9ceef2b6b644}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Turbine\Objects">
+      <UniqueIdentifier>{abc69a04-4206-410a-9a57-b899d8d37494}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Turbine\Sound">
+      <UniqueIdentifier>{f0bbe551-cd77-4641-b2a0-314ee8267dec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="~Source">
+      <UniqueIdentifier>{2f621186-3722-4f6a-87c3-e49dc7463bdc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ProjectBullet.cpp">
-      <Filter>Engine</Filter>
+      <Filter>Turbine</Filter>
     </ClCompile>
     <ClCompile Include="src\MathTypes.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Random.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Object.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\System.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\World.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Player.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Timer.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Collision.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\RigidRect.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Traps.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Sprite.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\SFMLWorld.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Camera.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Tileset.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Map.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Debug.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\GameTimer.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Input.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Controller.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\CameraVolume.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Particle.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\UI.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="src\BulletPatternEditor.cpp">
-      <Filter>Source</Filter>
+      <Filter>~Source</Filter>
     </ClCompile>
     <ClCompile Include="deps\ImGui\imgui_draw.cpp">
       <Filter>Deps\ImGui</Filter>
@@ -132,70 +132,70 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\System.h">
-      <Filter>Engine</Filter>
+      <Filter>Turbine</Filter>
     </ClInclude>
     <ClInclude Include="src\Random.h">
-      <Filter>Engine\Math</Filter>
+      <Filter>Turbine\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\Global.h">
-      <Filter>Engine</Filter>
+      <Filter>Turbine</Filter>
     </ClInclude>
     <ClInclude Include="src\MathTypes.h">
-      <Filter>Engine\Math</Filter>
+      <Filter>Turbine\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\Player.h">
       <Filter>Game\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Timer.h">
-      <Filter>Engine\Math</Filter>
+      <Filter>Turbine\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\Object.h">
-      <Filter>Engine\Objects</Filter>
+      <Filter>Turbine\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\RigidRect.h">
-      <Filter>Engine\Objects</Filter>
+      <Filter>Turbine\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\SFMLWorld.h">
       <Filter>Game\Worlds</Filter>
     </ClInclude>
     <ClInclude Include="src\Camera.h">
-      <Filter>Engine\GFX</Filter>
+      <Filter>Turbine\GFX</Filter>
     </ClInclude>
     <ClInclude Include="src\Sprite.h">
-      <Filter>Engine\GFX</Filter>
+      <Filter>Turbine\GFX</Filter>
     </ClInclude>
     <ClInclude Include="src\Tileset.h">
-      <Filter>Engine\GFX</Filter>
+      <Filter>Turbine\GFX</Filter>
     </ClInclude>
     <ClInclude Include="src\Collision.h">
-      <Filter>Engine\Math</Filter>
+      <Filter>Turbine\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\World.h">
-      <Filter>Engine\Objects</Filter>
+      <Filter>Turbine\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Map.h">
-      <Filter>Engine\GFX</Filter>
+      <Filter>Turbine\GFX</Filter>
     </ClInclude>
     <ClInclude Include="src\Debug.h">
-      <Filter>Engine\Debug</Filter>
+      <Filter>Turbine\Debug</Filter>
     </ClInclude>
     <ClInclude Include="src\GameTimer.h">
-      <Filter>Engine\GFX</Filter>
+      <Filter>Turbine\GFX</Filter>
     </ClInclude>
     <ClInclude Include="src\Input.h">
-      <Filter>Engine\Input</Filter>
+      <Filter>Turbine\Input</Filter>
     </ClInclude>
     <ClInclude Include="src\Controller.h">
-      <Filter>Engine\Input</Filter>
+      <Filter>Turbine\Input</Filter>
     </ClInclude>
     <ClInclude Include="src\CameraVolume.h">
       <Filter>Game\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Particle.h">
-      <Filter>Engine\GFX</Filter>
+      <Filter>Turbine\GFX</Filter>
     </ClInclude>
     <ClInclude Include="src\UI.h">
-      <Filter>Engine\GFX</Filter>
+      <Filter>Turbine\GFX</Filter>
     </ClInclude>
     <ClInclude Include="src\BulletPatternEditor.h">
       <Filter>Game\Worlds</Filter>

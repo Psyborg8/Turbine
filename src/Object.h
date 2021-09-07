@@ -73,7 +73,7 @@ public:
 // Get/Set
 public:
 	inline Object* getParent() const { return m_parent; }
-	inline void setParent( Object* parent ) { m_parent = parent; }
+	void setParent( Object* parent );
 
 	inline string getName() const { return m_name; }
 	inline void setName( string name ) { m_name = name; }
@@ -142,7 +142,6 @@ public:
 			if( parent != nullptr ) {
 				if( !parent->isMarkedForRemoval() ) {
 					ptrObj->setParent( parent );
-					parent->addChild( ptrObj );
 				}
 			}
 

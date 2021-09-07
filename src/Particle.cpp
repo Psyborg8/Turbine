@@ -57,7 +57,7 @@ void processSet( ValueSet< Math::Vec2 >& set ) {
 
 void processSet( ValueSet< Math::Color >& set ) {
 	if( set.random )
-		set.value = Random::getRandomColorInRange( set.min, set.max, Random::RandomColorType::ShuffleHSV );
+		set.value = Random::getRandomColorInRange( set.min, set.max, Random::RandomColorType::MixRGB );
 	else
 		set.value = set.min;
 }
@@ -106,7 +106,7 @@ void Particle::onUpdate( sf::Time deltaTime ) {
 	if( m_pattern.fade.acceleration.y )
 		acceleration.y *= Math::mix( m_pattern.fade.acceleration.start.value, m_pattern.fade.acceleration.end.value, m_alpha );
 
-	setVelocity( getVelocity() + acceleration );
+	setVelocity( getVelocity() + acceleration * deltaTime.asSeconds() );
 
 	// Fade Size
 	if( m_pattern.fade.size.active )
@@ -126,24 +126,29 @@ void Particle::onUpdate( sf::Time deltaTime ) {
 	m_shape.setFillColor( color.sf() );
 
 	// Emitters
-	for( pair< Pattern::Emitter, float >& emitter : m_pattern.emitters ) {
-		if( emitter.second == 1.0f )
+	for( auto& emitter : m_pattern.emitters ) {
+		if( !emitter.active )
 			continue;
-		if( emitter.second > m_alpha )
+		if( emitter.startTime.value == 1.0f )
+			continue;
+		if( emitter.startTime.value > m_alpha )
 			continue;
 
-		if( !Timers::timerStillActive( emitter.first.timer ) ) {
-			for( Pattern pattern : emitter.first.patterns ) {
-				processPattern( pattern, emitter.first );
-				spawnParticle( this, pattern );
+		if( !Timers::timerStillActive( emitter.timer ) && ( emitter.rate.start.value > 0.0f || emitter.rate.end.value > 0.0f ) ) {
+			for( Pattern pattern : emitter.patterns ) {
+				processPattern( pattern, emitter );
+				spawnParticle( m_parent, pattern, getPosition() );
 			}
 
-			processSet( emitter.first.rate.start );
-			processSet( emitter.first.rate.end );
+			processSet( emitter.rate.start );
+			processSet( emitter.rate.end );
 
-			float spawnRate = Math::mix( emitter.first.rate.start.value, emitter.first.rate.end.value, m_alpha );
+			float spawnRate = Math::mix( emitter.rate.start.value, emitter.rate.end.value, m_alpha );
+			if( spawnRate == 0.0f )
+				emitter.active = false;
+
 			milliseconds spawnTime = milliseconds( int( 1000.f / spawnRate ) );
-			emitter.first.timer = Timers::addTimer( spawnTime, nullptr, nullptr, false );
+			emitter.timer = Timers::addTimer( spawnTime, nullptr, nullptr, false );
 		}
 	}
 }
@@ -169,7 +174,7 @@ void Particle::onPostUpdate( sf::Time deltaTime ) {
 //--------------------------------------------------------------------------------
 
 void Particle::onRender() {
-	m_shape.setPosition( getWorldPosition().sf() - getSize().sf() );
+	m_shape.setPosition( getPosition().sf() - getSize().sf() );
 	System::getWindow()->draw( m_shape );
 }
 
@@ -178,15 +183,20 @@ void Particle::onRender() {
 void Particle::onDestroy() {
 	Timers::removeTimer( m_timer );
 
-	for( pair< Pattern::Emitter, float >& emitter : m_pattern.emitters ) {
-		if( emitter.second == 1.0f )
-			for( Pattern pattern : emitter.first.patterns ) {
-				processPattern( pattern, emitter.first );
-				spawnParticle( this, pattern );
-			}
+	for( auto& emitter : m_pattern.emitters ) {
+		Timers::removeTimer( emitter.timer );
 
-		Timers::removeTimer( emitter.first.timer );
+		if( !m_active )
+			continue;
+
+		if( emitter.startTime.value == 1.0f )
+			for( Pattern pattern : emitter.patterns ) {
+				processPattern( pattern, emitter );
+				spawnParticle( m_parent, pattern, getPosition() );
+			}
 	}
+
+	m_active = false;
 }
 
 //--------------------------------------------------------------------------------
@@ -220,6 +230,9 @@ void Particle::init( const Pattern& pattern ) {
 
 	setVelocity( m_pattern.initial.direction.value.normalize() * m_pattern.initial.velocity.value );
 
+	// Acceleration
+	processSet( m_pattern.initial.acceleration );
+
 	// Size
 	processSet( m_pattern.initial.size );
 	setSize( m_pattern.initial.size.value );
@@ -229,18 +242,19 @@ void Particle::init( const Pattern& pattern ) {
 	m_shape.setFillColor( m_pattern.initial.color.value.sf() );
 
 	// Emitters
-	for( pair< Pattern::Emitter, float >& emitter : m_pattern.emitters ) {
-		processSet( emitter.first.rate.start );
-		processSet( emitter.first.rate.end );
+	for( auto& emitter : m_pattern.emitters ) {
+		processSet( emitter.rate.start );
+		processSet( emitter.rate.end );
+		processSet( emitter.startTime );
 
-		if( emitter.second == .0f ) {
-			if( emitter.first.rate.start.value == .0f )
-				for( const Pattern& pattern : emitter.first.patterns )
-					spawnParticle( this, pattern );
+		if( emitter.startTime.value == .0f ) {
+			if( emitter.rate.start.value == .0f )
+				for( const Pattern& pattern : emitter.patterns )
+					spawnParticle( m_parent, pattern, getPosition() );
 
 			else {
-				milliseconds spawnTime = milliseconds( int( 1000.f / emitter.first.rate.start.value ) );
-				emitter.first.timer = Timers::addTimer( spawnTime, nullptr, nullptr, false );
+				milliseconds spawnTime = milliseconds( int( 1000.f / emitter.rate.start.value ) );
+				emitter.timer = Timers::addTimer( spawnTime, nullptr, nullptr, false );
 			}
 		}
 	}
@@ -263,6 +277,7 @@ void spawnParticle( Object* parent, Pattern pattern ) {
 	for( uint16_t i = 0u; i < pattern.initial.number.value; ++i ) {
 		shared_ptr< Particle > particle = Object::makeObject< Particle >( parent );
 		particle->init( pattern );
+		particles.push_back( particle );
 	}
 }
 
@@ -275,13 +290,39 @@ void spawnParticle( Object* parent, Pattern pattern, Math::Vec2 position ) {
 	spawnParticle( parent, pattern );
 }
 
+//--------------------------------------------------------------------------------
+
+void killParticles() {
+	for( shared_ptr< Particle > particle : particles )
+		if( particle != nullptr ) {
+			particle->deactivate();
+			particle->destroy();
+		}
+}
+
+//--------------------------------------------------------------------------------
+
+void cleanup() {
+	for( size_t i = 0u; i < particles.size(); ++i ) {
+		if( particles.at( i )->isActive() )
+			continue;
+
+		particles.erase( particles.begin() + i );
+		--i;
+	}
+}
+
+//--------------------------------------------------------------------------------
+
+vector< shared_ptr< Particle > > getParticles() {
+	return particles;
+}
+
 //================================================================================
 
 // Pattern Loader
 
 //================================================================================
-
-/*
 
 rapidjson::MemoryPoolAllocator < rapidjson::CrtAllocator >* allocator;
 
@@ -289,7 +330,9 @@ rapidjson::MemoryPoolAllocator < rapidjson::CrtAllocator >* allocator;
 
 // Saving
 template< class T >
-rapidjson::Value getValue( Pattern::Range< T > range );
+rapidjson::Value getValue( ValueSet< T > value );
+template< class T >
+rapidjson::Value getValue( const vector< T >& value );
 rapidjson::Value getValue( Math::Vec2 value );
 rapidjson::Value getValue( Math::Color value );
 rapidjson::Value getValue( int value );
@@ -300,11 +343,20 @@ rapidjson::Value getValue( string value );
 
 rapidjson::Value getValue( const Pattern& value );
 
+rapidjson::Value getValue( const Pattern::Initial& value );
+rapidjson::Value getValue( const Pattern::Emitter& value );
+rapidjson::Value getValue( const Pattern::Emitter::SpawnRate& value );
+rapidjson::Value getValue( const Pattern::Fade& value );
+rapidjson::Value getValue( const Pattern::Fade::Velocity& value );
+rapidjson::Value getValue( const Pattern::Fade::Acceleration& value );
+rapidjson::Value getValue( const Pattern::Fade::Size& value );
+rapidjson::Value getValue( const Pattern::Fade::Color& value );
+
 //--------------------------------------------------------------------------------
 
 // Loading
 template< class T >
-void getValue( const rapidjson::Value& value, Pattern::Range< T >& out );
+void getValue( const rapidjson::Value& value, ValueSet< T >& out );
 template< class T >
 void getValue( const rapidjson::Value& value, vector< T >& out );
 void getValue( const rapidjson::Value& value, bool& out );
@@ -313,16 +365,18 @@ void getValue( const rapidjson::Value& value, int& out );
 void getValue( const rapidjson::Value& value, milliseconds& out );
 void getValue( const rapidjson::Value& value, Math::Vec2& out );
 void getValue( const rapidjson::Value& value, Math::Color& out );
+void getValue( const rapidjson::Value& value, string& out );
 
 void getValue( const rapidjson::Value& value, Pattern& out );
-void getValue( const rapidjson::Value& value, Pattern::Position& out );
-void getValue( const rapidjson::Value& value, Pattern::Velocity& out );
-void getValue( const rapidjson::Value& value, Pattern::Lifetime& out );
-void getValue( const rapidjson::Value& value, Pattern::Size& out );
-void getValue( const rapidjson::Value& value, Pattern::Number& out );
-void getValue( const rapidjson::Value& value, Pattern::Color& out );
-void getValue( const rapidjson::Value& value, Pattern::Gravity& out );
+
+void getValue( const rapidjson::Value& value, Pattern::Initial& out );
 void getValue( const rapidjson::Value& value, Pattern::Emitter& out );
+void getValue( const rapidjson::Value& value, Pattern::Emitter::SpawnRate& out );
+void getValue( const rapidjson::Value& value, Pattern::Fade& out );
+void getValue( const rapidjson::Value& value, Pattern::Fade::Velocity& out );
+void getValue( const rapidjson::Value& value, Pattern::Fade::Acceleration& out );
+void getValue( const rapidjson::Value& value, Pattern::Fade::Size& out );
+void getValue( const rapidjson::Value& value, Pattern::Fade::Color& out );
 
 //================================================================================
 
@@ -339,27 +393,49 @@ void savePattern( Pattern pattern, string filepath ) {
 	allocator = &document.GetAllocator();
 	document.CopyFrom( getValue( pattern ), *allocator );
 
-	FILE* file;
-	fopen_s( &file, filepath.c_str(), "wb" );
+	string path = Folders::Bullets + filepath + ".json";
 
-	char writeBuffer[ 65536 ];
+	FILE* file;
+	if( fopen_s( &file, path.c_str(), "wb" ) )
+		return;	
+
+	char* writeBuffer = new char[ 65536 ];
 	FileWriteStream stream( file, writeBuffer, sizeof( writeBuffer ) );
 	PrettyWriter< FileWriteStream > writer( stream );
 	writer.SetMaxDecimalPlaces( 2 );
 	writer.SetFormatOptions( PrettyFormatOptions::kFormatSingleLineArray );
 
 	document.Accept( writer );
+
+	if( file != NULL )
+		fclose( file );
+
+	delete[] writeBuffer;
 }
 
 //================================================================================
 
 template< class T >
-rapidjson::Value getValue( Pattern::Range< T > range ) {
+rapidjson::Value getValue( ValueSet< T > value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
-	out.AddMember( "min", getValue( range.first ), *allocator );
-	out.AddMember( "max", getValue( range.second ), *allocator );
+	out.AddMember( "min", getValue( value.min ), *allocator );
+	out.AddMember( "max", getValue( value.max ), *allocator );
+	out.AddMember( "random", getValue( value.random ), *allocator );
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+template< class T >
+rapidjson::Value getValue( const vector< T >& value ) {
+	rapidjson::Value out;
+	out.SetArray();
+
+	for( const T& member : value )
+		out.PushBack( getValue( member ), *allocator );
 
 	return out;
 }
@@ -426,7 +502,7 @@ rapidjson::Value getValue( bool value ) {
 
 rapidjson::Value getValue( string value ) {
 	rapidjson::Value out;
-	out.SetString( rapidjson::GenericStringRef< char >( value.c_str() ) );
+	out.SetString( value.c_str(), rapidjson::SizeType( value.length() ), *allocator );
 	return out;
 }
 
@@ -436,115 +512,98 @@ rapidjson::Value getValue( const Pattern& value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
-	out.AddMember( "lifetime", getValue( value.getLifetime() ), *allocator );
-	out.AddMember( "position", getValue( value.getPosition() ), *allocator );
-	out.AddMember( "velocity", getValue( value.getVelocity() ), *allocator );
-	out.AddMember( "size", getValue( value.getSize() ), *allocator );
-	out.AddMember( "number", getValue( value.getNumber() ), *allocator );
-	out.AddMember( "color", getValue( value.getColor() ), *allocator );
-	out.AddMember( "gravity", getValue( value.getGravity() ), *allocator );
-	out.AddMember( "emitter", getValue( value.getEmitters() ), *allocator );
+	out.AddMember( "name", getValue( value.name ), *allocator );
+	out.AddMember( "initial", getValue( value.initial ), *allocator );
+	out.AddMember( "fade", getValue( value.fade ), *allocator );
+	out.AddMember( "emitters", getValue( value.emitters ), *allocator );
 
 	return out;
 }
 
 //--------------------------------------------------------------------------------
 
-rapidjson::Value getValue( const Pattern::Lifetime& value ) {
+rapidjson::Value getValue( const Pattern::Initial& value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
-	out.AddMember( "value", getValue( value.get() ), *allocator );
+	out.AddMember( "lifetime", getValue( value.lifetime ), *allocator );
+	out.AddMember( "position", getValue( value.position ), *allocator );
+	out.AddMember( "direction", getValue( value.direction ), *allocator );
+	out.AddMember( "velocity", getValue( value.velocity ), *allocator );
+	out.AddMember( "acceleration", getValue( value.acceleration ), *allocator );
+	out.AddMember( "size", getValue( value.size ), *allocator );
+	out.AddMember( "number", getValue( value.number ), *allocator );
+	out.AddMember( "color", getValue( value.color ), *allocator );
 
 	return out;
 }
 
 //--------------------------------------------------------------------------------
 
-rapidjson::Value getValue( const Pattern::Position& value ) {
+rapidjson::Value getValue( const Pattern::Fade& value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
-	out.AddMember( "value", getValue( value.get() ), *allocator );
-	out.AddMember( "relative", getValue( value.getRelative() ), *allocator );
+	out.AddMember( "velocity", getValue( value.velocity ), *allocator );
+	out.AddMember( "acceleration", getValue( value.acceleration ), *allocator );
+	out.AddMember( "size", getValue( value.size ), *allocator );
+	out.AddMember( "color", getValue( value.color ), *allocator );
 
 	return out;
 }
 
 //--------------------------------------------------------------------------------
 
-rapidjson::Value getValue( const Pattern::Velocity& value ) {
+rapidjson::Value getValue( const Pattern::Fade::Velocity& value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
-	out.AddMember( "value", getValue( value.get() ), *allocator );
-	out.AddMember( "relative", getValue( value.getRelative() ), *allocator );
-	out.AddMember( "fadex", getValue( value.getFade().first ), *allocator );
-	out.AddMember( "fadey", getValue( value.getFade().second ), *allocator );
+	out.AddMember( "start", getValue( value.start ), *allocator );
+	out.AddMember( "end", getValue( value.end ), *allocator );
+	out.AddMember( "x", getValue( value.x ), *allocator );
+	out.AddMember( "y", getValue( value.y ), *allocator );
 
 	return out;
 }
 
 //--------------------------------------------------------------------------------
 
-rapidjson::Value getValue( const Pattern::Size& value ) {
+rapidjson::Value getValue( const Pattern::Fade::Acceleration& value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
-	out.AddMember( "value", getValue( value.get() ), *allocator );
-	out.AddMember( "relative", getValue( value.get() ), *allocator );
-	out.AddMember( "fade", getValue( value.getFade() ), *allocator );
+	out.AddMember( "start", getValue( value.start ), *allocator );
+	out.AddMember( "end", getValue( value.end ), *allocator );
+	out.AddMember( "x", getValue( value.x ), *allocator );
+	out.AddMember( "y", getValue( value.y ), *allocator );
 
 	return out;
 }
 
 //--------------------------------------------------------------------------------
 
-rapidjson::Value getValue( const Pattern::Number& value ) {
+rapidjson::Value getValue( const Pattern::Fade::Size& value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
-	out.AddMember( "value", getValue( value.get() ), *allocator );
+	out.AddMember( "start", getValue( value.start ), *allocator );
+	out.AddMember( "end", getValue( value.end ), *allocator );
+	out.AddMember( "active", getValue( value.active ), *allocator );
 
 	return out;
 }
 
 //--------------------------------------------------------------------------------
 
-rapidjson::Value getValue( const Pattern::Color& value ) {
+rapidjson::Value getValue( const Pattern::Fade::Color& value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
-	out.AddMember( "value", getValue( value.get() ), *allocator );
-	out.AddMember( "relative", getValue( value.getRelative() ), *allocator );
-	out.AddMember( "type", getValue( static_cast< int >( value.getType() ) ), *allocator );
-	out.AddMember( "fade", getValue( value.getFade() ), *allocator );
-
-	return out;
-}
-
-//--------------------------------------------------------------------------------
-
-rapidjson::Value getValue( const Pattern::Gravity& value ) {
-	rapidjson::Value out;
-	out.SetObject();
-
-	out.AddMember( "type", static_cast< int >( value.getType() ), *allocator );
-	out.AddMember( "value", getValue( value.get() ), *allocator );
-	out.AddMember( "power", getValue( value.getPower() ), *allocator );
-	out.AddMember( "multiplier", getValue( value.getDistanceMultiplier() ), *allocator );
-
-	return out;
-}
-
-//--------------------------------------------------------------------------------
-
-rapidjson::Value getValue( const vector< Pattern::Emitter >& value ) {
-	rapidjson::Value out;
-	out.SetArray();
-
-	for( const Pattern::Emitter& emitter : value )
-		out.PushBack( getValue( emitter ), *allocator );
+	out.AddMember( "target", getValue( value.target ), *allocator );
+	out.AddMember( "r", getValue( value.r ), *allocator );
+	out.AddMember( "g", getValue( value.g ), *allocator );
+	out.AddMember( "b", getValue( value.b ), *allocator );
+	out.AddMember( "a", getValue( value.a ), *allocator );
 
 	return out;
 }
@@ -555,16 +614,31 @@ rapidjson::Value getValue( const Pattern::Emitter& value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
-	out.AddMember( "spawnrate", getValue( value.getSpawnRate() ), *allocator );
-	out.AddMember( "delay", getValue( value.getDelay() ), *allocator );
+	out.AddMember( "lifetime", getValue( value.lifetime ), *allocator );
+	out.AddMember( "velocity", getValue( value.velocity ), *allocator );
+	out.AddMember( "acceleration", getValue( value.acceleration ), *allocator );
+	out.AddMember( "size", getValue( value.size ), *allocator );
+	out.AddMember( "alpha", getValue( value.alpha ), *allocator );
+	out.AddMember( "number", getValue( value.number ), *allocator );
 
-	rapidjson::Value patterns;
-	patterns.SetArray();
+	out.AddMember( "position", getValue( value.position ), *allocator );
+	out.AddMember( "starttime", getValue( value.startTime ), *allocator );
+	out.AddMember( "spawnrate", getValue( value.rate ), *allocator );
 
-	for( const Pattern& pattern : value.get() )
-		patterns.PushBack( getValue( pattern ), *allocator );
+	out.AddMember( "patterns", getValue( value.patterns ), *allocator );
 
-	out.AddMember( "patterns", patterns, *allocator );
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+rapidjson::Value getValue( const Pattern::Emitter::SpawnRate& value ) {
+	rapidjson::Value out;
+	out.SetObject();
+
+	out.AddMember( "start", getValue( value.start ), *allocator );
+	out.AddMember( "end", getValue( value.end ), *allocator );
+	out.AddMember( "fade", getValue( value.fade ), *allocator );
 
 	return out;
 }
@@ -586,11 +660,14 @@ Pattern loadPattern( string name ) {
 	FILE* pFile;
 	if( fopen_s( &pFile, path.c_str(), "rb" ) )
 		return Pattern();
-	char buffer[ 65536 ];
+
+	char* buffer = new char[ 65536 ];
 	FileReadStream is( pFile, buffer, sizeof( buffer ) );
 	Document document;
 	document.ParseStream<0, UTF8<>, FileReadStream>( is );
-	fclose( pFile );
+
+	if( pFile != NULL )
+		fclose( pFile );
 
 	if( document.HasParseError() ) {
 		Debug::addMessage( "Map \"" + name + "\" has JSON parse error", Debug::DebugType::Error );
@@ -599,63 +676,38 @@ Pattern loadPattern( string name ) {
 
 	getValue( document, out );
 
+	delete[] buffer;
+
 	return out;
 }
 
 //--------------------------------------------------------------------------------
 
 void getValue( const rapidjson::Value& value, Pattern& out ) {
-	Pattern::Lifetime lifetime;
-	if( value.HasMember( "lifetime" ) )
-		getValue( value[ "lifetime" ], lifetime );
-	out.setLifetime( lifetime );
 
-	Pattern::Position position;
-	if( value.HasMember( "position" ) )
-		getValue( value[ "position" ], position );
-	out.setPosition( position );
+	if( value.HasMember( "name" ) )
+		getValue( value[ "name" ], out.name );
 
-	Pattern::Velocity velocity;
-	if( value.HasMember( "velocity" ) )
-		getValue( value[ "velocity" ], velocity );
-	out.setVelocity( velocity );
+	if( value.HasMember( "initial" ) )
+		getValue( value[ "initial" ], out.initial );
 
-	Pattern::Size size;
-	if( value.HasMember( "size" ) )
-		getValue( value[ "size" ], size );
-	out.setSize( size );
+	if( value.HasMember( "fade" ) )
+		getValue( value[ "fade" ], out.fade );
 
-	Pattern::Number number;
-	if( value.HasMember( "number" ) )
-		getValue( value[ "number" ], number );
-	out.setNumber( number );
-
-	Pattern::Color color;
-	if( value.HasMember( "color" ) )
-		getValue( value[ "color" ], color );
-	out.setColor( color );
-
-	Pattern::Gravity gravity;
-	if( value.HasMember( "gravity" ) )
-		getValue( value[ "gravity" ], gravity );
-	out.setGravity( gravity );
-
-	vector< Pattern::Emitter > emitters;
-	if( value.HasMember( "emitter" ) )
-		getValue( value[ "emitter" ], emitters );
-
-	for( Pattern::Emitter emitter : emitters )
-		out.addEmitter( emitter );
+	if( value.HasMember( "emitters" ) )
+		getValue( value[ "emitters" ], out.emitters );
 }
 
 //--------------------------------------------------------------------------------
 
 template< class T >
-void getValue( const rapidjson::Value& value, Pattern::Range< T >& out ) {
+void getValue( const rapidjson::Value& value, ValueSet< T >& out ) {
 	if( value.HasMember( "min" ) )
-		getValue( value[ "min" ], out.first );
+		getValue( value[ "min" ], out.min );
 	if( value.HasMember( "max" ) )
-		getValue( value[ "max" ], out.second );
+		getValue( value[ "max" ], out.max );
+	if( value.HasMember( "random" ) )
+		getValue( value[ "random" ], out.random );
 }
 
 //--------------------------------------------------------------------------------
@@ -736,164 +788,145 @@ void getValue( const rapidjson::Value& value, Math::Color& out ) {
 
 //--------------------------------------------------------------------------------
 
-void getValue( const rapidjson::Value& value, Pattern::Position& out ) {
-	if( value.HasMember( "value" ) ) {
-		Pattern::Range< Math::Vec2 > range;
-		getValue( value[ "value" ], range );
-		out.set( range.first, range.second );
-	}
-	if( value.HasMember( "relative" ) ) {
-		bool relative;
-		getValue( value[ "relative" ], relative );
-		out.setRelative( relative );
-	}
+void getValue( const rapidjson::Value& value, string& out ) {
+	if( value.IsString() )
+		out = value.GetString();
+	else if( value.IsInt() )
+		out = std::to_string( value.GetInt() );
+	else if( value.IsFloat() )
+		out = std::to_string( value.GetFloat() );
+	else if( value.IsBool() )
+		if( value.GetBool() )
+			out = "true";
+		else
+			out = "false";
 }
 
 //--------------------------------------------------------------------------------
 
-void getValue( const rapidjson::Value& value, Pattern::Velocity& out ) {
-	if( value.HasMember( "value" ) ) {
-		Pattern::Range< Math::Vec2 > range;
-		getValue( value[ "value" ], range );
-		out.set( range.first, range.second );
-	}
-	if( value.HasMember( "relative" ) ) {
-		bool relative;
-		getValue( value[ "relative" ], relative );
-		out.setRelative( relative );
-	}
-	pair< bool, bool > fade{ false, false };
-	if( value.HasMember( "fadex" ) )
-		getValue( value[ "fadex" ], fade.first );
-	if( value.HasMember( "fadey" ) )
-		getValue( value[ "fadey" ], fade.second );
-	out.setFade( fade.first, fade.second );
-}
-
-//--------------------------------------------------------------------------------
-
-void getValue( const rapidjson::Value& value, Pattern::Lifetime& out ) {
-	if( value.HasMember( "value" ) ) {
-		Pattern::Range< milliseconds > range;
-		getValue( value[ "value" ], range );
-		out.set( range.first, range.second );
-	}
-}
-
-//--------------------------------------------------------------------------------
-
-void getValue( const rapidjson::Value& value, Pattern::Size& out ) {
-	if( value.HasMember( "value" ) ) {
-		Pattern::Range< float > range;
-		getValue( value[ "value" ], range );
-		out.set( range.first, range.second );
-	}
-	if( value.HasMember( "relative" ) ) {
-		bool relative;
-		getValue( value[ "relative" ], relative );
-		out.setRelative( relative );
-	}
-	if( value.HasMember( "fade" ) ) {
-		bool fade;
-		getValue( value[ "fade" ], fade );
-		out.setFade( fade );
-	}
-}
-
-//--------------------------------------------------------------------------------
-
-void getValue( const rapidjson::Value& value, Pattern::Number& out ) {
-	if( value.HasMember( "value" ) ) {
-		Pattern::Range< int > range;
-		getValue( value[ "value" ], range );
-		out.set( uint16_t( range.first ), uint16_t( range.second ) );
-	}
-}
-
-//--------------------------------------------------------------------------------
-
-void getValue( const rapidjson::Value& value, Pattern::Color& out ) {
-	Random::RandomColorType type;
-
-	if( value.HasMember( "type" ) ) {
-		int t;
-		getValue( value[ "type" ], t );
-		type = static_cast< Random::RandomColorType >( t );
-	}
-
-	if( value.HasMember( "value" ) ) {
-		Pattern::Range< Math::Color > range;
-		getValue( value[ "value" ], range );
-		out.set( range.first, range.second, type );
-	}
-	if( value.HasMember( "relative" ) ) {
-		bool relative;
-		getValue( value[ "relative" ], relative );
-		out.setRelative( relative );
-	}
-	if( value.HasMember( "fade" ) ) {
-		bool fade;
-		getValue( value[ "fade" ], fade );
-		out.setFade( fade );
-	}
-}
-
-//--------------------------------------------------------------------------------
-
-void getValue( const rapidjson::Value& value, Pattern::Gravity& out ) {
-	Pattern::Gravity::Type type;
-
-	if( value.HasMember( "type" ) ) {
-		int t;
-		getValue( value[ "type" ], t );
-		type = static_cast< Pattern::Gravity::Type >( t );
-	}
-	if( value.HasMember( "value" ) ) {
-		Pattern::Range< Math::Vec2 > range;
-		getValue( value[ "value" ], range );
-
-		if( type == Pattern::Gravity::Type::Direction )
-			out.setDirection( range.first, range.second );
-		else if( type == Pattern::Gravity::Type::Point )
-			out.setPoint( range.first, range.second );
-	}
-	if( value.HasMember( "power" ) ) {
-		Pattern::Range< float > range;
-		getValue( value[ "power" ], range );
-		out.setPower( range.first, range.second );
-	}
-	if( value.HasMember( "multiplier" ) ) {
-		Pattern::Range< float > range;
-		getValue( value[ "multiplier" ], range );
-		out.setDistanceMultiplier( range.first, range.second );
-	}
+void getValue( const rapidjson::Value& value, Pattern::Initial& out ) {
+	if( value.HasMember( "lifetime" ) )
+		getValue( value[ "lifetime" ], out.lifetime );
+	if( value.HasMember( "position" ) )
+		getValue( value[ "position" ], out.position );
+	if( value.HasMember( "direction" ) )
+		getValue( value[ "direction" ], out.direction );
+	if( value.HasMember( "velocity" ) )
+		getValue( value[ "velocity" ], out.velocity );
+	if( value.HasMember( "acceleration" ) )
+		getValue( value[ "acceleration" ], out.acceleration );
+	if( value.HasMember( "size" ) )
+		getValue( value[ "size" ], out.size );
+	if( value.HasMember( "number" ) )
+		getValue( value[ "number" ], out.number );
+	if( value.HasMember( "color" ) )
+		getValue( value[ "color" ], out.color );
 }
 
 //--------------------------------------------------------------------------------
 
 void getValue( const rapidjson::Value& value, Pattern::Emitter& out ) {
-	if( value.HasMember( "spawnrate" ) ) {
-		Pattern::Range< float > range;
-		getValue( value[ "spawnrate" ], range );
-		out.setSpawnRate( range.first, range.second );
-	}
-	if( value.HasMember( "delay" ) ) {
-		Pattern::Range< milliseconds > range;
-		getValue( value[ "delay" ], range );
-		out.setDelay( range.first, range.second );
-	}
-	if( value.HasMember( "patterns" ) ) {
-		vector< Pattern > patterns;
-		getValue( value[ "patterns" ], patterns );
-
-		for( Pattern pattern : patterns )
-			out.addPattern( pattern );
-	}
+	if( value.HasMember( "name" ) )
+		getValue( value[ "name" ], out.name );
+	if( value.HasMember( "position" ) )
+		getValue( value[ "position" ], out.position );
+	if( value.HasMember( "starttime" ) )
+		getValue( value[ "starttime" ], out.startTime );
+	if( value.HasMember( "spawnrate" ) )
+		getValue( value[ "spawnrate" ], out.rate );
+	if( value.HasMember( "lifetime" ) )
+		getValue( value[ "lifetime" ], out.lifetime );
+	if( value.HasMember( "velocity" ) )
+		getValue( value[ "velocity" ], out.velocity );
+	if( value.HasMember( "acceleration" ) )
+		getValue( value[ "acceleration" ], out.acceleration );
+	if( value.HasMember( "size" ) )
+		getValue( value[ "size" ], out.size );
+	if( value.HasMember( "alpha" ) )
+		getValue( value[ "alpha" ], out.alpha );
+	if( value.HasMember( "number" ) )
+		getValue( value[ "number" ], out.number );
+	if( value.HasMember( "patterns" ) )
+		getValue( value[ "patterns" ], out.patterns );
 }
 
 //--------------------------------------------------------------------------------
 
-*/
+void getValue( const rapidjson::Value& value, Pattern::Emitter::SpawnRate& out ) {
+	if( value.HasMember( "start" ) )
+		getValue( value[ "start" ], out.start );
+	if( value.HasMember( "end" ) )
+		getValue( value[ "end" ], out.end );
+	if( value.HasMember( "fade" ) )
+		getValue( value[ "fade" ], out.fade );
+}
+
+//--------------------------------------------------------------------------------
+
+void getValue( const rapidjson::Value& value, Pattern::Fade& out ) {
+	if( value.HasMember( "velocity" ) )
+		getValue( value[ "velocity" ], out.velocity );
+	if( value.HasMember( "acceleration" ) )
+		getValue( value[ "acceleration" ], out.acceleration );
+	if( value.HasMember( "size" ) )
+		getValue( value[ "size" ], out.size );
+	if( value.HasMember( "color" ) )
+		getValue( value[ "color" ], out.color );
+}
+
+//--------------------------------------------------------------------------------
+
+void getValue( const rapidjson::Value& value, Pattern::Fade::Velocity& out ) {
+	if( value.HasMember( "start" ) )
+		getValue( value[ "start" ], out.start );
+	if( value.HasMember( "end" ) )
+		getValue( value[ "end" ], out.end );
+	if( value.HasMember( "x" ) )
+		getValue( value[ "x" ], out.x );
+	if( value.HasMember( "y" ) )
+		getValue( value[ "y" ], out.y );
+}
+
+//--------------------------------------------------------------------------------
+
+void getValue( const rapidjson::Value& value, Pattern::Fade::Acceleration& out ) {
+	if( value.HasMember( "start" ) )
+		getValue( value[ "start" ], out.start );
+	if( value.HasMember( "end" ) )
+		getValue( value[ "end" ], out.end );
+	if( value.HasMember( "x" ) )
+		getValue( value[ "x" ], out.x );
+	if( value.HasMember( "y" ) )
+		getValue( value[ "y" ], out.y );
+}
+
+//--------------------------------------------------------------------------------
+
+void getValue( const rapidjson::Value& value, Pattern::Fade::Size& out ) {
+	if( value.HasMember( "start" ) )
+		getValue( value[ "start" ], out.start );
+	if( value.HasMember( "end" ) )
+		getValue( value[ "end" ], out.end );
+	if( value.HasMember( "active" ) )
+		getValue( value[ "active" ], out.active );
+}
+
+//--------------------------------------------------------------------------------
+
+void getValue( const rapidjson::Value& value, Pattern::Fade::Color& out ) {
+	if( value.HasMember( "target" ) )
+		getValue( value[ "target" ], out.target );
+	if( value.HasMember( "r" ) )
+		getValue( value[ "r" ], out.r );
+	if( value.HasMember( "g" ) )
+		getValue( value[ "g" ], out.g );
+	if( value.HasMember( "b" ) )
+		getValue( value[ "b" ], out.b );
+	if( value.HasMember( "a" ) )
+		getValue( value[ "a" ], out.a );
+}
+
+//--------------------------------------------------------------------------------
 
 }
 }

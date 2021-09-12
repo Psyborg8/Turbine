@@ -8,10 +8,18 @@
 #include "World.h"
 #include "Particle.h"
 #include "Random.h"
+#include "Emitter.h"
 
 //================================================================================
 
 namespace Worlds {
+
+//--------------------------------------------------------------------------------
+
+struct Tab {
+	bool emitter{ false };
+	void* pattern;
+};
 
 //--------------------------------------------------------------------------------
 
@@ -29,12 +37,18 @@ public:
 
 public:
 	void renderPattern( Gfx::Particle::Pattern& pattern );
-	void renderEmitter( Gfx::Particle::Pattern::Emitter& emitter );
+	void renderEmitter( Gfx::Emitter::Pattern& emitter );
 	void renderPatternTreeView();
-	void renderPatternTreeNode( Gfx::Particle::Pattern& pattern, vector< Gfx::Particle::Pattern* > stack );
+	void renderPatternTreeNode( Gfx::Particle::Pattern& pattern, vector< Tab >& stack );
+	void renderEmitterTreeNode( Gfx::Emitter::Pattern& pattern, vector< Tab >& stack );
 
 private:
+	bool m_emitter{ true };
 	Gfx::Particle::Pattern m_basePattern;
+	Gfx::Emitter::Pattern m_baseEmitter;
+
+	Gfx::Particle::Pattern m_defaultPattern;
+	Gfx::Emitter::Pattern m_defaultEmitter;
 
 	bool m_useMouse{ false };
 	bool m_mouseDown{ false };
@@ -45,10 +59,7 @@ private:
 	int m_patternID{ 0 };
 	int m_patternTreeID{ 0 };
 
-	Gfx::Particle::Pattern m_defaultPattern;
-	Gfx::Particle::Pattern::Emitter m_defaultEmitter;
-
-	vector< Gfx::Particle::Pattern* > m_tabs;
+	vector< Tab > m_tabs;
 
 	char* m_renameBuffer;
 

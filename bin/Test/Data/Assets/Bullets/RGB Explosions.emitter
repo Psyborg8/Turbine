@@ -1,0 +1,69 @@
+{
+    "lifetime": {
+        "min": 1.0,
+        "max": 0.0,
+        "random": false
+    },
+    "velocity": {
+        "min": 1.0,
+        "max": 0.0,
+        "random": false
+    },
+    "acceleration": {
+        "min": 1.0,
+        "max": 0.0,
+        "random": false
+    },
+    "size": {
+        "min": 1.0,
+        "max": 0.0,
+        "random": false
+    },
+    "alpha": {
+        "min": 1.0,
+        "max": 0.0,
+        "random": false
+    },
+    "number": {
+        "min": 1.0,
+        "max": 0.0,
+        "random": false
+    },
+    "position": {
+        "min": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "max": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "random": false
+    },
+    "activationtype": 0,
+    "starttime": {
+        "min": 0.0,
+        "max": 0.0,
+        "random": false
+    },
+    "endtime": {
+        "min": 0.0,
+        "max": 0.0,
+        "random": false
+    },
+    "spawnrate": {
+        "start": {
+            "min": 1.0,
+            "max": 0.0,
+            "random": false
+        },
+        "end": {
+            "min": 0.0,
+            "max": 0.0,
+            "random": false
+        },
+        "fade": false
+    },
+    "patterns": [],
+    "patternsets": []
+}

@@ -1,0 +1,206 @@
+{
+    "name": "Rockets",
+    "initial": {
+        "lifetime": {
+            "min": 1000,
+            "max": 0,
+            "random": false
+        },
+        "position": {
+            "min": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "random": false
+        },
+        "direction": {
+            "min": {
+                "x": 1.0,
+                "y": -1.0
+            },
+            "max": {
+                "x": -1.0,
+                "y": -1.0
+            },
+            "random": true
+        },
+        "velocity": {
+            "min": 150.0,
+            "max": 300.0,
+            "random": true
+        },
+        "acceleration": {
+            "min": {
+                "x": 0.0,
+                "y": 150.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "random": false
+        },
+        "size": {
+            "min": 0.25,
+            "max": 0.5,
+            "random": true
+        },
+        "number": {
+            "min": 1,
+            "max": 0,
+            "random": false
+        },
+        "color": {
+            "min": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0,
+                "alpha": 1.0
+            },
+            "max": {
+                "red": 0.0,
+                "green": 0.0,
+                "blue": 0.0,
+                "alpha": 1.0
+            },
+            "random": false
+        }
+    },
+    "fade": {
+        "velocity": {
+            "start": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "x": false,
+            "y": false
+        },
+        "acceleration": {
+            "start": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "x": false,
+            "y": false
+        },
+        "size": {
+            "start": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "active": false
+        },
+        "color": {
+            "target": {
+                "min": {
+                    "red": 0.0,
+                    "green": 0.0,
+                    "blue": 0.0,
+                    "alpha": 0.0
+                },
+                "max": {
+                    "red": 0.0,
+                    "green": 0.0,
+                    "blue": 0.0,
+                    "alpha": 1.0
+                },
+                "random": false
+            },
+            "r": false,
+            "g": false,
+            "b": false,
+            "a": false
+        }
+    },
+    "emitters": [{
+            "lifetime": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "velocity": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "acceleration": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "size": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "alpha": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "number": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false
+            },
+            "position": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false
+            },
+            "activationtype": 2,
+            "starttime": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "endtime": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "spawnrate": {
+                "start": {
+                    "min": 0.0,
+                    "max": 0.0,
+                    "random": false
+                },
+                "end": {
+                    "min": 0.0,
+                    "max": 0.0,
+                    "random": false
+                },
+                "fade": false
+            },
+            "patterns": [],
+            "patternsets": []
+        }]
+}

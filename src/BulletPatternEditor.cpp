@@ -7,6 +7,10 @@
 #include "System.h"
 #include "Debug.h"
 
+#include "Particle.h"
+#include "Emitter.h"
+#include "Patterns.h"
+
 //================================================================================
 
 void drawSpacer() {
@@ -35,7 +39,7 @@ void drawHeader( const char* label ) {
 
 //--------------------------------------------------------------------------------
 
-bool drawValueSet( Gfx::Particle::ValueSet< int >& set, const char* id ) {
+bool drawValueSet( Math::ValueSet< int >& set, const char* id, bool slider = false, int min = std::numeric_limits< int >::min(), int max = std::numeric_limits< int >::max() ) {
 	bool out = false;
 
 	ImGui::PushID( id );
@@ -43,11 +47,34 @@ bool drawValueSet( Gfx::Particle::ValueSet< int >& set, const char* id ) {
 	out |= ImGui::Checkbox( "Random", &set.random );
 
 	if( set.random ) {
-		out |= ImGui::InputInt( "min", &set.min );
-		out |= ImGui::InputInt( "max", &set.max );
+		if( slider ) {
+			out |= ImGui::DragInt( "min", &set.min, 1.0f, min, max );
+			out |= ImGui::DragInt( "max", &set.max, 1.0f, min, max );
+		}
+		else {
+			out |= ImGui::InputInt( "min", &set.min );
+			if( set.min < min )
+				set.min = min;
+			if( set.min > max )
+				set.min = max;
+
+			out |= ImGui::InputInt( "max", &set.max );
+			if( set.max < min )
+				set.max = min;
+			if( set.max > max )
+				set.max = max;
+		}
 	}
 	else {
-		out |= ImGui::InputInt( "", &set.min );
+		if( slider )
+			out |= ImGui::DragInt( "", &set.min, 1.0f, min, max );
+		else {
+			out |= ImGui::InputInt( "", &set.min );
+			if( set.min < min )
+				set.min = min;
+			if( set.min > max )
+				set.min = max;
+		}
 	}
 
 	ImGui::PopID();
@@ -57,7 +84,7 @@ bool drawValueSet( Gfx::Particle::ValueSet< int >& set, const char* id ) {
 
 //--------------------------------------------------------------------------------
 
-bool drawValueSet( Gfx::Particle::ValueSet< float >& set, const char* id ) {
+bool drawValueSet( Math::ValueSet< float >& set, const char* id, bool slider = false, float min = std::numeric_limits< float >::min(), float max = std::numeric_limits< float >::max() ) {
 	bool out = false;
 
 	ImGui::PushID( id );
@@ -65,11 +92,34 @@ bool drawValueSet( Gfx::Particle::ValueSet< float >& set, const char* id ) {
 	out |= ImGui::Checkbox( "Random", &set.random );
 
 	if( set.random ) {
-		out |= ImGui::InputFloat( "min", &set.min );
-		out |= ImGui::InputFloat( "max", &set.max );
+		if( slider ) {
+			out |= ImGui::DragFloat( "min", &set.min, 1.0f, min, max );
+			out |= ImGui::DragFloat( "max", &set.max, 1.0f, min, max );
+		}
+		else {
+			out |= ImGui::InputFloat( "min", &set.min );
+			if( set.min < min )
+				set.min = min;
+			if( set.min > max )
+				set.min = max;
+
+			out |= ImGui::InputFloat( "max", &set.max );
+			if( set.max < min )
+				set.max = min;
+			if( set.max > max )
+				set.max = max;
+		}
 	}
 	else {
-		out |= ImGui::InputFloat( "", &set.min );
+		if( slider )
+			out |= ImGui::DragFloat( "", &set.min, 1.0f, min, max );
+		else {
+			out |= ImGui::InputFloat( "", &set.min );
+			if( set.min < min )
+				set.min = min;
+			if( set.min > max )
+				set.min = max;
+		}
 	}
 
 	ImGui::PopID();
@@ -79,7 +129,7 @@ bool drawValueSet( Gfx::Particle::ValueSet< float >& set, const char* id ) {
 
 //--------------------------------------------------------------------------------
 
-bool drawValueSet( Gfx::Particle::ValueSet< Math::Vec2 >& set, const char* id ) {
+bool drawValueSet( Math::ValueSet< Math::Vec2 >& set, const char* id ) {
 	bool out = false;
 
 	ImGui::PushID( id );
@@ -101,7 +151,7 @@ bool drawValueSet( Gfx::Particle::ValueSet< Math::Vec2 >& set, const char* id ) 
 
 //--------------------------------------------------------------------------------
 
-bool drawValueSet( Gfx::Particle::ValueSet< Math::Color >& set, const char* id ) {
+bool drawValueSet( Math::ValueSet< Math::Color >& set, const char* id ) {
 	bool out = false;
 
 	ImGui::PushID( id );
@@ -132,20 +182,29 @@ void BulletPatternEditor::onSpawnChildren() {
 	shared_ptr< Debug::MessageWindow > window = makeObject< Debug::MessageWindow >( this );
 	window->setVisibility( false );
 
+	m_defaultPattern.initial.size.min = 1.0f;
 	m_defaultPattern.initial.lifetime.min = 1000;
 	m_defaultPattern.initial.number.min = 1;
-	m_defaultPattern.initial.color.min = Math::Color( 1.0f, 1.0f, 1.0f, 1.0f );
-	m_defaultPattern.initial.size.min = 1.f;
+	m_defaultPattern.initial.color.min = Colors::WHITE;
+	m_defaultPattern.fade.acceleration.start.min = 1.0f;
+	m_defaultPattern.fade.color.target.min.a = 0.0f;
+	m_defaultPattern.fade.size.start.min = 1.0f;
+	m_defaultPattern.fade.velocity.start.min = 1.0f;
 
-	m_defaultEmitter.lifetime.min = 1.f;
-	m_defaultEmitter.velocity.min = 1.f;
-	m_defaultEmitter.acceleration.min = 1.f;
-	m_defaultEmitter.size.min = 1.f;
-	m_defaultEmitter.alpha.min = 1.f;
-	m_defaultEmitter.number.min = 1.f;
+	m_defaultEmitter.multipliers.acceleration.min = 1.0f;
+	m_defaultEmitter.multipliers.alpha.min = 1.0f;
+	m_defaultEmitter.multipliers.lifetime.min = 1.0f;
+	m_defaultEmitter.multipliers.number.min = 1.0f;
+	m_defaultEmitter.multipliers.size.min = 1.0f;
+	m_defaultEmitter.multipliers.velocity.min = 1.0f;
 
 	m_basePattern = m_defaultPattern;
-	m_tabs.push_back( &m_basePattern );
+	m_baseEmitter = m_defaultEmitter;
+
+	if( m_emitter )
+		m_tabs.push_back( Tab{ true, &m_baseEmitter } );
+	else
+		m_tabs.push_back( Tab{ false, &m_basePattern } );
 
 	m_renameBuffer = new char[ 66565 ];
 }
@@ -160,16 +219,23 @@ void BulletPatternEditor::onUpdate( sf::Time deltaTime ) {
 	}
 
 	if( m_changed ) {
-		Gfx::Particle::killParticles();
+		Gfx::Emitter::destroyAll();
+		Gfx::Particle::killAll();
 
 		if( !sf::Mouse::isButtonPressed( sf::Mouse::Left ) ) {
-			Gfx::Particle::spawnParticle( this, m_basePattern );
+			if( m_emitter )
+				Gfx::Emitter::spawn( this, m_baseEmitter );
+			else
+				Gfx::Particle::spawn( this, m_basePattern );
 			m_changed = false;
 		}
 	}
 
-	if( Gfx::Particle::getParticles().size() == 0u ) {
-		Gfx::Particle::spawnParticle( this, m_basePattern );
+	if( Gfx::Particle::getAll().size() + Gfx::Emitter::getAll().size() == 0u ) {
+		if( m_emitter )
+			Gfx::Emitter::spawn( this, m_baseEmitter );
+		else
+			Gfx::Particle::spawn( this, m_basePattern );
 	}
 }
 
@@ -322,7 +388,16 @@ void BulletPatternEditor::onRender() {
 	drawDoubleSpacer();
 
 	m_patternID = 0;
-	renderPattern( *m_tabs.at( m_tabs.size() - 1u ) );
+
+	const Tab tab = m_tabs.at( m_tabs.size() - 1u );
+	if( tab.emitter ) {
+		Gfx::Emitter::Pattern* pattern = static_cast< Gfx::Emitter::Pattern* >( tab.pattern );
+		renderEmitter( *pattern );
+	}
+	else {
+		Gfx::Particle::Pattern* pattern = static_cast< Gfx::Particle::Pattern* >( tab.pattern );
+		renderPattern( *pattern );
+	}
 
 	m_useMouse = !ImGui::GetIO().WantCaptureMouse;
 
@@ -340,18 +415,34 @@ void BulletPatternEditor::onRender() {
 	ImGui::SetWindowSize( ImVec2( float( System::getSystemInfo().width ), 30.0f ) );
 	ImGui::SetWindowPos( ImVec2( 0.0f, 0.0f ) );
 
-	string tabName = m_basePattern.name + "##0";
+	string tabName;
+	if( m_emitter )
+		tabName = m_baseEmitter.name;
+	else
+		tabName = m_basePattern.name;
+
 	if( ImGui::Button( tabName.c_str() ) ) {
 		m_tabs.clear();
-		m_tabs.push_back( &m_basePattern );
+		
+		if( m_emitter )
+			m_tabs.push_back( Tab{ true, &m_baseEmitter } );
+		else
+			m_tabs.push_back( Tab{ false, &m_basePattern } );
 	}
 
 	for( size_t i = 1; i < m_tabs.size(); ++i ) {
 		ImGui::SameLine();
 		ImGui::Text( " > " );
 		ImGui::SameLine();
+
+		const Tab tab = m_tabs.at( i );
+		string name;
+		if( tab.emitter )
+			name = static_cast< Gfx::Emitter::Pattern* >( tab.pattern )->name;
+		else
+			name = static_cast< Gfx::Particle::Pattern* >( tab.pattern )->name;
 		
-		tabName = m_tabs.at( i )->name + "##" + std::to_string( i );
+		tabName = name + "##" + std::to_string( i );
 		if( ImGui::Button( tabName.c_str() ) ) {
 			while( m_tabs.size() > i + 1 ) {
 				m_tabs.erase( m_tabs.end() - 1 );
@@ -382,11 +473,14 @@ void BulletPatternEditor::onRender() {
 
 	char format[] =
 		"FPS: %.0f\n"
-		"Particles: %i";
+		"Particles: %i\n"
+		"Emitters: %i";
 
 	char buffer[ 1024 ];
-	sprintf_s( buffer, format, 1.0f / System::getDeltaTime().asSeconds(), Gfx::Particle::getParticles().size() );
+	sprintf_s( buffer, format, 1.0f / System::getDeltaTime().asSeconds(), Gfx::Particle::getAll().size(), Gfx::Emitter::getAll().size() );
 	ImGui::Text( buffer );
+
+	
 
 	ImGui::End();
 
@@ -410,12 +504,12 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 	ImGui::SameLine();
 
 	if( ImGui::Button( "Save" ) )
-		Gfx::Particle::savePattern( pattern, pattern.name );
+		Gfx::savePattern( pattern, pattern.name );
 
 	ImGui::SameLine();
 
 	if( ImGui::Button( "Load" ) ) {
-		pattern = Gfx::Particle::loadPattern( pattern.name );
+		pattern = Gfx::loadPattern( pattern.name );
 		m_changed = true;
 	}
 
@@ -431,27 +525,27 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 		ImGui::EndPopup();
 	}
 
-	drawSpacer();
+	drawDoubleSpacer();
 
 	ImGui::Text( "Lifetime" );
 	ImGui::Spacing();
 	m_changed |= drawValueSet( pattern.initial.lifetime, "Lifetime" );
 
 
-	drawSpacer();
+	drawDoubleSpacer();
 
 	ImGui::Text( "Number" );
 	ImGui::Spacing();
 	m_changed |= drawValueSet( pattern.initial.number, "Number" );
 
 
-	drawSpacer();
+	drawDoubleSpacer();
 
 	ImGui::Text( "Direction" );
 	ImGui::Spacing();
 	m_changed |= drawValueSet( pattern.initial.direction, "Direction" );
 
-	drawSpacer();
+	drawDoubleSpacer();
 
 	ImGui::Text( "Velocity" );
 	ImGui::Spacing();
@@ -474,7 +568,7 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 	}
 	ImGui::PopID();
 
-	drawSpacer();
+	drawDoubleSpacer();
 
 	ImGui::Text( "Acceleration" );
 	ImGui::Spacing();
@@ -498,11 +592,11 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 	}
 	ImGui::PopID();
 
-	drawSpacer();
+	drawDoubleSpacer();
 
 	ImGui::Text( "Size" );
 	ImGui::Spacing();
-	m_changed |= drawValueSet( pattern.initial.size, "Size" );
+	m_changed |= drawValueSet( pattern.initial.size, "Size", false, 0.0f, std::numeric_limits< float >::max() );
 
 	ImGui::Spacing();
 
@@ -512,15 +606,15 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 		m_changed |= ImGui::Checkbox( "Fade", &pattern.fade.size.active );
 
 		ImGui::Text( "Start" );
-		m_changed |= drawValueSet( pattern.fade.size.start, "FadeSizeStart" );
+		m_changed |= drawValueSet( pattern.fade.size.start, "FadeSizeStart", false, 0.0f, std::numeric_limits< float >::max() );
 		ImGui::Text( "End" );
-		m_changed |= drawValueSet( pattern.fade.size.end, "FadeSizeEnd" );
+		m_changed |= drawValueSet( pattern.fade.size.end, "FadeSizeEnd", false, 0.0f, std::numeric_limits< float >::max() );
 
 		ImGui::TreePop();
 	}
 	ImGui::PopID();
 
-	drawSpacer();
+	drawDoubleSpacer();
 
 	ImGui::Text( "Color" );
 	ImGui::Spacing();
@@ -545,14 +639,30 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 	}
 	ImGui::PopID();
 
-	drawSpacer();
+	drawDoubleSpacer();
 
 	ImGui::Text( "Emitters" );
-	ImGui::Spacing();
 
-	for( Gfx::Particle::Pattern::Emitter& emitter : pattern.emitters ) {
-		renderEmitter( emitter );
-		drawSpacer();
+	for( size_t i = 0; i < pattern.emitters.size(); ++i ) {
+		Gfx::Emitter::Pattern& emitter = pattern.emitters.at( i );
+
+		ImGui::Text( emitter.name.c_str() );
+
+		// Edit
+		ImGui::SameLine();
+		string buttonName = "Edit##" + std::to_string( i );
+		if( ImGui::Button( buttonName.c_str() ) )
+			m_tabs.push_back( Tab{ true, &emitter } );
+
+		// Remove
+		ImGui::SameLine();
+		buttonName = "Remove##" + std::to_string( i );
+		if( ImGui::Button( buttonName.c_str() ) ) {
+			m_changed = true;
+			pattern.emitters.erase( pattern.emitters.begin() + i );
+			i--;
+			continue;
+		}
 	}
 
 	if( ImGui::Button( "Add Emitter" ) ) {
@@ -567,102 +677,237 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderEmitter( Gfx::Particle::Pattern::Emitter& emitter ) {
+void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 	ImGui::PushID( ++m_patternID );
 
-	if( ImGui::TreeNodeEx( "Emitter", ImGuiTreeNodeFlags_Framed ) ) {
-		if( ImGui::TreeNodeEx( "Position", ImGuiTreeNodeFlags_Framed ) ) {
-			m_changed |= drawValueSet( emitter.position, "Position" );
-			ImGui::TreePop();
+	ImGui::Text( emitter.name.c_str() );
+
+	if( ImGui::Button( "Rename" ) ) {
+		ImGui::OpenPopup( "Rename" );
+		delete[] m_renameBuffer;
+		m_renameBuffer = new char[ 66565 ];
+		strcpy_s( m_renameBuffer, 66565, emitter.name.c_str() );
+	}
+
+	ImGui::SameLine();
+
+	if( ImGui::Button( "Save" ) )
+		Gfx::saveEmitter( emitter, emitter.name );
+
+	ImGui::SameLine();
+
+	if( ImGui::Button( "Load" ) ) {
+		emitter = Gfx::loadEmitter( emitter.name );
+		m_changed = true;
+	}
+
+	if( ImGui::BeginPopup( "Rename", ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse ) ) {
+		if( !ImGui::IsWindowFocused() )
+			ImGui::CloseCurrentPopup();
+
+		if( ImGui::InputText( "Rename", m_renameBuffer, 65565, ImGuiInputTextFlags_EnterReturnsTrue ) ) {
+			emitter.name = m_renameBuffer;
+			ImGui::CloseCurrentPopup();
 		}
 
-		if( ImGui::TreeNodeEx( "Start Time", ImGuiTreeNodeFlags_Framed ) ) {
-			m_changed |= drawValueSet( emitter.startTime, "Start Time" );
-			ImGui::TreePop();
-		}
+		ImGui::EndPopup();
+	}
 
-		if( ImGui::TreeNodeEx( "Spawn Rate", ImGuiTreeNodeFlags_Framed ) ) {
-			m_changed |= ImGui::Checkbox( "Fade##SpawnRate", &emitter.rate.fade );
+	drawDoubleSpacer();
 
-			if( emitter.rate.fade ) {
-				ImGui::Text( "Start" );
-				m_changed |= drawValueSet( emitter.rate.start, "SpawnRateStart" );
-				ImGui::Text( "End" );
-				m_changed |= drawValueSet( emitter.rate.end, "SpawnRateEnd" );
-			}
-			else {
-				m_changed |= drawValueSet( emitter.rate.start, "Spawn Rate" );
-			}
-			ImGui::TreePop();
-		}
+	ImGui::Text( "Properties" );
+	drawSpacer();
 
-		if( ImGui::TreeNodeEx( "Multipliers", ImGuiTreeNodeFlags_Framed ) ) {
-			if( ImGui::TreeNodeEx( "Lifetime", ImGuiTreeNodeFlags_Framed ) ) {
-				m_changed |= drawValueSet( emitter.lifetime, "Lifetime" );
-				ImGui::TreePop();
-			}
 
-			if( ImGui::TreeNodeEx( "Number", ImGuiTreeNodeFlags_Framed ) ) {
-				m_changed |= drawValueSet( emitter.number, "Number" );
-				ImGui::TreePop();
-			}
+	if( ImGui::TreeNodeEx( "Position", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= drawValueSet( emitter.position, "Position" );
+		ImGui::TreePop();
+	}
 
-			if( ImGui::TreeNodeEx( "Velocity", ImGuiTreeNodeFlags_Framed ) ) {
-				m_changed |= drawValueSet( emitter.velocity, "Velocity" );
-				ImGui::TreePop();
-			}
+	if( ImGui::TreeNodeEx( "Activation", ImGuiTreeNodeFlags_Framed ) ) {
+		string buttonName;
+		if( emitter.activation.type == Gfx::Emitter::Pattern::Activation::Type::OnSpawn )
+			buttonName = "On Spawn";
+		else if( emitter.activation.type == Gfx::Emitter::Pattern::Activation::Type::Alpha )
+			buttonName = "Alpha";
+		else if( emitter.activation.type == Gfx::Emitter::Pattern::Activation::Type::OnDestruction )
+			buttonName = "On Destruction";
 
-			if( ImGui::TreeNodeEx( "Acceleration", ImGuiTreeNodeFlags_Framed ) ) {
-				m_changed |= drawValueSet( emitter.acceleration, "Acceleration" );
-				ImGui::TreePop();
-			}
+		if( ImGui::Button( buttonName.c_str() ) )
+			ImGui::OpenPopup( "##ActivationType" );
 
-			if( ImGui::TreeNodeEx( "Size", ImGuiTreeNodeFlags_Framed ) ) {
-				m_changed |= drawValueSet( emitter.size, "Size" );
-				ImGui::TreePop();
-			}
+		if( ImGui::BeginPopup( "##ActivationType",
+							   ImGuiWindowFlags_NoTitleBar |
+							   ImGuiWindowFlags_NoResize |
+							   ImGuiWindowFlags_NoMove |
+							   ImGuiWindowFlags_NoCollapse |
+							   ImGuiWindowFlags_NoScrollbar |
+							   ImGuiWindowFlags_NoScrollWithMouse |
+							   ImGuiWindowFlags_AlwaysAutoResize ) ) {
+			ImGui::PushID( "ActivationType" );
 
-			if( ImGui::TreeNodeEx( "Alpha", ImGuiTreeNodeFlags_Framed ) ) {
-				m_changed |= drawValueSet( emitter.alpha, "Alpha" );
-				ImGui::TreePop();
-			}
-
-			ImGui::TreePop();
-		}
-
-		if( ImGui::TreeNodeEx( "Patterns", ImGuiTreeNodeFlags_Framed ) ) {
-			for( size_t i = 0; i < emitter.patterns.size(); ++i ) {
-				Gfx::Particle::Pattern& pattern = emitter.patterns.at( i );
-
-				ImGui::Text( pattern.name.c_str() );
-
-				// Edit
-				ImGui::SameLine();
-				string buttonName = "Edit##" + std::to_string( i );
-				if( ImGui::Button( buttonName.c_str() ) ) {
-					m_tabs.push_back( &pattern );
-				}
-
-				// Remove
-				ImGui::SameLine();
-				buttonName = "Remove##" + std::to_string( i );
-				if( ImGui::Button( buttonName.c_str() ) ) {
-					m_changed = true;
-					emitter.patterns.erase( emitter.patterns.begin() + i );
-					i--;
-					continue;
-				}
-			}
-
-			if( ImGui::Button( "Add Pattern" ) ) {
-				emitter.patterns.push_back( m_defaultPattern );
+			if( ImGui::Button( "On Spawn" ) ) {
+				emitter.activation.type = Gfx::Emitter::Pattern::Activation::Type::OnSpawn;
 				m_changed = true;
+				ImGui::CloseCurrentPopup();
+			}
+			else if( ImGui::Button( "Alpha" ) ) {
+				emitter.activation.type = Gfx::Emitter::Pattern::Activation::Type::Alpha;
+				m_changed = true;
+				ImGui::CloseCurrentPopup();
+			}
+			else if( ImGui::Button( "On Destruction" ) ) {
+				emitter.activation.type = Gfx::Emitter::Pattern::Activation::Type::OnDestruction;
+				m_changed = true;
+				ImGui::CloseCurrentPopup();
 			}
 
-			ImGui::TreePop();
+			ImGui::PopID();
+			ImGui::EndPopup();
+		}
+
+		if( emitter.activation.type == Gfx::Emitter::Pattern::Activation::Type::Alpha ) {
+			ImGui::Text( "Start" );
+			m_changed |= drawValueSet( emitter.activation.start, "Start", true, 0.0f, 1.0f );
+			ImGui::Text( "End" );
+			m_changed |= drawValueSet( emitter.activation.end, "End", true, 0.0f, 1.0f );
 		}
 		ImGui::TreePop();
 	}
+
+	if( ImGui::TreeNodeEx( "Spawn Rate", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= ImGui::Checkbox( "Fade##SpawnRate", &emitter.rate.fade );
+
+		if( emitter.rate.fade ) {
+			ImGui::Text( "Start" );
+			m_changed |= drawValueSet( emitter.rate.start, "SpawnRateStart" );
+			ImGui::Text( "End" );
+			m_changed |= drawValueSet( emitter.rate.end, "SpawnRateEnd" );
+		}
+		else {
+			m_changed |= drawValueSet( emitter.rate.start, "SpawnRate" );
+		}
+		ImGui::TreePop();
+	}
+
+	drawSpacer();
+	ImGui::Text( "Multipliers" );
+	drawSpacer();
+
+	if( ImGui::TreeNodeEx( "Lifetime", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= drawValueSet( emitter.multipliers.lifetime, "Lifetime" );
+		ImGui::TreePop();
+	}
+
+	if( ImGui::TreeNodeEx( "Number", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= drawValueSet( emitter.multipliers.number, "Number" );
+		ImGui::TreePop();
+	}
+
+	if( ImGui::TreeNodeEx( "Velocity", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= drawValueSet( emitter.multipliers.velocity, "Velocity" );
+		ImGui::TreePop();
+	}
+
+	if( ImGui::TreeNodeEx( "Acceleration", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= drawValueSet( emitter.multipliers.acceleration, "Acceleration" );
+		ImGui::TreePop();
+	}
+
+	if( ImGui::TreeNodeEx( "Size", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= drawValueSet( emitter.multipliers.size, "Size" );
+		ImGui::TreePop();
+	}
+
+	if( ImGui::TreeNodeEx( "Alpha", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= drawValueSet( emitter.multipliers.alpha, "Alpha" );
+		ImGui::TreePop();
+	}
+
+	drawSpacer();
+	ImGui::Text( "Patterns" );
+	drawSpacer();
+
+	for( size_t i = 0; i < emitter.patterns.size(); ++i ) {
+		Gfx::Particle::Pattern& pattern = emitter.patterns.at( i );
+
+		ImGui::Text( pattern.name.c_str() );
+
+		// Edit
+		ImGui::SameLine();
+		string buttonName = "Edit##" + std::to_string( i );
+		if( ImGui::Button( buttonName.c_str() ) )
+			m_tabs.push_back( Tab{ false, &pattern } );
+
+		// Remove
+		ImGui::SameLine();
+		buttonName = "Remove##" + std::to_string( i );
+		if( ImGui::Button( buttonName.c_str() ) ) {
+			m_changed = true;
+			emitter.patterns.erase( emitter.patterns.begin() + i );
+			i--;
+			continue;
+		}
+	}
+
+	if( ImGui::Button( "Add Pattern" ) ) {
+		emitter.patterns.push_back( m_defaultPattern );
+		m_changed = true;
+	}
+
+	drawSpacer();
+	ImGui::Text( "Pattern Sets" );
+	drawSpacer();
+
+	ImGui::Indent();
+	for( size_t i = 0; i < emitter.sets.size(); ++i ) {
+		ImGui::PushID( int( i ) );
+
+		Gfx::Particle::PatternSet& set = emitter.sets.at( i );
+
+		m_changed |= ImGui::Checkbox( "Random", &set.random );
+
+		ImGui::Spacing();
+
+		for( size_t j = 0; j < set.patterns.size(); ++j ) {
+			Gfx::Particle::Pattern& pattern = set.patterns.at( j );
+
+			ImGui::Text( pattern.name.c_str() );
+
+			// Edit
+			ImGui::SameLine();
+			string buttonName = "Edit##" + std::to_string( j );
+			if( ImGui::Button( buttonName.c_str() ) )
+				m_tabs.push_back( Tab{ false, &pattern } );
+
+			// Remove
+			ImGui::SameLine();
+			buttonName = "Remove##" + std::to_string( i );
+			if( ImGui::Button( buttonName.c_str() ) ) {
+				m_changed = true;
+				set.patterns.erase( set.patterns.begin() + i );
+				i--;
+				continue;
+			}
+		}
+
+		if( ImGui::Button( "Add Pattern" ) ) {
+			set.patterns.push_back( m_defaultPattern );
+			m_changed = true;
+		}
+
+		drawSpacer();
+
+		ImGui::PopID();
+	}
+	ImGui::Unindent();
+
+	if( ImGui::Button( "Add Pattern Set" ) ) {
+		emitter.sets.push_back( Gfx::Particle::PatternSet() );
+		m_changed = true;
+	}
+
+	drawDoubleSpacer();
 
 	ImGui::PopID();
 }
@@ -682,16 +927,19 @@ void BulletPatternEditor::renderPatternTreeView() {
 
 	m_patternTreeID = 0;
 
-	vector< Gfx::Particle::Pattern* > stack;
-	renderPatternTreeNode( m_basePattern, stack );
+	vector< Tab > stack;
+	if( m_emitter )
+		renderEmitterTreeNode( m_baseEmitter, stack );
+	else
+		renderPatternTreeNode( m_basePattern, stack );
 
 	ImGui::End();
 }
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderPatternTreeNode( Gfx::Particle::Pattern& pattern, vector< Gfx::Particle::Pattern* > stack ) {
-	stack.push_back( &pattern );
+void BulletPatternEditor::renderPatternTreeNode( Gfx::Particle::Pattern& pattern, vector< Tab >& stack ) {
+	stack.push_back( Tab{ false, &pattern } );
 	
 	if( ImGui::Button( ( pattern.name + "###" + std::to_string( m_patternTreeID++ ) ).c_str() ) ) {
 		m_tabs = stack;
@@ -700,29 +948,81 @@ void BulletPatternEditor::renderPatternTreeNode( Gfx::Particle::Pattern& pattern
 	if( stack.size() > 1u ) {
 		ImGui::SameLine();
 		if( ImGui::Button( ( "Remove##" + std::to_string( m_patternTreeID++ ) ).c_str() ) ) {
+			Gfx::Emitter::Pattern* parent = static_cast< Gfx::Emitter::Pattern* >( stack.at( stack.size() - 2u ).pattern );
+			
 			bool flag = false;
-			for( Gfx::Particle::Pattern::Emitter& emitter : stack.at( stack.size() - 2u )->emitters ) {
-				for( size_t i = 0; i < emitter.patterns.size(); ++i ) {
-					if( &emitter.patterns.at( i ) == &pattern ) {
-						emitter.patterns.erase( emitter.patterns.begin() + i );
-						flag = true;
-						m_changed = true;
-						break;
-					}
+			for( size_t i = 0; i < parent->patterns.size(); ++i )
+				if( &parent->patterns.at( i ) == &pattern ) {
+					parent->patterns.erase( parent->patterns.begin() + i );
+					flag = true;
 				}
 
-				if( flag ) 
-					break;
+			if( !flag ) {
+				for( Gfx::Particle::PatternSet& set : parent->sets ) {
+					for( size_t i = 0; i < set.patterns.size(); ++i ) {
+						if( &set.patterns.at( i ) == &pattern ) {
+							set.patterns.erase( set.patterns.begin() + i );
+							flag = true;
+							break;
+						}
+					}
+
+					if( flag )
+						break;
+				}
 			}
 		}
 	}
 
 	ImGui::Indent();
 
-	for( Gfx::Particle::Pattern::Emitter& emitter : pattern.emitters ) {
-		for( Gfx::Particle::Pattern& pattern : emitter.patterns ) {
+	for( Gfx::Emitter::Pattern& emitter : pattern.emitters )
+		renderEmitterTreeNode( emitter, stack );
+
+	ImGui::Unindent();
+}
+
+//--------------------------------------------------------------------------------
+
+void BulletPatternEditor::renderEmitterTreeNode( Gfx::Emitter::Pattern& emitter, vector< Tab >& stack ) {
+	stack.push_back( Tab{ false, &emitter } );
+
+
+
+	if( ImGui::Button( ( emitter.name + "###" + std::to_string( m_patternTreeID++ ) ).c_str() ) ) {
+		m_tabs = stack;
+	}
+
+	if( stack.size() > 1u ) {
+		ImGui::SameLine();
+		if( ImGui::Button( ( "Remove##" + std::to_string( m_patternTreeID++ ) ).c_str() ) ) {
+			Gfx::Particle::Pattern* parent = static_cast< Gfx::Particle::Pattern* >( stack.at( stack.size() - 2u ).pattern );
+			
+			for( size_t i = 0; i < parent->emitters.size(); ++i ) {
+				if( &parent->emitters.at( i ) == &emitter ) {
+					parent->emitters.erase( parent->emitters.begin() + i );
+					break;
+				}
+			}
+		}
+	}
+
+	ImGui::Indent();
+
+	for( Gfx::Particle::Pattern& pattern : emitter.patterns )
+			renderPatternTreeNode( pattern, stack );
+
+	for( Gfx::Particle::PatternSet& set : emitter.sets ) {
+		if( set.random )
+			ImGui::Text( "Random Set" );
+		else
+			ImGui::Text( "Sequence" );
+
+		ImGui::Indent();
+		for( Gfx::Particle::Pattern& pattern : set.patterns ) {
 			renderPatternTreeNode( pattern, stack );
 		}
+		ImGui::Unindent();
 	}
 
 	ImGui::Unindent();

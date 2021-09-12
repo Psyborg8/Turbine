@@ -317,7 +317,7 @@ void Player::jump( bool pressed )
 			jumpData.canJump = false;
 			jumpData.isJumping = true;
 
-			Gfx::Particle::spawnParticle( this, spriteData.particlePatterns.jump, getPosition() );
+			Gfx::Particle::spawn( this, spriteData.particlePatterns.jump, getPosition() );
 
 			soundData.players.jump.play();
 		}

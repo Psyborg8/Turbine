@@ -115,6 +115,22 @@ struct Vec2 {
 //================================================================================
 
 template< class T >
+struct ValueSet {
+	T min;
+	T max;
+	T value;
+
+	bool random;
+};
+
+void processSet( Math::ValueSet< int >& set );
+void processSet( Math::ValueSet< float >& set );
+void processSet( Math::ValueSet< Math::Vec2 >& set );
+void processSet( Math::ValueSet< Math::Color >& set );
+
+//================================================================================
+
+template< class T >
 T mix( T a, T b, float alpha ) {
 	return a + ( b - a ) * alpha;
 }

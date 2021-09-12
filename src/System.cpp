@@ -183,6 +183,7 @@ void update() {
 	Debug::startTimer( "System::Cleanup" );
 	Object::cleanupObjects();
 	Gfx::Particle::cleanup();
+	Gfx::Emitter::cleanup();
 	Debug::stopTimer( "System::Cleanup" );
 
 	// Render

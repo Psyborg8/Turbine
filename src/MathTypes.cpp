@@ -455,6 +455,46 @@ Vec2& Vec2::operator/=( const float& rh ) {
 	return *this;
 }
 
+//--------------------------------------------------------------------------------
+
+// ValueSet
+
+//--------------------------------------------------------------------------------
+
+void processSet( Math::ValueSet< int >& set ) {
+	if( set.random )
+		set.value = Random::getRandomIntInRange( set.min, set.max );
+	else
+		set.value = set.min;
+}
+
+//--------------------------------------------------------------------------------
+
+void processSet( Math::ValueSet< float >& set ) {
+	if( set.random )
+		set.value = Random::getRandomFloatInRange( set.min, set.max );
+	else
+		set.value = set.min;
+}
+
+//--------------------------------------------------------------------------------
+
+void processSet( Math::ValueSet< Math::Vec2 >& set ) {
+	if( set.random )
+		set.value = Random::getRandomVec2InRange( set.min, set.max );
+	else
+		set.value = set.min;
+}
+
+//--------------------------------------------------------------------------------
+
+void processSet( Math::ValueSet< Math::Color >& set ) {
+	if( set.random )
+		set.value = Random::getRandomColorInRange( set.min, set.max, Random::RandomColorType::MixRGB );
+	else
+		set.value = set.min;
+}
+
 //================================================================================
 
 } // namespace Math

@@ -1,9 +1,9 @@
 {
-    "name": "Blue Explosion",
+    "name": "Red Explosion",
     "initial": {
         "lifetime": {
             "min": 500,
-            "max": 2000,
+            "max": 1000,
             "random": true
         },
         "position": {
@@ -29,14 +29,14 @@
             "random": true
         },
         "velocity": {
-            "min": 50.0,
+            "min": 30.0,
             "max": 100.0,
             "random": true
         },
         "acceleration": {
             "min": {
                 "x": 0.0,
-                "y": 100.0
+                "y": 0.0
             },
             "max": {
                 "x": 0.0,
@@ -45,20 +45,20 @@
             "random": false
         },
         "size": {
-            "min": 0.4,
-            "max": 0.6,
-            "random": true
+            "min": 1.0,
+            "max": 0.0,
+            "random": false
         },
         "number": {
             "min": 15,
-            "max": 0,
-            "random": false
+            "max": 30,
+            "random": true
         },
         "color": {
             "min": {
-                "red": 0.0,
-                "green": 0.74,
-                "blue": 1.0,
+                "red": 0.93,
+                "green": 0.18,
+                "blue": 0.18,
                 "alpha": 1.0
             },
             "max": {
@@ -73,7 +73,7 @@
     "fade": {
         "velocity": {
             "start": {
-                "min": 0.0,
+                "min": 1.0,
                 "max": 0.0,
                 "random": false
             },
@@ -87,7 +87,7 @@
         },
         "acceleration": {
             "start": {
-                "min": 0.0,
+                "min": 1.0,
                 "max": 0.0,
                 "random": false
             },
@@ -110,7 +110,7 @@
                 "max": 0.0,
                 "random": false
             },
-            "active": true
+            "active": false
         },
         "color": {
             "target": {
@@ -118,7 +118,7 @@
                     "red": 0.0,
                     "green": 0.0,
                     "blue": 0.0,
-                    "alpha": 1.0
+                    "alpha": 0.0
                 },
                 "max": {
                     "red": 0.0,

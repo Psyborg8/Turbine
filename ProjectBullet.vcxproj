@@ -33,6 +33,7 @@
     <ClCompile Include="deps\ImGui\imgui_draw.cpp" />
     <ClCompile Include="deps\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="src\BulletPatternEditor.cpp" />
+    <ClCompile Include="src\Emitter.cpp" />
     <ClCompile Include="src\Particle.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\CameraVolume.cpp" />
@@ -42,6 +43,7 @@
     <ClCompile Include="src\GameTimer.cpp" />
     <ClCompile Include="src\Map.cpp" />
     <ClCompile Include="src\Object.cpp" />
+    <ClCompile Include="src\Patterns.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\ProjectBullet.cpp" />
@@ -67,6 +69,7 @@
     <ClInclude Include="deps\ImGui\imstb_textedit.h" />
     <ClInclude Include="deps\ImGui\imstb_truetype.h" />
     <ClInclude Include="src\BulletPatternEditor.h" />
+    <ClInclude Include="src\Emitter.h" />
     <ClInclude Include="src\Particle.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\CameraVolume.h" />
@@ -76,6 +79,7 @@
     <ClInclude Include="src\GameTimer.h" />
     <ClInclude Include="src\Map.h" />
     <ClInclude Include="src\Object.h" />
+    <ClInclude Include="src\Patterns.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\Input.h" />
     <ClInclude Include="src\Random.h" />

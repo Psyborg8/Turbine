@@ -13,6 +13,8 @@
 #include "Player.h"
 #include "System.h"
 #include "CameraVolume.h"
+#include "Emitter.h"
+#include "Particle.h"
 
 #include "Debug.h"
 
@@ -215,8 +217,6 @@ void loadMap( string name ) {
 	maps.push_back( map );
 
 	Debug::stopTimer( "Map::Load" );
-
-	Debug::addMessage( "Map \"" + name + "\" loaded successfully.", Debug::DebugType::Info );
 }
 
 //--------------------------------------------------------------------------------
@@ -314,6 +314,8 @@ bool loadLayer( const rapidjson::Value& data, ObjectLayer& layer, Map& map ) {
 					getInt( property, "value", p.objectValue );
 				if( p.type == "string" )
 					getString( property, "value", p.stringValue );
+				if( p.type == "file" )
+					getString( property, "value", p.stringValue );
 
 				object.properties.push_back( p );
 			}
@@ -367,7 +369,7 @@ bool loadTileset( const rapidjson::Value& data, Tileset& tileset, Map& map ) {
 //================================================================================
 
 void constructMap( string name, Object* world ) {
-	Debug::addMessage( "Constructing Map \"" + name + "\"", Debug::DebugType::Info );
+	Debug::addMessage( "Constructing Map: " + name, Debug::DebugType::Info );
 	Debug::startTimer( "Map::Construct" );
 
 	// Constructing map without parent will leak memory
@@ -433,6 +435,7 @@ void constructMap( string name, Object* world ) {
 					rect.setSize( tileset.tileSize.sf() );
 					rect.setFillColor( sf::Color( 0u, 0u, 0u, 64u ) );
 					texture.draw( rect );
+					Debug::incDrawCall();
 				}
 
 				if( layer.name == "Terrain" ) {
@@ -480,7 +483,6 @@ void constructMap( string name, Object* world ) {
 	terrain->setVisibility( true );
 
 	Debug::stopTimer( "Map::Construct" );
-	Debug::addMessage( "Map \"" + name + "\" constructed successfully.", Debug::DebugType::Info );
 }
 
 //--------------------------------------------------------------------------------
@@ -580,6 +582,25 @@ void constructObject( const MapObject& object, Map& map, Object* world ) {
 				continue;
 			}
 		}
+	}
+
+	if( object.type == "Emitter" ) {	
+		const auto it = std::find_if( object.properties.begin(), object.properties.end(),
+									  []( const Property& property ) {
+										  return property.name == "Pattern";
+									  } );
+		if( it == object.properties.end() )
+			return;
+
+		string path = it->stringValue;
+		const size_t pos = path.find( "/Bullets/" );
+		if( pos == string::npos )
+			return;
+
+		path = path.substr( pos + 9u );
+		Emitter::Pattern pattern = loadEmitter( path );
+
+		Emitter::spawn( world, pattern, object.position );
 	}
 
 	shared_ptr< Game::RigidRect > collider = Object::makeObject< Game::RigidRect >( world );
@@ -708,6 +729,7 @@ void renderMap( string name, MapLayer layer, Camera* camera ) {
 			Math::Vec2 position = chunk.position + tileLayer->position;
 			sprite.setPosition( position.sf() );
 			System::getWindow()->draw( sprite );
+			Debug::incDrawCall();
 		}
 	}
 	else
@@ -717,6 +739,7 @@ void renderMap( string name, MapLayer layer, Camera* camera ) {
 			Math::Vec2 position = chunk.position + tileLayer->position;
 			sprite.setPosition( position.sf() );
 			System::getWindow()->draw( sprite );
+			Debug::incDrawCall();
 		}
 	}
 }

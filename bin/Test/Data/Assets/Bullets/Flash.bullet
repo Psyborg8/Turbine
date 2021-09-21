@@ -1,10 +1,10 @@
 {
-    "name": "Red Explosion",
+    "name": "Flash",
     "initial": {
         "lifetime": {
-            "min": 1000,
-            "max": 2000,
-            "random": true
+            "min": 50,
+            "max": 0,
+            "random": false
         },
         "position": {
             "min": {
@@ -19,24 +19,24 @@
         },
         "direction": {
             "min": {
-                "x": 1.0,
-                "y": 1.0
+                "x": 0.0,
+                "y": 0.0
             },
             "max": {
-                "x": -1.0,
-                "y": -1.0
+                "x": 0.0,
+                "y": 0.0
             },
-            "random": true
+            "random": false
         },
         "velocity": {
-            "min": 30.0,
-            "max": 100.0,
-            "random": true
+            "min": 0.0,
+            "max": 0.0,
+            "random": false
         },
         "acceleration": {
             "min": {
                 "x": 0.0,
-                "y": 75.0
+                "y": 0.0
             },
             "max": {
                 "x": 0.0,
@@ -45,20 +45,20 @@
             "random": false
         },
         "size": {
-            "min": 1.0,
+            "min": 10.0,
             "max": 0.0,
             "random": false
         },
         "number": {
-            "min": 15,
-            "max": 30,
-            "random": true
+            "min": 1,
+            "max": 0,
+            "random": false
         },
         "color": {
             "min": {
-                "red": 0.93,
-                "green": 0.18,
-                "blue": 0.18,
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0,
                 "alpha": 1.0
             },
             "max": {
@@ -101,12 +101,12 @@
         },
         "size": {
             "start": {
-                "min": 1.0,
+                "min": 0.0,
                 "max": 0.0,
                 "random": false
             },
             "end": {
-                "min": 0.0,
+                "min": 1.0,
                 "max": 0.0,
                 "random": false
             },
@@ -131,7 +131,7 @@
             "r": false,
             "g": false,
             "b": false,
-            "a": true
+            "a": false
         }
     },
     "emitters": []

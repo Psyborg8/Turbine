@@ -20,15 +20,6 @@ namespace Worlds {
 void SFMLWorld::onSpawnChildren() {
 	World::onSpawnChildren();
 
-	m_physicsPage = makeObject< Debug::PhysicsWindow >( this );
-	m_physicsPage->setVisibility( false );
-
-	m_messageWindow = makeObject< Debug::MessageWindow >( this );
-	m_messageWindow->setVisibility( true );
-
-	m_joystickPage = makeObject< Debug::JoystickWindow >( this );
-	m_joystickPage->setVisibility( false );
-
 	m_timer = makeObject< Gfx::GameTimer >( this );
 	m_timer->setVisibility( true );
 
@@ -40,7 +31,7 @@ void SFMLWorld::onSpawnChildren() {
 void SFMLWorld::onStart() {
 	Gfx::Tileset::loadTileset( "Button Prompts", Math::Vec2( 64.0f, 64.0f ), Folders::Tilesets + "UI\\Button Prompts.png" );
 
-	m_currentMap = "Dungeon 1-2";
+	m_currentMap = "BulletTest";
 	Gfx::Map::loadMap( m_currentMap );
 	Gfx::Map::constructMap( m_currentMap, this );
 	m_backgroundColor = Math::Color( sf::Color( 22u, 22u, 22u, 255u ) );
@@ -148,24 +139,6 @@ void SFMLWorld::onMessage( string message ) {
 	}
 	if( message == "Player Restart" ) {
 		m_player->setSpawn( m_levelStart );
-		return;
-	}
-	if( message == "Flip Debug Page" ) {
-		m_timer->setVisibility( false );
-		m_physicsPage->setVisibility( false );
-		m_joystickPage->setVisibility( false );
-
-		if( m_debugPage == 0 )
-			m_physicsPage->setVisibility( true );
-		else if( m_debugPage == 1 )
-			m_joystickPage->setVisibility( true );
-		else
-			m_timer->setVisibility( true );
-
-		m_debugPage++;
-		if( m_debugPage > 3 )
-			m_debugPage = 0;
-
 		return;
 	}
 	if( message == "Dash" ) {

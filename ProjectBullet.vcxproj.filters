@@ -1,15 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Game">
-      <UniqueIdentifier>{26351a8f-7d6c-4536-9702-2687f7880e10}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Worlds">
-      <UniqueIdentifier>{f4c1bc11-48c7-4cd5-9cdc-5ab39a3f8a23}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game\Objects">
-      <UniqueIdentifier>{160e20d3-866a-44ec-98ee-db4952cda7f9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Deps">
       <UniqueIdentifier>{35c0f18e-64b4-4ee5-b269-dcdd631fa8b6}</UniqueIdentifier>
     </Filter>
@@ -37,11 +28,20 @@
     <Filter Include="~Turbine\Gfx">
       <UniqueIdentifier>{12a91a57-e64a-478c-b020-ab3bc0465dfc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Pattern Editor">
-      <UniqueIdentifier>{36cc6836-8f29-4f3b-878c-a0110b321522}</UniqueIdentifier>
-    </Filter>
     <Filter Include="~Turbine\Gfx\Particles">
       <UniqueIdentifier>{c44c215b-dac9-4150-86cf-5a68a6bda62d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="~Turbine\Game">
+      <UniqueIdentifier>{26351a8f-7d6c-4536-9702-2687f7880e10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="~Turbine\Game\Worlds">
+      <UniqueIdentifier>{f4c1bc11-48c7-4cd5-9cdc-5ab39a3f8a23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="~Turbine\Game\Objects">
+      <UniqueIdentifier>{160e20d3-866a-44ec-98ee-db4952cda7f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="~Turbine\Pattern Editor">
+      <UniqueIdentifier>{36cc6836-8f29-4f3b-878c-a0110b321522}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -153,7 +153,7 @@
       <Filter>~Turbine\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\Player.h">
-      <Filter>Game\Objects</Filter>
+      <Filter>~Turbine\Game\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Timer.h">
       <Filter>~Turbine\Math</Filter>
@@ -165,7 +165,7 @@
       <Filter>~Turbine\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\SFMLWorld.h">
-      <Filter>Game\Worlds</Filter>
+      <Filter>~Turbine\Game\Worlds</Filter>
     </ClInclude>
     <ClInclude Include="src\Camera.h">
       <Filter>~Turbine\Gfx</Filter>
@@ -198,7 +198,7 @@
       <Filter>~Turbine\Input</Filter>
     </ClInclude>
     <ClInclude Include="src\CameraVolume.h">
-      <Filter>Game\Objects</Filter>
+      <Filter>~Turbine\Game\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\UI.h">
       <Filter>~Turbine\Gfx</Filter>
@@ -228,7 +228,7 @@
       <Filter>Deps\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="src\BulletPatternEditor.h">
-      <Filter>Pattern Editor</Filter>
+      <Filter>~Turbine\Pattern Editor</Filter>
     </ClInclude>
     <ClInclude Include="src\Particle.h">
       <Filter>~Turbine\Gfx\Particles</Filter>

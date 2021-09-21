@@ -82,12 +82,69 @@ void Player::onSpawnChildren() {
 	// Debug
 	Input::bindButton( "Debug", bindings.controller.debug, bindings.keyboard.debug, bind( &Player::debug, this, _1 ) );
 
-	// Particles
-	
-
 	// Sounds
 	soundData.buffers.jump.loadFromFile( Folders::Sound + "Jump.wav" );
 	soundData.players.jump.setBuffer( soundData.buffers.jump );
+
+	// Console Commands
+	Debug::addCommand( "restart", std::bind( &Player::kill, this, true, true ) );
+	Debug::addCommand( "respawn", std::bind( &Player::kill, this, true, false ) );
+
+	Debug::addSetCommand( "player_movement_enabled", movementData.enabled );
+	Debug::addSetCommand( "player_movement_canMove", movementData.canMove );
+	Debug::addSetCommand( "player_movement_direction", movementData.direction );
+	Debug::addSetCommand( "player_movement_acceleration", movementData.acceleration );
+	Debug::addSetCommand( "player_movement_maxSpeed", movementData.maxSpeed );
+	Debug::addSetCommand( "player_movement_airMultiplier", movementData.airMultiplier );
+
+	Debug::addSetCommand( "player_gravity_enabled", gravityData.enabled );
+	Debug::addSetCommand( "player_gravity_power", gravityData.power );
+	Debug::addSetCommand( "player_gravity_max", gravityData.max );
+	Debug::addSetCommand( "player_gravity_min", gravityData.min );
+
+	Debug::addSetCommand( "player_friction_enabled", frictionData.enabled );
+	Debug::addSetCommand( "player_friction_power", frictionData.power );
+	Debug::addSetCommand( "player_friction_min", frictionData.min );
+	Debug::addSetCommand( "player_friction_max", frictionData.max );
+	Debug::addSetCommand( "player_friction_airMultiplier", frictionData.airMultiplier );
+
+	Debug::addSetCommand( "player_jump_enabled", jumpData.enabled );
+	Debug::addSetCommand( "player_jump_isJumping", jumpData.isJumping );
+	Debug::addSetCommand( "player_jump_canJump", jumpData.canJump );
+	Debug::addSetCommand( "player_jump_canJumpDown", jumpData.canJumpDown );
+	Debug::addSetCommand( "player_jump_isJumpingDown", jumpData.isJumpingDown );
+	Debug::addSetCommand( "player_jump_leniency", jumpData.leniency );
+	Debug::addSetCommand( "player_jump_power", jumpData.power );
+	Debug::addSetCommand( "player_jump_release", jumpData.release );
+
+	Debug::addSetCommand( "player_doubleJump_enabled", doubleJumpData.enabled );
+	Debug::addSetCommand( "player_doubleJump_canDoubleJump", doubleJumpData.canDoubleJump );
+	Debug::addSetCommand( "player_doubleJump_power", doubleJumpData.power );
+
+	Debug::addSetCommand( "player_attack_enabled", attackData.enabled );
+	Debug::addSetCommand( "player_attack_canAttack", attackData.canAttack );
+	Debug::addSetCommand( "player_attack_isAttacking", attackData.isAttacking );
+	Debug::addSetCommand( "player_attack_power", attackData.power );
+	Debug::addSetCommand( "player_attack_fallTransferMultiplier", attackData.fallTransferMultiplier );
+	Debug::addSetCommand( "player_attack_direction", attackData.direction );
+	Debug::addSetCommand( "player_attack_size", attackData.size );
+	Debug::addSetCommand( "player_attack_min", attackData.min );
+	Debug::addSetCommand( "player_attack_duration", attackData.duration );
+
+	Debug::addSetCommand( "player_dash_enabled", dashData.enabled );
+	Debug::addSetCommand( "player_dash_canDashBounce", dashData.canDash );
+	Debug::addSetCommand( "player_dash_power", dashData.power );
+	Debug::addSetCommand( "player_dash_release", dashData.release );
+	Debug::addSetCommand( "player_dash_cooldown", dashData.cooldown );
+	Debug::addSetCommand( "player_dash_duration", dashData.duration );
+	Debug::addSetCommand( "player_dash_animationStep", dashData.animationStep );
+
+	Debug::addSetCommand( "player_wallCling_enabled", wallClingData.enabled );
+	Debug::addSetCommand( "player_wallCling_isClinging", wallClingData.isClinging );
+	Debug::addSetCommand( "player_wallCling_power", wallClingData.power );
+	Debug::addSetCommand( "player_wallCling_leniency", wallClingData.leniency );
+	Debug::addSetCommand( "player_wallCling_min", wallClingData.min );
+	Debug::addSetCommand( "player_wallCling_max", wallClingData.max );
 }
 
 //--------------------------------------------------------------------------------
@@ -260,6 +317,7 @@ void Player::onRender() {
 	m_wallAttackCollider->render();
 
 	System::getWindow()->draw( m_rect );
+	Debug::incDrawCall();
 
 	Debug::stopTimer( "Player::Render" );
 }
@@ -316,8 +374,6 @@ void Player::jump( bool pressed )
 			m_velocity.y = -jumpData.power;
 			jumpData.canJump = false;
 			jumpData.isJumping = true;
-
-			Gfx::Particle::spawn( this, spriteData.particlePatterns.jump, getPosition() );
 
 			soundData.players.jump.play();
 		}

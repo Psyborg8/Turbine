@@ -104,7 +104,9 @@ void GameTimer::onRender() {
 	m_splitText.setScale( getWorld()->getCamera().scale( Math::Vec2( 0.1f, 0.1f ) ).sf() );
 
 	window->draw( m_timerText );
+	Debug::incDrawCall();
 	window->draw( m_splitText );
+	Debug::incDrawCall();
 	Debug::stopTimer( "GameTimer::Render" );
 }
 

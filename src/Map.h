@@ -48,8 +48,8 @@ public:
 	void set( string mapName, MapLayer layer ) { m_mapName = mapName; m_layer = layer; }
 
 private:
-	MapLayer m_layer;
-	string m_mapName;
+	MapLayer m_layer{ MapLayer::Background };
+	string m_mapName{ "" };
 };
 
 //--------------------------------------------------------------------------------

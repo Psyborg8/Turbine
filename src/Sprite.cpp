@@ -4,7 +4,10 @@
 
 //--------------------------------------------------------------------------------
 
+#include <filesystem>
+
 #include "System.h"
+#include "Debug.h"
 
 //================================================================================
 
@@ -24,6 +27,7 @@ struct Sprite {
 		sprite.scale( size.x, size.y );
 
 		System::getWindow()->draw( sprite );
+		Debug::incDrawCall();
 	}
 };
 
@@ -43,6 +47,13 @@ void loadSprite( string name, string folder ) {
 	sprite.name = name;
 
 	const string path = folder + name + ".png";
+	Debug::addMessage( "Loading Sprite: " + path );
+	
+	if( std::filesystem::exists( std::filesystem::path( path ) ) ) {
+		Debug::addMessage( "Sprite path " + path + " doesn't exist.", Debug::DebugType::Error );
+		return;
+	}
+
 	sprite.texture.loadFromFile( path );
 
 	sprites.push_back( sprite );
@@ -51,6 +62,8 @@ void loadSprite( string name, string folder ) {
 //--------------------------------------------------------------------------------
 
 void unloadSprite( string name ) {
+	Debug::addMessage( "Unloading Sprite: " + name );
+
 	const auto it = std::find_if( sprites.begin(), sprites.end(),
 								  [name]( const Sprite& sprite ) {
 									  return sprite.name == name;

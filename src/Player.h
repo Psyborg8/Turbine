@@ -102,12 +102,6 @@ public:
 		const Math::Color color{ 0.2f, 0.2f, 0.2f, 1.0f };
 
 		vector< shared_ptr< RigidRect > > dashShadows;
-
-		// Particles
-		struct {
-			Gfx::Particle::Pattern jump;
-			Gfx::Particle::Pattern wallSlash;
-		} particlePatterns;
 	} spriteData;
 
 	// Sound

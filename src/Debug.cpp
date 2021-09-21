@@ -7,6 +7,8 @@
 #include "System.h"
 #include "Player.h"
 
+#include <filesystem>
+
 //================================================================================
 
 namespace Debug {
@@ -31,20 +33,523 @@ struct DebugMessage {
 
 //--------------------------------------------------------------------------------
 
-vector< Timer > timers;
 vector< DebugMessage > messages;
+vector< Timer > timers;
+
+//================================================================================
+
+// Console
+
+//================================================================================
+
+struct Command {
+	string command;
+	size_t args;
+	function< void( vector< string > args ) > func;
+};
+
+struct SimpleCommand {
+	string name;
+	string helper;
+	function< void( string arg ) > func;
+};
 
 //--------------------------------------------------------------------------------
 
-sf::Font font;
+void callCommand( string command );
+
+//--------------------------------------------------------------------------------
+
+vector< Command > commands;
+vector< SimpleCommand > setCommands;
+vector< SimpleCommand > showCommands;
+vector< SimpleCommand > hideCommands;
+
+//--------------------------------------------------------------------------------
+
+void addSetCommand( string name, bool& value, string helper ) {
+	setCommands.push_back(
+		SimpleCommand{
+			name, helper, [&value]( const string& arg ) {
+				if( arg == "true" )
+					value = true;
+				else if( arg == "false" )
+					value = false;
+				else
+					addMessage( "true/false value expected.", DebugType::Error );
+			}
+		}
+	);
+}
+
+//--------------------------------------------------------------------------------
+
+void addSetCommand( string name, float& value, string helper ) {
+	setCommands.push_back(
+		SimpleCommand{
+			name, helper, [&value]( const string& arg ) { value = std::stof( arg ); }
+		}
+	);
+}
+
+//--------------------------------------------------------------------------------
+
+void addSetCommand( string name, int& value, string helper ) {
+	setCommands.push_back(
+		SimpleCommand{
+			name, helper, [&value]( const string& arg ) { value = std::stoi( arg ); }
+		}
+	);
+}
+
+//--------------------------------------------------------------------------------
+
+void addSetCommand( string name, unsigned int& value, string helper ) {
+	setCommands.push_back(
+		SimpleCommand{
+			name, helper, [&value]( const string& arg ) { value = std::stoi( arg ); }
+		}
+	);
+}
+
+//--------------------------------------------------------------------------------
+
+void addSetCommand( string name, size_t& value, string helper ) {
+	setCommands.push_back(
+		SimpleCommand{
+			name, helper, [&value]( const string& arg ) { value = std::stoi( arg ); }
+		}
+	);
+}
+
+//--------------------------------------------------------------------------------
+
+void addSetCommand( string name, Math::Vec2& value, string helper ) {
+
+}
+
+//--------------------------------------------------------------------------------
+
+void addSetCommand( string name, milliseconds& value, string helper ) {
+	setCommands.push_back(
+		SimpleCommand{
+			name, helper, [&value]( const string& arg ) { value = milliseconds( std::stoi( arg ) ); }
+		}
+	);
+}
+
+//--------------------------------------------------------------------------------
+
+void addShowCommand( string name, function< void() > callback, string helper ) {
+	showCommands.push_back(
+		SimpleCommand{
+			name, helper, [callback]( const string& arg ) { callback(); }
+		}
+	);
+}
+
+//--------------------------------------------------------------------------------
+
+void addHideCommand( string name, function< void() > callback, string helper ) {
+	hideCommands.push_back(
+		SimpleCommand{
+			name, helper, [callback]( const string& arg ) { callback(); }
+		}
+	);
+}
+
+//--------------------------------------------------------------------------------
+
+void addCommand( string command, size_t args, function< void( vector< string > args ) > func, string helper ) {
+	commands.push_back( Command{ command, args, func } );
+}
+
+//--------------------------------------------------------------------------------
+
+void addCommand( string command, function< void() > func, string helper ) {
+	commands.push_back( Command{ command, 0u, [func]( const vector< string >& args ) { func(); } } );
+}
+
+//--------------------------------------------------------------------------------
+
+void callCommand( string command ) {
+	vector< string > args;
+
+	// Args
+	char* arg;
+	char* context;
+	arg = strtok_s( command.data(), " ", &context );
+	while( arg ) {
+		args.push_back( string( arg ) );
+		arg = strtok_s( NULL, " ", &context );
+	}
+
+	if( args.empty() )
+		return;
+
+	// Show
+	if( args.at( 0 ) == "show" ) {
+		if( args.size() <= 1u )
+			goto error_argument;
+
+		const auto it = std::find_if( showCommands.begin(), showCommands.end(),
+								   [args]( const SimpleCommand& command ) {
+									   return command.name == args.at( 1 );
+								   } );
+
+		if( it == showCommands.end() )
+			goto error_argument_missing;
+
+		it->func( args.at( 1 ) );
+		return;
+	}
+
+	// Hide
+	if( args.at( 0 ) == "hide" ) {
+		if( args.size() <= 1u )
+			goto error_argument;
+
+		const auto it = std::find_if( hideCommands.begin(), hideCommands.end(),
+								   [args]( const SimpleCommand& command ) {
+									   return command.name == args.at( 1 );
+								   } );
+
+		if( it == hideCommands.end() )
+			goto error_argument_missing;
+
+		it->func( args.at( 1 ) );
+		return;
+	}
+
+	// Set
+	if( args.at( 0 ) == "set" ) {
+		if( args.size() <= 1u )
+			goto error_argument;
+		if( args.size() <= 2u )
+			goto error_argument;
+
+		const auto it = std::find_if( setCommands.begin(), setCommands.end(),
+								   [args]( const SimpleCommand& command ) {
+									   return command.name == args.at( 1 );
+								   } );
+
+		if( it == setCommands.end() )
+			goto error_argument_missing;
+
+		it->func( args.at( 1 ) );
+		return;
+	}
+
+	// Commands
+	{
+		const auto it = std::find_if( commands.begin(), commands.end(),
+									  [args]( const Command& command ) {
+										  return command.command == args.at( 0 );
+									  } );
+
+		if( it == commands.end() )
+			goto error_missing;
+
+		if( args.size() <= it->args )
+			goto error_argument;
+
+		it->func( args );
+		return;
+	}
+
+	// Errors
+error_missing:
+	addMessage( "Command \"" + args.at( 0 ) + "\" not recognized.", DebugType::Error );
+	return;
+
+error_argument:
+	addMessage( "Command \"" + command + "\" expects an argument.", DebugType::Error );
+	return;
+
+error_argument_missing:
+	addMessage( "Argument \"" + args.at( 1 ) + "\" not valid.", DebugType::Error );
+	return;
+}
+
+//================================================================================
+
+// Handler
+
+//================================================================================
+
+class DebugHandler : public Object {
+private:
+
+public:
+	DebugHandler() = default;
+
+public:
+	void onSpawnChildren() override;
+	void onUpdate( sf::Time deltaTime ) override;
+	void onRender() override;
+	void onEvent( sf::Event e ) override;
+
+public:
+	void show() { menu.open = true; }
+	void hide() { menu.open = false; }
+	void incDrawCall() { performance.draws++; }
+
+private:
+	struct {
+		bool open{ false };
+
+	} menu;
+
+	struct {
+		bool open{ false };
+		std::array< char, std::numeric_limits< uint16_t >::max() > buffer;
+	} console;
+
+	enum class PerformanceTab {
+		FPS,
+		Timers,
+	};
+
+	struct {
+		bool open{ false };
+
+		vector< sf::Time > deltaTimes;
+		vector< float > framerates;
+
+		vector< float > drawCalls;
+		int draws{ 0 };
+
+		PerformanceTab tab{ PerformanceTab::FPS };
+	} performance;
+};
+
+//--------------------------------------------------------------------------------
+
+shared_ptr< DebugHandler > handler;
+
+//--------------------------------------------------------------------------------
+
+void DebugHandler::onSpawnChildren() {
+	setVisibility( true );
+	console.buffer.fill( '\0' );
+
+	addShowCommand( "debug_menu", std::bind( &DebugHandler::show, this ) );
+	addShowCommand( "debug_console", [this] { console.open = true; } );
+	addShowCommand( "debug_performance", [this] { performance.open = true; } );
+
+	addHideCommand( "debug_menu", std::bind( &DebugHandler::hide, this ) );
+	addHideCommand( "debug_console", [this] { console.open = false; } );
+	addHideCommand( "debug_performance", [this] { performance.open = false; } );
+}
+
+//--------------------------------------------------------------------------------
+
+void DebugHandler::onUpdate( sf::Time deltaTime ) {
+	performance.deltaTimes.push_back( deltaTime );
+	if( performance.deltaTimes.size() > 1000u )
+		performance.deltaTimes.erase( performance.deltaTimes.begin() );
+
+	float totalTime = .0f;
+	for( sf::Time dt : performance.deltaTimes )
+		totalTime += dt.asSeconds();
+
+	const float averageTime = totalTime / performance.deltaTimes.size();
+	const float fps = 1.f / averageTime;
+
+	performance.framerates.push_back( fps );
+	if( performance.framerates.size() > 10000u )
+		performance.framerates.erase( performance.framerates.begin() );
+
+	performance.drawCalls.push_back( performance.draws );
+	performance.draws = 0;
+	if( performance.drawCalls.size() > 10000u )
+		performance.drawCalls.erase( performance.drawCalls.begin() );
+}
+
+//--------------------------------------------------------------------------------
+
+void DebugHandler::onRender() {
+	ImGui::PushID( "DebugHandler" );
+
+	if( menu.open ) {
+		ImGui::PushID( "Menu" );
+		ImGui::Begin( "Debug Menu", &menu.open,
+					  ImGuiWindowFlags_AlwaysAutoResize
+					  | ImGuiWindowFlags_NoResize
+					  | ImGuiWindowFlags_NoCollapse
+					  | ImGuiWindowFlags_NoScrollbar
+					  | ImGuiWindowFlags_NoMove );
+
+		if( ImGui::Button( "Console" ) )
+			console.open = !console.open;
+		if( ImGui::Button( "Performance" ) )
+			performance.open = !performance.open;
+
+		ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width - ImGui::GetWindowSize().x, 400.f ) );
+
+		ImGui::End();
+		ImGui::PopID();
+	}
+
+	if( console.open ) {
+		ImGui::PushID( "Console" );
+		ImGui::Begin( "Console", &console.open,
+					  ImGuiWindowFlags_NoResize
+					  | ImGuiWindowFlags_NoTitleBar
+					  | ImGuiWindowFlags_NoCollapse
+					  | ImGuiWindowFlags_NoScrollbar
+					  | ImGuiWindowFlags_NoMove
+					 );
+
+		ImGui::SetWindowSize( ImVec2( 1200.f, 537.f ) );
+		ImGui::SetWindowPos( ImVec2( ( System::getSystemInfo().width / 2.f ) - ( ImGui::GetWindowSize().x / 2.f ), .0f ) );
+
+		ImGui::BeginChild( "Message Box", ImVec2( 0.f, 500.f ), true,
+						   ImGuiWindowFlags_NoResize
+						   | ImGuiWindowFlags_NoTitleBar
+						   | ImGuiWindowFlags_NoCollapse
+						   | ImGuiWindowFlags_NoMove );
+
+		for( DebugMessage message : messages ) {
+			ImColor color;
+			if( message.type == DebugType::None )
+				color = ImColor( 150, 150, 150, int( message.alpha * 255.0f ) );
+			else if( message.type == DebugType::Info )
+				color = ImColor( 100, 200, 200, int( message.alpha * 255.0f ) );
+			else if( message.type == DebugType::Warning )
+				color = ImColor( 200, 150, 50, int( message.alpha * 255.0f ) );
+			else if( message.type == DebugType::Error )
+				color = ImColor( 200, 50, 50, int( message.alpha * 255.0f ) );
+			else if( message.type == DebugType::Input )
+				color = ImColor( 150, 100, 200, int( message.alpha * 255.0f ) );
+			else if( message.type == DebugType::Performance )
+				color = ImColor( 225, 180, 50, int( message.alpha * 255.0f ) );
+
+			ImGui::TextColored( color, message.text.c_str() );
+		}
+
+		ImGui::EndChild();
+
+		if( ImGui::InputText( "##Input", console.buffer.data(), std::numeric_limits< uint16_t >::max(), ImGuiInputTextFlags_EnterReturnsTrue ) ) {
+			callCommand( string( console.buffer.data() ) );
+			console.buffer.fill( '\0' );
+		}
+
+		ImGui::End();
+		ImGui::PopID();
+	}
+
+	if( performance.open ) {
+		ImGui::PushID( "Performance" );
+		ImGui::Begin( "Performance", &performance.open,
+					  ImGuiWindowFlags_AlwaysAutoResize
+					  | ImGuiWindowFlags_NoTitleBar
+					  | ImGuiWindowFlags_NoCollapse
+					  | ImGuiWindowFlags_NoMove );
+
+		ImGui::SetWindowFontScale( 1.1f );
+		ImGui::SetWindowPos( ImVec2( 0.f, 0.f ) );
+
+		if( ImGui::Button( "FPS" ) )
+			performance.tab = PerformanceTab::FPS;
+		ImGui::SameLine();
+		if( ImGui::Button( "Timers" ) )
+			performance.tab = PerformanceTab::Timers;
+
+		ImGui::Spacing();
+		ImGui::Spacing();
+
+		char buffer[ 1024 ];
+
+		if( performance.tab == PerformanceTab::FPS ) {
+			float totalTime = .0f;
+			for( sf::Time dt : performance.deltaTimes )
+				totalTime += dt.asSeconds();
+
+			const float averageTime = totalTime / performance.deltaTimes.size();
+			const int fps = int( 1.f / averageTime );
+			sprintf_s( buffer, "FPS: %i", fps );
+			ImGui::Text( buffer );
+
+			ImGui::PlotHistogram( "", performance.framerates.data(), int( performance.framerates.size() ), 0, (const char *)0, 0.f, 3000.f, ImVec2( 0.f, 100.f ) );
+
+			if( performance.drawCalls.size() > 0u ) {
+				ImGui::Spacing();
+				ImGui::Spacing();
+				sprintf_s( buffer, "Draw Calls: %i", int( *performance.drawCalls.begin() ) );
+				ImGui::Text( buffer );
+				ImGui::PlotHistogram( "", performance.drawCalls.data(), int( performance.drawCalls.size() ), 0, ( const char* )0, 0.f, (3.402823466e+38F), ImVec2( 0.f, 100.f ) );
+			}
+		}
+
+		if( performance.tab == PerformanceTab::Timers )
+		{
+			string format;
+			for( Timer timer : timers ) {
+				sprintf_s( buffer, "\n%s: %.2fms", timer.name.c_str(), getAverageTime( timer.name ) * 1000.f );
+				format += string( buffer );
+			}
+
+			ImGui::Text( format.c_str() );
+		}
+
+
+		ImGui::End();
+		ImGui::PopID();
+	}
+
+	ImGui::PopID();
+}
+
+//--------------------------------------------------------------------------------
+
+void DebugHandler::onEvent( sf::Event e ) {
+	if( e.type == sf::Event::KeyPressed ) {
+		if( e.key.shift && e.key.code == sf::Keyboard::Z ) {
+			menu.open = !menu.open;
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------
+
+void incDrawCall() {
+	handler->incDrawCall();
+}
+
+//================================================================================
+
+// UI
+
+//================================================================================
+
+void init( Object* world ) {
+	handler = Object::makeObject< DebugHandler >( world );
+}
+
+//--------------------------------------------------------------------------------
+
+void show() {
+	handler->show();
+}
+
+//--------------------------------------------------------------------------------
+
+void hide() {
+	handler->hide();
+}
+
+//================================================================================
+
+// Timers
 
 //================================================================================
 
 void startTimer( string name ) {
 	const auto it = std::find_if( timers.begin(), timers.end(),
-									[name]( const Timer& timer ) {
-										return timer.name == name;
-									} );
+								  [name]( const Timer& timer ) {
+									  return timer.name == name;
+								  } );
 
 	if( it != timers.end() ) {
 		it->clock.restart();
@@ -117,9 +622,13 @@ float getAverageTime( string name ) {
 	return total / vt.size();
 }
 
-//--------------------------------------------------------------------------------
+//================================================================================
 
-void addMessage( string message, DebugType type  ) {
+// Messages
+
+//================================================================================
+
+void addMessage( string message, DebugType type ) {
 	DebugMessage out;
 	out.text = message;
 	out.alpha = 1.0;
@@ -128,164 +637,15 @@ void addMessage( string message, DebugType type  ) {
 	messages.push_back( out );
 }
 
-//================================================================================
-
-void MessageWindow::onRender() {
-	ImGui::Begin( "Debug Messages", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground );
-	ImGui::SetWindowSize( ImVec2( 750.0f, float( System::getSystemInfo().height ) ) );
-	ImGui::SetWindowPos( ImVec2( float( System::getSystemInfo().width - 750.0f ), 0.0f ) );
-
-	for( size_t i = messages.size(); i > 0; --i ) {
-		ImColor color;
-		DebugMessage message = messages.at( i - 1u );
-
-		if( message.type == DebugType::None )
-			color = ImColor( 150, 150, 150, int( message.alpha * 255.0f ) );
-		else if( message.type == DebugType::Info )
-			color = ImColor( 100, 200, 200, int( message.alpha * 255.0f ) );
-		else if( message.type == DebugType::Warning )
-			color = ImColor( 200, 150, 50, int( message.alpha * 255.0f ) );
-		else if( message.type == DebugType::Error )
-			color = ImColor( 200, 50, 50, int( message.alpha * 255.0f ) );
-		else if( message.type == DebugType::Input )
-			color = ImColor( 150, 100, 200, int( message.alpha * 255.0f ) );
-		else if( message.type == DebugType::Performance )
-			color = ImColor( 225, 180, 50, int( message.alpha * 255.0f ) );
-
-		ImGui::TextColored( color, message.text.c_str() );
-	}
-
-	ImGui::End();
-}
-
 //--------------------------------------------------------------------------------
 
-void MessageWindow::onUpdate( sf::Time deltaTime ) {
-	// Messages
-	float y = 0.0;
-	for( int i = int( messages.size() ) - 1; i >= 0; --i ) {
-		DebugMessage& message = messages.at( i );
-		// Fade out message
-		message.alpha -= 0.1f * deltaTime.asSeconds();
-		// Delete invisible messages
-		if( message.alpha < 0.0f ) {
-			messages.erase( messages.begin() + i );
-			continue;
-		}
-	}
 }
 
 //================================================================================
 
-void JoystickWindow::onStart() {
-	font.loadFromFile( Folders::Fonts + "MonospaceTypewriter.ttf" );
-	m_text = sf::Text();
-	m_text.setCharacterSize( 40u );
-	m_text.setFont( font );
-	m_text.setOutlineColor( sf::Color::Black );
-	m_text.setOutlineThickness( 3.0f );
 
-	m_priority = static_cast< int >( RenderPriority::UI );
-}
 
-//--------------------------------------------------------------------------------
-
-void JoystickWindow::onUpdate( sf::Time deltaTime ) {
-	float x = sf::Joystick::getAxisPosition( 0, sf::Joystick::X );
-	float y = sf::Joystick::getAxisPosition( 0, sf::Joystick::Y );
-	float z = sf::Joystick::getAxisPosition( 0, sf::Joystick::Z );
-	float r = sf::Joystick::getAxisPosition( 0, sf::Joystick::R );
-	float u = sf::Joystick::getAxisPosition( 0, sf::Joystick::U ) + 100.0f;
-	float v = sf::Joystick::getAxisPosition( 0, sf::Joystick::V ) + 100.0f;
-	float povx = sf::Joystick::getAxisPosition( 0, sf::Joystick::PovX );
-	float povy = sf::Joystick::getAxisPosition( 0, sf::Joystick::PovY );
-
-	if( abs( x ) < 10.0f )
-		x = 0.0f;
-	if( abs( y ) < 10.0f )
-		y = 0.0f;
-	if( abs( z ) < 10.0f )
-		z = 0.0f;
-	if( abs( r ) < 10.0f )
-		r = 0.0f;
-	if( abs( u ) < 10.0f )
-		u = 0.0f;
-	if( abs( v ) < 10.0f )
-		v = 0.0f;
-	if( abs( povx ) < 10.0f )
-		povx = 0.0f;
-	if( abs( povy ) < 10.0f )
-		povy = 0.0f;
-
-	char format[] =
-		"Controller 0: \"%s\"\n"
-		"Product ID: %i\n"
-		"Vendor ID: %i\n\n"
-		"  Axis:\n"
-		"    X: %.2f\n"
-		"    Y: %.2f\n"
-		"    Z: %.2f\n"
-		"    R: %.2f\n"
-		"    U: %.2f\n"
-		"    V: %.2f\n"
-		" PovX: %.2f\n"
-		" PovY: %.2f\n\n"
-		"  Button:\n";
-
-	char buffer[ 1024 ];
-	sprintf_s( buffer, format,
-			   sf::Joystick::getIdentification( 0 ).name.toAnsiString().c_str(),
-			   sf::Joystick::getIdentification( 0 ).productId,
-			   sf::Joystick::getIdentification( 0 ).vendorId,
-			   x, y, z, r, u, v, povx, povy );
-
-	sf::String text = sf::String( buffer );
-	for( int button : buttons ) {
-		text += std::to_string( button );
-		text += " ";
-	}
-
-	m_text.setString( text );
-
-	sf::RenderWindow* window = System::getWindow();
-	sf::Vector2f pos = window->mapPixelToCoords( sf::Vector2i( 3, 0 ) );
-	m_text.setPosition( pos );
-}
-
-//--------------------------------------------------------------------------------
-
-void JoystickWindow::onRender() {
-	if( !m_visibility )
-		return;
-
-	m_text.setScale( getWorld()->getCamera().scale( Math::Vec2( 0.1f, 0.1f ) ).sf() );
-
-	sf::RenderWindow* window = System::getWindow();
-	window->draw( m_text );
-}
-
-//--------------------------------------------------------------------------------
-
-void JoystickWindow::onEvent( sf::Event e ) {
-	if( e.type == sf::Event::JoystickButtonPressed )
-		buttons.insert( e.joystickButton.button );
-	else if( e.type == sf::Event::JoystickButtonReleased )
-		buttons.erase( e.joystickButton.button );
-}
-
-//================================================================================
-
-void PhysicsWindow::onStart() {
-	font.loadFromFile( Folders::Fonts + "MonospaceTypewriter.ttf" );
-	m_text = sf::Text();
-	m_text.setCharacterSize( 20u );
-	m_text.setFont( font );
-	m_text.setLineSpacing( 0.9f );
-	m_text.setOutlineColor( sf::Color::Black );
-	m_text.setOutlineThickness( 3.0f );
-
-	m_priority = static_cast< int >( RenderPriority::UI );
-}
+/*
 
 //--------------------------------------------------------------------------------
 
@@ -383,18 +743,9 @@ void PhysicsWindow::onUpdate( sf::Time deltaTime ) {
 	m_text.setPosition( pos );
 }
 
-//--------------------------------------------------------------------------------
-
-void PhysicsWindow::onRender() {
-	if( !m_visibility )
-		return;
-
-	sf::RenderWindow* window = System::getWindow();
-	window->draw( m_text );
 }
-
-//--------------------------------------------------------------------------------
-
 }
 
 //================================================================================
+
+*/

@@ -179,9 +179,6 @@ namespace Worlds {
 //--------------------------------------------------------------------------------
 
 void BulletPatternEditor::onSpawnChildren() {
-	shared_ptr< Debug::MessageWindow > window = makeObject< Debug::MessageWindow >( this );
-	window->setVisibility( false );
-
 	m_defaultPattern.initial.size.min = 1.0f;
 	m_defaultPattern.initial.lifetime.min = 1000;
 	m_defaultPattern.initial.number.min = 1;
@@ -267,6 +264,20 @@ void BulletPatternEditor::onEvent( sf::Event e ) {
 			return;
 		}
 	}
+
+	if( e.type == sf::Event::KeyPressed ) {
+		if( e.key.control && e.key.code == sf::Keyboard::S ) {
+			Tab& tab = *m_tabs.rbegin();
+			if( tab.emitter ) {
+				Gfx::Emitter::Pattern* pattern = static_cast< Gfx::Emitter::Pattern* >( tab.pattern );
+				Gfx::saveEmitter( *pattern, pattern->name );
+			}
+			else {
+				Gfx::Particle::Pattern* pattern = static_cast< Gfx::Particle::Pattern* >( tab.pattern );
+				Gfx::savePattern( *pattern, pattern->name );
+			}
+		}
+	}
 }
 
 //--------------------------------------------------------------------------------
@@ -290,10 +301,12 @@ void BulletPatternEditor::onRender() {
 			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
 			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
 			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			continue;
 		}
@@ -306,18 +319,22 @@ void BulletPatternEditor::onRender() {
 			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
 			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			line[ 0 ].position = sf::Vector2f( -float( i ), 10000.0f );
 			line[ 1 ].position = sf::Vector2f( -float( i ), -10000.0f );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
 			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			line[ 0 ].position = sf::Vector2f( 10000.0f, -float( i ) );
 			line[ 1 ].position = sf::Vector2f( -10000.0f, -float( i ) );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			continue;
 		}
@@ -330,18 +347,22 @@ void BulletPatternEditor::onRender() {
 			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
 			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			line[ 0 ].position = sf::Vector2f( -float( i ), 10000.0f );
 			line[ 1 ].position = sf::Vector2f( -float( i ), -10000.0f );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
 			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			line[ 0 ].position = sf::Vector2f( 10000.0f, -float( i ) );
 			line[ 1 ].position = sf::Vector2f( -10000.0f, -float( i ) );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			continue;
 		}
@@ -354,22 +375,28 @@ void BulletPatternEditor::onRender() {
 			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
 			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			line[ 0 ].position = sf::Vector2f( -float( i ), 10000.0f );
 			line[ 1 ].position = sf::Vector2f( -float( i ), -10000.0f );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
 			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			line[ 0 ].position = sf::Vector2f( 10000.0f, -float( i ) );
 			line[ 1 ].position = sf::Vector2f( -10000.0f, -float( i ) );
 			window->draw( line, 2, sf::LineStrip );
+			Debug::incDrawCall();
 
 			continue;
 		}
 	}
+
+	ImGui::PushID( "PatternEditor" );
 
 	// Properties
 	ImGui::Begin( "Properties", NULL, 
@@ -485,6 +512,8 @@ void BulletPatternEditor::onRender() {
 	ImGui::End();
 
 	renderPatternTreeView();
+
+	ImGui::PopID();
 }
 
 //--------------------------------------------------------------------------------
@@ -938,7 +967,7 @@ void BulletPatternEditor::renderPatternTreeView() {
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderPatternTreeNode( Gfx::Particle::Pattern& pattern, vector< Tab >& stack ) {
+void BulletPatternEditor::renderPatternTreeNode( Gfx::Particle::Pattern& pattern, vector< Tab > stack ) {
 	stack.push_back( Tab{ false, &pattern } );
 	
 	if( ImGui::Button( ( pattern.name + "###" + std::to_string( m_patternTreeID++ ) ).c_str() ) ) {
@@ -984,8 +1013,8 @@ void BulletPatternEditor::renderPatternTreeNode( Gfx::Particle::Pattern& pattern
 
 //--------------------------------------------------------------------------------
 
-void BulletPatternEditor::renderEmitterTreeNode( Gfx::Emitter::Pattern& emitter, vector< Tab >& stack ) {
-	stack.push_back( Tab{ false, &emitter } );
+void BulletPatternEditor::renderEmitterTreeNode( Gfx::Emitter::Pattern& emitter, vector< Tab > stack ) {
+	stack.push_back( Tab{ true, &emitter } );
 
 
 

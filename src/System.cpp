@@ -64,17 +64,26 @@ bool init( int argc, char** argv ) {
 	// Init timers
 	Timers::init();
 
+	// Load World
+	Debug::startTimer( "System::Make World" );
+	//world = Object::makeObject< Worlds::SFMLWorld >( nullptr );
+	world = Object::makeObject< Worlds::BulletPatternEditor >( nullptr );
+	Debug::stopTimer( "System::Make World" );
+
+	// Init debug handler
+	Debug::init( world.get() );
+
+	Debug::addSetCommand( "draw_debug", systemInfo.drawDebug );
+	Debug::addSetCommand( "system_width", systemInfo.width );
+	Debug::addSetCommand( "system_height", systemInfo.height );
+
+
 	return true;
 }
 
 //--------------------------------------------------------------------------------
 
 int start() {
-	Debug::startTimer( "System::Make World" );
-	//world = Object::makeObject< Worlds::SFMLWorld >( nullptr );
-	world = Object::makeObject< Worlds::BulletPatternEditor >( nullptr );
-	Debug::stopTimer( "System::Make World" );
-
 	Input::start( world.get() );
 	
 	Debug::startTimer( "System::Start" );
@@ -155,6 +164,7 @@ void update() {
 			if( e.key.code == sf::Keyboard::Escape ) {
 				window.close();
 				ImGui::SFML::Shutdown();
+				return;
 			}
 		if( e.type == sf::Event::Resized ) {
 			systemInfo.width = e.size.width;
@@ -194,6 +204,7 @@ void update() {
 	world->render();
 	window.resetGLStates();
 	ImGui::SFML::Render();
+	window.resetGLStates();
 
 	Debug::stopTimer( "System::Render" );
 	Debug::startTimer( "System::Post Render" );

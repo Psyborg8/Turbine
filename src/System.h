@@ -17,6 +17,7 @@ namespace System {
 struct SystemInfo {
 	unsigned int width{ 1920 };
 	unsigned int height{ 1080 };
+	bool drawDebug{ false };
 };
 
 //================================================================================

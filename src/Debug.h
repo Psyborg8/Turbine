@@ -24,59 +24,38 @@ enum class DebugType {
 
 //--------------------------------------------------------------------------------
 
+// UI
+void init( Object* world );
+
+void show();
+
+void hide();
+
+// Console
+void addSetCommand( string name, bool& value, string helper = "" );
+void addSetCommand( string name, float& value, string helper = "" );
+void addSetCommand( string name, int& value, string helper = "" );
+void addSetCommand( string name, unsigned int& value, string helper = "" );
+void addSetCommand( string name, size_t& value, string helper = "" );
+void addSetCommand( string name, Math::Vec2& value, string helper = "" );
+void addSetCommand( string name, milliseconds& value, string helper = "" );
+
+void addShowCommand( string name, function< void() > callback, string helper = "" );
+void addHideCommand( string name, function< void() > callback, string helper = "" );
+
+void addCommand( string command, size_t args, function< void( vector< string > args ) > func, string helper = "" );
+void addCommand( string command, function< void() > func, string helper = "" );
+
+void addMessage( string message, DebugType type = DebugType::None );
+
+void incDrawCall();
+
+// Timers
 void startTimer( string name );
 
 void stopTimer( string name );
 
 float getAverageTime( string name );
-
-void addMessage( string message, DebugType type = DebugType::None );
-
-//--------------------------------------------------------------------------------
-
-class MessageWindow : public Object {
-public:
-	MessageWindow() = default;
-
-public:
-	// Events
-	void onUpdate( sf::Time deltaTime ) override;
-	void onRender() override;
-};
-
-//--------------------------------------------------------------------------------
-
-class JoystickWindow : public Object {
-public:
-	JoystickWindow() = default;
-
-public:
-	// Events
-	void onStart() override;
-	void onUpdate( sf::Time deltaTime ) override;
-	void onRender() override;
-	void onEvent( sf::Event e ) override;
-
-private:
-	sf::Text m_text;
-	set< int > buttons;
-};
-
-//--------------------------------------------------------------------------------
-
-class PhysicsWindow : public Object {
-public:
-	PhysicsWindow() = default;
-
-public:
-	// Events
-	void onStart() override;
-	void onUpdate( sf::Time deltaTime ) override;
-	void onRender() override;
-
-private:
-	sf::Text m_text;
-};
 
 //--------------------------------------------------------------------------------
 

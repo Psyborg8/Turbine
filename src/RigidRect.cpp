@@ -7,6 +7,7 @@
 #include "Collision.h"
 #include "System.h"
 #include "Tileset.h"
+#include "Debug.h"
 
 //================================================================================
 
@@ -30,8 +31,8 @@ RigidRect::RigidRect( Math::Vec2 position, Math::Vec2 size, Math::Color color = 
 //--------------------------------------------------------------------------------
 
 void RigidRect::onRender() {
-	if( m_visibility )
-		System::getWindow()->draw( m_rect );
+	System::getWindow()->draw( m_rect );
+	Debug::incDrawCall();
 }
 
 //--------------------------------------------------------------------------------

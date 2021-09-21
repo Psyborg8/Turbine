@@ -29,7 +29,7 @@ void Particle::onUpdate( sf::Time deltaTime ) {
 		if( m_duration <= 0ms )
 			return destroy();
 
-		m_alpha = 1.0f - m_duration.count() / m_pattern.initial.lifetime.value;
+		m_alpha = 1.0f - float( m_duration.count() ) / float( m_pattern.initial.lifetime.value );
 	}
 
 	// Fade Acceleration
@@ -83,6 +83,7 @@ void Particle::onPostUpdate( sf::Time deltaTime ) {
 void Particle::onRender() {
 	m_shape.setPosition( getPosition().sf() - getSize().sf() );
 	System::getWindow()->draw( m_shape );
+	Debug::incDrawCall();
 }
 
 //--------------------------------------------------------------------------------
@@ -98,6 +99,15 @@ void Particle::init( const Pattern& pattern ) {
 	setVisibility( true );
 
 	m_pattern = pattern;
+
+	// Fades
+	Math::processSet( m_pattern.fade.velocity.start );
+	Math::processSet( m_pattern.fade.velocity.end );
+	Math::processSet( m_pattern.fade.acceleration.start );
+	Math::processSet( m_pattern.fade.acceleration.end );
+	Math::processSet( m_pattern.fade.size.start );
+	Math::processSet( m_pattern.fade.size.end );
+	Math::processSet( m_pattern.fade.color.target );
 
 	// Lifetime
 	Math::processSet( m_pattern.initial.lifetime );
@@ -115,32 +125,33 @@ void Particle::init( const Pattern& pattern ) {
 
 	// Velocity
 	Math::processSet( m_pattern.initial.velocity );
+	Math::Vec2 velocity = m_pattern.initial.direction.value.normalize() * m_pattern.initial.velocity.value;
+	if( m_pattern.fade.velocity.x )
+		velocity.x *= m_pattern.fade.velocity.start.value;
+	else
+		velocity.y *= m_pattern.fade.velocity.start.value;
 
-	setVelocity( m_pattern.initial.direction.value.normalize() * m_pattern.initial.velocity.value );
+	setVelocity( velocity );
 
 	// Acceleration
 	Math::processSet( m_pattern.initial.acceleration );
 
 	// Size
 	Math::processSet( m_pattern.initial.size );
-	setSize( m_pattern.initial.size.value );
+	float size = m_pattern.initial.size.value;
+	if( m_pattern.fade.size.active )
+		size *= m_pattern.fade.size.start.value;
+
+	setSize( size );
 
 	// Color
 	Math::processSet( m_pattern.initial.color );
+	Math::Color color = m_pattern.initial.color.value;
 	m_shape.setFillColor( m_pattern.initial.color.value.sf() );
 
 	// Emitters
 	for( Emitter::Pattern emitter : m_pattern.emitters )
 		m_emitters.push_back( Emitter::spawn( this, emitter, getWorldPosition(), lifetime ) );
-
-	// Fades
-	Math::processSet( m_pattern.fade.velocity.start );
-	Math::processSet( m_pattern.fade.velocity.end );
-	Math::processSet( m_pattern.fade.acceleration.start );
-	Math::processSet( m_pattern.fade.acceleration.end );
-	Math::processSet( m_pattern.fade.size.start );
-	Math::processSet( m_pattern.fade.size.end );
-	Math::processSet( m_pattern.fade.color.target );
 }
 
 //================================================================================

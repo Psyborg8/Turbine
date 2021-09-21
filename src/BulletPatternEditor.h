@@ -39,8 +39,8 @@ public:
 	void renderPattern( Gfx::Particle::Pattern& pattern );
 	void renderEmitter( Gfx::Emitter::Pattern& emitter );
 	void renderPatternTreeView();
-	void renderPatternTreeNode( Gfx::Particle::Pattern& pattern, vector< Tab >& stack );
-	void renderEmitterTreeNode( Gfx::Emitter::Pattern& pattern, vector< Tab >& stack );
+	void renderPatternTreeNode( Gfx::Particle::Pattern& pattern, vector< Tab > stack );
+	void renderEmitterTreeNode( Gfx::Emitter::Pattern& pattern, vector< Tab > stack );
 
 private:
 	bool m_emitter{ true };

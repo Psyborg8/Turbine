@@ -5,7 +5,9 @@
 //--------------------------------------------------------------------------------
 
 #include <filesystem>
+
 #include "System.h"
+#include "Debug.h"
 
 //================================================================================
 
@@ -43,8 +45,12 @@ void loadTileset( string name, Math::Vec2 tileSize, string path ) {
 
 	tileset.name = name;
 
-	if( !std::filesystem::exists( std::filesystem::path( path ) ) )
+	Debug::addMessage( "Loading Tileset: " + name + " - " + path, Debug::DebugType::Info );
+
+	if( !std::filesystem::exists( std::filesystem::path( path ) ) ) {
+		Debug::addMessage( "Tileset path " + path + " not found", Debug::DebugType::Error );
 		return;
+	}
 
 	tileset.texture = make_shared< sf::Texture >();
 	tileset.texture->loadFromFile( path );
@@ -74,6 +80,7 @@ void loadTileset( string name, Math::Vec2 tileSize, string path ) {
 //--------------------------------------------------------------------------------
 
 void unloadTileset( string name ) {
+	Debug::addMessage( "Unloading Tileset", Debug::DebugType::Info );
 	const auto it = std::find_if( tilesets.begin(), tilesets.end(),
 								  [name]( const Tileset& tileset ) {
 									  return tileset.name == name;
@@ -95,6 +102,7 @@ void renderTile( string name, size_t index, sf::RenderTarget* target, Math::Vec2
 	tile.sprite->setPosition( pos.sf() );
 	tile.sprite->setScale( scale.sf() );
 	target->draw( *tile.sprite );
+	Debug::incDrawCall();
 }
 
 //--------------------------------------------------------------------------------

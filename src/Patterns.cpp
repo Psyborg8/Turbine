@@ -340,6 +340,7 @@ rapidjson::Value getValue( const Emitter::Pattern& value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
+	out.AddMember( "name", getValue( value.name ), *allocator );
 	out.AddMember( "lifetime", getValue( value.multipliers.lifetime ), *allocator );
 	out.AddMember( "velocity", getValue( value.multipliers.velocity ), *allocator );
 	out.AddMember( "acceleration", getValue( value.multipliers.acceleration ), *allocator );
@@ -354,7 +355,7 @@ rapidjson::Value getValue( const Emitter::Pattern& value ) {
 	out.AddMember( "spawnrate", getValue( value.rate ), *allocator );
 
 	out.AddMember( "patterns", getValue( value.patterns ), *allocator );
-	out.AddMember( "patternsets", getValue( value.patterns ), *allocator );
+	out.AddMember( "patternsets", getValue( value.sets ), *allocator );
 
 	return out;
 }
@@ -397,9 +398,13 @@ Particle::Pattern loadPattern( string name ) {
 
 	// Parse JSON
 	string path = Folders::Bullets + name + ".bullet";
+	Debug::addMessage( "Loading Pattern: " + path, Debug::DebugType::Info );
+
 	FILE* pFile;
-	if( fopen_s( &pFile, path.c_str(), "rb" ) )
+	if( fopen_s( &pFile, path.c_str(), "rb" ) ) {
+		Debug::addMessage( "Pattern " + path + " doesn't exist.", Debug::DebugType::Error );
 		return out;
+	}
 
 	char* buffer = new char[ 65536 ];
 	FileReadStream is( pFile, buffer, sizeof( buffer ) );
@@ -429,9 +434,13 @@ Emitter::Pattern loadEmitter( string name ) {
 
 	// Parse JSON
 	string path = Folders::Bullets + name + ".emitter";
+	Debug::addMessage( "Loading Emitter: " + path, Debug::DebugType::Info );
+
 	FILE* pFile;
-	if( fopen_s( &pFile, path.c_str(), "rb" ) )
+	if( fopen_s( &pFile, path.c_str(), "rb" ) ) {
+		Debug::addMessage( "Emitter " + path + " doesn't exist.", Debug::DebugType::Error );
 		return out;
+	}
 
 	char* buffer = new char[ 65536 ];
 	FileReadStream is( pFile, buffer, sizeof( buffer ) );
@@ -626,6 +635,8 @@ void getValue( const rapidjson::Value& value, Emitter::Pattern& out ) {
 		getValue( value[ "number" ], out.multipliers.number );
 	if( value.HasMember( "patterns" ) )
 		getValue( value[ "patterns" ], out.patterns );
+	if( value.HasMember( "patternsets" ) )
+		getValue( value[ "patternsets" ], out.sets );
 }
 
 //--------------------------------------------------------------------------------

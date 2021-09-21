@@ -1,0 +1,167 @@
+{
+    "name": "Embers",
+    "initial": {
+        "lifetime": {
+            "min": 1000,
+            "max": 2000,
+            "random": true
+        },
+        "position": {
+            "min": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "random": false
+        },
+        "direction": {
+            "min": {
+                "x": 1.0,
+                "y": -1.0
+            },
+            "max": {
+                "x": -1.0,
+                "y": -1.0
+            },
+            "random": true
+        },
+        "velocity": {
+            "min": 15.0,
+            "max": 30.0,
+            "random": true
+        },
+        "acceleration": {
+            "min": {
+                "x": 0.0,
+                "y": 20.0
+            },
+            "max": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "random": false
+        },
+        "number": {
+            "min": 1,
+            "max": 1,
+            "random": false
+        }
+    },
+    "fade": {
+        "velocity": {
+            "start": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "x": true,
+            "y": false
+        },
+        "acceleration": {
+            "start": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "x": false,
+            "y": false
+        },
+        "size": {
+            "start": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false
+            },
+            "end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false
+            },
+            "active": false
+        },
+        "color": {
+            "target": {
+                "min": {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 0.0
+                },
+                "max": {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 0.0
+                },
+                "random": false
+            },
+            "r": true,
+            "g": true,
+            "b": true,
+            "a": true
+        }
+    },
+    "emitters": [],
+    "shape": {
+        "type": 1,
+        "size": {
+            "min": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "max": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "random": false
+        },
+        "color": {
+            "min": {
+                "red": 1.0,
+                "green": 0.35,
+                "blue": 0.0,
+                "alpha": 1.0
+            },
+            "max": {
+                "red": 1.0,
+                "green": 0.23,
+                "blue": 0.0,
+                "alpha": 1.0
+            },
+            "random": true
+        },
+        "outlinecolor": {
+            "min": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0,
+                "alpha": 1.0
+            },
+            "max": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0,
+                "alpha": 1.0
+            },
+            "random": false
+        },
+        "outlinethickness": {
+            "min": 0.0,
+            "max": 0.0,
+            "random": false
+        }
+    }
+}

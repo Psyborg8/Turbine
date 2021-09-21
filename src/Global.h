@@ -90,6 +90,7 @@ static const string Tilesets = Assets + "Tilesets/";
 static const string Sprites = Assets + "Sprites/";
 static const string Fonts = Assets + "Fonts/";
 static const string Bullets = Assets + "Bullets/";
+static const string Particles = Assets + "Particles/";
 
 static const string Maps = Data + "Maps/";
 

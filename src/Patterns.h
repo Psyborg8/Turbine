@@ -28,42 +28,66 @@ namespace Particle {
 struct Pattern {
 	string name{ "New Pattern" };
 
+	struct Shape {
+		enum Type {
+			Circle,
+			Rect,
+			Texture,
+		} type{ Type::Texture };
+
+		Math::ValueSet< Math::Color > color{ Colors::WHITE };
+
+		Math::ValueSet< Math::Color > outlineColor{ Colors::WHITE };
+		Math::ValueSet< float > outlineThickness{ .0f };
+
+		string texture{ "circle_05" };
+		string shader{ "default" };
+
+		Math::ValueSet < Math::Vec2 > size{ Math::Vec2( 1.f, 1.f ) };
+		Math::ValueSet< float > rotation{ .0f };
+		Math::ValueSet< float > spin{ .0f };
+	} shape;
+
 	// Initial
 	struct Initial {
-		Math::ValueSet< int > lifetime;
-		Math::ValueSet< Math::Vec2 > position;
-		Math::ValueSet< Math::Vec2 > direction;
-		Math::ValueSet< float > velocity;
-		Math::ValueSet< Math::Vec2 > acceleration;
-		Math::ValueSet< float > size;
-		Math::ValueSet< int > number;
-		Math::ValueSet< Math::Color > color;
+		Math::ValueSet< int > lifetime{ 1000 };
+		Math::ValueSet< Math::Vec2 > position{ Math::Vec2() };
+		Math::ValueSet< Math::Vec2 > direction{ Math::Vec2() };
+		Math::ValueSet< float > velocity{ .0f };
+		Math::ValueSet< Math::Vec2 > acceleration{ Math::Vec2() };
+		Math::ValueSet< int > number{ 1 };
 	} initial;
 
 	// Fades
 	struct Fade {
 		struct Velocity {
-			Math::ValueSet< float > start;
-			Math::ValueSet< float > end;
-			bool x, y;
+			Math::ValueSet< float > start{ 1.f };
+			Math::ValueSet< float > end{ .0f };
+			bool x{ false }, y{ false };
 		} velocity;
 
 		struct Acceleration {
-			Math::ValueSet< float > start;
-			Math::ValueSet< float > end;
-			bool x, y;
+			Math::ValueSet< float > start{ 1.f };
+			Math::ValueSet< float > end{ .0f };
+			bool x{ false }, y{ false };
 		} acceleration;
 
 		struct Size {
-			Math::ValueSet< float > start;
-			Math::ValueSet< float > end;
-			bool active;
+			Math::ValueSet< float > start{ 1.f };
+			Math::ValueSet< float > end{ .0f };
+			bool active{ false };
 		} size;
 
 		struct Color {
-			Math::ValueSet< Math::Color > target;
-			bool r, g, b, a;
+			Math::ValueSet< Math::Color > target{ Math::Color( 1.f, 1.f, 1.f, .0f ) };
+			bool r{ false }, g{ false }, b{ false }, a{ false };
 		} color;
+
+		struct Spin {
+			Math::ValueSet< float > start{ 1.f };
+			Math::ValueSet< float > end{ .0f };
+			bool active{ false };
+		};
 
 	} fade;
 
@@ -112,7 +136,7 @@ namespace Emitter {
 struct Pattern {
 	// Properties
 	string name = "New Emitter";
-	Math::ValueSet< Math::Vec2 > position;
+	Math::ValueSet< Math::Vec2 > position{ Math::Vec2() };
 
 	// Activation
 	struct Activation {
@@ -122,25 +146,25 @@ struct Pattern {
 			OnDestruction
 		} type{ Type::OnSpawn };
 
-		Math::ValueSet< float > start;
-		Math::ValueSet< float > end;
+		Math::ValueSet< float > start{ 1.f };
+		Math::ValueSet< float > end{ 0.f };
 	} activation;
 
 	// Spawn Rate
 	struct SpawnRate {
-		Math::ValueSet< float > start;
-		Math::ValueSet< float > end;
+		Math::ValueSet< float > start{ 1.f };
+		Math::ValueSet< float > end{ 0.f };
 		bool fade{ false };
 	} rate;
 
 	// Multpliers
 	struct {
-		Math::ValueSet< float > lifetime;
-		Math::ValueSet< float > velocity;
-		Math::ValueSet< float > acceleration;
-		Math::ValueSet< float > size;
-		Math::ValueSet< float > alpha;
-		Math::ValueSet< float > number;
+		Math::ValueSet< float > lifetime{ 1.f };
+		Math::ValueSet< float > velocity{ 1.f };
+		Math::ValueSet< float > acceleration{ 1.f };
+		Math::ValueSet< float > size{ 1.f };
+		Math::ValueSet< float > alpha{ 1.f };
+		Math::ValueSet< float > number{ 1.f };
 	} multipliers;
 
 	// Pattern

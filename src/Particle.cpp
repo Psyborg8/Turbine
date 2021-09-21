@@ -10,6 +10,8 @@
 #include "System.h"
 #include "Random.h"
 #include "Emitter.h"
+#include "Particle.h"
+#include "Shader.h"
 
 //================================================================================
 
@@ -44,20 +46,20 @@ void Particle::onUpdate( sf::Time deltaTime ) {
 
 	// Fade Size
 	if( m_pattern.fade.size.active )
-		setSize( m_pattern.initial.size.value * Math::mix( m_pattern.fade.size.start.value, m_pattern.fade.size.end.value, m_alpha ) );
+		setSize( m_pattern.shape.size.value * Math::mix( m_pattern.fade.size.start.value, m_pattern.fade.size.end.value, m_alpha ) );
 
 	// Fade Colour
-	Math::Color color = m_pattern.initial.color.value;
+	Math::Color color = m_pattern.shape.color.value;
 	if( m_pattern.fade.color.r )
-		color.r = Math::mix( m_pattern.initial.color.value.r, m_pattern.fade.color.target.value.r, m_alpha );
+		color.r = Math::mix( m_pattern.shape.color.value.r, m_pattern.fade.color.target.value.r, m_alpha );
 	if( m_pattern.fade.color.g )
-		color.g = Math::mix( m_pattern.initial.color.value.g, m_pattern.fade.color.target.value.g, m_alpha );
+		color.g = Math::mix( m_pattern.shape.color.value.g, m_pattern.fade.color.target.value.g, m_alpha );
 	if( m_pattern.fade.color.b )
-		color.b = Math::mix( m_pattern.initial.color.value.b, m_pattern.fade.color.target.value.b, m_alpha );
+		color.b = Math::mix( m_pattern.shape.color.value.b, m_pattern.fade.color.target.value.b, m_alpha );
 	if( m_pattern.fade.color.a )
-		color.a = Math::mix( m_pattern.initial.color.value.a, m_pattern.fade.color.target.value.a, m_alpha );
+		color.a = Math::mix( m_pattern.shape.color.value.a, m_pattern.fade.color.target.value.a, m_alpha );
 
-	m_shape.setFillColor( color.sf() );
+	setColor( color );
 }
 
 //--------------------------------------------------------------------------------
@@ -81,8 +83,34 @@ void Particle::onPostUpdate( sf::Time deltaTime ) {
 //--------------------------------------------------------------------------------
 
 void Particle::onRender() {
-	m_shape.setPosition( getPosition().sf() - getSize().sf() );
-	System::getWindow()->draw( m_shape );
+	sf::Shader& shader = Gfx::Shader::get( m_pattern.shape.shader );
+	shader.setUniform( "texture", sf::Shader::CurrentTexture );
+	shader.setUniform( "alpha", m_alpha );
+
+	sf::RenderStates states;
+	states.shader = &shader;
+
+	if( m_pattern.shape.type != Pattern::Shape::Type::Texture )
+	{
+		Math::Vec2 size;
+		if( m_pattern.shape.type == Pattern::Shape::Type::Circle )
+			size = getSize();
+		else
+			size = getSize() / 2.f;
+		m_shape->setPosition( ( getPosition() - size ).sf() );
+
+		System::getWindow()->draw( *m_shape, states );
+	}
+	else
+	{
+		sf::Vector2f size = sf::Vector2f( m_sprite.getLocalBounds().width, m_sprite.getLocalBounds().height );
+		size.x *= m_sprite.getScale().x;
+		size.y *= m_sprite.getScale().y;
+		m_sprite.setPosition( ( getPosition() - size / 2.f ).sf() );
+
+		System::getWindow()->draw( m_sprite, states );
+	}
+
 	Debug::incDrawCall();
 }
 
@@ -136,18 +164,40 @@ void Particle::init( const Pattern& pattern ) {
 	// Acceleration
 	Math::processSet( m_pattern.initial.acceleration );
 
+	// Shape
+	if( m_pattern.shape.type == Pattern::Shape::Type::Circle ) {
+		shared_ptr< sf::CircleShape > shape = make_shared< sf::CircleShape >();
+		shape->setRadius( 1.f );
+		m_shape = shape;
+	}
+	else {
+		shared_ptr< sf::RectangleShape > shape = make_shared< sf::RectangleShape >();
+		shape->setSize( sf::Vector2f( 1.f, 1.f ) );
+		m_shape = shape;
+	}
+	if( m_pattern.shape.type == Pattern::Shape::Type::Texture ) {
+		if( !m_texture.loadFromFile( Folders::Particles + m_pattern.shape.texture + ".png" ) )
+			Debug::addMessage( "Particle " + m_pattern.shape.texture + " doesn't exist.", Debug::DebugType::Error );
+		m_sprite.setTexture( m_texture );
+	}
+
 	// Size
-	Math::processSet( m_pattern.initial.size );
-	float size = m_pattern.initial.size.value;
+	Math::processSet( m_pattern.shape.size );
+	float size = m_pattern.shape.size.value.x;
 	if( m_pattern.fade.size.active )
 		size *= m_pattern.fade.size.start.value;
 
-	setSize( size );
+	setSize( Math::Vec2( size, size ) );
 
 	// Color
-	Math::processSet( m_pattern.initial.color );
-	Math::Color color = m_pattern.initial.color.value;
-	m_shape.setFillColor( m_pattern.initial.color.value.sf() );
+	Math::processSet( m_pattern.shape.color );
+	m_shape->setFillColor( m_pattern.shape.color.value.sf() );
+
+	Math::processSet( m_pattern.shape.outlineColor );
+	m_shape->setOutlineColor( m_pattern.shape.outlineColor.value.sf() );
+
+	Math::processSet( m_pattern.shape.outlineThickness );
+	m_shape->setOutlineThickness( m_pattern.shape.outlineThickness.value );
 
 	// Emitters
 	for( Emitter::Pattern emitter : m_pattern.emitters )

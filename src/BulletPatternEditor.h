@@ -43,12 +43,11 @@ public:
 	void renderEmitterTreeNode( Gfx::Emitter::Pattern& pattern, vector< Tab > stack );
 
 private:
+	sf::VertexArray m_grid;
+
 	bool m_emitter{ true };
 	Gfx::Particle::Pattern m_basePattern;
 	Gfx::Emitter::Pattern m_baseEmitter;
-
-	Gfx::Particle::Pattern m_defaultPattern;
-	Gfx::Emitter::Pattern m_defaultEmitter;
 
 	bool m_useMouse{ false };
 	bool m_mouseDown{ false };
@@ -62,7 +61,6 @@ private:
 	vector< Tab > m_tabs;
 
 	char* m_renameBuffer;
-
 	bool m_styleEditorOpen;
 };
 

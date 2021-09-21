@@ -50,6 +50,7 @@
     <ClCompile Include="src\Random.cpp" />
     <ClCompile Include="src\RigidRect.cpp" />
     <ClCompile Include="src\SFMLWorld.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Sprite.cpp" />
     <ClCompile Include="src\System.cpp" />
     <ClCompile Include="src\MathTypes.cpp" />
@@ -86,6 +87,7 @@
     <ClInclude Include="src\RigidRect.h" />
     <ClInclude Include="src\SFMLWorld.h" />
     <ClInclude Include="src\Global.h" />
+    <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Sprite.h" />
     <ClInclude Include="src\System.h" />
     <ClInclude Include="src\MathTypes.h" />

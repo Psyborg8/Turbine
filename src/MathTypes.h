@@ -116,11 +116,13 @@ struct Vec2 {
 
 template< class T >
 struct ValueSet {
+	ValueSet( T def ) : min( def ), max( def ), value( def ){}
+
 	T min;
 	T max;
 	T value;
 
-	bool random;
+	bool random{ false };
 };
 
 void processSet( Math::ValueSet< int >& set );

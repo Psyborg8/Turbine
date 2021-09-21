@@ -179,31 +179,67 @@ namespace Worlds {
 //--------------------------------------------------------------------------------
 
 void BulletPatternEditor::onSpawnChildren() {
-	m_defaultPattern.initial.size.min = 1.0f;
-	m_defaultPattern.initial.lifetime.min = 1000;
-	m_defaultPattern.initial.number.min = 1;
-	m_defaultPattern.initial.color.min = Colors::WHITE;
-	m_defaultPattern.fade.acceleration.start.min = 1.0f;
-	m_defaultPattern.fade.color.target.min.a = 0.0f;
-	m_defaultPattern.fade.size.start.min = 1.0f;
-	m_defaultPattern.fade.velocity.start.min = 1.0f;
-
-	m_defaultEmitter.multipliers.acceleration.min = 1.0f;
-	m_defaultEmitter.multipliers.alpha.min = 1.0f;
-	m_defaultEmitter.multipliers.lifetime.min = 1.0f;
-	m_defaultEmitter.multipliers.number.min = 1.0f;
-	m_defaultEmitter.multipliers.size.min = 1.0f;
-	m_defaultEmitter.multipliers.velocity.min = 1.0f;
-
-	m_basePattern = m_defaultPattern;
-	m_baseEmitter = m_defaultEmitter;
-
 	if( m_emitter )
 		m_tabs.push_back( Tab{ true, &m_baseEmitter } );
 	else
 		m_tabs.push_back( Tab{ false, &m_basePattern } );
 
 	m_renameBuffer = new char[ 66565 ];
+
+	// Grid
+	m_grid.setPrimitiveType( sf::PrimitiveType::Lines );
+
+	std::function< void( float, sf::Color, sf::VertexArray& ) > drawGrid =
+		[]( float resolution, sf::Color color, sf::VertexArray& vArray ) {
+		sf::Vertex start, end;
+		start.color = color;
+		end.color = color;
+
+		float idx = resolution;
+		while( idx < 10000.f ) {
+			start.position = sf::Vector2f( idx, 10000.f );
+			end.position = sf::Vector2f( idx, -10000.f );
+			vArray.append( start );
+			vArray.append( end );
+
+			start.position = sf::Vector2f( -idx, 10000.f );
+			end.position = sf::Vector2f( -idx, -10000.f );
+			vArray.append( start );
+			vArray.append( end );
+
+			start.position = sf::Vector2f( 10000.f, idx );
+			end.position = sf::Vector2f( -10000.f, idx );
+			vArray.append( start );
+			vArray.append( end );
+
+			start.position = sf::Vector2f( 10000.f, -idx );
+			end.position = sf::Vector2f( -10000.f, -idx );
+			vArray.append( start );
+			vArray.append( end );
+
+			idx += resolution;
+		}
+	};
+
+	drawGrid( 16.f, sf::Color( 25u, 25u, 25u, 255u ), m_grid );
+	drawGrid( 64.f, sf::Color( 50u, 50u, 50u, 255u ), m_grid );
+	drawGrid( 256.f, sf::Color( 100u, 100u, 100u, 255u ), m_grid );
+
+	{
+		sf::Vertex start, end;
+		start.color = sf::Color( 200u, 200u, 200u, 255u );
+		end.color = sf::Color( 200u, 200u, 200u, 255u );
+
+		start.position = sf::Vector2f( 0.f, 10000.f );
+		end.position = sf::Vector2f( 0.f, -10000.f );
+		m_grid.append( start );
+		m_grid.append( end );
+
+		start.position = sf::Vector2f( 10000.f, 0.f );
+		end.position = sf::Vector2f( -10000.f, 0.f );
+		m_grid.append( start );
+		m_grid.append( end );
+	}
 }
 
 //--------------------------------------------------------------------------------
@@ -291,110 +327,7 @@ void BulletPatternEditor::onDestroy() {
 void BulletPatternEditor::onRender() {
 
 	sf::RenderWindow* window = System::getWindow();
-
-	for( int i = 10000; i >= 0; --i ) {
-		if( i == 0 ) {
-			sf::Vertex line[ 2 ];
-			line[ 0 ].color = sf::Color( 255, 255, 255, 255 );
-			line[ 1 ].color = sf::Color( 255, 255, 255, 255 );
-
-			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
-			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
-			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			continue;
-		}
-
-		if( i % 125 == 0 ) {
-			sf::Vertex line[ 2 ];
-			line[ 0 ].color = sf::Color( 125, 125, 125, 255 );
-			line[ 1 ].color = sf::Color( 125, 125, 125, 255 );
-
-			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
-			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			line[ 0 ].position = sf::Vector2f( -float( i ), 10000.0f );
-			line[ 1 ].position = sf::Vector2f( -float( i ), -10000.0f );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
-			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			line[ 0 ].position = sf::Vector2f( 10000.0f, -float( i ) );
-			line[ 1 ].position = sf::Vector2f( -10000.0f, -float( i ) );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			continue;
-		}
-
-		if( i % 25 == 0 ) {
-			sf::Vertex line[ 2 ];
-			line[ 0 ].color = sf::Color( 50, 50, 50, 255 );
-			line[ 1 ].color = sf::Color( 50, 50, 50, 255 );
-
-			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
-			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			line[ 0 ].position = sf::Vector2f( -float( i ), 10000.0f );
-			line[ 1 ].position = sf::Vector2f( -float( i ), -10000.0f );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
-			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			line[ 0 ].position = sf::Vector2f( 10000.0f, -float( i ) );
-			line[ 1 ].position = sf::Vector2f( -10000.0f, -float( i ) );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			continue;
-		}
-
-		if( i % 5 == 0 ) {
-			sf::Vertex line[ 2 ];
-			line[ 0 ].color = sf::Color( 10, 10, 10, 255 );
-			line[ 1 ].color = sf::Color( 10, 10, 10, 255 );
-
-			line[ 0 ].position = sf::Vector2f( float( i ), 10000.0f );
-			line[ 1 ].position = sf::Vector2f( float( i ), -10000.0f );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			line[ 0 ].position = sf::Vector2f( -float( i ), 10000.0f );
-			line[ 1 ].position = sf::Vector2f( -float( i ), -10000.0f );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			line[ 0 ].position = sf::Vector2f( 10000.0f, float( i ) );
-			line[ 1 ].position = sf::Vector2f( -10000.0f, float( i ) );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			line[ 0 ].position = sf::Vector2f( 10000.0f, -float( i ) );
-			line[ 1 ].position = sf::Vector2f( -10000.0f, -float( i ) );
-			window->draw( line, 2, sf::LineStrip );
-			Debug::incDrawCall();
-
-			continue;
-		}
-	}
+	window->draw( m_grid );
 
 	ImGui::PushID( "PatternEditor" );
 
@@ -407,12 +340,6 @@ void BulletPatternEditor::onRender() {
 
 	ImGui::SetWindowSize( ImVec2( 300.0f, float( System::getSystemInfo().height - 35 ) ) );
 	ImGui::SetWindowPos( ImVec2( 0.0f, 35.0f ) );
-
-	ImGui::SetWindowFontScale( 1.2f );
-	ImGui::Text( "PROPERTIES" );
-	ImGui::SetWindowFontScale( 1.0f );
-
-	drawDoubleSpacer();
 
 	m_patternID = 0;
 
@@ -521,7 +448,11 @@ void BulletPatternEditor::onRender() {
 void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 	ImGui::PushID( m_patternID++ );
 
+	ImGui::SetWindowFontScale( 1.2f );
 	ImGui::Text( pattern.name.c_str() );
+	ImGui::SetWindowFontScale( 1.0f );
+
+	drawSpacer();
 
 	if( ImGui::Button( "Rename" ) ) {
 		ImGui::OpenPopup( "Rename" );
@@ -556,121 +487,146 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 
 	drawDoubleSpacer();
 
-	ImGui::Text( "Lifetime" );
-	ImGui::Spacing();
-	m_changed |= drawValueSet( pattern.initial.lifetime, "Lifetime" );
+	ImGui::Text( "Render" );
 
+	drawSpacer();
 
-	drawDoubleSpacer();
+	if( ImGui::TreeNodeEx( "Size", ImGuiTreeNodeFlags_Framed ) ) {
+		ImGui::Text( "Size" );
+		ImGui::Spacing();
+		m_changed |= drawValueSet( pattern.shape.size, "Size" );
 
-	ImGui::Text( "Number" );
-	ImGui::Spacing();
-	m_changed |= drawValueSet( pattern.initial.number, "Number" );
+		ImGui::Spacing();
 
+		ImGui::PushID( "Size" );
+		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
 
-	drawDoubleSpacer();
+			m_changed |= ImGui::Checkbox( "Fade", &pattern.fade.size.active );
 
-	ImGui::Text( "Direction" );
-	ImGui::Spacing();
-	m_changed |= drawValueSet( pattern.initial.direction, "Direction" );
+			ImGui::Text( "Start" );
+			m_changed |= drawValueSet( pattern.fade.size.start, "FadeSizeStart", false, 0.0f, std::numeric_limits< float >::max() );
+			ImGui::Text( "End" );
+			m_changed |= drawValueSet( pattern.fade.size.end, "FadeSizeEnd", false, 0.0f, std::numeric_limits< float >::max() );
 
-	drawDoubleSpacer();
-
-	ImGui::Text( "Velocity" );
-	ImGui::Spacing();
-	m_changed |= drawValueSet( pattern.initial.velocity, "Velocity" );
-
-	ImGui::Spacing();
-
-	ImGui::PushID( "Velocity" );
-	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
-
-		m_changed |= ImGui::Checkbox( "X", &pattern.fade.velocity.x );
-		ImGui::SameLine();
-		m_changed |= ImGui::Checkbox( "Y", &pattern.fade.velocity.y );
-
-		ImGui::Text( "Start" );
-		m_changed |= drawValueSet( pattern.fade.velocity.start, "FadeVelocityStart" );
-		ImGui::Text( "End" );
-		m_changed |= drawValueSet( pattern.fade.velocity.end, "FadeVelocityEnd" );
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
 		ImGui::TreePop();
 	}
-	ImGui::PopID();
+
+	if( ImGui::TreeNodeEx( "Color", ImGuiTreeNodeFlags_Framed ) ) {
+		ImGui::Text( "Color" );
+		ImGui::Spacing();
+		m_changed |= drawValueSet( pattern.shape.color, "Color" );
+
+		ImGui::Spacing();
+
+		ImGui::PushID( "Color" );
+		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+			m_changed |= ImGui::Checkbox( "R", &pattern.fade.color.r );
+			ImGui::SameLine();
+			m_changed |= ImGui::Checkbox( "G", &pattern.fade.color.g );
+			ImGui::SameLine();
+			m_changed |= ImGui::Checkbox( "B", &pattern.fade.color.b );
+			ImGui::SameLine();
+			m_changed |= ImGui::Checkbox( "A", &pattern.fade.color.a );
+
+			ImGui::Text( "Target" );
+			m_changed |= drawValueSet( pattern.fade.color.target, "ColorTarget" );
+
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
+		ImGui::TreePop();
+	}
+
+	if( ImGui::TreeNodeEx( "Outline", ImGuiTreeNodeFlags_Framed ) ) {
+		ImGui::PushID( "Outline" );
+
+		ImGui::Text( "Color" );
+		m_changed |= drawValueSet( pattern.shape.outlineColor, "Outline Color" );
+
+		ImGui::Spacing();
+
+		ImGui::Text( "Thickness" );
+		m_changed |= drawValueSet( pattern.shape.outlineThickness, "Outline Thickness" );
+
+		ImGui::PopID();
+		ImGui::TreePop();
+	}
 
 	drawDoubleSpacer();
 
-	ImGui::Text( "Acceleration" );
-	ImGui::Spacing();
-	m_changed |= drawValueSet( pattern.initial.acceleration, "Acceleration" );
+	ImGui::Text( "Properties" );
 
-	ImGui::Spacing();
+	drawSpacer();
 
-	ImGui::PushID( "Acceleration" );
-	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
 
-		m_changed |= ImGui::Checkbox( "X", &pattern.fade.acceleration.x );
-		ImGui::SameLine();
-		m_changed |= ImGui::Checkbox( "Y", &pattern.fade.acceleration.y );
-
-		ImGui::Text( "Start" );
-		m_changed |= drawValueSet( pattern.fade.acceleration.start, "FadeAccelerationStart" );
-		ImGui::Text( "End" );
-		m_changed |= drawValueSet( pattern.fade.acceleration.end, "FadeAccelerationEnd" );
-
+	if( ImGui::TreeNodeEx( "Lifetime", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= drawValueSet( pattern.initial.lifetime, "Lifetime" );
 		ImGui::TreePop();
 	}
-	ImGui::PopID();
 
-	drawDoubleSpacer();
-
-	ImGui::Text( "Size" );
-	ImGui::Spacing();
-	m_changed |= drawValueSet( pattern.initial.size, "Size", false, 0.0f, std::numeric_limits< float >::max() );
-
-	ImGui::Spacing();
-
-	ImGui::PushID( "Size" );
-	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
-
-		m_changed |= ImGui::Checkbox( "Fade", &pattern.fade.size.active );
-
-		ImGui::Text( "Start" );
-		m_changed |= drawValueSet( pattern.fade.size.start, "FadeSizeStart", false, 0.0f, std::numeric_limits< float >::max() );
-		ImGui::Text( "End" );
-		m_changed |= drawValueSet( pattern.fade.size.end, "FadeSizeEnd", false, 0.0f, std::numeric_limits< float >::max() );
-
+	if( ImGui::TreeNodeEx( "Number", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= drawValueSet( pattern.initial.number, "Number" );
 		ImGui::TreePop();
 	}
-	ImGui::PopID();
 
-	drawDoubleSpacer();
+	if( ImGui::TreeNodeEx( "Velocity", ImGuiTreeNodeFlags_Framed ) ) {
+		ImGui::Text( "Direction" );
+		m_changed |= drawValueSet( pattern.initial.direction, "Direction" );
 
-	ImGui::Text( "Color" );
-	ImGui::Spacing();
-	m_changed |= drawValueSet( pattern.initial.color, "Color" );
+		ImGui::Spacing();
 
-	ImGui::Spacing();
+		ImGui::Text( "Speed" );
+		m_changed |= drawValueSet( pattern.initial.velocity, "Speed" );
 
-	ImGui::PushID( "Color" );
-	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
-		m_changed |= ImGui::Checkbox( "R", &pattern.fade.color.r );
-		ImGui::SameLine();
-		m_changed |= ImGui::Checkbox( "G", &pattern.fade.color.g );
-		ImGui::SameLine();
-		m_changed |= ImGui::Checkbox( "B", &pattern.fade.color.b );
-		ImGui::SameLine();
-		m_changed |= ImGui::Checkbox( "A", &pattern.fade.color.a );
+		ImGui::PushID( "Velocity" );
+		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
 
-		ImGui::Text( "Target" );
-		m_changed |= drawValueSet( pattern.fade.color.target, "ColorTarget" );
+			m_changed |= ImGui::Checkbox( "X", &pattern.fade.velocity.x );
+			ImGui::SameLine();
+			m_changed |= ImGui::Checkbox( "Y", &pattern.fade.velocity.y );
 
+			ImGui::Text( "Start" );
+			m_changed |= drawValueSet( pattern.fade.velocity.start, "FadeVelocityStart" );
+			ImGui::Text( "End" );
+			m_changed |= drawValueSet( pattern.fade.velocity.end, "FadeVelocityEnd" );
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
 		ImGui::TreePop();
 	}
-	ImGui::PopID();
+
+	if( ImGui::TreeNodeEx( "Acceleration", ImGuiTreeNodeFlags_Framed ) ) {
+		ImGui::Spacing();
+		m_changed |= drawValueSet( pattern.initial.acceleration, "Acceleration" );
+
+		ImGui::Spacing();
+
+		ImGui::PushID( "Acceleration" );
+		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+
+			m_changed |= ImGui::Checkbox( "X", &pattern.fade.acceleration.x );
+			ImGui::SameLine();
+			m_changed |= ImGui::Checkbox( "Y", &pattern.fade.acceleration.y );
+
+			ImGui::Text( "Start" );
+			m_changed |= drawValueSet( pattern.fade.acceleration.start, "FadeAccelerationStart" );
+			ImGui::Text( "End" );
+			m_changed |= drawValueSet( pattern.fade.acceleration.end, "FadeAccelerationEnd" );
+
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
+		ImGui::TreePop();
+	}
 
 	drawDoubleSpacer();
 
 	ImGui::Text( "Emitters" );
+
+	drawSpacer();
 
 	for( size_t i = 0; i < pattern.emitters.size(); ++i ) {
 		Gfx::Emitter::Pattern& emitter = pattern.emitters.at( i );
@@ -695,7 +651,7 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 	}
 
 	if( ImGui::Button( "Add Emitter" ) ) {
-		pattern.emitters.push_back( m_defaultEmitter );
+		pattern.emitters.push_back( Gfx::Emitter::Pattern() );
 		m_changed = true;
 	}
 
@@ -709,7 +665,11 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 	ImGui::PushID( ++m_patternID );
 
+	ImGui::SetWindowFontScale( 1.2f );
 	ImGui::Text( emitter.name.c_str() );
+	ImGui::SetWindowFontScale( 1.0f );
+
+	drawSpacer();
 
 	if( ImGui::Button( "Rename" ) ) {
 		ImGui::OpenPopup( "Rename" );
@@ -745,8 +705,8 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 	drawDoubleSpacer();
 
 	ImGui::Text( "Properties" );
-	drawSpacer();
 
+	drawSpacer();
 
 	if( ImGui::TreeNodeEx( "Position", ImGuiTreeNodeFlags_Framed ) ) {
 		m_changed |= drawValueSet( emitter.position, "Position" );
@@ -819,8 +779,10 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 		ImGui::TreePop();
 	}
 
-	drawSpacer();
+	drawDoubleSpacer();
+
 	ImGui::Text( "Multipliers" );
+
 	drawSpacer();
 
 	if( ImGui::TreeNodeEx( "Lifetime", ImGuiTreeNodeFlags_Framed ) ) {
@@ -853,8 +815,10 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 		ImGui::TreePop();
 	}
 
-	drawSpacer();
+	drawDoubleSpacer();
+
 	ImGui::Text( "Patterns" );
+
 	drawSpacer();
 
 	for( size_t i = 0; i < emitter.patterns.size(); ++i ) {
@@ -880,12 +844,14 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 	}
 
 	if( ImGui::Button( "Add Pattern" ) ) {
-		emitter.patterns.push_back( m_defaultPattern );
+		emitter.patterns.push_back( Gfx::Particle::Pattern() );
 		m_changed = true;
 	}
 
-	drawSpacer();
+	drawDoubleSpacer();
+
 	ImGui::Text( "Pattern Sets" );
+
 	drawSpacer();
 
 	ImGui::Indent();
@@ -921,7 +887,7 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 		}
 
 		if( ImGui::Button( "Add Pattern" ) ) {
-			set.patterns.push_back( m_defaultPattern );
+			set.patterns.push_back( Gfx::Particle::Pattern() );
 			m_changed = true;
 		}
 
@@ -1038,20 +1004,24 @@ void BulletPatternEditor::renderEmitterTreeNode( Gfx::Emitter::Pattern& emitter,
 
 	ImGui::Indent();
 
+	if( emitter.patterns.size() )
+		ImGui::Text( "Patterns" );
+
 	for( Gfx::Particle::Pattern& pattern : emitter.patterns )
 			renderPatternTreeNode( pattern, stack );
 
 	for( Gfx::Particle::PatternSet& set : emitter.sets ) {
+		if( set.patterns.empty() )
+			continue;
+
 		if( set.random )
 			ImGui::Text( "Random Set" );
 		else
 			ImGui::Text( "Sequence" );
 
-		ImGui::Indent();
 		for( Gfx::Particle::Pattern& pattern : set.patterns ) {
 			renderPatternTreeNode( pattern, stack );
 		}
-		ImGui::Unindent();
 	}
 
 	ImGui::Unindent();

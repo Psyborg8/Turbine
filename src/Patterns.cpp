@@ -37,6 +37,7 @@ rapidjson::Value getValue( string value );
 rapidjson::Value getValue( const Particle::Pattern& value );
 
 rapidjson::Value getValue( const Particle::Pattern::Initial& value );
+rapidjson::Value getValue( const Particle::Pattern::Shape& value );
 rapidjson::Value getValue( const Emitter::Pattern& value );
 rapidjson::Value getValue( const Emitter::Pattern::SpawnRate& value );
 rapidjson::Value getValue( const Particle::Pattern::Fade& value );
@@ -64,6 +65,7 @@ void getValue( const rapidjson::Value& value, string& out );
 void getValue( const rapidjson::Value& value, Particle::Pattern& out );
 
 void getValue( const rapidjson::Value& value, Particle::Pattern::Initial& out );
+void getValue( const rapidjson::Value& value, Particle::Pattern::Shape& out );
 void getValue( const rapidjson::Value& value, Emitter::Pattern& out );
 void getValue( const rapidjson::Value& value, Emitter::Pattern::SpawnRate& out );
 void getValue( const rapidjson::Value& value, Particle::Pattern::Fade& out );
@@ -242,6 +244,7 @@ rapidjson::Value getValue( const Particle::Pattern& value ) {
 	out.AddMember( "initial", getValue( value.initial ), *allocator );
 	out.AddMember( "fade", getValue( value.fade ), *allocator );
 	out.AddMember( "emitters", getValue( value.emitters ), *allocator );
+	out.AddMember( "shape", getValue( value.shape ), *allocator );
 
 	return out;
 }
@@ -257,9 +260,22 @@ rapidjson::Value getValue( const Particle::Pattern::Initial& value ) {
 	out.AddMember( "direction", getValue( value.direction ), *allocator );
 	out.AddMember( "velocity", getValue( value.velocity ), *allocator );
 	out.AddMember( "acceleration", getValue( value.acceleration ), *allocator );
-	out.AddMember( "size", getValue( value.size ), *allocator );
 	out.AddMember( "number", getValue( value.number ), *allocator );
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+rapidjson::Value getValue( const Particle::Pattern::Shape& value ) {
+	rapidjson::Value out;
+	out.SetObject();
+
+	out.AddMember( "type", getValue( value.type ), *allocator );
+	out.AddMember( "size", getValue( value.size ), *allocator );
 	out.AddMember( "color", getValue( value.color ), *allocator );
+	out.AddMember( "outlinecolor", getValue( value.outlineColor ), *allocator );
+	out.AddMember( "outlinethickness", getValue( value.outlineThickness ), *allocator );
 
 	return out;
 }
@@ -471,6 +487,9 @@ void getValue( const rapidjson::Value& value, Particle::Pattern& out ) {
 	if( value.HasMember( "initial" ) )
 		getValue( value[ "initial" ], out.initial );
 
+	if( value.HasMember( "shape" ) )
+		getValue( value[ "shape" ], out.shape );
+
 	if( value.HasMember( "fade" ) )
 		getValue( value[ "fade" ], out.fade );
 
@@ -595,12 +614,23 @@ void getValue( const rapidjson::Value& value, Particle::Pattern::Initial& out ) 
 		getValue( value[ "velocity" ], out.velocity );
 	if( value.HasMember( "acceleration" ) )
 		getValue( value[ "acceleration" ], out.acceleration );
-	if( value.HasMember( "size" ) )
-		getValue( value[ "size" ], out.size );
 	if( value.HasMember( "number" ) )
 		getValue( value[ "number" ], out.number );
+}
+
+//--------------------------------------------------------------------------------
+
+void getValue( const rapidjson::Value& value, Particle::Pattern::Shape& out ) {
+	if( value.HasMember( "type" ) )
+		getValue( value[ "type" ], (int&)out.type );
+	if( value.HasMember( "size" ) )
+		getValue( value[ "size" ], out.size );
 	if( value.HasMember( "color" ) )
 		getValue( value[ "color" ], out.color );
+	if( value.HasMember( "outlinecolor" ) )
+		getValue( value[ "outlinecolor" ], out.outlineColor );
+	if( value.HasMember( "outlinethickness" ) )
+		getValue( value[ "outlinethickness" ], out.outlineThickness );
 }
 
 //--------------------------------------------------------------------------------

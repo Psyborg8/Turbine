@@ -39,12 +39,12 @@ public:
 	void onRender() override;
 	void onDestroy() override;
 
-	void setSize( Math::Vec2 size ) override { setSize( size.x ); }
-	void setSize( float radius ) { m_shape.setRadius( radius ); }
+	void setSize( Math::Vec2 size ) override { m_sprite.setScale( size.sf() ); m_shape->setScale( size.sf() ); }
+	void setColor( Math::Color color ) { m_sprite.setColor( color.sf() ); m_shape->setFillColor( color.sf() ); }
 
-	sf::CircleShape getShape() const { return m_shape; }
+	std::shared_ptr< sf::Shape > getShape() const { return m_shape; }
 
-	Math::Vec2 getSize() const override { return Math::Vec2( m_shape.getRadius(), m_shape.getRadius() ); }
+	Math::Vec2 getSize() const override { return Math::Vec2( m_shape->getScale() ); }
 
 	void kill() { m_dead = true; }
 	bool isDead() const { return m_dead; }
@@ -53,7 +53,10 @@ public:
 	void init( const Pattern& pattern );
 
 private:
-	sf::CircleShape m_shape;
+	std::shared_ptr< sf::Shape > m_shape;
+	sf::Texture m_texture;
+	sf::Sprite m_sprite;
+
 	Pattern m_pattern;
 	vector< shared_ptr< Emitter::Emitter > > m_emitters;
 

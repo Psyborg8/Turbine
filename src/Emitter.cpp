@@ -154,11 +154,11 @@ void Emitter::spawnPattern( const Particle::Pattern& pattern ) {
 	p.initial.acceleration.min *= m_pattern.multipliers.acceleration.value;
 	p.initial.acceleration.max *= m_pattern.multipliers.acceleration.value;
 
-	p.initial.size.min *= m_pattern.multipliers.size.value;
-	p.initial.size.max *= m_pattern.multipliers.size.value;
+	p.shape.size.min *= m_pattern.multipliers.size.value;
+	p.shape.size.max *= m_pattern.multipliers.size.value;
 
-	p.initial.color.min.a *= m_pattern.multipliers.alpha.value;
-	p.initial.color.max.a *= m_pattern.multipliers.alpha.value;
+	p.shape.color.min.a *= m_pattern.multipliers.alpha.value;
+	p.shape.color.max.a *= m_pattern.multipliers.alpha.value;
 
 	p.initial.number.min *= m_pattern.multipliers.number.value;
 	p.initial.number.max *= m_pattern.multipliers.number.value;
@@ -178,13 +178,13 @@ void Emitter::spawnPattern( const Particle::Pattern& pattern ) {
 	}
 
 	if( p.inheritance.alpha ) {
-		p.initial.color.min.a *= Math::Color( parent->getShape().getFillColor() ).a;
-		p.initial.color.max.a *= Math::Color( parent->getShape().getFillColor() ).a;
+		p.shape.color.min.a *= Math::Color( parent->getShape()->getFillColor() ).a;
+		p.shape.color.max.a *= Math::Color( parent->getShape()->getFillColor() ).a;
 	}
 
 	if( p.inheritance.size ) {
-		p.initial.size.min *= parent->getSize().x;
-		p.initial.size.max *= parent->getSize().x;
+		p.shape.size.min *= parent->getSize().x;
+		p.shape.size.max *= parent->getSize().x;
 	}
 
 	Particle::spawn( this, p );

@@ -15,6 +15,11 @@
 
 //================================================================================
 
+#define saveValue(str) ( out.AddMember( #str, getValue( str ), *allocator ) )
+#define loadValue(str) if( json.HasMember(#str) ) getValue( json[#str], str )
+
+//================================================================================
+
 namespace Gfx {
 
 rapidjson::MemoryPoolAllocator < rapidjson::CrtAllocator >* allocator;
@@ -35,17 +40,8 @@ rapidjson::Value getValue( bool value );
 rapidjson::Value getValue( string value );
 
 rapidjson::Value getValue( const Particle::Pattern& value );
-
-rapidjson::Value getValue( const Particle::Pattern::Initial& value );
-rapidjson::Value getValue( const Particle::Pattern::Shape& value );
-rapidjson::Value getValue( const Emitter::Pattern& value );
-rapidjson::Value getValue( const Emitter::Pattern::SpawnRate& value );
-rapidjson::Value getValue( const Particle::Pattern::Fade& value );
-rapidjson::Value getValue( const Particle::Pattern::Fade::Velocity& value );
-rapidjson::Value getValue( const Particle::Pattern::Fade::Acceleration& value );
-rapidjson::Value getValue( const Particle::Pattern::Fade::Size& value );
-rapidjson::Value getValue( const Particle::Pattern::Fade::Color& value );
 rapidjson::Value getValue( const Particle::PatternSet& value );
+rapidjson::Value getValue( const Emitter::Pattern& value );
 
 //--------------------------------------------------------------------------------
 
@@ -63,17 +59,8 @@ void getValue( const rapidjson::Value& value, Math::Color& out );
 void getValue( const rapidjson::Value& value, string& out );
 
 void getValue( const rapidjson::Value& value, Particle::Pattern& out );
-
-void getValue( const rapidjson::Value& value, Particle::Pattern::Initial& out );
-void getValue( const rapidjson::Value& value, Particle::Pattern::Shape& out );
-void getValue( const rapidjson::Value& value, Emitter::Pattern& out );
-void getValue( const rapidjson::Value& value, Emitter::Pattern::SpawnRate& out );
-void getValue( const rapidjson::Value& value, Particle::Pattern::Fade& out );
-void getValue( const rapidjson::Value& value, Particle::Pattern::Fade::Velocity& out );
-void getValue( const rapidjson::Value& value, Particle::Pattern::Fade::Acceleration& out );
-void getValue( const rapidjson::Value& value, Particle::Pattern::Fade::Size& out );
-void getValue( const rapidjson::Value& value, Particle::Pattern::Fade::Color& out );
 void getValue( const rapidjson::Value& value, Particle::PatternSet& out );
+void getValue( const rapidjson::Value& value, Emitter::Pattern& out );
 
 //================================================================================
 
@@ -151,6 +138,9 @@ rapidjson::Value getValue( Math::ValueSet< T > value ) {
 	out.AddMember( "min", getValue( value.min ), *allocator );
 	out.AddMember( "max", getValue( value.max ), *allocator );
 	out.AddMember( "random", getValue( value.random ), *allocator );
+	out.AddMember( "lock", getValue( value.lock ), *allocator );
+	out.AddMember( "hsv", getValue( value.hsv ), *allocator );
+	out.AddMember( "inverse", getValue( value.inverse ), *allocator );
 
 	return out;
 }
@@ -240,151 +230,163 @@ rapidjson::Value getValue( const Particle::Pattern& value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
-	out.AddMember( "name", getValue( value.name ), *allocator );
-	out.AddMember( "initial", getValue( value.initial ), *allocator );
-	out.AddMember( "fade", getValue( value.fade ), *allocator );
-	out.AddMember( "emitters", getValue( value.emitters ), *allocator );
-	out.AddMember( "shape", getValue( value.shape ), *allocator );
+	/* Properties */
+	saveValue( value.properties.name );
+	saveValue( value.properties.lifetime );
+	saveValue( value.properties.number );
 
-	return out;
-}
+	/* Shape */
+	saveValue( value.shape.type );
 
-//--------------------------------------------------------------------------------
+	// Size
+	saveValue( value.shape.size.size );
+	saveValue( value.shape.size.fade.start );
+	saveValue( value.shape.size.fade.end );
+	saveValue( value.shape.size.fade.x );
+	saveValue( value.shape.size.fade.y );
 
-rapidjson::Value getValue( const Particle::Pattern::Initial& value ) {
-	rapidjson::Value out;
-	out.SetObject();
+	// Color
+	saveValue( value.shape.color.color );
+	saveValue( value.shape.color.fade.target );
+	saveValue( value.shape.color.fade.r );
+	saveValue( value.shape.color.fade.g );
+	saveValue( value.shape.color.fade.b );
+	saveValue( value.shape.color.fade.a );
 
-	out.AddMember( "lifetime", getValue( value.lifetime ), *allocator );
-	out.AddMember( "position", getValue( value.position ), *allocator );
-	out.AddMember( "direction", getValue( value.direction ), *allocator );
-	out.AddMember( "velocity", getValue( value.velocity ), *allocator );
-	out.AddMember( "acceleration", getValue( value.acceleration ), *allocator );
-	out.AddMember( "number", getValue( value.number ), *allocator );
+	// Outline
+	saveValue( value.shape.outline.color.color );
+	saveValue( value.shape.outline.color.fade.target );
+	saveValue( value.shape.outline.color.fade.r );
+	saveValue( value.shape.outline.color.fade.g );
+	saveValue( value.shape.outline.color.fade.b );
+	saveValue( value.shape.outline.color.fade.a );
 
-	return out;
-}
+	saveValue( value.shape.outline.thickness.thickness );
+	saveValue( value.shape.outline.thickness.fade.start );
+	saveValue( value.shape.outline.thickness.fade.end );
+	saveValue( value.shape.outline.thickness.fade.active );
 
-//--------------------------------------------------------------------------------
+	// Texture
+	saveValue( value.shape.texture );
+	saveValue( value.shape.shader );
 
-rapidjson::Value getValue( const Particle::Pattern::Shape& value ) {
-	rapidjson::Value out;
-	out.SetObject();
+	// Origin
+	saveValue( value.shape.origin.position.type );
+	saveValue( value.shape.origin.position.position );
+	saveValue( value.shape.origin.position.circle.radius );
+	saveValue( value.shape.origin.position.circle.fill );
+	saveValue( value.shape.origin.position.circle.uniform );
+	saveValue( value.shape.origin.position.rectangle.size );
+	saveValue( value.shape.origin.position.rectangle.fill );
+	saveValue( value.shape.origin.position.rectangle.uniform );
 
-	out.AddMember( "type", getValue( value.type ), *allocator );
-	out.AddMember( "size", getValue( value.size ), *allocator );
-	out.AddMember( "color", getValue( value.color ), *allocator );
-	out.AddMember( "outlinecolor", getValue( value.outlineColor ), *allocator );
-	out.AddMember( "outlinethickness", getValue( value.outlineThickness ), *allocator );
+	saveValue( value.shape.origin.velocity.type );
+	saveValue( value.shape.origin.velocity.direction.direction );
+	saveValue( value.shape.origin.velocity.direction.power );
+	saveValue( value.shape.origin.velocity.direction.fade.target );
+	saveValue( value.shape.origin.velocity.direction.fade.start );
+	saveValue( value.shape.origin.velocity.direction.fade.end );
+	saveValue( value.shape.origin.velocity.direction.fade.direction );
+	saveValue( value.shape.origin.velocity.direction.fade.power );
 
-	return out;
-}
+	saveValue( value.shape.origin.velocity.value.value );
+	saveValue( value.shape.origin.velocity.value.fade.target );
+	saveValue( value.shape.origin.velocity.value.fade.x );
+	saveValue( value.shape.origin.velocity.value.fade.y );
 
-//--------------------------------------------------------------------------------
+	saveValue( value.shape.origin.velocity.point.point );
+	saveValue( value.shape.origin.velocity.point.power );
+	saveValue( value.shape.origin.velocity.point.fade.target );
+	saveValue( value.shape.origin.velocity.point.fade.start );
+	saveValue( value.shape.origin.velocity.point.fade.end );
+	saveValue( value.shape.origin.velocity.point.fade.point );
+	saveValue( value.shape.origin.velocity.point.fade.power );
+	saveValue( value.shape.origin.velocity.point.scale.active );
+	saveValue( value.shape.origin.velocity.point.scale.factor );
+	saveValue( value.shape.origin.velocity.point.scale.inverse );
 
-rapidjson::Value getValue( const Particle::Pattern::Fade& value ) {
-	rapidjson::Value out;
-	out.SetObject();
 
-	out.AddMember( "velocity", getValue( value.velocity ), *allocator );
-	out.AddMember( "acceleration", getValue( value.acceleration ), *allocator );
-	out.AddMember( "size", getValue( value.size ), *allocator );
-	out.AddMember( "color", getValue( value.color ), *allocator );
+	/* Physics */
+	// Position
+	saveValue( value.physics.position.type );
+	saveValue( value.physics.position.position );
+	saveValue( value.physics.position.circle.radius );
+	saveValue( value.physics.position.circle.fill );
+	saveValue( value.physics.position.circle.uniform );
+	saveValue( value.physics.position.rectangle.size );
+	saveValue( value.physics.position.rectangle.fill );
+	saveValue( value.physics.position.rectangle.uniform );
 
-	return out;
-}
+	// Velocity
+	saveValue( value.physics.velocity.type );
+	saveValue( value.physics.velocity.direction.direction );
+	saveValue( value.physics.velocity.direction.power );
+	saveValue( value.physics.velocity.direction.fade.target );
+	saveValue( value.physics.velocity.direction.fade.start );
+	saveValue( value.physics.velocity.direction.fade.end );
+	saveValue( value.physics.velocity.direction.fade.direction );
+	saveValue( value.physics.velocity.direction.fade.power );
+					 
+	saveValue( value.physics.velocity.value.value );
+	saveValue( value.physics.velocity.value.fade.target );
+	saveValue( value.physics.velocity.value.fade.x );
+	saveValue( value.physics.velocity.value.fade.y );
+					 
+	saveValue( value.physics.velocity.point.point );
+	saveValue( value.physics.velocity.point.power );
+	saveValue( value.physics.velocity.point.fade.target );
+	saveValue( value.physics.velocity.point.fade.start );
+	saveValue( value.physics.velocity.point.fade.end );
+	saveValue( value.physics.velocity.point.fade.point );
+	saveValue( value.physics.velocity.point.fade.power );
+	saveValue( value.physics.velocity.point.scale.active );
+	saveValue( value.physics.velocity.point.scale.factor );
+	saveValue( value.physics.velocity.point.scale.inverse );
 
-//--------------------------------------------------------------------------------
+	// Acceleration
+	saveValue( value.physics.acceleration.type );
+	saveValue( value.physics.acceleration.direction.direction );
+	saveValue( value.physics.acceleration.direction.power );
+	saveValue( value.physics.acceleration.direction.fade.target );
+	saveValue( value.physics.acceleration.direction.fade.start );
+	saveValue( value.physics.acceleration.direction.fade.end );
+	saveValue( value.physics.acceleration.direction.fade.direction );
+	saveValue( value.physics.acceleration.direction.fade.power );
+							 
+	saveValue( value.physics.acceleration.value.value );
+	saveValue( value.physics.acceleration.value.fade.target );
+	saveValue( value.physics.acceleration.value.fade.x );
+	saveValue( value.physics.acceleration.value.fade.y );
+							 
+	saveValue( value.physics.acceleration.point.point );
+	saveValue( value.physics.acceleration.point.power );
+	saveValue( value.physics.acceleration.point.fade.target );
+	saveValue( value.physics.acceleration.point.fade.start );
+	saveValue( value.physics.acceleration.point.fade.end );
+	saveValue( value.physics.acceleration.point.fade.point );
+	saveValue( value.physics.acceleration.point.fade.power );
+	saveValue( value.physics.acceleration.point.scale.active );
+	saveValue( value.physics.acceleration.point.scale.factor );
+	saveValue( value.physics.acceleration.point.scale.inverse );
 
-rapidjson::Value getValue( const Particle::Pattern::Fade::Velocity& value ) {
-	rapidjson::Value out;
-	out.SetObject();
+	// Rotation
+	saveValue( value.physics.rotation.rotation );
+	saveValue( value.physics.rotation.fade.target );
+	saveValue( value.physics.rotation.fade.active );
+	
+	saveValue( value.physics.rotation.spin.spin );
+	saveValue( value.physics.rotation.spin.fade.start );
+	saveValue( value.physics.rotation.spin.fade.end );
+	saveValue( value.physics.rotation.spin.fade.active );
 
-	out.AddMember( "start", getValue( value.start ), *allocator );
-	out.AddMember( "end", getValue( value.end ), *allocator );
-	out.AddMember( "x", getValue( value.x ), *allocator );
-	out.AddMember( "y", getValue( value.y ), *allocator );
+	/* Inheritance */
+	saveValue( value.inheritance.position );
+	saveValue( value.inheritance.velocity );
+	saveValue( value.inheritance.size );
+	saveValue( value.inheritance.alpha );
 
-	return out;
-}
-
-//--------------------------------------------------------------------------------
-
-rapidjson::Value getValue( const Particle::Pattern::Fade::Acceleration& value ) {
-	rapidjson::Value out;
-	out.SetObject();
-
-	out.AddMember( "start", getValue( value.start ), *allocator );
-	out.AddMember( "end", getValue( value.end ), *allocator );
-	out.AddMember( "x", getValue( value.x ), *allocator );
-	out.AddMember( "y", getValue( value.y ), *allocator );
-
-	return out;
-}
-
-//--------------------------------------------------------------------------------
-
-rapidjson::Value getValue( const Particle::Pattern::Fade::Size& value ) {
-	rapidjson::Value out;
-	out.SetObject();
-
-	out.AddMember( "start", getValue( value.start ), *allocator );
-	out.AddMember( "end", getValue( value.end ), *allocator );
-	out.AddMember( "active", getValue( value.active ), *allocator );
-
-	return out;
-}
-
-//--------------------------------------------------------------------------------
-
-rapidjson::Value getValue( const Particle::Pattern::Fade::Color& value ) {
-	rapidjson::Value out;
-	out.SetObject();
-
-	out.AddMember( "target", getValue( value.target ), *allocator );
-	out.AddMember( "r", getValue( value.r ), *allocator );
-	out.AddMember( "g", getValue( value.g ), *allocator );
-	out.AddMember( "b", getValue( value.b ), *allocator );
-	out.AddMember( "a", getValue( value.a ), *allocator );
-
-	return out;
-}
-
-//--------------------------------------------------------------------------------
-
-rapidjson::Value getValue( const Emitter::Pattern& value ) {
-	rapidjson::Value out;
-	out.SetObject();
-
-	out.AddMember( "name", getValue( value.name ), *allocator );
-	out.AddMember( "lifetime", getValue( value.multipliers.lifetime ), *allocator );
-	out.AddMember( "velocity", getValue( value.multipliers.velocity ), *allocator );
-	out.AddMember( "acceleration", getValue( value.multipliers.acceleration ), *allocator );
-	out.AddMember( "size", getValue( value.multipliers.size ), *allocator );
-	out.AddMember( "alpha", getValue( value.multipliers.alpha ), *allocator );
-	out.AddMember( "number", getValue( value.multipliers.number ), *allocator );
-
-	out.AddMember( "position", getValue( value.position ), *allocator );
-	out.AddMember( "activationtype", getValue( static_cast< int >( value.activation.type ) ), *allocator );
-	out.AddMember( "starttime", getValue( value.activation.start ), *allocator );
-	out.AddMember( "endtime", getValue( value.activation.end ), *allocator );
-	out.AddMember( "spawnrate", getValue( value.rate ), *allocator );
-
-	out.AddMember( "patterns", getValue( value.patterns ), *allocator );
-	out.AddMember( "patternsets", getValue( value.sets ), *allocator );
-
-	return out;
-}
-
-//--------------------------------------------------------------------------------
-
-rapidjson::Value getValue( const Emitter::Pattern::SpawnRate& value ) {
-	rapidjson::Value out;
-	out.SetObject();
-
-	out.AddMember( "start", getValue( value.start ), *allocator );
-	out.AddMember( "end", getValue( value.end ), *allocator );
-	out.AddMember( "fade", getValue( value.fade ), *allocator );
+	/* Emitters*/
+	saveValue( value.emitters );
 
 	return out;
 }
@@ -395,8 +397,36 @@ rapidjson::Value getValue( const Particle::PatternSet& value ) {
 	rapidjson::Value out;
 	out.SetObject();
 
-	out.AddMember( "random", getValue( value.random ), *allocator );
-	out.AddMember( "patterns", getValue( value.patterns ), *allocator );
+	saveValue( value.random );
+	saveValue( value.patterns );
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+rapidjson::Value getValue( const Emitter::Pattern& value ) {
+	rapidjson::Value out;
+	out.SetObject();
+
+	saveValue( value.properties.name );
+	saveValue( value.properties.position );
+	saveValue( value.properties.activation.type );
+	saveValue( value.properties.activation.start );
+	saveValue( value.properties.activation.end );
+	saveValue( value.properties.rate.start );
+	saveValue( value.properties.rate.end );
+	saveValue( value.properties.rate.fade );
+
+	saveValue( value.multipliers.lifetime );
+	saveValue( value.multipliers.velocity );
+	saveValue( value.multipliers.acceleration );
+	saveValue( value.multipliers.size );
+	saveValue( value.multipliers.alpha );
+	saveValue( value.multipliers.number );
+
+	saveValue( value.patterns );
+	saveValue( value.sets );
 
 	return out;
 }
@@ -479,26 +509,6 @@ Emitter::Pattern loadEmitter( string name ) {
 
 //--------------------------------------------------------------------------------
 
-void getValue( const rapidjson::Value& value, Particle::Pattern& out ) {
-
-	if( value.HasMember( "name" ) )
-		getValue( value[ "name" ], out.name );
-
-	if( value.HasMember( "initial" ) )
-		getValue( value[ "initial" ], out.initial );
-
-	if( value.HasMember( "shape" ) )
-		getValue( value[ "shape" ], out.shape );
-
-	if( value.HasMember( "fade" ) )
-		getValue( value[ "fade" ], out.fade );
-
-	if( value.HasMember( "emitters" ) )
-		getValue( value[ "emitters" ], out.emitters );
-}
-
-//--------------------------------------------------------------------------------
-
 template< class T >
 void getValue( const rapidjson::Value& value, Math::ValueSet< T >& out ) {
 	if( value.HasMember( "min" ) )
@@ -507,6 +517,12 @@ void getValue( const rapidjson::Value& value, Math::ValueSet< T >& out ) {
 		getValue( value[ "max" ], out.max );
 	if( value.HasMember( "random" ) )
 		getValue( value[ "random" ], out.random );
+	if( value.HasMember( "lock" ) )
+		getValue( value[ "lock" ], out.lock );
+	if( value.HasMember( "hsv" ) )
+		getValue( value[ "hsv" ], out.hsv );
+	if( value.HasMember( "inverse" ) )
+		getValue( value[ "inverse" ], out.inverse );
 }
 
 //--------------------------------------------------------------------------------
@@ -603,155 +619,205 @@ void getValue( const rapidjson::Value& value, string& out ) {
 
 //--------------------------------------------------------------------------------
 
-void getValue( const rapidjson::Value& value, Particle::Pattern::Initial& out ) {
-	if( value.HasMember( "lifetime" ) )
-		getValue( value[ "lifetime" ], out.lifetime );
-	if( value.HasMember( "position" ) )
-		getValue( value[ "position" ], out.position );
-	if( value.HasMember( "direction" ) )
-		getValue( value[ "direction" ], out.direction );
-	if( value.HasMember( "velocity" ) )
-		getValue( value[ "velocity" ], out.velocity );
-	if( value.HasMember( "acceleration" ) )
-		getValue( value[ "acceleration" ], out.acceleration );
-	if( value.HasMember( "number" ) )
-		getValue( value[ "number" ], out.number );
+void getValue( const rapidjson::Value& json, Particle::Pattern& value ) {
+	/* Properties */
+	loadValue( value.properties.name );
+	loadValue( value.properties.lifetime );
+	loadValue( value.properties.number );
+
+	/* Shape */
+	if( json.HasMember( "value.shape.type" ) )
+		getValue( json[ "value.shape.type" ], ( int& )value.shape.type );
+
+	// Size
+	loadValue( value.shape.size.size );
+	loadValue( value.shape.size.fade.start );
+	loadValue( value.shape.size.fade.end );
+	loadValue( value.shape.size.fade.x );
+	loadValue( value.shape.size.fade.y );
+
+	// Color
+	loadValue( value.shape.color.color );
+	loadValue( value.shape.color.fade.target );
+	loadValue( value.shape.color.fade.r );
+	loadValue( value.shape.color.fade.g );
+	loadValue( value.shape.color.fade.b );
+	loadValue( value.shape.color.fade.a );
+
+	// Outline
+	loadValue( value.shape.outline.color.color );
+	loadValue( value.shape.outline.color.fade.target );
+	loadValue( value.shape.outline.color.fade.r );
+	loadValue( value.shape.outline.color.fade.g );
+	loadValue( value.shape.outline.color.fade.b );
+	loadValue( value.shape.outline.color.fade.a );
+
+	loadValue( value.shape.outline.thickness.thickness );
+	loadValue( value.shape.outline.thickness.fade.start );
+	loadValue( value.shape.outline.thickness.fade.end );
+	loadValue( value.shape.outline.thickness.fade.active );
+
+	// Texture
+	loadValue( value.shape.texture );
+	loadValue( value.shape.shader );
+
+	// Origin
+	loadValue( value.shape.origin.position.position );
+	loadValue( value.shape.origin.position.circle.radius );
+	loadValue( value.shape.origin.position.circle.fill );
+	loadValue( value.shape.origin.position.circle.uniform );
+	loadValue( value.shape.origin.position.rectangle.size );
+	loadValue( value.shape.origin.position.rectangle.fill );
+	loadValue( value.shape.origin.position.rectangle.uniform );
+
+	if( json.HasMember( "value.shape.origin.velocity.type" ) )
+		getValue( json[ "value.shape.origin.velocity.type" ], ( int& )value.shape.origin.velocity.type );
+
+	loadValue( value.shape.origin.velocity.direction.direction );
+	loadValue( value.shape.origin.velocity.direction.power );
+	loadValue( value.shape.origin.velocity.direction.fade.target );
+	loadValue( value.shape.origin.velocity.direction.fade.start );
+	loadValue( value.shape.origin.velocity.direction.fade.end );
+	loadValue( value.shape.origin.velocity.direction.fade.direction );
+	loadValue( value.shape.origin.velocity.direction.fade.power );
+
+	loadValue( value.shape.origin.velocity.value.value );
+	loadValue( value.shape.origin.velocity.value.fade.target );
+	loadValue( value.shape.origin.velocity.value.fade.x );
+	loadValue( value.shape.origin.velocity.value.fade.y );
+
+	loadValue( value.shape.origin.velocity.point.point );
+	loadValue( value.shape.origin.velocity.point.power );
+	loadValue( value.shape.origin.velocity.point.fade.target );
+	loadValue( value.shape.origin.velocity.point.fade.start );
+	loadValue( value.shape.origin.velocity.point.fade.end );
+	loadValue( value.shape.origin.velocity.point.fade.point );
+	loadValue( value.shape.origin.velocity.point.fade.power );
+	loadValue( value.shape.origin.velocity.point.scale.active );
+	loadValue( value.shape.origin.velocity.point.scale.factor );
+	loadValue( value.shape.origin.velocity.point.scale.inverse );
+
+
+	/* Physics */
+	// Position
+	if( json.HasMember( "value.physics.position.type" ) )
+		getValue( json[ "value.physics.position.type" ], ( int& )value.physics.position.type );
+
+	loadValue( value.physics.position.position );
+	loadValue( value.physics.position.circle.radius );
+	loadValue( value.physics.position.circle.fill );
+	loadValue( value.physics.position.circle.uniform );
+	loadValue( value.physics.position.rectangle.size );
+	loadValue( value.physics.position.rectangle.fill );
+	loadValue( value.physics.position.rectangle.uniform );
+
+	// Velocity
+	if( json.HasMember( "value.physics.velocity.type" ) )
+		getValue( json[ "value.physics.velocity.type" ], ( int& )value.physics.velocity.type );
+
+	loadValue( value.physics.velocity.direction.direction );
+	loadValue( value.physics.velocity.direction.power );
+	loadValue( value.physics.velocity.direction.fade.target );
+	loadValue( value.physics.velocity.direction.fade.start );
+	loadValue( value.physics.velocity.direction.fade.end );
+	loadValue( value.physics.velocity.direction.fade.direction );
+	loadValue( value.physics.velocity.direction.fade.power );
+
+	loadValue( value.physics.velocity.value.value );
+	loadValue( value.physics.velocity.value.fade.target );
+	loadValue( value.physics.velocity.value.fade.x );
+	loadValue( value.physics.velocity.value.fade.y );
+
+	loadValue( value.physics.velocity.point.point );
+	loadValue( value.physics.velocity.point.power );
+	loadValue( value.physics.velocity.point.fade.target );
+	loadValue( value.physics.velocity.point.fade.start );
+	loadValue( value.physics.velocity.point.fade.end );
+	loadValue( value.physics.velocity.point.fade.point );
+	loadValue( value.physics.velocity.point.fade.power );
+	loadValue( value.physics.velocity.point.scale.active );
+	loadValue( value.physics.velocity.point.scale.factor );
+	loadValue( value.physics.velocity.point.scale.inverse );
+
+	// Acceleration
+	if( json.HasMember( "value.physics.acceleration.type" ) )
+		getValue( json[ "value.physics.acceleration.type" ], ( int& )value.physics.acceleration.type );
+
+	loadValue( value.physics.acceleration.direction.direction );
+	loadValue( value.physics.acceleration.direction.power );
+	loadValue( value.physics.acceleration.direction.fade.target );
+	loadValue( value.physics.acceleration.direction.fade.start );
+	loadValue( value.physics.acceleration.direction.fade.end );
+	loadValue( value.physics.acceleration.direction.fade.direction );
+	loadValue( value.physics.acceleration.direction.fade.power );
+
+	loadValue( value.physics.acceleration.value.value );
+	loadValue( value.physics.acceleration.value.fade.target );
+	loadValue( value.physics.acceleration.value.fade.x );
+	loadValue( value.physics.acceleration.value.fade.y );
+
+	loadValue( value.physics.acceleration.point.point );
+	loadValue( value.physics.acceleration.point.power );
+	loadValue( value.physics.acceleration.point.fade.target );
+	loadValue( value.physics.acceleration.point.fade.start );
+	loadValue( value.physics.acceleration.point.fade.end );
+	loadValue( value.physics.acceleration.point.fade.point );
+	loadValue( value.physics.acceleration.point.fade.power );
+	loadValue( value.physics.acceleration.point.scale.active );
+	loadValue( value.physics.acceleration.point.scale.factor );
+	loadValue( value.physics.acceleration.point.scale.inverse );
+
+	// Rotation
+	loadValue( value.physics.rotation.rotation );
+	loadValue( value.physics.rotation.fade.target );
+	loadValue( value.physics.rotation.fade.active );
+
+	loadValue( value.physics.rotation.spin.spin );
+	loadValue( value.physics.rotation.spin.fade.start );
+	loadValue( value.physics.rotation.spin.fade.end );
+	loadValue( value.physics.rotation.spin.fade.active );
+
+	/* Inheritance */
+	loadValue( value.inheritance.position );
+	loadValue( value.inheritance.velocity );
+	loadValue( value.inheritance.size );
+	loadValue( value.inheritance.alpha );
+
+	/* Emitters*/
+	loadValue( value.emitters );
 }
 
 //--------------------------------------------------------------------------------
 
-void getValue( const rapidjson::Value& value, Particle::Pattern::Shape& out ) {
-	if( value.HasMember( "type" ) )
-		getValue( value[ "type" ], (int&)out.type );
-	if( value.HasMember( "size" ) )
-		getValue( value[ "size" ], out.size );
-	if( value.HasMember( "color" ) )
-		getValue( value[ "color" ], out.color );
-	if( value.HasMember( "outlinecolor" ) )
-		getValue( value[ "outlinecolor" ], out.outlineColor );
-	if( value.HasMember( "outlinethickness" ) )
-		getValue( value[ "outlinethickness" ], out.outlineThickness );
+void getValue( const rapidjson::Value& json, Particle::PatternSet& value ) {
+	loadValue( value.random );
+	loadValue( value.patterns );
 }
 
 //--------------------------------------------------------------------------------
 
-void getValue( const rapidjson::Value& value, Emitter::Pattern& out ) {
-	if( value.HasMember( "name" ) )
-		getValue( value[ "name" ], out.name );
-	if( value.HasMember( "position" ) )
-		getValue( value[ "position" ], out.position );
-	if( value.HasMember( "activationtype" ) ) {
-		int type;
-		getValue( value[ "activationtype" ], type );
-		out.activation.type = static_cast< Emitter::Pattern::Activation::Type >( type );
-	}
-	if( value.HasMember( "starttime" ) )
-		getValue( value[ "starttime" ], out.activation.start );
-	if( value.HasMember( "endtime" ) )
-		getValue( value[ "endtime" ], out.activation.end );
-	if( value.HasMember( "spawnrate" ) )
-		getValue( value[ "spawnrate" ], out.rate );
-	if( value.HasMember( "lifetime" ) )
-		getValue( value[ "lifetime" ], out.multipliers.lifetime );
-	if( value.HasMember( "velocity" ) )
-		getValue( value[ "velocity" ], out.multipliers.velocity );
-	if( value.HasMember( "acceleration" ) )
-		getValue( value[ "acceleration" ], out.multipliers.acceleration );
-	if( value.HasMember( "size" ) )
-		getValue( value[ "size" ], out.multipliers.size );
-	if( value.HasMember( "alpha" ) )
-		getValue( value[ "alpha" ], out.multipliers.alpha );
-	if( value.HasMember( "number" ) )
-		getValue( value[ "number" ], out.multipliers.number );
-	if( value.HasMember( "patterns" ) )
-		getValue( value[ "patterns" ], out.patterns );
-	if( value.HasMember( "patternsets" ) )
-		getValue( value[ "patternsets" ], out.sets );
-}
+void getValue( const rapidjson::Value& json, Emitter::Pattern& value ) {
+	loadValue( value.properties.name );
+	loadValue( value.properties.position );
 
-//--------------------------------------------------------------------------------
+	if( json.HasMember( "value.properties.activation.type" ) )
+		getValue( json[ "value.properties.activation.type" ], ( int& )value.properties.activation.type );
 
-void getValue( const rapidjson::Value& value, Emitter::Pattern::SpawnRate& out ) {
-	if( value.HasMember( "start" ) )
-		getValue( value[ "start" ], out.start );
-	if( value.HasMember( "end" ) )
-		getValue( value[ "end" ], out.end );
-	if( value.HasMember( "fade" ) )
-		getValue( value[ "fade" ], out.fade );
-}
+	loadValue( value.properties.activation.start );
+	loadValue( value.properties.activation.end );
+	loadValue( value.properties.rate.start );
+	loadValue( value.properties.rate.end );
+	loadValue( value.properties.rate.fade );
 
-//--------------------------------------------------------------------------------
+	loadValue( value.multipliers.lifetime );
+	loadValue( value.multipliers.velocity );
+	loadValue( value.multipliers.acceleration );
+	loadValue( value.multipliers.size );
+	loadValue( value.multipliers.alpha );
+	loadValue( value.multipliers.number );
 
-void getValue( const rapidjson::Value& value, Particle::Pattern::Fade& out ) {
-	if( value.HasMember( "velocity" ) )
-		getValue( value[ "velocity" ], out.velocity );
-	if( value.HasMember( "acceleration" ) )
-		getValue( value[ "acceleration" ], out.acceleration );
-	if( value.HasMember( "size" ) )
-		getValue( value[ "size" ], out.size );
-	if( value.HasMember( "color" ) )
-		getValue( value[ "color" ], out.color );
-}
-
-//--------------------------------------------------------------------------------
-
-void getValue( const rapidjson::Value& value, Particle::Pattern::Fade::Velocity& out ) {
-	if( value.HasMember( "start" ) )
-		getValue( value[ "start" ], out.start );
-	if( value.HasMember( "end" ) )
-		getValue( value[ "end" ], out.end );
-	if( value.HasMember( "x" ) )
-		getValue( value[ "x" ], out.x );
-	if( value.HasMember( "y" ) )
-		getValue( value[ "y" ], out.y );
-}
-
-//--------------------------------------------------------------------------------
-
-void getValue( const rapidjson::Value& value, Particle::Pattern::Fade::Acceleration& out ) {
-	if( value.HasMember( "start" ) )
-		getValue( value[ "start" ], out.start );
-	if( value.HasMember( "end" ) )
-		getValue( value[ "end" ], out.end );
-	if( value.HasMember( "x" ) )
-		getValue( value[ "x" ], out.x );
-	if( value.HasMember( "y" ) )
-		getValue( value[ "y" ], out.y );
-}
-
-//--------------------------------------------------------------------------------
-
-void getValue( const rapidjson::Value& value, Particle::Pattern::Fade::Size& out ) {
-	if( value.HasMember( "start" ) )
-		getValue( value[ "start" ], out.start );
-	if( value.HasMember( "end" ) )
-		getValue( value[ "end" ], out.end );
-	if( value.HasMember( "active" ) )
-		getValue( value[ "active" ], out.active );
-}
-
-//--------------------------------------------------------------------------------
-
-void getValue( const rapidjson::Value& value, Particle::Pattern::Fade::Color& out ) {
-	if( value.HasMember( "target" ) )
-		getValue( value[ "target" ], out.target );
-	if( value.HasMember( "r" ) )
-		getValue( value[ "r" ], out.r );
-	if( value.HasMember( "g" ) )
-		getValue( value[ "g" ], out.g );
-	if( value.HasMember( "b" ) )
-		getValue( value[ "b" ], out.b );
-	if( value.HasMember( "a" ) )
-		getValue( value[ "a" ], out.a );
-}
-
-//--------------------------------------------------------------------------------
-
-void getValue( const rapidjson::Value& value, Particle::PatternSet& out ) {
-	if( value.HasMember( "random" ) )
-		getValue( value[ "random" ], out.random );
-	if( value.HasMember( "patterns" ) )
-		getValue( value[ "patterns" ], out.patterns );
+	loadValue( value.patterns );
+	loadValue( value.sets );
 }
 
 //--------------------------------------------------------------------------------

@@ -25,74 +25,203 @@ namespace Particle {
 
 //--------------------------------------------------------------------------------
 
-struct Pattern {
-	string name{ "New Pattern" };
+struct VelocitySet {
+	enum Type {
+		Direction,
+		Value,
+		Point,
+		Player
+	} type{ Type::Direction };
 
+	// Direction
+	struct Direction {
+		Math::ValueSet< Math::Vec2 > direction{ Math::Vec2() };
+		Math::ValueSet< float > power{ 0.f };
+
+		// Fade
+		struct Fade {
+			Math::ValueSet< Math::Vec2 > target{ Math::Vec2() };
+			Math::ValueSet< float > start{ 1.f };
+			Math::ValueSet< float > end{ 0.f };
+			bool direction{ false }, power{ false };
+		} fade;
+	} direction;
+
+	// Value
+	struct Value {
+		Math::ValueSet< Math::Vec2 > value{ Math::Vec2() };
+
+		// Fade
+		struct Fade {
+			Math::ValueSet< Math::Vec2 > target{ Math::Vec2() };
+			bool x{ false }, y{ false };
+		} fade;
+	} value;
+
+	// Point
+	struct Point {
+		Math::ValueSet< Math::Vec2 > point{ Math::Vec2() };
+		Math::ValueSet< float > power{ 0.f };
+		bool track{ false };
+
+		// Fade
+		struct Fade {
+			Math::ValueSet< Math::Vec2 > target{ Math::Vec2() };
+			Math::ValueSet< float > start{ 1.f };
+			Math::ValueSet< float > end{ 0.f };
+			bool point{ false }, power{ false };
+		} fade;
+
+		// Scale
+		struct Scale {
+			Math::ValueSet< float > factor{ 1.f };
+			bool active{ false }, inverse{ true };
+		} scale;
+	} point;
+
+	Math::Vec2 startValue{ 0.f, 0.f };
+};
+
+//--------------------------------------------------------------------------------
+
+struct PositionSet {
+	PositionSet() = default;
+	PositionSet( Math::Vec2 def ) { position.min = def; position.max = def; }
+	// Type
+	enum Type {
+		Point,
+		Circle,
+		Rectangle,
+	} type{ Type::Point };
+
+	Math::ValueSet< Math::Vec2 > position{ Math::Vec2() };
+
+	struct Circle {
+		Math::ValueSet< float > radius{ 64.f };
+		bool fill{ true }, uniform{ false };
+	} circle;
+
+	struct Rectangle {
+		Math::ValueSet< Math::Vec2 > size{ Math::Vec2( 64.f, 64.f ) };
+		bool fill{ true }, uniform{ false };
+	} rectangle;
+};
+
+//--------------------------------------------------------------------------------
+
+struct Pattern {
+	// Properties
+	struct Properties {
+		string name{ "New Pattern" };
+		Math::ValueSet< int > lifetime{ 1000 };
+		Math::ValueSet< int > number{ 0 };
+	} properties;
+
+	// Shape
 	struct Shape {
+		// Type
 		enum Type {
 			Circle,
 			Rect,
 			Texture,
-		} type{ Type::Texture };
+		} type{ Type::Circle };
 
-		Math::ValueSet< Math::Color > color{ Colors::WHITE };
+		// Texture
+		string texture{ "circle_05", 256u };
+		string shader{ "default", 256u };
 
-		Math::ValueSet< Math::Color > outlineColor{ Colors::WHITE };
-		Math::ValueSet< float > outlineThickness{ .0f };
-
-		string texture{ "circle_05" };
-		string shader{ "default" };
-
-		Math::ValueSet < Math::Vec2 > size{ Math::Vec2( 1.f, 1.f ) };
-		Math::ValueSet< float > rotation{ .0f };
-		Math::ValueSet< float > spin{ .0f };
-	} shape;
-
-	// Initial
-	struct Initial {
-		Math::ValueSet< int > lifetime{ 1000 };
-		Math::ValueSet< Math::Vec2 > position{ Math::Vec2() };
-		Math::ValueSet< Math::Vec2 > direction{ Math::Vec2() };
-		Math::ValueSet< float > velocity{ .0f };
-		Math::ValueSet< Math::Vec2 > acceleration{ Math::Vec2() };
-		Math::ValueSet< int > number{ 1 };
-	} initial;
-
-	// Fades
-	struct Fade {
-		struct Velocity {
-			Math::ValueSet< float > start{ 1.f };
-			Math::ValueSet< float > end{ .0f };
-			bool x{ false }, y{ false };
-		} velocity;
-
-		struct Acceleration {
-			Math::ValueSet< float > start{ 1.f };
-			Math::ValueSet< float > end{ .0f };
-			bool x{ false }, y{ false };
-		} acceleration;
-
+		// Size
 		struct Size {
-			Math::ValueSet< float > start{ 1.f };
-			Math::ValueSet< float > end{ .0f };
-			bool active{ false };
+			Math::ValueSet< Math::Vec2 > size{ Math::Vec2( 1.f, 1.f ) };
+
+			// Fade
+			struct Fade {
+				Math::ValueSet< float > start{ 1.f };
+				Math::ValueSet< float > end{ 0.f };
+				bool x{ false }, y{ false };
+			} fade;
 		} size;
 
+		// Color
 		struct Color {
-			Math::ValueSet< Math::Color > target{ Math::Color( 1.f, 1.f, 1.f, .0f ) };
-			bool r{ false }, g{ false }, b{ false }, a{ false };
+			Math::ValueSet< Math::Color > color{ Colors::WHITE };
+
+			// Fade
+			struct Fade {
+				Math::ValueSet< Math::Color > target{ Math::Color( 1.f, 1.f, 1.f, 0.f ) };
+				bool r{ false }, g{ false }, b{ false }, a{ false };
+			} fade;
 		} color;
 
-		struct Spin {
-			Math::ValueSet< float > start{ 1.f };
-			Math::ValueSet< float > end{ .0f };
-			bool active{ false };
-		};
+		// Outline
+		struct Outline {
+			// Color
+			struct Color {
+				Math::ValueSet< Math::Color > color{ Colors::WHITE };
 
-	} fade;
+				// Fade
+				struct Fade {
+					Math::ValueSet< Math::Color > target{ Math::Color( 1.f, 1.f, 1.f, 0.f ) };
+					bool r{ false }, g{ false }, b{ false }, a{ false };
+				} fade;
+			} color;
+
+			// Thickness
+			struct Thickness {
+				Math::ValueSet< float > thickness{ 0.f };
+
+				struct Fade {
+					Math::ValueSet< float > start{ 1.f };
+					Math::ValueSet< float > end{ 0.f };
+					bool active{ false };
+				} fade;
+			} thickness;
+		} outline;
+
+		// Origin
+		struct Origin {
+			PositionSet position{ Math::Vec2( .5f, .5f ) };
+			VelocitySet velocity;
+		} origin;
+	} shape;
+
+	// Physics
+	struct Physics {
+		// Position
+		PositionSet position;
+
+		// Velocity
+		VelocitySet velocity;
+
+		// Acceleration
+		VelocitySet acceleration;
+
+		// Rotation
+		struct Rotation {
+			Math::ValueSet< float > rotation{ 0.f };
+
+			// Fade
+			struct Fade {
+				Math::ValueSet< float > target{ 360.f };
+				bool active{ false };
+			} fade;
+
+			// Spin
+			struct Spin {
+				Math::ValueSet< float > spin{ 0.f };
+
+				// Fade
+				struct Fade {
+					Math::ValueSet< float > start{ 1.f };
+					Math::ValueSet< float > end{ 0.f };
+					bool active{ false };
+				} fade;
+			} spin;
+		} rotation;
+	} physics;
 
 	// Inheritance
-	struct {
+	struct Inheritance {
 		bool position{ true };
 		bool velocity{ false };
 		bool size{ false };
@@ -135,27 +264,29 @@ namespace Emitter {
 
 struct Pattern {
 	// Properties
-	string name = "New Emitter";
-	Math::ValueSet< Math::Vec2 > position{ Math::Vec2() };
+	struct Properties {
+		string name = "New Emitter";
+		Math::ValueSet< Math::Vec2 > position{ Math::Vec2() };
 
-	// Activation
-	struct Activation {
-		enum class Type {
-			OnSpawn,
-			Alpha,
-			OnDestruction
-		} type{ Type::OnSpawn };
+		// Activation
+		struct Activation {
+			enum Type {
+				OnSpawn,
+				Alpha,
+				OnDestruction
+			} type{ Type::OnSpawn };
 
-		Math::ValueSet< float > start{ 1.f };
-		Math::ValueSet< float > end{ 0.f };
-	} activation;
+			Math::ValueSet< float > start{ 1.f };
+			Math::ValueSet< float > end{ 0.f };
+		} activation;
 
-	// Spawn Rate
-	struct SpawnRate {
-		Math::ValueSet< float > start{ 1.f };
-		Math::ValueSet< float > end{ 0.f };
-		bool fade{ false };
-	} rate;
+		// Spawn Rate
+		struct SpawnRate {
+			Math::ValueSet< float > start{ 1.f };
+			Math::ValueSet< float > end{ 0.f };
+			bool fade{ false };
+		} rate;
+	} properties;
 
 	// Multpliers
 	struct {

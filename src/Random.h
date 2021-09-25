@@ -34,6 +34,8 @@ float getRandomFloatInRange( float min, float max, function< float( float random
 RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count );
 RandomNumbers< float > getRandomFloatInRange( float min, float max, size_t count, function< float( float randomNumber ) > func );
 
+bool getRandomBool();
+
 Math::Vec2 getRandomVec2InRange( Math::Vec2 min, Math::Vec2 max );
 
 //--------------------------------------------------------------------------------

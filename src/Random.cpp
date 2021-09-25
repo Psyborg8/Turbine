@@ -210,6 +210,13 @@ RandomNumbers< Math::Color > getRandomColorInRange( Math::Color a, Math::Color b
 
 //--------------------------------------------------------------------------------
 
+bool getRandomBool() {
+	int out = rand();
+	return out % 2;
+}
+
+//--------------------------------------------------------------------------------
+
 uint16_t getSeed() {
 	return seed;
 }

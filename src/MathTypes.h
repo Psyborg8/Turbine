@@ -123,6 +123,9 @@ struct ValueSet {
 	T value;
 
 	bool random{ false };
+	bool lock{ false };
+	bool hsv{ false };
+	bool inverse{ false };
 };
 
 void processSet( Math::ValueSet< int >& set );

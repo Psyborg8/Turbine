@@ -38,6 +38,8 @@ public:
 public:
 	void renderPattern( Gfx::Particle::Pattern& pattern );
 	void renderEmitter( Gfx::Emitter::Pattern& emitter );
+	void renderVelocitySet( Gfx::Particle::VelocitySet& set );
+	void renderPositionSet( Gfx::Particle::PositionSet& set );
 	void renderPatternTreeView();
 	void renderPatternTreeNode( Gfx::Particle::Pattern& pattern, vector< Tab > stack );
 	void renderEmitterTreeNode( Gfx::Emitter::Pattern& pattern, vector< Tab > stack );

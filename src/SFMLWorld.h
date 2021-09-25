@@ -8,6 +8,7 @@
 #include "World.h"
 #include "GameTimer.h"
 #include "Player.h"
+#include "Emitter.h"
 
 //================================================================================
 
@@ -24,6 +25,7 @@ public:
 	void onStart() override;
 	void onRender() override;
 	void onUpdate( sf::Time deltaTime ) override;
+	void onPostUpdate( sf::Time deltaTime ) override;
 	void onProcessCollisions() override;
 	void onMessage( string message ) override;
 
@@ -47,7 +49,7 @@ protected:
 // Debug
 protected:
 	shared_ptr< Gfx::GameTimer > m_timer;
-
+	shared_ptr< Gfx::Emitter::Emitter > m_fog;
 	vector< string > m_activeEvents;
 };
 

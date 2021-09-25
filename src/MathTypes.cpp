@@ -466,6 +466,10 @@ void processSet( Math::ValueSet< int >& set ) {
 		set.value = Random::getRandomIntInRange( set.min, set.max );
 	else
 		set.value = set.min;
+
+	if( set.inverse )
+		if( Random::getRandomBool() )
+			set.value = -set.value;
 }
 
 //--------------------------------------------------------------------------------
@@ -475,22 +479,50 @@ void processSet( Math::ValueSet< float >& set ) {
 		set.value = Random::getRandomFloatInRange( set.min, set.max );
 	else
 		set.value = set.min;
+
+	if( set.inverse )
+		if( Random::getRandomBool() )
+			set.value = -set.value;
 }
 
 //--------------------------------------------------------------------------------
 
 void processSet( Math::ValueSet< Math::Vec2 >& set ) {
 	if( set.random )
-		set.value = Random::getRandomVec2InRange( set.min, set.max );
+		if( set.lock )
+			set.value = mix( set.min, set.max, Random::getRandomFloatInRange( 0.0f, 1.0f ) );
+		else
+			set.value = Random::getRandomVec2InRange( set.min, set.max );
 	else
 		set.value = set.min;
+
+	if( set.inverse ) {
+		if( Random::getRandomBool() )
+			set.value.x = -set.value.x;
+		if( Random::getRandomBool() )
+			set.value.y = -set.value.y;
+	}
 }
 
 //--------------------------------------------------------------------------------
 
 void processSet( Math::ValueSet< Math::Color >& set ) {
-	if( set.random )
+	if( set.random ) {
+		Random::RandomColorType type;
+
+		if( set.lock )
+			if( set.hsv )
+				type = Random::RandomColorType::MixHSV;
+			else
+				type = Random::RandomColorType::MixRGB;
+		else
+			if( set.hsv )
+				type = Random::RandomColorType::ShuffleHSV;
+			else
+				type = Random::RandomColorType::ShuffleRGB;
+
 		set.value = Random::getRandomColorInRange( set.min, set.max, Random::RandomColorType::MixRGB );
+	}
 	else
 		set.value = set.min;
 }

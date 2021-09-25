@@ -39,42 +39,28 @@ void drawHeader( const char* label ) {
 
 //--------------------------------------------------------------------------------
 
-bool drawValueSet( Math::ValueSet< int >& set, const char* id, bool slider = false, int min = std::numeric_limits< int >::min(), int max = std::numeric_limits< int >::max() ) {
+bool drawValueSet( Math::ValueSet< int >& set, const char* id, bool inverse = false ) {
 	bool out = false;
 
 	ImGui::PushID( id );
 
+	if( inverse ) {
+		out |= ImGui::Checkbox( "Inverse", &set.inverse );
+		ImGui::SameLine();
+	}
 	out |= ImGui::Checkbox( "Random", &set.random );
+	if( set.random ) {
+		ImGui::SameLine();
+		out |= ImGui::Checkbox( "Lock", &set.lock );
+
+	}
 
 	if( set.random ) {
-		if( slider ) {
-			out |= ImGui::DragInt( "min", &set.min, 1.0f, min, max );
-			out |= ImGui::DragInt( "max", &set.max, 1.0f, min, max );
-		}
-		else {
-			out |= ImGui::InputInt( "min", &set.min );
-			if( set.min < min )
-				set.min = min;
-			if( set.min > max )
-				set.min = max;
-
-			out |= ImGui::InputInt( "max", &set.max );
-			if( set.max < min )
-				set.max = min;
-			if( set.max > max )
-				set.max = max;
-		}
+		out |= ImGui::InputInt( "min", &set.min );
+		out |= ImGui::InputInt( "max", &set.max );
 	}
 	else {
-		if( slider )
-			out |= ImGui::DragInt( "", &set.min, 1.0f, min, max );
-		else {
-			out |= ImGui::InputInt( "", &set.min );
-			if( set.min < min )
-				set.min = min;
-			if( set.min > max )
-				set.min = max;
-		}
+		out |= ImGui::InputInt( "", &set.min );
 	}
 
 	ImGui::PopID();
@@ -84,42 +70,28 @@ bool drawValueSet( Math::ValueSet< int >& set, const char* id, bool slider = fal
 
 //--------------------------------------------------------------------------------
 
-bool drawValueSet( Math::ValueSet< float >& set, const char* id, bool slider = false, float min = std::numeric_limits< float >::min(), float max = std::numeric_limits< float >::max() ) {
+bool drawValueSet( Math::ValueSet< float >& set, const char* id, bool inverse = false ) {
 	bool out = false;
 
 	ImGui::PushID( id );
 
+	if( inverse ) {
+		out |= ImGui::Checkbox( "Inverse", &set.inverse );
+		ImGui::SameLine();
+	}
 	out |= ImGui::Checkbox( "Random", &set.random );
+	if( set.random ) {
+		ImGui::SameLine();
+		out |= ImGui::Checkbox( "Lock", &set.lock );
+
+	}
 
 	if( set.random ) {
-		if( slider ) {
-			out |= ImGui::DragFloat( "min", &set.min, 1.0f, min, max );
-			out |= ImGui::DragFloat( "max", &set.max, 1.0f, min, max );
-		}
-		else {
-			out |= ImGui::InputFloat( "min", &set.min );
-			if( set.min < min )
-				set.min = min;
-			if( set.min > max )
-				set.min = max;
-
-			out |= ImGui::InputFloat( "max", &set.max );
-			if( set.max < min )
-				set.max = min;
-			if( set.max > max )
-				set.max = max;
-		}
+		out |= ImGui::InputFloat( "min", &set.min );
+		out |= ImGui::InputFloat( "max", &set.max );
 	}
 	else {
-		if( slider )
-			out |= ImGui::DragFloat( "", &set.min, 1.0f, min, max );
-		else {
-			out |= ImGui::InputFloat( "", &set.min );
-			if( set.min < min )
-				set.min = min;
-			if( set.min > max )
-				set.min = max;
-		}
+		out |= ImGui::InputFloat( "", &set.min );
 	}
 
 	ImGui::PopID();
@@ -129,12 +101,21 @@ bool drawValueSet( Math::ValueSet< float >& set, const char* id, bool slider = f
 
 //--------------------------------------------------------------------------------
 
-bool drawValueSet( Math::ValueSet< Math::Vec2 >& set, const char* id ) {
+bool drawValueSet( Math::ValueSet< Math::Vec2 >& set, const char* id, bool inverse = false ) {
 	bool out = false;
 
 	ImGui::PushID( id );
 
+	if( inverse ) {
+		out |= ImGui::Checkbox( "Inverse", &set.inverse );
+		ImGui::SameLine();
+	}
 	out |= ImGui::Checkbox( "Random", &set.random );
+	if( set.random ) {
+		ImGui::SameLine();
+		out |= ImGui::Checkbox( "Lock", &set.lock );
+
+	}
 
 	if( set.random ) {
 		out |= ImGui::InputFloat2( "min", &set.min.x );
@@ -159,6 +140,13 @@ bool drawValueSet( Math::ValueSet< Math::Color >& set, const char* id ) {
 	out |= ImGui::Checkbox( "Random", &set.random );
 
 	if( set.random ) {
+		ImGui::SameLine();
+		out |= ImGui::Checkbox( "Lock", &set.lock );
+		ImGui::SameLine();
+		out |= ImGui::Checkbox( "HSV", &set.hsv );
+	}
+
+	if( set.random ) {
 		out |= ImGui::ColorEdit4( "min", &set.min.r );
 		out |= ImGui::ColorEdit4( "max", &set.max.r );
 	}
@@ -167,6 +155,193 @@ bool drawValueSet( Math::ValueSet< Math::Color >& set, const char* id ) {
 		out |= ImGui::ColorEdit4( "", &set.min.r );
 	}
 
+	ImGui::PopID();
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+bool drawFade( Math::ValueSet< float >& start, Math::ValueSet< float >& end, bool& active, const char* id ) {
+	bool out = false;
+
+	ImGui::PushID( id );
+	ImGui::PushID( "Fade" );
+	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+		out |= ImGui::Checkbox( "Fade", &active );
+		ImGui::Text( "Start" );
+		out |= drawValueSet( start, "Start" );
+		ImGui::Text( "End" );
+		out |= drawValueSet( end, "End" );
+
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+	ImGui::PopID();
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+bool drawFade( Math::ValueSet< float >& start, Math::ValueSet< float >& end, bool& x, bool& y, const char* id ) {
+	bool out = false;
+
+	ImGui::PushID( id );
+	ImGui::PushID( "Fade" );
+	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+		out |= ImGui::Checkbox( "X", &x );
+		ImGui::SameLine();
+		out |= ImGui::Checkbox( "Y", &y );
+
+		ImGui::Text( "Start" );
+		out |= drawValueSet( start, "Start" );
+		ImGui::Text( "End" );
+		out |= drawValueSet( end, "End" );
+
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+	ImGui::PopID();
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+bool drawFade( Math::ValueSet< float >& target, bool& active, const char* id ) {
+	bool out = false;
+
+	ImGui::PushID( id );
+	ImGui::PushID( "Fade" );
+	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+		out |= ImGui::Checkbox( "Fade", &active );
+
+		ImGui::Text( "Target" );
+		out |= drawValueSet( target, "Target" );
+
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+	ImGui::PopID();
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+bool drawFade( Math::ValueSet< Math::Vec2 >& start, Math::ValueSet< Math::Vec2 >& end, bool& active, const char* id ) {
+	bool out = false;
+
+	ImGui::PushID( id );
+	ImGui::PushID( "Fade" );
+	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+		out |= ImGui::Checkbox( "Fade", &active );
+
+		ImGui::Text( "Start" );
+		out |= drawValueSet( start, "Start" );
+		ImGui::Text( "End" );
+		out |= drawValueSet( end, "End" );
+
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+	ImGui::PopID();
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+bool drawFade( Math::ValueSet< Math::Vec2 >& target, bool& active, const char* id ) {
+	bool out = false;
+
+	ImGui::PushID( id );
+	ImGui::PushID( "Fade" );
+	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+		out |= ImGui::Checkbox( "Fade", &active );
+
+		ImGui::Text( "Target" );
+		out |= drawValueSet( target, "Target" );
+
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+	ImGui::PopID();
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+bool drawFade( Math::ValueSet< Math::Vec2 >& start, Math::ValueSet< Math::Vec2 >& end, bool& x, bool& y, const char* id ) {
+	bool out = false;
+
+	ImGui::PushID( id );
+	ImGui::PushID( "Fade" );
+	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+		out |= ImGui::Checkbox( "X", &x );
+		ImGui::SameLine();
+		out |= ImGui::Checkbox( "Y", &y );
+		
+		ImGui::Text( "Start" );
+		out |= drawValueSet( start, "Start" );
+		ImGui::Text( "End" );
+		out |= drawValueSet( end, "End" );
+
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+	ImGui::PopID();
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+bool drawFade( Math::ValueSet< Math::Vec2 >& target, bool& x, bool& y, const char* id ) {
+	bool out = false;
+
+	ImGui::PushID( id );
+	ImGui::PushID( "Fade" );
+	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+		out |= ImGui::Checkbox( "X", &x );
+		ImGui::SameLine();
+		out |= ImGui::Checkbox( "Y", &y );
+
+		ImGui::Text( "Target" );
+		out |= drawValueSet( target, "Target" );
+
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+	ImGui::PopID();
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+bool drawFade( Math::ValueSet< Math::Color >& target, bool& r, bool& g, bool& b, bool& a, const char* id ) {
+	bool out = false;
+
+	ImGui::PushID( id );
+	ImGui::PushID( "Fade" );
+	if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+		out |= ImGui::Checkbox( "R", &r );
+		ImGui::SameLine();
+		out |= ImGui::Checkbox( "G", &g );
+		ImGui::SameLine();
+		out |= ImGui::Checkbox( "B", &b );
+		ImGui::SameLine();
+		out |= ImGui::Checkbox( "A", &a );
+
+		ImGui::Text( "Target" );
+		out |= drawValueSet( target, "Target" );
+
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
 	ImGui::PopID();
 
 	return out;
@@ -306,11 +481,11 @@ void BulletPatternEditor::onEvent( sf::Event e ) {
 			Tab& tab = *m_tabs.rbegin();
 			if( tab.emitter ) {
 				Gfx::Emitter::Pattern* pattern = static_cast< Gfx::Emitter::Pattern* >( tab.pattern );
-				Gfx::saveEmitter( *pattern, pattern->name );
+				Gfx::saveEmitter( *pattern, pattern->properties.name );
 			}
 			else {
 				Gfx::Particle::Pattern* pattern = static_cast< Gfx::Particle::Pattern* >( tab.pattern );
-				Gfx::savePattern( *pattern, pattern->name );
+				Gfx::savePattern( *pattern, pattern->properties.name );
 			}
 		}
 	}
@@ -371,9 +546,9 @@ void BulletPatternEditor::onRender() {
 
 	string tabName;
 	if( m_emitter )
-		tabName = m_baseEmitter.name;
+		tabName = m_baseEmitter.properties.name;
 	else
-		tabName = m_basePattern.name;
+		tabName = m_basePattern.properties.name;
 
 	if( ImGui::Button( tabName.c_str() ) ) {
 		m_tabs.clear();
@@ -392,9 +567,9 @@ void BulletPatternEditor::onRender() {
 		const Tab tab = m_tabs.at( i );
 		string name;
 		if( tab.emitter )
-			name = static_cast< Gfx::Emitter::Pattern* >( tab.pattern )->name;
+			name = static_cast< Gfx::Emitter::Pattern* >( tab.pattern )->properties.name;
 		else
-			name = static_cast< Gfx::Particle::Pattern* >( tab.pattern )->name;
+			name = static_cast< Gfx::Particle::Pattern* >( tab.pattern )->properties.name;
 		
 		tabName = name + "##" + std::to_string( i );
 		if( ImGui::Button( tabName.c_str() ) ) {
@@ -449,7 +624,7 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 	ImGui::PushID( m_patternID++ );
 
 	ImGui::SetWindowFontScale( 1.2f );
-	ImGui::Text( pattern.name.c_str() );
+	ImGui::Text( pattern.properties.name.c_str() );
 	ImGui::SetWindowFontScale( 1.0f );
 
 	drawSpacer();
@@ -458,18 +633,18 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 		ImGui::OpenPopup( "Rename" );
 		delete[] m_renameBuffer;
 		m_renameBuffer = new char[ 66565 ];
-		strcpy_s( m_renameBuffer, 66565, pattern.name.c_str() );
+		strcpy_s( m_renameBuffer, 66565, pattern.properties.name.c_str() );
 	}
 
 	ImGui::SameLine();
 
 	if( ImGui::Button( "Save" ) )
-		Gfx::savePattern( pattern, pattern.name );
+		Gfx::savePattern( pattern, pattern.properties.name );
 
 	ImGui::SameLine();
 
 	if( ImGui::Button( "Load" ) ) {
-		pattern = Gfx::loadPattern( pattern.name );
+		pattern = Gfx::loadPattern( pattern.properties.name );
 		m_changed = true;
 	}
 
@@ -478,160 +653,257 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 			ImGui::CloseCurrentPopup();
 
 		if( ImGui::InputText( "Rename", m_renameBuffer, 65565, ImGuiInputTextFlags_EnterReturnsTrue ) ) {
-			pattern.name = m_renameBuffer;
+			pattern.properties.name = m_renameBuffer;
 			ImGui::CloseCurrentPopup();
 		}
 
-		ImGui::EndPopup();
+		ImGui::EndPopup(); // Rename
 	}
 
 	drawDoubleSpacer();
 
-	ImGui::Text( "Render" );
-
-	drawSpacer();
-
-	if( ImGui::TreeNodeEx( "Size", ImGuiTreeNodeFlags_Framed ) ) {
-		ImGui::Text( "Size" );
-		ImGui::Spacing();
-		m_changed |= drawValueSet( pattern.shape.size, "Size" );
-
-		ImGui::Spacing();
-
-		ImGui::PushID( "Size" );
-		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
-
-			m_changed |= ImGui::Checkbox( "Fade", &pattern.fade.size.active );
-
-			ImGui::Text( "Start" );
-			m_changed |= drawValueSet( pattern.fade.size.start, "FadeSizeStart", false, 0.0f, std::numeric_limits< float >::max() );
-			ImGui::Text( "End" );
-			m_changed |= drawValueSet( pattern.fade.size.end, "FadeSizeEnd", false, 0.0f, std::numeric_limits< float >::max() );
-
-			ImGui::TreePop();
-		}
-		ImGui::PopID();
-		ImGui::TreePop();
-	}
-
-	if( ImGui::TreeNodeEx( "Color", ImGuiTreeNodeFlags_Framed ) ) {
-		ImGui::Text( "Color" );
-		ImGui::Spacing();
-		m_changed |= drawValueSet( pattern.shape.color, "Color" );
-
-		ImGui::Spacing();
-
-		ImGui::PushID( "Color" );
-		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
-			m_changed |= ImGui::Checkbox( "R", &pattern.fade.color.r );
-			ImGui::SameLine();
-			m_changed |= ImGui::Checkbox( "G", &pattern.fade.color.g );
-			ImGui::SameLine();
-			m_changed |= ImGui::Checkbox( "B", &pattern.fade.color.b );
-			ImGui::SameLine();
-			m_changed |= ImGui::Checkbox( "A", &pattern.fade.color.a );
-
-			ImGui::Text( "Target" );
-			m_changed |= drawValueSet( pattern.fade.color.target, "ColorTarget" );
-
-			ImGui::TreePop();
-		}
-		ImGui::PopID();
-		ImGui::TreePop();
-	}
-
-	if( ImGui::TreeNodeEx( "Outline", ImGuiTreeNodeFlags_Framed ) ) {
-		ImGui::PushID( "Outline" );
-
-		ImGui::Text( "Color" );
-		m_changed |= drawValueSet( pattern.shape.outlineColor, "Outline Color" );
-
-		ImGui::Spacing();
-
-		ImGui::Text( "Thickness" );
-		m_changed |= drawValueSet( pattern.shape.outlineThickness, "Outline Thickness" );
-
-		ImGui::PopID();
-		ImGui::TreePop();
-	}
-
-	drawDoubleSpacer();
-
+	/* Properties */
+	ImGui::PushID( "Properties" );
 	ImGui::Text( "Properties" );
-
 	drawSpacer();
 
-
+	// Lifetime
+	ImGui::PushID( "Lifetime" );
 	if( ImGui::TreeNodeEx( "Lifetime", ImGuiTreeNodeFlags_Framed ) ) {
-		m_changed |= drawValueSet( pattern.initial.lifetime, "Lifetime" );
-		ImGui::TreePop();
+		m_changed |= drawValueSet( pattern.properties.lifetime, "Lifetime" );
+		ImGui::TreePop(); // Lifetime
 	}
+	ImGui::PopID(); // Lifetime
 
+	// Number
+	ImGui::PushID( "Number" );
 	if( ImGui::TreeNodeEx( "Number", ImGuiTreeNodeFlags_Framed ) ) {
-		m_changed |= drawValueSet( pattern.initial.number, "Number" );
-		ImGui::TreePop();
+		m_changed |= drawValueSet( pattern.properties.number, "Number" );
+		ImGui::TreePop(); // Number
+	}
+	ImGui::PopID(); // Number
+	ImGui::PopID(); // Properties
+
+	drawDoubleSpacer();
+
+	/* Shape */
+	ImGui::PushID( "Shape" );
+	ImGui::Text( "Shape" );
+	drawSpacer();
+
+	// Type
+	ImGui::PushID( "Type" );
+	if( ImGui::Button( "Circle" ) ) {
+		pattern.shape.type = Gfx::Particle::Pattern::Shape::Type::Circle;
+		m_changed = true;
+	}
+	ImGui::SameLine();
+	if( ImGui::Button( "Rectangle" ) ) {
+		pattern.shape.type = Gfx::Particle::Pattern::Shape::Type::Rect;
+		m_changed = true;
+	}
+	ImGui::SameLine();
+	if( ImGui::Button( "Texture" ) ) {
+		pattern.shape.type = Gfx::Particle::Pattern::Shape::Type::Texture;
+		m_changed = true;
+	}
+	ImGui::PopID(); // Type
+
+	if( pattern.shape.type == Gfx::Particle::Pattern::Shape::Type::Texture ) {
+		// Texture
+		ImGui::PushID( "Texture" );
+
+		if( ImGui::InputText( "Texture", pattern.shape.texture.data(), 1024u, ImGuiInputTextFlags_EnterReturnsTrue ) ) {
+			m_changed = true;
+		}
+		if( ImGui::InputText( "Shader", pattern.shape.shader.data(), 1024u, ImGuiInputTextFlags_EnterReturnsTrue ) ) {
+			m_changed = true;
+		}
+
+		ImGui::PopID();// Texture;
 	}
 
-	if( ImGui::TreeNodeEx( "Velocity", ImGuiTreeNodeFlags_Framed ) ) {
-		ImGui::Text( "Direction" );
-		m_changed |= drawValueSet( pattern.initial.direction, "Direction" );
+	// Size
+	ImGui::PushID( "Size" );
+	if( ImGui::TreeNodeEx( "Size", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= drawValueSet( pattern.shape.size.size, "Size" );
+
+		m_changed |= drawFade( pattern.shape.size.fade.start,
+				  pattern.shape.size.fade.end,
+				  pattern.shape.size.fade.x,
+				  pattern.shape.size.fade.y,
+				  "Size" );
+
+		ImGui::TreePop(); // Size
+	}
+	ImGui::PopID(); // Size
+
+	// Color
+	ImGui::PushID( "Color" );
+	if( ImGui::TreeNodeEx( "Color", ImGuiTreeNodeFlags_Framed ) ) {
+		m_changed |= drawValueSet( pattern.shape.color.color, "Color" );
+
+		m_changed |= drawFade( pattern.shape.color.fade.target,
+				  pattern.shape.color.fade.r,
+				  pattern.shape.color.fade.g,
+				  pattern.shape.color.fade.b,
+				  pattern.shape.color.fade.a,
+				  "Color" );
+
+		ImGui::TreePop(); // Color
+	}
+	ImGui::PopID(); // Color;
+
+	if( pattern.shape.type != Gfx::Particle::Pattern::Shape::Type::Texture ) {
+		// Outline
+		ImGui::PushID( "Outline" );
+		if( ImGui::TreeNodeEx( "Outline", ImGuiTreeNodeFlags_Framed ) ) {
+			// Color
+			ImGui::PushID( "Color" );
+			ImGui::Text( "Color" );
+			m_changed |= drawValueSet( pattern.shape.outline.color.color, "Color" );
+
+			m_changed |= drawFade( pattern.shape.outline.color.fade.target,
+					  pattern.shape.outline.color.fade.r,
+					  pattern.shape.outline.color.fade.g,
+					  pattern.shape.outline.color.fade.b,
+					  pattern.shape.outline.color.fade.a,
+					  "Color" );
+
+			ImGui::PopID(); // Color
+
+			ImGui::Spacing();
+
+			// Thickness
+			ImGui::PushID( "Thickness" );
+			ImGui::Text( "Thickness" );
+			m_changed |= drawValueSet( pattern.shape.outline.thickness.thickness, "Thickness" );
+
+			m_changed |= drawFade( pattern.shape.outline.thickness.fade.start,
+					  pattern.shape.outline.thickness.fade.end,
+					  pattern.shape.outline.thickness.fade.active,
+					  "Thickness" );
+
+			ImGui::PopID(); // Thickness
+
+			ImGui::TreePop(); // Outline
+		}
+		ImGui::PopID(); // Outline
+	}
+
+	// Origin
+	ImGui::PushID( "Origin" );
+	if( ImGui::TreeNodeEx( "Origin", ImGuiTreeNodeFlags_Framed ) ) {
+		ImGui::PushID( "Position" );
+		ImGui::Text( "Position" );
+		ImGui::Indent();
+		renderPositionSet( pattern.shape.origin.position );
+		ImGui::Unindent();
+		ImGui::PopID(); // Position
 
 		ImGui::Spacing();
-
-		ImGui::Text( "Speed" );
-		m_changed |= drawValueSet( pattern.initial.velocity, "Speed" );
 
 		ImGui::PushID( "Velocity" );
-		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
+		ImGui::Text( "Velocity" );
+		ImGui::Indent();
+		renderVelocitySet( pattern.shape.origin.velocity );
+		ImGui::Unindent();
+		ImGui::PopID(); // Velocity
 
-			m_changed |= ImGui::Checkbox( "X", &pattern.fade.velocity.x );
-			ImGui::SameLine();
-			m_changed |= ImGui::Checkbox( "Y", &pattern.fade.velocity.y );
-
-			ImGui::Text( "Start" );
-			m_changed |= drawValueSet( pattern.fade.velocity.start, "FadeVelocityStart" );
-			ImGui::Text( "End" );
-			m_changed |= drawValueSet( pattern.fade.velocity.end, "FadeVelocityEnd" );
-			ImGui::TreePop();
-		}
-		ImGui::PopID();
-		ImGui::TreePop();
+		ImGui::TreePop(); //Origin
 	}
-
-	if( ImGui::TreeNodeEx( "Acceleration", ImGuiTreeNodeFlags_Framed ) ) {
-		ImGui::Spacing();
-		m_changed |= drawValueSet( pattern.initial.acceleration, "Acceleration" );
-
-		ImGui::Spacing();
-
-		ImGui::PushID( "Acceleration" );
-		if( ImGui::TreeNodeEx( "Fade", ImGuiTreeNodeFlags_Framed ) ) {
-
-			m_changed |= ImGui::Checkbox( "X", &pattern.fade.acceleration.x );
-			ImGui::SameLine();
-			m_changed |= ImGui::Checkbox( "Y", &pattern.fade.acceleration.y );
-
-			ImGui::Text( "Start" );
-			m_changed |= drawValueSet( pattern.fade.acceleration.start, "FadeAccelerationStart" );
-			ImGui::Text( "End" );
-			m_changed |= drawValueSet( pattern.fade.acceleration.end, "FadeAccelerationEnd" );
-
-			ImGui::TreePop();
-		}
-		ImGui::PopID();
-		ImGui::TreePop();
-	}
+	ImGui::PopID(); // Origin
+	ImGui::PopID(); // Shape
 
 	drawDoubleSpacer();
 
-	ImGui::Text( "Emitters" );
+	/* Physics */
+	ImGui::PushID( "Physics" );
+	ImGui::Text( "Physics" );
+	drawSpacer();
 
+	// Position
+	ImGui::PushID( "Position" );
+	if( ImGui::TreeNodeEx( "Position", ImGuiTreeNodeFlags_Framed ) ) {
+		renderPositionSet( pattern.physics.position );
+
+		ImGui::TreePop(); // Position
+	}
+	ImGui::PopID(); // Position
+
+	// Velocity
+	ImGui::PushID( "Velocity" );
+	if( ImGui::TreeNodeEx( "Velocity", ImGuiTreeNodeFlags_Framed ) ) {
+		renderVelocitySet( pattern.physics.velocity );
+
+		ImGui::TreePop(); // Velocity
+	}
+	ImGui::PopID(); // Velocity
+
+	// Acceleration
+	ImGui::PushID( "Acceleration" );
+	if( ImGui::TreeNodeEx( "Acceleration", ImGuiTreeNodeFlags_Framed ) ) {
+		renderVelocitySet( pattern.physics.acceleration );
+
+		ImGui::TreePop(); // Acceleration
+	}
+	ImGui::PopID(); // Acceleration
+
+	// Rotation
+	ImGui::PushID( "Rotation" );
+	if( ImGui::TreeNodeEx( "Rotation", ImGuiTreeNodeFlags_Framed ) ) {
+		ImGui::PushID( "Rotation" );
+		ImGui::Text( "Rotation" );
+		m_changed |= drawValueSet( pattern.physics.rotation.rotation, "Rotation", true );
+
+		m_changed |= drawFade( pattern.physics.rotation.fade.target,
+				  pattern.physics.rotation.fade.active,
+				  "Rotation" );
+		ImGui::PopID(); // Rotation
+
+		ImGui::Spacing();
+
+		// Spin
+		ImGui::PushID( "Spin" );
+		ImGui::Text( "Spin" );
+		m_changed |= drawValueSet( pattern.physics.rotation.spin.spin, "Spin", true );
+			
+		m_changed |= drawFade( pattern.physics.rotation.spin.fade.start,
+					pattern.physics.rotation.spin.fade.end,
+					pattern.physics.rotation.spin.fade.active,
+					"Spin" );
+		ImGui::PopID(); // Spin
+
+		ImGui::TreePop(); // Rotation
+	}
+	ImGui::PopID(); // Rotation
+	ImGui::PopID(); // Physics
+
+	drawDoubleSpacer();
+
+	/* Inheritance */
+	ImGui::PushID( "Inheritance" );
+	ImGui::Text( "Inheritance" );
+	drawSpacer();
+
+	m_changed |= ImGui::Checkbox( "Position", &pattern.inheritance.position );
+	m_changed |= ImGui::Checkbox( "Velocity", &pattern.inheritance.velocity );
+	m_changed |= ImGui::Checkbox( "Size", &pattern.inheritance.size );
+	m_changed |= ImGui::Checkbox( "Alpha", &pattern.inheritance.alpha );
+
+	ImGui::PopID(); // Inheritance
+
+	drawDoubleSpacer();
+
+	/* Emitters */
+	ImGui::PushID( "Emitters" );
+	ImGui::Text( "Emitters" );
 	drawSpacer();
 
 	for( size_t i = 0; i < pattern.emitters.size(); ++i ) {
 		Gfx::Emitter::Pattern& emitter = pattern.emitters.at( i );
 
-		ImGui::Text( emitter.name.c_str() );
+		ImGui::Text( emitter.properties.name.c_str() );
 
 		// Edit
 		ImGui::SameLine();
@@ -655,9 +927,11 @@ void BulletPatternEditor::renderPattern( Gfx::Particle::Pattern& pattern ) {
 		m_changed = true;
 	}
 
+	ImGui::PopID();
+
 	drawDoubleSpacer();
 
-	ImGui::PopID();
+	ImGui::PopID(); // m_patternID
 }
 
 //--------------------------------------------------------------------------------
@@ -666,7 +940,7 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 	ImGui::PushID( ++m_patternID );
 
 	ImGui::SetWindowFontScale( 1.2f );
-	ImGui::Text( emitter.name.c_str() );
+	ImGui::Text( emitter.properties.name.c_str() );
 	ImGui::SetWindowFontScale( 1.0f );
 
 	drawSpacer();
@@ -675,18 +949,18 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 		ImGui::OpenPopup( "Rename" );
 		delete[] m_renameBuffer;
 		m_renameBuffer = new char[ 66565 ];
-		strcpy_s( m_renameBuffer, 66565, emitter.name.c_str() );
+		strcpy_s( m_renameBuffer, 66565, emitter.properties.name.c_str() );
 	}
 
 	ImGui::SameLine();
 
 	if( ImGui::Button( "Save" ) )
-		Gfx::saveEmitter( emitter, emitter.name );
+		Gfx::saveEmitter( emitter, emitter.properties.name );
 
 	ImGui::SameLine();
 
 	if( ImGui::Button( "Load" ) ) {
-		emitter = Gfx::loadEmitter( emitter.name );
+		emitter = Gfx::loadEmitter( emitter.properties.name );
 		m_changed = true;
 	}
 
@@ -695,7 +969,7 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 			ImGui::CloseCurrentPopup();
 
 		if( ImGui::InputText( "Rename", m_renameBuffer, 65565, ImGuiInputTextFlags_EnterReturnsTrue ) ) {
-			emitter.name = m_renameBuffer;
+			emitter.properties.name = m_renameBuffer;
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -709,72 +983,74 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 	drawSpacer();
 
 	if( ImGui::TreeNodeEx( "Position", ImGuiTreeNodeFlags_Framed ) ) {
-		m_changed |= drawValueSet( emitter.position, "Position" );
+		m_changed |= drawValueSet( emitter.properties.position, "Position" );
 		ImGui::TreePop();
 	}
 
-	if( ImGui::TreeNodeEx( "Activation", ImGuiTreeNodeFlags_Framed ) ) {
-		string buttonName;
-		if( emitter.activation.type == Gfx::Emitter::Pattern::Activation::Type::OnSpawn )
-			buttonName = "On Spawn";
-		else if( emitter.activation.type == Gfx::Emitter::Pattern::Activation::Type::Alpha )
-			buttonName = "Alpha";
-		else if( emitter.activation.type == Gfx::Emitter::Pattern::Activation::Type::OnDestruction )
-			buttonName = "On Destruction";
+	if( &emitter != &m_baseEmitter ) {
+		if( ImGui::TreeNodeEx( "Activation", ImGuiTreeNodeFlags_Framed ) ) {
+			string buttonName;
+			if( emitter.properties.activation.type == Gfx::Emitter::Pattern::Properties::Activation::Type::OnSpawn )
+				buttonName = "On Spawn";
+			else if( emitter.properties.activation.type == Gfx::Emitter::Pattern::Properties::Activation::Type::Alpha )
+				buttonName = "Alpha";
+			else if( emitter.properties.activation.type == Gfx::Emitter::Pattern::Properties::Activation::Type::OnDestruction )
+				buttonName = "On Destruction";
 
-		if( ImGui::Button( buttonName.c_str() ) )
-			ImGui::OpenPopup( "##ActivationType" );
+			if( ImGui::Button( buttonName.c_str() ) )
+				ImGui::OpenPopup( "##ActivationType" );
 
-		if( ImGui::BeginPopup( "##ActivationType",
-							   ImGuiWindowFlags_NoTitleBar |
-							   ImGuiWindowFlags_NoResize |
-							   ImGuiWindowFlags_NoMove |
-							   ImGuiWindowFlags_NoCollapse |
-							   ImGuiWindowFlags_NoScrollbar |
-							   ImGuiWindowFlags_NoScrollWithMouse |
-							   ImGuiWindowFlags_AlwaysAutoResize ) ) {
-			ImGui::PushID( "ActivationType" );
+			if( ImGui::BeginPopup( "##ActivationType",
+								   ImGuiWindowFlags_NoTitleBar |
+								   ImGuiWindowFlags_NoResize |
+								   ImGuiWindowFlags_NoMove |
+								   ImGuiWindowFlags_NoCollapse |
+								   ImGuiWindowFlags_NoScrollbar |
+								   ImGuiWindowFlags_NoScrollWithMouse |
+								   ImGuiWindowFlags_AlwaysAutoResize ) ) {
+				ImGui::PushID( "ActivationType" );
 
-			if( ImGui::Button( "On Spawn" ) ) {
-				emitter.activation.type = Gfx::Emitter::Pattern::Activation::Type::OnSpawn;
-				m_changed = true;
-				ImGui::CloseCurrentPopup();
+				if( ImGui::Button( "On Spawn" ) ) {
+					emitter.properties.activation.type = Gfx::Emitter::Pattern::Properties::Activation::Type::OnSpawn;
+					m_changed = true;
+					ImGui::CloseCurrentPopup();
+				}
+				else if( ImGui::Button( "Alpha" ) ) {
+					emitter.properties.activation.type = Gfx::Emitter::Pattern::Properties::Activation::Type::Alpha;
+					m_changed = true;
+					ImGui::CloseCurrentPopup();
+				}
+				else if( ImGui::Button( "On Destruction" ) ) {
+					emitter.properties.activation.type = Gfx::Emitter::Pattern::Properties::Activation::Type::OnDestruction;
+					m_changed = true;
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::PopID();
+				ImGui::EndPopup();
 			}
-			else if( ImGui::Button( "Alpha" ) ) {
-				emitter.activation.type = Gfx::Emitter::Pattern::Activation::Type::Alpha;
-				m_changed = true;
-				ImGui::CloseCurrentPopup();
-			}
-			else if( ImGui::Button( "On Destruction" ) ) {
-				emitter.activation.type = Gfx::Emitter::Pattern::Activation::Type::OnDestruction;
-				m_changed = true;
-				ImGui::CloseCurrentPopup();
-			}
 
-			ImGui::PopID();
-			ImGui::EndPopup();
+			if( emitter.properties.activation.type == Gfx::Emitter::Pattern::Properties::Activation::Type::Alpha ) {
+				ImGui::Text( "Start" );
+				m_changed |= drawValueSet( emitter.properties.activation.start, "Start" );
+				ImGui::Text( "End" );
+				m_changed |= drawValueSet( emitter.properties.activation.end, "End" );
+			}
+			ImGui::TreePop();
 		}
-
-		if( emitter.activation.type == Gfx::Emitter::Pattern::Activation::Type::Alpha ) {
-			ImGui::Text( "Start" );
-			m_changed |= drawValueSet( emitter.activation.start, "Start", true, 0.0f, 1.0f );
-			ImGui::Text( "End" );
-			m_changed |= drawValueSet( emitter.activation.end, "End", true, 0.0f, 1.0f );
-		}
-		ImGui::TreePop();
 	}
 
 	if( ImGui::TreeNodeEx( "Spawn Rate", ImGuiTreeNodeFlags_Framed ) ) {
-		m_changed |= ImGui::Checkbox( "Fade##SpawnRate", &emitter.rate.fade );
+		m_changed |= ImGui::Checkbox( "Fade##SpawnRate", &emitter.properties.rate.fade );
 
-		if( emitter.rate.fade ) {
+		if( emitter.properties.rate.fade ) {
 			ImGui::Text( "Start" );
-			m_changed |= drawValueSet( emitter.rate.start, "SpawnRateStart" );
+			m_changed |= drawValueSet( emitter.properties.rate.start, "SpawnRateStart" );
 			ImGui::Text( "End" );
-			m_changed |= drawValueSet( emitter.rate.end, "SpawnRateEnd" );
+			m_changed |= drawValueSet( emitter.properties.rate.end, "SpawnRateEnd" );
 		}
 		else {
-			m_changed |= drawValueSet( emitter.rate.start, "SpawnRate" );
+			m_changed |= drawValueSet( emitter.properties.rate.start, "SpawnRate" );
 		}
 		ImGui::TreePop();
 	}
@@ -824,7 +1100,7 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 	for( size_t i = 0; i < emitter.patterns.size(); ++i ) {
 		Gfx::Particle::Pattern& pattern = emitter.patterns.at( i );
 
-		ImGui::Text( pattern.name.c_str() );
+		ImGui::Text( pattern.properties.name.c_str() );
 
 		// Edit
 		ImGui::SameLine();
@@ -867,7 +1143,7 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 		for( size_t j = 0; j < set.patterns.size(); ++j ) {
 			Gfx::Particle::Pattern& pattern = set.patterns.at( j );
 
-			ImGui::Text( pattern.name.c_str() );
+			ImGui::Text( pattern.properties.name.c_str() );
 
 			// Edit
 			ImGui::SameLine();
@@ -909,6 +1185,188 @@ void BulletPatternEditor::renderEmitter( Gfx::Emitter::Pattern& emitter ) {
 
 //--------------------------------------------------------------------------------
 
+void BulletPatternEditor::renderVelocitySet( Gfx::Particle::VelocitySet& set ) {
+	// Type
+	ImGui::PushID( "Type" );
+	if( ImGui::Button( "Direction" ) ) {
+		set.type = Gfx::Particle::VelocitySet::Type::Direction;
+		m_changed = true;
+	}
+	ImGui::SameLine();
+	if( ImGui::Button( "Value" ) ) {
+		set.type = Gfx::Particle::VelocitySet::Type::Value;
+		m_changed = true;
+	}
+	ImGui::SameLine();
+	if( ImGui::Button( "Point" ) ) {
+		set.type = Gfx::Particle::VelocitySet::Type::Point;
+		m_changed = true;
+	}
+	ImGui::SameLine();
+	if( ImGui::Button( "Player" ) ) {
+		set.type = Gfx::Particle::VelocitySet::Type::Player;
+		m_changed = true;
+	}
+	ImGui::PopID(); // Type
+
+	if( set.type == Gfx::Particle::VelocitySet::Type::Direction ) {
+		// Direction
+		ImGui::PushID( "Direction" );
+		ImGui::Text( "Direction" );
+		m_changed |= drawValueSet( set.direction.direction, "Direction", true );
+		m_changed |= drawFade( set.direction.fade.target,
+								set.direction.fade.direction,
+								"Direction" );
+
+		ImGui::Spacing();
+
+		ImGui::PushID( "Speed" );
+		ImGui::Text( "Speed" );
+		m_changed |= drawValueSet( set.direction.power, "Speed", true );
+		m_changed |= drawFade( set.direction.fade.start,
+								set.direction.fade.end,
+								set.direction.fade.power,
+								"Speed" );
+		ImGui::PopID(); // Speed
+
+		ImGui::Spacing();
+
+		ImGui::PopID(); // Direction
+	}
+	else if( set.type == Gfx::Particle::VelocitySet::Type::Value ) {
+		// Value
+		ImGui::PushID( "Value" );
+		ImGui::Text( "Value" );
+		m_changed |= drawValueSet( set.value.value, "Value", true );
+		m_changed |= drawFade( set.value.fade.target,
+								set.value.fade.x,
+								set.value.fade.y,
+								"Value" );
+
+		ImGui::PopID(); // Value
+	}
+	else if( set.type == Gfx::Particle::VelocitySet::Type::Point ) {
+		// Point
+		ImGui::PushID( "Point" );
+		ImGui::Text( "Point" );
+		m_changed |= drawValueSet( set.point.point, "Point", true );
+		m_changed |= drawFade( set.point.fade.target,
+								set.point.fade.point,
+								"Point" );
+
+		ImGui::Spacing();
+
+		// Speed
+		ImGui::PushID( "Speed" );
+		ImGui::Text( "Speed" );
+		m_changed |= drawValueSet( set.point.power, "Speed", true );
+		m_changed |= drawFade( set.point.fade.start,
+								set.point.fade.end,
+								set.point.fade.power,
+								"Speed" );
+		ImGui::PopID(); // Speed
+
+		// Scale
+		ImGui::PushID( "Scale" );
+		if( ImGui::TreeNodeEx( "Scale", ImGuiTreeNodeFlags_Framed ) ) {
+			m_changed |= ImGui::Checkbox( "Scale", &set.point.scale.active );
+			ImGui::SameLine();
+			m_changed |= ImGui::Checkbox( "Inverted", &set.point.scale.inverse );
+			ImGui::Text( "Factor" );
+			m_changed |= drawValueSet( set.point.scale.factor, "Factor" );
+
+
+			ImGui::TreePop(); // Scale
+		}
+		ImGui::PopID(); // Scale
+		ImGui::PopID(); // Point
+	}
+	else if( set.type == Gfx::Particle::VelocitySet::Type::Player ) {
+		// Player
+		ImGui::PushID( "Player" );
+
+		// Speed
+		m_changed |= ImGui::Checkbox( "Track", &set.point.track );
+		ImGui::Text( "Speed" );
+		m_changed |= drawValueSet( set.point.power, "Speed", true );
+		m_changed |= drawFade( set.point.fade.start,
+								set.point.fade.end,
+								set.point.fade.power,
+								"Speed" );
+
+		// Scale
+		if( ImGui::TreeNodeEx( "Scale", ImGuiTreeNodeFlags_Framed ) ) {
+			m_changed |= ImGui::Checkbox( "Scale", &set.point.scale.active );
+			ImGui::SameLine();
+			m_changed |= ImGui::Checkbox( "Inverted", &set.point.scale.inverse );
+			ImGui::Text( "Factor" );
+			m_changed |= drawValueSet( set.point.scale.factor, "Factor" );
+
+			ImGui::TreePop(); // Scale
+		}
+
+		ImGui::PopID(); // Player
+	}
+}
+
+//--------------------------------------------------------------------------------
+
+void BulletPatternEditor::renderPositionSet( Gfx::Particle::PositionSet& set ) {
+	// Type
+	ImGui::PushID( "Type" );
+	if( ImGui::Button( "Point" ) ) {
+		set.type = Gfx::Particle::PositionSet::Type::Point;
+		m_changed = true;
+	}
+	ImGui::SameLine();
+	if( ImGui::Button( "Circle" ) ) {
+		set.type = Gfx::Particle::PositionSet::Type::Circle;
+		m_changed = true;
+	}
+	ImGui::SameLine();
+	if( ImGui::Button( "Rectangle" ) ) {
+		set.type = Gfx::Particle::PositionSet::Type::Rectangle;
+		m_changed = true;
+	}
+	ImGui::PopID(); // Type
+
+	ImGui::Text( "Point" );
+	m_changed |= drawValueSet( set.position, "Position", true );
+
+	ImGui::Spacing();
+
+	if( set.type == Gfx::Particle::PositionSet::Type::Circle ) {
+		// Circle
+		ImGui::PushID( "Circle" );
+		ImGui::Text( "Circle" );
+		m_changed |= ImGui::Checkbox( "Fill", &set.circle.fill );
+		if( !set.circle.fill ) {
+			ImGui::SameLine();
+			m_changed |= ImGui::Checkbox( "Uniform", &set.circle.uniform );
+		}
+		ImGui::Text( "Radius" );
+		m_changed |= drawValueSet( set.circle.radius, "Radius" );
+		ImGui::PopID(); // Circle
+	}
+	else if( set.type == Gfx::Particle::PositionSet::Type::Rectangle ) {
+		// Rectangle
+		ImGui::PushID( "Rectangle" );
+		ImGui::Text( "Rectangle" );
+		m_changed |= ImGui::Checkbox( "Fill", &set.rectangle.fill );
+		if( !set.rectangle.fill ) {
+			ImGui::SameLine();
+			m_changed |= ImGui::Checkbox( "Uniform", &set.rectangle.uniform );
+		}
+
+		ImGui::Text( "Size" );
+		m_changed |= drawValueSet( set.rectangle.size, "Size" );
+		ImGui::PopID(); // Rectangle
+	}
+
+}
+
+//--------------------------------------------------------------------------------
+
 void BulletPatternEditor::renderPatternTreeView() {
 	ImGui::Begin( "Patterns", NULL,
 				  ImGuiWindowFlags_NoTitleBar |
@@ -936,7 +1394,7 @@ void BulletPatternEditor::renderPatternTreeView() {
 void BulletPatternEditor::renderPatternTreeNode( Gfx::Particle::Pattern& pattern, vector< Tab > stack ) {
 	stack.push_back( Tab{ false, &pattern } );
 	
-	if( ImGui::Button( ( pattern.name + "###" + std::to_string( m_patternTreeID++ ) ).c_str() ) ) {
+	if( ImGui::Button( ( pattern.properties.name + "###" + std::to_string( m_patternTreeID++ ) ).c_str() ) ) {
 		m_tabs = stack;
 	}
 
@@ -984,7 +1442,7 @@ void BulletPatternEditor::renderEmitterTreeNode( Gfx::Emitter::Pattern& emitter,
 
 
 
-	if( ImGui::Button( ( emitter.name + "###" + std::to_string( m_patternTreeID++ ) ).c_str() ) ) {
+	if( ImGui::Button( ( emitter.properties.name + "###" + std::to_string( m_patternTreeID++ ) ).c_str() ) ) {
 		m_tabs = stack;
 	}
 

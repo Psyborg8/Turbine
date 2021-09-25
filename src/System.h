@@ -28,7 +28,7 @@ int start();
 
 void exit();
 
-SystemInfo getSystemInfo();
+SystemInfo& getSystemInfo();
 
 shared_ptr< Worlds::World > getWorld();
 

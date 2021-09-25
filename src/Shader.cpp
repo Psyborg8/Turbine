@@ -23,14 +23,21 @@ sf::Shader& get( string name ) {
 	if( shaders.count( name ) )
 		return shaders.at( name );
 
-	sf::Shader& shader = shaders[ name ];
-	string path = Folders::FragmentShader + name + ".fs";
+	char path[ 2048 ];
+	char message[ 2048 ];
+	sprintf_s( path, "%s%s.fs", Folders::FragmentShader.c_str(), name.c_str() );
 	if( !std::filesystem::exists( std::filesystem::path( path ) ) ) {
-		Debug::addMessage( "Shader " + path + " doesn't exist.", Debug::DebugType::Error );
-		return shader;
+		sprintf_s( message, "Shader %s doesn't exist.", path );
+		Debug::addMessage( message, Debug::DebugType::Error );
+		return shaders[ "default" ];
 	}
-	if( !shader.loadFromFile( path, sf::Shader::Type::Fragment ) )
-		Debug::addMessage( "Shader " + path + " failed to compile.", Debug::DebugType::Error );
+
+	sf::Shader& shader = shaders[ name ];
+	if( !shader.loadFromFile( path, sf::Shader::Type::Fragment ) ) {
+		sprintf_s( message, "Shader %s failed to compile.", path );
+		Debug::addMessage( message, Debug::DebugType::Error );
+	}
+
 	return shader;
 }
 

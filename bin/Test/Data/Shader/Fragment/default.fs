@@ -1,10 +1,12 @@
-#version 150
-
 uniform sampler2D texture;
-in vec2 texCoord
+uniform vec4 color;
+uniform float alpha;
 
 void main() 
 {
-	vec4 out = texture2D( texture, texCoord );
-	gl_FragColor = out;
+	vec4 pixel = texture2D( texture, gl_TexCoord[0].xy );
+	pixel.a = pixel.r;
+	pixel = pixel * color;
+
+	gl_FragColor = pixel;
 }

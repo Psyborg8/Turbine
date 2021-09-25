@@ -41,10 +41,6 @@ sf::Clock clock;
 
 //================================================================================
 
-// PUBLIC
-
-//================================================================================
-
 bool init( int argc, char** argv ) {
 
 	//window.create( sf::VideoMode::getFullscreenModes()[0], "Project Bullet", sf::Style::Fullscreen  );
@@ -104,7 +100,7 @@ void exit() {
 
 //--------------------------------------------------------------------------------
 
-SystemInfo getSystemInfo() {
+SystemInfo& getSystemInfo() {
 	return systemInfo;
 }
 
@@ -124,11 +120,7 @@ sf::RenderWindow* getWindow() {
 
 sf::Time getDeltaTime() {
 	return deltaTime;
-}
-
-//================================================================================
-
-// LOCAL
+}                                                         
 
 //================================================================================
 

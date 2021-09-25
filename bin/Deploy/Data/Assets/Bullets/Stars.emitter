@@ -1,0 +1,762 @@
+{
+    "value.properties.name": "Stars",
+    "value.properties.position": {
+        "min": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "max": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "random": false,
+        "lock": false,
+        "hsv": false
+    },
+    "value.properties.activation.type": 0,
+    "value.properties.activation.start": {
+        "min": 1.0,
+        "max": 1.0,
+        "random": false,
+        "lock": false,
+        "hsv": false
+    },
+    "value.properties.activation.end": {
+        "min": 0.0,
+        "max": 0.0,
+        "random": false,
+        "lock": false,
+        "hsv": false
+    },
+    "value.properties.rate.start": {
+        "min": 1.0,
+        "max": 5.0,
+        "random": true,
+        "lock": false,
+        "hsv": false
+    },
+    "value.properties.rate.end": {
+        "min": 0.0,
+        "max": 0.0,
+        "random": false,
+        "lock": false,
+        "hsv": false
+    },
+    "value.properties.rate.fade": false,
+    "value.multipliers.lifetime": {
+        "min": 1.0,
+        "max": 1.0,
+        "random": false,
+        "lock": false,
+        "hsv": false
+    },
+    "value.multipliers.velocity": {
+        "min": 1.0,
+        "max": 1.0,
+        "random": false,
+        "lock": false,
+        "hsv": false
+    },
+    "value.multipliers.acceleration": {
+        "min": 1.0,
+        "max": 1.0,
+        "random": false,
+        "lock": false,
+        "hsv": false
+    },
+    "value.multipliers.size": {
+        "min": 1.0,
+        "max": 1.0,
+        "random": false,
+        "lock": false,
+        "hsv": false
+    },
+    "value.multipliers.alpha": {
+        "min": 1.0,
+        "max": 1.0,
+        "random": false,
+        "lock": false,
+        "hsv": false
+    },
+    "value.multipliers.number": {
+        "min": 1.0,
+        "max": 1.0,
+        "random": false,
+        "lock": false,
+        "hsv": false
+    },
+    "value.patterns": [{
+            "value.properties.name": "Star",
+            "value.properties.lifetime": {
+                "min": 5000,
+                "max": 10000,
+                "random": true,
+                "lock": false,
+                "hsv": false
+            },
+            "value.properties.number": {
+                "min": 1,
+                "max": 0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.type": 2,
+            "value.shape.size.size": {
+                "min": {
+                    "x": 1.0,
+                    "y": 1.0
+                },
+                "max": {
+                    "x": 3.0,
+                    "y": 3.0
+                },
+                "random": true,
+                "lock": true,
+                "hsv": false
+            },
+            "value.shape.size.fade.start": {
+                "min": 0.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.size.fade.end": {
+                "min": 1.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.size.fade.x": true,
+            "value.shape.size.fade.y": true,
+            "value.shape.color.color": {
+                "min": {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 1.0
+                },
+                "max": {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 1.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.color.fade.target": {
+                "min": {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 0.0
+                },
+                "max": {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.color.fade.r": false,
+            "value.shape.color.fade.g": false,
+            "value.shape.color.fade.b": false,
+            "value.shape.color.fade.a": true,
+            "value.shape.outline.color.color": {
+                "min": {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 1.0
+                },
+                "max": {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 1.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.outline.color.fade.target": {
+                "min": {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 0.0
+                },
+                "max": {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.outline.color.fade.r": false,
+            "value.shape.outline.color.fade.g": false,
+            "value.shape.outline.color.fade.b": false,
+            "value.shape.outline.color.fade.a": false,
+            "value.shape.outline.thickness.thickness": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.outline.thickness.fade.start": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.outline.thickness.fade.end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.outline.thickness.fade.active": false,
+            "value.shape.texture": "star_04\u00005\u0000\u0000\u0000Random\u0000\u0000min\u0000max\u0000Lock\u0000\u0000\u0000\u0000Fade\u0000\u0000\u0000\u0000Start\u0000\u0000\u0000End\u0000Target\u0000\u0000R\u0000\u0000\u0000G\u0000\u0000\u0000PatternEditor\u0000\u0000\u0000Properties\u0000\u0000\u0000\u0000\u0000\u0000 > \u0000\u0000\u0000\u0000\u0000Performance\u0000\u0000\u0000\u0000\u0000Edit UI Settings\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000FPS: %.0f\nParticles: %i\nEmitters: %i\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Rename\u0000\u0000Load\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Lifetime\u0000\u0000\u0000\u0000Number\u0000\u0000Shape\u0000\u0000\u0000Type\u0000\u0000\u0000\u0000Circle\u0000\u0000\u0000\u0000\u0000\u0000Rectangle\u0000\u0000\u0000\u0000\u0000\u0000\u0000Texture\u0000\u0000\u0000\u0000\u0000Shader\u0000\u0000\u0000\u0000\u0000\u0000Outline\u0000\u0000\u0000\u0000\u0000Origin\u0000\u0000\u0000\u0000\u0000\u0000Position\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Velocity\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Physics\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Acceleration\u0000\u0000\u0000\u0000Rotation\u0000\u0000\u0000\u0000Spin\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Inheritance\u0000\u0000\u0000\u0000\u0000Emitters\u0000\u0000\u0000\u0000Edit##\u0000\u0000\u0000\u0000\u0000\u0000Remove##\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Add Emitter\u0000\u0000\u0000\u0000\u0000New Emitter\u0000\u0000\u0000\u0000\u0000Activation\u0000\u0000\u0000\u0000\u0000\u0000On Spawn\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000On Destruction\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000##ActivationType\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000ActivationType\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Spawn Rate\u0000\u0000\u0000\u0000\u0000\u0000Fade##SpawnRate\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000SpawnRateStart\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000SpawnRateEnd\u0000\u0000\u0000\u0000SpawnRate\u0000\u0000\u0000\u0000\u0000\u0000\u0000Multipliers\u0000\u0000\u0000\u0000\u0000Patterns\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Add Pattern\u0000\u0000\u0000\u0000\u0000Pattern Sets\u0000\u0000\u0000\u0000Add Pattern Set\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Direction\u0000\u0000\u0000Point\u0000\u0000\u0000Player\u0000\u0000Speed\u0000\u0000\u0000Scale\u0000\u0000\u0000\u0000\u0000\u0000\u0000Inverse\u0000\u0000\u0000\u0000\u0000Factor\u0000\u0000Fill\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Uniform\u0000\u0000\u0000\u0000\u0000Radius\u0000\u0000\u0000\u0000\u0000\u0000Random Set\u0000\u0000\u0000\u0000\u0000\u0000Sequence\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000vector erase iterator outside range\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000C:\\Program Files (x86)\\Microsoft Visual ",
+            "value.shape.shader": "default\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000decimal\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000hexadecimal\u0000\u0000\u0000\u0000\u0000uppercase\u0000\u0000\u0000\u0000\u0000\u0000\u0000no blank\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\"imgui\" letters\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Password input\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000password\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Display all characters as '*'.\nDisable clipboard cut and copy.\nDisable logging.\n\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000<password>\u0000\u0000\u0000\u0000\u0000\u0000password (w/ hint)\u0000\u0000\u0000\u0000\u0000\u0000password (clear)\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Resize Callback\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Demonstrate using ImGuiInputTextFlags_CallbackResize to wire your resizable string type to InputText().\n\nSee misc/cpp/imgui_stdlib.h for an implementation of this for std::string.\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000##MyStr\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Data: %p\nSize: %d\nCapacity: %d\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Plots Widgets\u0000\u0000\u0000Animate\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Frame Times\u0000\u0000\u0000\u0000\u0000avg 0.0\u0000\u0000\u0000\u0000\u0000Lines\u0000\u0000\u0000\u0000\u0000\u0000\u0000Histogram\u0000\u0000\u0000\u0000\u0000\u0000\u0000Sin\u0000Saw\u0000\u0000\u0000\u0000\u0000func\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Sample count\u0000\u0000\u0000\u0000Progress Bar\u0000\u0000\u0000\u0000%d/%d\u0000\u0000\u0000Color/Picker Widgets\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000With Alpha Preview\u0000\u0000\u0000\u0000\u0000\u0000With Half Alpha Preview\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000With Drag and Drop\u0000\u0000\u0000\u0000\u0000\u0000With Options Menu\u0000\u0000\u0000\u0000\u0000\u0000\u0000Right-click on the individual color widget to show options.\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000With HDR\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Currently all this does is to li",
+            "value.shape.origin.position.type": 0,
+            "value.shape.origin.position.position": {
+                "min": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "max": {
+                    "x": 0.5,
+                    "y": 0.5
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.position.circle.radius": {
+                "min": 64.0,
+                "max": 64.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.position.circle.fill": true,
+            "value.shape.origin.position.circle.uniform": false,
+            "value.shape.origin.position.rectangle.size": {
+                "min": {
+                    "x": 64.0,
+                    "y": 64.0
+                },
+                "max": {
+                    "x": 64.0,
+                    "y": 64.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.position.rectangle.fill": true,
+            "value.shape.origin.position.rectangle.uniform": false,
+            "value.shape.origin.velocity.type": 0,
+            "value.shape.origin.velocity.direction.direction": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.direction.power": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.direction.fade.target": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.direction.fade.start": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.direction.fade.end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.direction.fade.direction": false,
+            "value.shape.origin.velocity.direction.fade.power": false,
+            "value.shape.origin.velocity.value.value": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.value.fade.target": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.value.fade.x": false,
+            "value.shape.origin.velocity.value.fade.y": false,
+            "value.shape.origin.velocity.point.point": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.point.power": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.point.fade.target": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.point.fade.start": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.point.fade.end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.point.fade.point": false,
+            "value.shape.origin.velocity.point.fade.power": false,
+            "value.shape.origin.velocity.point.scale.active": false,
+            "value.shape.origin.velocity.point.scale.factor": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.shape.origin.velocity.point.scale.inverse": true,
+            "value.physics.position.type": 2,
+            "value.physics.position.position": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.position.circle.radius": {
+                "min": 64.0,
+                "max": 64.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.position.circle.fill": true,
+            "value.physics.position.circle.uniform": false,
+            "value.physics.position.rectangle.size": {
+                "min": {
+                    "x": 512.0,
+                    "y": 512.0
+                },
+                "max": {
+                    "x": 64.0,
+                    "y": 64.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.position.rectangle.fill": true,
+            "value.physics.position.rectangle.uniform": false,
+            "value.physics.velocity.type": 0,
+            "value.physics.velocity.direction.direction": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.direction.power": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.direction.fade.target": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.direction.fade.start": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.direction.fade.end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.direction.fade.direction": false,
+            "value.physics.velocity.direction.fade.power": false,
+            "value.physics.velocity.value.value": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.value.fade.target": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.value.fade.x": false,
+            "value.physics.velocity.value.fade.y": false,
+            "value.physics.velocity.point.point": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.point.power": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.point.fade.target": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.point.fade.start": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.point.fade.end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.point.fade.point": false,
+            "value.physics.velocity.point.fade.power": false,
+            "value.physics.velocity.point.scale.active": false,
+            "value.physics.velocity.point.scale.factor": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.velocity.point.scale.inverse": true,
+            "value.physics.acceleration.type": 0,
+            "value.physics.acceleration.direction.direction": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.direction.power": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.direction.fade.target": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.direction.fade.start": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.direction.fade.end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.direction.fade.direction": false,
+            "value.physics.acceleration.direction.fade.power": false,
+            "value.physics.acceleration.value.value": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.value.fade.target": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.value.fade.x": false,
+            "value.physics.acceleration.value.fade.y": false,
+            "value.physics.acceleration.point.point": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.point.power": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.point.fade.target": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.point.fade.start": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.point.fade.end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.point.fade.point": false,
+            "value.physics.acceleration.point.fade.power": false,
+            "value.physics.acceleration.point.scale.active": false,
+            "value.physics.acceleration.point.scale.factor": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.acceleration.point.scale.inverse": true,
+            "value.physics.rotation.rotation": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.rotation.fade.target": {
+                "min": 360.0,
+                "max": 360.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.rotation.fade.active": false,
+            "value.physics.rotation.spin.spin": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.rotation.spin.fade.start": {
+                "min": 1.0,
+                "max": 1.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.rotation.spin.fade.end": {
+                "min": 0.0,
+                "max": 0.0,
+                "random": false,
+                "lock": false,
+                "hsv": false
+            },
+            "value.physics.rotation.spin.fade.active": false,
+            "value.inheritance.position": true,
+            "value.inheritance.velocity": false,
+            "value.inheritance.size": false,
+            "value.inheritance.alpha": false,
+            "value.emitters": []
+        }],
+    "value.sets": []
+}

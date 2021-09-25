@@ -39,31 +39,39 @@ public:
 	void onRender() override;
 	void onDestroy() override;
 
-	void setSize( Math::Vec2 size ) override { m_sprite.setScale( size.sf() ); m_shape->setScale( size.sf() ); }
-	void setColor( Math::Color color ) { m_sprite.setColor( color.sf() ); m_shape->setFillColor( color.sf() ); }
+	Math::Vec2 getPosition() const override { return m_sprite->getPosition(); }
+	Math::Color getColor() const { return m_sprite->getFillColor(); }
+	Math::Color getOutlineColor() const { return m_sprite->getOutlineColor(); }
+	Math::Vec2 getSize() const { return m_sprite->getScale(); }
 
-	std::shared_ptr< sf::Shape > getShape() const { return m_shape; }
+	void setOrigin( Math::Vec2 origin ) { 
+		m_origin = origin; 
+		m_sprite->setOrigin( sf::Vector2f( origin.x * m_sprite->getLocalBounds().width, origin.y * m_sprite->getLocalBounds().height ) ); 
+	}
 
-	Math::Vec2 getSize() const override { return Math::Vec2( m_shape->getScale() ); }
+public:
+	void init( const Pattern& pattern, int idx );
 
 	void kill() { m_dead = true; }
 	bool isDead() const { return m_dead; }
 
-public:
-	void init( const Pattern& pattern );
+private:
+	Math::Vec2 processVelocitySet( const VelocitySet& set, Math::Vec2 current, Math::Vec2 position );
+	void initializeVelocitySet( VelocitySet& set, Math::Vec2 position );
+	Math::Vec2 processPositionSet( const PositionSet& set, int idx );
 
 private:
-	std::shared_ptr< sf::Shape > m_shape;
-	sf::Texture m_texture;
-	sf::Sprite m_sprite;
+	shared_ptr< sf::Shape > m_sprite;
 
 	Pattern m_pattern;
 	vector< shared_ptr< Emitter::Emitter > > m_emitters;
 
-	milliseconds m_duration{ std::numeric_limits< int32_t >::min() };
+	microseconds m_duration{ std::numeric_limits< int32_t >::min() };
 
 	float m_alpha{ 1.0f };
 	bool m_dead{ false };
+
+	Math::Vec2 m_origin{ Math::Vec2( 0.5f, 0.5f ) };
 };
 
 //================================================================================

@@ -52,11 +52,11 @@ private:
 private:
 	Pattern m_pattern;
 
-	milliseconds m_startTime{ 0ms };
-	milliseconds m_endTime{ 0ms };
+	microseconds m_startTime{ 0ms };
+	microseconds m_endTime{ 0ms };
 
-	milliseconds m_duration{ 0ms };
-	milliseconds m_spawnTime{ 0ms };
+	microseconds m_duration{ 0ms };
+	microseconds m_spawnTime{ 0ms };
 
 	float m_alpha{ 0.0f };
 	bool m_active{ true };

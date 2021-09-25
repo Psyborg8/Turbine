@@ -40,7 +40,7 @@ public:
 	// Variables
 protected:
 	Math::Vec2 m_position{ 0.0f, 0.0f };
-	Math::Vec2 m_distance{ 196.0f, 196.0f };
+	Math::Vec2 m_distance{ 1024.0f, 1024.0f };
 };
 
 //--------------------------------------------------------------------------------

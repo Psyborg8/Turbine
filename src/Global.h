@@ -4,6 +4,7 @@
 
 // Definitions
 #pragma warning( disable : 4244 ) 
+#pragma warning( disable : 26812 )
 #define NOMINMAX
 
 //================================================================================
@@ -77,6 +78,9 @@ using KeyPair = pair< sf::Keyboard::Key, sf::Keyboard::Key >;
 //================================================================================
 
 /* Globals */
+
+constexpr float PI = 3.1415926535f;
+
 namespace Folders {
 
 static const string Data = "./Data/";

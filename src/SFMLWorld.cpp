@@ -40,6 +40,9 @@ void SFMLWorld::onStart() {
 	m_levelStart = m_player->getSpawn();
 
 	m_timer->reset();
+
+	m_fog = Gfx::Emitter::spawn( this, Gfx::loadEmitter( "Targets" ) );
+	m_fog->setPriority( (int)RenderPriority::Player + 1 );
 }
 
 //--------------------------------------------------------------------------------
@@ -86,9 +89,15 @@ void SFMLWorld::onUpdate( sf::Time deltaTime ) {
 	}
 
 	m_cameraTarget = m_player->getPosition() + m_player->getSize() / 2.0f;
-	m_cameraDistanceTarget = 196.0f;
+	m_cameraDistanceTarget = 256.0f;
 
 	Debug::stopTimer( "World::Update" );
+}
+
+//--------------------------------------------------------------------------------
+
+void SFMLWorld::onPostUpdate( sf::Time deltaTime ) {
+	m_fog->setPosition( m_player->getPosition() );
 }
 
 //--------------------------------------------------------------------------------

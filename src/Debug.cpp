@@ -236,7 +236,7 @@ void callCommand( string command ) {
 		if( it == setCommands.end() )
 			goto error_argument_missing;
 
-		it->func( args.at( 1 ) );
+		it->func( args.at( 2 ) );
 		return;
 	}
 
@@ -384,6 +384,8 @@ void DebugHandler::onRender() {
 			console.open = !console.open;
 		if( ImGui::Button( "Performance" ) )
 			performance.open = !performance.open;
+		if( ImGui::Button( "Draw Debug" ) )
+			System::getSystemInfo().drawDebug = !System::getSystemInfo().drawDebug;
 
 		ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width - ImGui::GetWindowSize().x, 400.f ) );
 
@@ -441,14 +443,13 @@ void DebugHandler::onRender() {
 
 	if( performance.open ) {
 		ImGui::PushID( "Performance" );
-		ImGui::Begin( "Performance", &performance.open,
+		ImGui::Begin( "Performance##Debug", &performance.open,
 					  ImGuiWindowFlags_AlwaysAutoResize
 					  | ImGuiWindowFlags_NoTitleBar
-					  | ImGuiWindowFlags_NoCollapse
-					  | ImGuiWindowFlags_NoMove );
+					  | ImGuiWindowFlags_NoCollapse );
 
 		ImGui::SetWindowFontScale( 1.1f );
-		ImGui::SetWindowPos( ImVec2( 0.f, 0.f ) );
+		//ImGui::SetWindowPos( ImVec2( 0.f, 0.f ) );
 
 		if( ImGui::Button( "FPS" ) )
 			performance.tab = PerformanceTab::FPS;
@@ -471,14 +472,14 @@ void DebugHandler::onRender() {
 			sprintf_s( buffer, "FPS: %i", fps );
 			ImGui::Text( buffer );
 
-			ImGui::PlotHistogram( "", performance.framerates.data(), int( performance.framerates.size() ), 0, (const char *)0, 0.f, 3000.f, ImVec2( 0.f, 100.f ) );
+			ImGui::PlotLines( "", performance.framerates.data(), int( performance.framerates.size() ), 0, (const char *)0, 0.f, 3000.f, ImVec2( 0.f, 100.f ) );
 
 			if( performance.drawCalls.size() > 0u ) {
 				ImGui::Spacing();
 				ImGui::Spacing();
-				sprintf_s( buffer, "Draw Calls: %i", int( *performance.drawCalls.begin() ) );
+				sprintf_s( buffer, "Draw Calls: %i", int( *performance.drawCalls.rbegin() ) );
 				ImGui::Text( buffer );
-				ImGui::PlotHistogram( "", performance.drawCalls.data(), int( performance.drawCalls.size() ), 0, ( const char* )0, 0.f, (3.402823466e+38F), ImVec2( 0.f, 100.f ) );
+				ImGui::PlotLines( "", performance.drawCalls.data(), int( performance.drawCalls.size() ), 0, ( const char* )0, 0.f, (3.402823466e+38F), ImVec2( 0.f, 100.f ) );
 			}
 		}
 
@@ -507,6 +508,15 @@ void DebugHandler::onEvent( sf::Event e ) {
 	if( e.type == sf::Event::KeyPressed ) {
 		if( e.key.shift && e.key.code == sf::Keyboard::Z ) {
 			menu.open = !menu.open;
+			return;
+		}
+		if( e.key.code == sf::Keyboard::F11 ) {
+			console.open = !console.open;
+			return;
+		}
+		if( e.key.code == sf::Keyboard::F12 ) {
+			performance.open = !performance.open;
+			return;
 		}
 	}
 }

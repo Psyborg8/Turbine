@@ -374,8 +374,6 @@ void Player::jump( bool pressed )
 			m_velocity.y = -jumpData.power;
 			jumpData.canJump = false;
 			jumpData.isJumping = true;
-
-			soundData.players.jump.play();
 		}
 		return;
 	}

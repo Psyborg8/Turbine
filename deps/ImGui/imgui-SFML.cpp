@@ -172,12 +172,15 @@ void updateMouseCursor(sf::Window& window);
 sf::Cursor* s_mouseCursors[ImGuiMouseCursor_COUNT];
 bool s_mouseCursorLoaded[ImGuiMouseCursor_COUNT];
 
+std::function< void() > s_onDraw = nullptr;
+
 } // end of anonymous namespace
 
 namespace ImGui {
 namespace SFML {
-void Init(sf::RenderWindow& window, bool loadDefaultFont) {
+void Init(sf::RenderWindow& window, bool loadDefaultFont, std::function< void() > onDraw ) {
     Init(window, window, loadDefaultFont);
+    s_onDraw = onDraw;
 }
 
 void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont) {
@@ -845,6 +848,8 @@ void RenderDrawLists(ImDrawData* draw_data) {
                     glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount,
                                    sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT,
                                    idx_buffer);
+                    if( s_onDraw )
+                        s_onDraw();
                 }
             }
             idx_buffer += pcmd->ElemCount;

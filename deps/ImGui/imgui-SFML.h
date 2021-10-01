@@ -7,6 +7,8 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Joystick.hpp>
 
+#include <functional>
+
 #include "imgui-SFML_export.h"
 
 namespace sf {
@@ -21,7 +23,7 @@ class Window;
 
 namespace ImGui {
 namespace SFML {
-IMGUI_SFML_API void Init(sf::RenderWindow& window, bool loadDefaultFont = true);
+IMGUI_SFML_API void Init(sf::RenderWindow& window, bool loadDefaultFont = true, std::function< void() > onDraw = nullptr );
 IMGUI_SFML_API void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont = true);
 IMGUI_SFML_API void Init(sf::Window& window, const sf::Vector2f& displaySize,
                          bool loadDefaultFont = true);

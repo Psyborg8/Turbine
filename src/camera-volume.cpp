@@ -1,36 +1,37 @@
 //================================================================================
 
-#include "sprite.h"
+#include "camera-volume.h"
 
 //--------------------------------------------------------------------------------
 
-#include <filesystem>
-
-#include "system.h"
-#include "debug.h"
+#include "player.h"
+#include "world.h"
 
 //================================================================================
 
-namespace Gfx {
-namespace Sprite {
+namespace Game {
 
 //--------------------------------------------------------------------------------
 
-map< string, sf::Texture > textures;
+void CameraVolume::onProcessCollisions() {
+	World* world = getWorld();
+	if( world == nullptr )
+		return;
 
-//--------------------------------------------------------------------------------
+	shared_ptr< Player > player = world->getPlayer();
 
-sf::Texture& get( string path ) {
-	if( !textures.count( path ) )
-		if( !textures[ path ].loadFromFile( path ) )
-			Debug::addMessage( "Texture " + path + " doesn't exist", DebugType::Error );
-
-	return textures.at( path );
+	// TODO - Move to Camera
+	/*
+	Collision::CollisionResult result = isColliding( player );
+	if( result.success ) {
+		world->setCameraTarget( m_position );
+		world->setCameraDistanceTarget( m_distance );
+	}
+	*/
 }
 
-//================================================================================
+//--------------------------------------------------------------------------------
 
-} // Sprite
-} // Gfx
+}
 
 //================================================================================

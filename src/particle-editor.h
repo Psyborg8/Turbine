@@ -76,8 +76,8 @@ private:
 	function< void( string ) > m_loadWindowCallback{ nullptr };
 
 
-	char* m_renameBuffer;
-	bool m_styleEditorOpen;
+	char* m_renameBuffer{ nullptr };
+	bool m_styleEditorOpen{ false };
 };
 
 //--------------------------------------------------------------------------------

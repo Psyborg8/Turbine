@@ -32,6 +32,8 @@
     <ClCompile Include="deps\ImGui\imgui_demo.cpp" />
     <ClCompile Include="deps\ImGui\imgui_draw.cpp" />
     <ClCompile Include="deps\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="src\editor.cpp" />
+    <ClCompile Include="src\json.cpp" />
     <ClCompile Include="src\particle-editor.cpp" />
     <ClCompile Include="src\particle-emitter.cpp" />
     <ClCompile Include="src\level-editor.cpp" />
@@ -65,6 +67,8 @@
     <ClInclude Include="deps\ImGui\imstb_rectpack.h" />
     <ClInclude Include="deps\ImGui\imstb_textedit.h" />
     <ClInclude Include="deps\ImGui\imstb_truetype.h" />
+    <ClInclude Include="src\editor.h" />
+    <ClInclude Include="src\json.h" />
     <ClInclude Include="src\level.h" />
     <ClInclude Include="src\level-pattern.h" />
     <ClInclude Include="src\particle-editor.h" />

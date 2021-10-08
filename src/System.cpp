@@ -9,9 +9,11 @@
 #include "timer.h"
 #include "debug.h"
 #include "input.h"
+#include "particle.h"
+#include "particle-emitter.h"
 
 // Worlds
-#include "particle-editor.h"
+#include "editor.h"
 
 //================================================================================
 
@@ -57,8 +59,7 @@ bool init( int argc, char** argv ) {
 
 	// Load World
 	Debug::startTimer( "System::Make World" );
-	//world = Object::makeObject< Worlds::SFMLWorld >( nullptr );
-	world = Object::makeObject< Editor::BulletPatternEditor >( nullptr );
+	world = Object::makeObject< Editor::TurbineEditor >( nullptr );
 	Debug::stopTimer( "System::Make World" );
 
 	// Init debug handler

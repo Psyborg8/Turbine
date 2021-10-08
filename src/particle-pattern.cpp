@@ -68,7 +68,7 @@ void getValue( const rapidjson::Value& value, Emitter::Pattern& out );
 
 //================================================================================
 
-void savePattern( Particle::Pattern pattern, string path, int args, ... ) {
+void savePattern( Particle::Pattern pattern, string path ) {
 	using namespace rapidjson;
 
 	Document document;

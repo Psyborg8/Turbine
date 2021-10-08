@@ -126,6 +126,12 @@
     <ClCompile Include="src\particle-pattern.cpp">
       <Filter>Turbine\Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\json.cpp">
+      <Filter>Turbine\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\editor.cpp">
+      <Filter>Turbine\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="deps\ImGui\imgui_internal.h">
@@ -226,6 +232,12 @@
     </ClInclude>
     <ClInclude Include="src\input-controller.h">
       <Filter>Turbine\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\json.h">
+      <Filter>Turbine\Gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor.h">
+      <Filter>Turbine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

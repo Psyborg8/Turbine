@@ -42,7 +42,12 @@ void addCommand( string command, function< void() > func, string helper = "" );
 
 void addMessage( string message, DebugType type = DebugType::None );
 
+string getLastMessage();
+
+// Performance Window
 void incDrawCall();
+
+void addPerformancePage( string name, function< string() > func );
 
 // Timers
 void startTimer( string name );

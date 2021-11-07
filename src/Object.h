@@ -40,8 +40,8 @@ public:
 	virtual inline void onProcessCollisions() {} // Second update phase - For collision processing
 	virtual inline void onCollision( Collision::CollisionResult collision, shared_ptr< Object > target ) {}  // Called when the object collides with another
 	virtual inline void onPostUpdate( sf::Time deltaTime ) {} // Third update phase - For resolving physics and cleaning up
-	virtual inline void onRender() {} // Called after all update phases, for rendering gfx
-	virtual inline void onPostRender() {} // For things that need to be done after all renders are complete
+	virtual inline void onRender( sf::RenderTarget* target ) {} // Called after all update phases, for rendering gfx
+	virtual inline void onPostRender( sf::RenderTarget* target ) {} // For things that need to be done after all renders are complete
 	virtual inline void onExit() {} // When the game exits
 	virtual inline void onMessage( string message ) {} // When the object is sent a generic event message
 	virtual void onDestroy() {} // When the object is marked for deletion
@@ -53,8 +53,8 @@ public:
 	void update( sf::Time dt );
 	void processCollisions();
 	void postUpdate( sf::Time dt );
-	void render();
-	void postRender();
+	void render( sf::RenderTarget* target );
+	void postRender( sf::RenderTarget* target );
 	void exit();
 	void message( string message );
 	void destroy();

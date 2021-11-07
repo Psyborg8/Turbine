@@ -38,7 +38,6 @@ std::chrono::time_point< std::chrono::steady_clock > previousUpdateTime;
 //==================================================================================================
 
 void update( sf::Time deltaTime ) {
-	Debug::startTimer( "Timer::Update" );
 	// Lock unsafe functions.
 	threadLock = true;
 
@@ -98,7 +97,6 @@ void update( sf::Time deltaTime ) {
 
 	// Unlock unsafe functions.
 	threadLock = false;
-	Debug::stopTimer( "Timer::Update" );
 }
 
 //--------------------------------------------------------------------------------------------------

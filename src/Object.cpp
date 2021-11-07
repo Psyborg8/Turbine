@@ -87,11 +87,11 @@ void Object::postUpdate( sf::Time dt ) {
 
 //--------------------------------------------------------------------------------
 
-void Object::render() {
+void Object::render( sf::RenderTarget* target ) {
 	if( isMarkedForRemoval() || !m_visibility )
 		return;
 
-	onRender();
+	onRender( target );
 
 	vector< shared_ptr< Object > > children = m_children;
 	std::sort( children.begin(), children.end(),
@@ -100,20 +100,20 @@ void Object::render() {
 			   } );
 
 	for( shared_ptr< Object > child : children )
-		child->render();
+		child->render( target );
 }
 
 //--------------------------------------------------------------------------------
 
-void Object::postRender() {
+void Object::postRender( sf::RenderTarget* target ) {
 	if( isMarkedForRemoval() )
 		return;
 
-	onPostRender();
+	onPostRender( target );
 
 	const size_t size = m_children.size();
 	for( size_t i = 0u; i < size; ++i )
-		m_children.at( i )->postRender();
+		m_children.at( i )->postRender( target );
 }
 
 //--------------------------------------------------------------------------------
@@ -173,8 +173,6 @@ void Object::processCollisions( vector< shared_ptr< Object > > targets ) {
 void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool notify ) {
 	using collisionPair = pair< shared_ptr< Object >, Collision::CollisionResult >;
 
-	Debug::startTimer( "Collision::Broad Phase" );
-
 	// Broad Phase
 	vector < collisionPair > results;
 	for( shared_ptr< Object > target : targets ) {
@@ -183,17 +181,11 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 			results.push_back( make_pair( target, result ) );
 	}
 
-	Debug::stopTimer( "Collision::Broad Phase" );
-	Debug::startTimer( "Collision::Sorting" );
-
 	// Sort by distance
 	std::sort( results.begin(), results.end(),
 			   []( const collisionPair& a, const collisionPair& b ) {
 				   return a.second.distance < b.second.distance;
 			   } );
-
-	Debug::stopTimer( "Collision::Sorting" );
-	Debug::startTimer( "Collision::Narrow Phase" );
 
 	// Narrow Phase
 	for( pair< shared_ptr< Object >, Collision::CollisionResult > collision : results ) {
@@ -210,8 +202,6 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 			}
 		}
 	}
-
-	Debug::stopTimer( "Collision::Narrow Phase" );
 }
 
 //--------------------------------------------------------------------------------

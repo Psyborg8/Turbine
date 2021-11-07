@@ -7,6 +7,9 @@
 #include "system.h"
 #include "random.h"
 
+#include "json.h"
+#include "imgui-utils.h"
+
 //================================================================================
 
 namespace Math {
@@ -92,10 +95,10 @@ float Color::saturation() const {
 
 	float brightness = 0.5f * ( minC + maxC );
 
-	if( brightness < 0.5f )
-		return ( maxC - minC ) / ( maxC - minC );
-
-	return ( maxC - minC ) / ( 2.0f - maxC - minC );
+	if( maxC == 0.f )
+		return 0.f;
+	else
+		return ( maxC - minC ) / maxC;
 }
 
 //--------------------------------------------------------------------------------
@@ -201,6 +204,28 @@ Color& Color::operator-=( const Color& rh ) {
 
 //--------------------------------------------------------------------------------
 
+Color Color::operator*( const Color& rh ) const {
+	Color out = *this;
+
+	out.r *= rh.r;
+	out.g *= rh.g;
+	out.b *= rh.b;
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+Color& Color::operator*=( const Color& rh ) {
+	r *= rh.r;
+	g *= rh.g;
+	b *= rh.b;
+
+	return *this;
+}
+
+//--------------------------------------------------------------------------------
+
 Color Color::operator*( const float& rh ) const {
 	Color out = *this;
 
@@ -239,6 +264,23 @@ float Vec2::dot( const Vec2& rh ) const {
 
 float Vec2::determinant( const Vec2& rh ) const {
 	return x * rh.y - y * rh.x;
+}
+
+//--------------------------------------------------------------------------------
+
+float Vec2::angle() const {
+	return angle( Math::Vec2( 0.f, 1.f ) );
+}
+
+//--------------------------------------------------------------------------------
+
+float Vec2::angle( const Vec2& rh ) const {
+	const float dot = Vec2::dot( rh );
+	const float det = Vec2::determinant( rh );
+	const float atan = atan2( dot, det );
+	const float angle = atan * 180 / PI;
+
+	return angle;
 }
 
 //--------------------------------------------------------------------------------
@@ -444,7 +486,7 @@ Vec2& Vec2::operator/=( const float& rh ) {
 	return *this;
 }
 
-//--------------------------------------------------------------------------------
+//================================================================================
 
 void processSet( Math::ValueSet< int >& set ) {
 	if( set.random )
@@ -506,10 +548,642 @@ void processSet( Math::ValueSet< Math::Color >& set ) {
 			else
 				type = RandomColorType::ShuffleRGB;
 
-		set.value = Random::getColor( set.min, set.max, RandomColorType::MixRGB );
+		set.value = Random::getColor( set.min, set.max, type );
 	}
 	else
 		set.value = set.min;
+}
+
+//================================================================================
+
+Math::Vec2 ValueVelocity::process() {
+	Math::processSet( value );
+	return value.value;
+}
+
+rapidjson::Value ValueVelocity::getValue() {
+	rapidjson::Value out;
+	out.SetObject();
+	out.AddMember( "value", json::getValue( value ), json::getAllocator() );
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+void ValueVelocity::setValue( const rapidjson::Value& v ) {
+	if( !v.IsObject() )
+		return;
+	if( v.HasMember( "value" ) )
+		json::getValue( v[ "value" ], value );
+}
+//--------------------------------------------------------------------------------
+
+bool ValueVelocity::render() {
+	bool out = false;
+	ImGui::PushID( "ValueVelocity" );
+	out |= ImGui::render( value, "Value" );
+	ImGui::PopID();
+	return out;
+}
+
+//================================================================================
+
+Math::Vec2 AngleVelocity::process() {
+	Math::processSet( angle );
+	Math::processSet( power );
+
+	return Math::Vec2::fromAngle( angle.value, power.value );
+}
+
+//--------------------------------------------------------------------------------
+
+rapidjson::Value AngleVelocity::getValue() {
+	rapidjson::Value out;
+	out.SetObject();
+	out.AddMember( "angle", json::getValue( angle ), json::getAllocator() );
+	out.AddMember( "power", json::getValue( power ), json::getAllocator() );
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+void AngleVelocity::setValue( const rapidjson::Value& v ) {
+	if( !v.IsObject() )
+		return;
+
+	if( v.HasMember( "angle" ) )
+		json::getValue( v[ "angle" ], angle );
+	if( v.HasMember( "power" ) )
+		json::getValue( v[ "power" ], power );
+}
+
+//--------------------------------------------------------------------------------
+
+bool AngleVelocity::render() {
+	bool out = false;
+	ImGui::PushID( "AngleVelocity" );
+	out |= ImGui::render( angle, "Angle" );
+	out |= ImGui::render( power, "Power" );
+	ImGui::PopID();
+	return out;
+}
+
+//================================================================================
+
+Math::Vec2 PointVelocity::process( Math::Vec2 position ) {
+	Math::processSet( power );
+
+	const Math::Vec2 diff = target - position;
+
+	return diff.normalize() * power.value;
+}
+
+//--------------------------------------------------------------------------------
+
+rapidjson::Value PointVelocity::getValue() {
+	rapidjson::Value out;
+	out.SetObject();
+	out.AddMember( "target", json::getValue( target ), json::getAllocator() );
+	out.AddMember( "power", json::getValue( power ), json::getAllocator() );
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+void PointVelocity::setValue( const rapidjson::Value& v ) {
+	if( !v.IsObject() )
+		return;
+
+	if( v.HasMember( "target" ) )
+		json::getValue( v[ "target" ], target );
+	if( v.HasMember( "power" ) )
+		json::getValue( v[ "power" ], power );
+}
+
+//--------------------------------------------------------------------------------
+
+bool PointVelocity::render() {
+	bool out = false;
+	ImGui::PushID( "PointVelocity" );
+
+	ImGui::Text( "Target" );
+	out |= ImGui::InputFloat2( "##Target", &target.x, 3 );
+	out |= ImGui::render( power, "Power" );
+	ImGui::PopID();
+	return out;
+}
+
+//================================================================================
+
+Math::Vec2 Velocity::process( Math::Vec2 position ) {
+	Math::Vec2 out;
+
+	switch( type ) {
+	case Type::ByValue:
+		out = value.value.process();
+		break;
+	case Type::ByAngle:
+		out = value.angle.process();
+		break;
+	case Type::ByPoint:
+		out = value.point.process( position );
+		break;
+	}
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+rapidjson::Value Velocity::getValue() {
+	rapidjson::Value out;
+	out.SetObject();
+	out.AddMember( "type", json::getValue( ( int )type ), json::getAllocator() );
+
+	rapidjson::Value v;
+	switch( type ) {
+	case Type::ByValue: v = value.value.getValue(); break;
+	case Type::ByPoint: v = value.point.getValue(); break;
+	case Type::ByAngle: v = value.angle.getValue(); break;
+	}
+
+	out.AddMember( "value", v, json::getAllocator() );
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+void Velocity::setValue( const rapidjson::Value& v ) {
+	if( !v.IsObject() )
+		return;
+
+	if( v.HasMember( "type" ) ) {
+		int t;
+		json::getValue( v[ "type" ], t );
+		type = ( Type )t;
+	}
+
+	if( !v.HasMember( "value" ) )
+		return;
+
+	switch( type ) {
+	case Type::ByValue: value.value.setValue( v[ "value" ] ); break;
+	case Type::ByPoint: value.point.setValue( v[ "value" ] ); break;
+	case Type::ByAngle: value.angle.setValue( v[ "value" ] ); break;
+	}
+}
+
+//--------------------------------------------------------------------------------
+
+bool Velocity::render( const char* id ) {
+	bool out = false;
+	ImGui::PushID( id );
+	if( ImGui::Button( "Value" ) ) {
+		out = true;
+		type = Type::ByValue;
+		value.value = ValueVelocity();
+	}
+	ImGui::SameLine();
+	if( ImGui::Button( "Angle" ) ) {
+		out = true;
+		type = Type::ByAngle;
+		value.angle = AngleVelocity();
+	}
+	ImGui::SameLine();
+	if( ImGui::Button( "Point" ) ) {
+		out = true;
+		type = Type::ByPoint;
+		value.point = PointVelocity();
+	}
+
+	switch( type ) {
+	case Type::ByValue: out |= value.value.render(); break;
+	case Type::ByAngle: out |= value.angle.render(); break;
+	case Type::ByPoint: out |= value.point.render(); break;
+	}
+
+	ImGui::PopID();
+	return out;
+}
+
+//================================================================================
+//================================================================================
+
+rapidjson::Value PointPosition::getValue() {
+	rapidjson::Value out;
+	out.SetObject();
+	out.AddMember( "value", json::getValue( position ), json::getAllocator() );
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+void PointPosition::setValue( const rapidjson::Value& v ) {
+	if( !v.IsObject() )
+		return;
+
+	if( v.HasMember( "value" ) )
+		json::getValue( v[ "value" ], position );
+}
+
+//--------------------------------------------------------------------------------
+
+bool PointPosition::render() {
+	bool out = false;
+	ImGui::PushID( "PointPosition" );
+	out |= ImGui::InputFloat2( "Value", &position.x, 3 );
+	ImGui::PopID();
+	return out;
+}
+
+//================================================================================
+
+Math::Vec2 CirclePosition::process() {
+	Math::processSet( minRadius );
+	Math::processSet( maxRadius );
+	Math::processSet( minAngle );
+	Math::processSet( maxAngle );
+
+	const float radius = Random::getFloat( minRadius.value, maxRadius.value );
+	const float angle = Random::getFloat( minAngle.value, maxAngle.value );
+
+	const Math::Vec2 dist = Math::Vec2::fromAngle( angle, radius );
+	const Math::Vec2 out = center + dist;
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+rapidjson::Value CirclePosition::getValue() {
+	rapidjson::Value out;
+	out.SetObject();
+	out.AddMember( "minRadius", json::getValue( minRadius ), json::getAllocator() );
+	out.AddMember( "maxRadius", json::getValue( maxRadius ), json::getAllocator() );
+	out.AddMember( "minAngle", json::getValue( minAngle ), json::getAllocator() );
+	out.AddMember( "maxAngle", json::getValue( maxAngle ), json::getAllocator() );
+	out.AddMember( "center", json::getValue( center ), json::getAllocator() );
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+void CirclePosition::setValue( const rapidjson::Value& v ) {
+	if( !v.IsObject() )
+		return;
+
+	if( v.HasMember( "minRadius" ) )
+		json::getValue( v[ "minRadius" ], minRadius );
+	if( v.HasMember( "maxRadius" ) )
+		json::getValue( v[ "maxRadius" ], maxRadius );
+	if( v.HasMember( "minAngle" ) )
+		json::getValue( v[ "minAngle" ], minAngle );
+	if( v.HasMember( "maxAngle" ) )
+		json::getValue( v[ "maxAngle" ], maxAngle );
+	if( v.HasMember( "center" ) )
+		json::getValue( v[ "center" ], center );
+}
+
+//--------------------------------------------------------------------------------
+
+bool CirclePosition::render() {
+	bool out = false;
+	ImGui::PushID( "CirclePosition" );
+	ImGui::Text( "Center" );
+	out |= ImGui::InputFloat2( "##Center", &center.x, 3 );
+	out |= ImGui::render( minRadius, "Inner Radius" );
+	out |= ImGui::render( maxRadius, "Outer Radius" );
+	out |= ImGui::render( minAngle, "Min Angle" );
+	out |= ImGui::render( maxAngle, "Max Angle" );
+	ImGui::PopID();
+	return out;
+}
+
+//================================================================================
+
+Math::Vec2 UniformCirclePosition::process( int index, int total ) {
+	Math::processSet( radius );
+	Math::processSet( minAngle );
+	Math::processSet( maxAngle );
+
+	const float alpha = ( float )index / float( total );
+	const float angle = Math::mix( minAngle.value, maxAngle.value, alpha );
+
+	const Math::Vec2 dist = Math::Vec2::fromAngle( angle, radius.value );
+	const Math::Vec2 out = center + dist;
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+rapidjson::Value UniformCirclePosition::getValue() {
+	rapidjson::Value out;
+	out.SetObject();
+	out.AddMember( "radius", json::getValue( radius ), json::getAllocator() );
+	out.AddMember( "minAngle", json::getValue( minAngle ), json::getAllocator() );
+	out.AddMember( "maxAngle", json::getValue( maxAngle ), json::getAllocator() );
+	out.AddMember( "center", json::getValue( center ), json::getAllocator() );
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+void UniformCirclePosition::setValue( const rapidjson::Value& v ) {
+	if( !v.IsObject() )
+		return;
+
+	if( v.HasMember( "radius" ) )
+		json::getValue( v[ "radius" ], radius );
+	if( v.HasMember( "minAngle" ) )
+		json::getValue( v[ "minAngle" ], minAngle );
+	if( v.HasMember( "maxAngle" ) )
+		json::getValue( v[ "maxAngle" ], maxAngle );
+	if( v.HasMember( "center" ) )
+		json::getValue( v[ "center" ], center );
+}
+
+//--------------------------------------------------------------------------------
+
+bool UniformCirclePosition::render() {
+	bool out = false;
+	ImGui::PushID( "UniformCirclePosition" );
+	ImGui::Text( "Center" );
+	out |= ImGui::InputFloat2( "##Center", &center.x, 3 );
+	out |= ImGui::render( radius, "Radius" );
+	out |= ImGui::render( minAngle, "Min Angle" );
+	out |= ImGui::render( maxAngle, "Max Angle" );
+	ImGui::PopID();
+	return out;
+}
+
+//================================================================================
+
+Math::Vec2 SquarePosition::process() {
+	Math::processSet( minSize );
+	Math::processSet( maxSize );
+
+	Math::Vec2 dist;
+	dist.x = Random::getFloat( minSize.value.x, maxSize.value.x );
+	dist.y = Random::getFloat( minSize.value.y, maxSize.value.y );
+
+	const Math::Vec2 out = center + dist;
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+rapidjson::Value SquarePosition::getValue() {
+	rapidjson::Value out;
+	out.SetObject();
+	out.AddMember( "minSize", json::getValue( minSize ), json::getAllocator() );
+	out.AddMember( "maxSize", json::getValue( maxSize ), json::getAllocator() );
+	out.AddMember( "center", json::getValue( center ), json::getAllocator() );
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+void SquarePosition::setValue( const rapidjson::Value& v ) {
+	if( !v.IsObject() )
+		return;
+
+	if( v.HasMember( "minSize" ) )
+		json::getValue( v[ "minSize" ], minSize );
+	if( v.HasMember( "maxSize" ) )
+		json::getValue( v[ "maxSize" ], maxSize );
+	if( v.HasMember( "center" ) )
+		json::getValue( v[ "center" ], center );
+}
+
+//--------------------------------------------------------------------------------
+
+bool SquarePosition::render() {
+	bool out = false;
+	ImGui::PushID( "SquarePosition" );
+	ImGui::Text( "Center" );
+	out |= ImGui::InputFloat2( "##Center", &center.x, 3 );
+	out |= ImGui::render( minSize, "Min Size" );
+	out |= ImGui::render( maxSize, "Max Size" );
+	ImGui::PopID();
+	return out;
+}
+
+//================================================================================
+
+Math::Vec2 UniformSquarePosition::process( int index, int total ) {
+	Math::processSet( size );
+
+	array< float, 4u > steps;
+	if( proportional ) {
+		const float total = size.value.x * 2.f + size.value.y * 2.f;
+		steps[ 0 ] = size.value.x / total;
+		steps[ 1 ] = ( size.value.x + size.value.y ) / total;
+		steps[ 2 ] = ( size.value.x * 2 + size.value.y ) / total;
+		steps[ 3 ] = 1.f;
+	}
+	else {
+		steps = { 0.25f, 0.5f, 0.75f, 1.0f };
+	}
+
+	Math::Vec2 dist;
+
+	const float alpha = ( float )index / ( float )total;
+	if( alpha < steps[ 0 ] ) {
+		const float localAlpha = alpha / steps[ 0 ];
+		dist.x = Math::mix( -size.value.x / 2.f, size.value.x / 2.f, localAlpha );
+		dist.y = -size.value.y / 2.f;
+	}
+	else if( alpha < steps[ 1 ] ) {
+		const float localAlpha = ( alpha - steps[ 0 ] ) / ( steps[ 1 ] - steps[ 0 ] );
+		dist.y = Math::mix( -size.value.y / 2.f, size.value.y / 2.f, localAlpha );
+		dist.x = size.value.x / 2.f;
+	}
+	else if( alpha < steps[ 2 ] ) {
+		const float localAlpha = ( alpha - steps[ 1 ] ) / ( steps[ 2 ] - steps[ 1 ] );
+		dist.x = Math::mix( size.value.x / 2.f, -size.value.x / 2.f, localAlpha );
+		dist.y = size.value.y / 2.f;
+	}
+	else {
+		const float localAlpha = ( alpha - steps[ 2 ] ) / ( steps[ 3 ] - steps[ 2 ] );
+		dist.y = Math::mix( size.value.y / 2.f, -size.value.y / 2.f, localAlpha );
+		dist.x = -size.value.x / 2.f;
+	}
+
+	const Math::Vec2 out = center + dist;
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+rapidjson::Value UniformSquarePosition::getValue() {
+	rapidjson::Value out;
+	out.SetObject();
+	out.AddMember( "size", json::getValue( size ), json::getAllocator() );
+	out.AddMember( "center", json::getValue( center ), json::getAllocator() );
+	out.AddMember( "proportional", json::getValue( proportional ), json::getAllocator() );
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+void UniformSquarePosition::setValue( const rapidjson::Value& v ) {
+	if( !v.IsObject() )
+		return;
+
+	if( v.HasMember( "size" ) )
+		json::getValue( v[ "size" ], size );
+	if( v.HasMember( "center" ) )
+		json::getValue( v[ "center" ], center );
+	if( v.HasMember( "proportional" ) )
+		json::getValue( v[ "proportional" ], proportional );
+}
+
+//--------------------------------------------------------------------------------
+
+bool UniformSquarePosition::render() {
+	bool out = false;
+	ImGui::PushID( "UniformSquarePosition" );
+	out |= ImGui::Checkbox( "Proportional", &proportional );
+	ImGui::Text( "Center" );
+	out |= ImGui::InputFloat2( "##Center", &center.x, 3 );
+	out |= ImGui::render( size, "Size" );
+	ImGui::PopID();
+	return out;
+}
+
+//================================================================================
+
+Math::Vec2 Position::process( int index, int total ) {
+	Math::Vec2 out;
+
+	switch( type ) {
+	case Type::Point:
+		out = value.point.position;
+		break;
+	case Type::Circle:
+		out = value.circle.process();
+		break;
+	case Type::UniformCircle:
+		out = value.uniformCircle.process( index, total );
+		break;
+	case Type::Square:
+		out = value.square.process();
+		break;
+	case Type::UniformSquare:
+		out = value.uniformSquare.process( index, total );
+		break;
+	}
+
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+rapidjson::Value Position::getValue() {
+	rapidjson::Value out;
+	out.SetObject();
+	out.AddMember( "type", json::getValue( ( int )type ), json::getAllocator() );
+
+	rapidjson::Value v;
+	switch( type ) {
+	case Type::Point: v = value.point.getValue(); break;
+	case Type::Circle: v = value.circle.getValue(); break;
+	case Type::UniformCircle: v = value.uniformCircle.getValue(); break;
+	case Type::Square: v = value.square.getValue(); break;
+	case Type::UniformSquare: v = value.square.getValue(); break;
+	}
+
+	out.AddMember( "value", v, json::getAllocator() );
+	return out;
+}
+
+//--------------------------------------------------------------------------------
+
+void Position::setValue( const rapidjson::Value& v ) {
+	if( !v.IsObject() )
+		return;
+
+	if( v.HasMember( "type" ) ) {
+		int t;
+		json::getValue( v[ "type" ], t );
+		type = ( Type )t;
+	}
+
+	if( !v.HasMember( "value" ) )
+		return;
+
+	const rapidjson::Value& v1 = v[ "value" ];
+	switch( type ) {
+	case Type::Point: value.point.setValue( v1 ); break;
+	case Type::Circle: value.circle.setValue( v1 ); break;
+	case Type::UniformCircle: value.uniformCircle.setValue( v1 ); break;
+	case Type::Square: value.square.setValue( v1 ); break;
+	case Type::UniformSquare: value.uniformSquare.setValue( v1 ); break;
+	}
+}
+
+//--------------------------------------------------------------------------------
+
+bool Position::render() {
+	bool out = false;
+	ImGui::PushID( "Position" );
+
+	string text;
+	switch( type ) {
+	case Type::Point: text = "Type: Point"; break;
+	case Type::Circle: text = "Type: Circle"; break;
+	case Type::UniformCircle: text = "Type: Uniform Circle"; break;
+	case Type::Square: text = "Type: Square"; break;
+	case Type::UniformSquare: text = "Type: Uniform Square"; break;
+	}
+	if( ImGui::Button( text.c_str() ) )
+		ImGui::OpenPopup( "Type" );
+
+	if( ImGui::BeginPopupContextWindow( "Type", 1, false ) ) {
+		if( ImGui::Selectable( "Point" ) ) {
+			out = true;
+			type = Type::Point;
+			value.point = PointPosition();
+			ImGui::CloseCurrentPopup();
+		}
+		if( ImGui::Selectable( "Circle" ) ) {
+			out = true;
+			type = Type::Circle;
+			value.circle = CirclePosition();
+			ImGui::CloseCurrentPopup();
+		}
+		if( ImGui::Selectable( "Uniform Circle" ) ) {
+			out = true;
+			type = Type::UniformCircle;
+			value.uniformCircle = UniformCirclePosition();
+			ImGui::CloseCurrentPopup();
+		}
+		if( ImGui::Selectable( "Square" ) ) {
+			out = true;
+			type = Type::Square;
+			value.square = SquarePosition();
+			ImGui::CloseCurrentPopup();
+		}
+		if( ImGui::Selectable( "Uniform Square" ) ) {
+			out = true;
+			type = Type::UniformSquare;
+			value.uniformSquare = UniformSquarePosition();
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+
+	switch( type ) {
+	case Type::Point: out |= value.point.render(); break;
+	case Type::Circle: out |= value.circle.render(); break;
+	case Type::UniformCircle: out |= value.uniformCircle.render(); break;
+	case Type::Square: out |= value.square.render(); break;
+	case Type::UniformSquare: out |= value.uniformSquare.render(); break;
+	}
+
+	ImGui::PopID();
+	return out;
 }
 
 //--------------------------------------------------------------------------------

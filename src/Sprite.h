@@ -11,9 +11,12 @@
 namespace Gfx {
 namespace Sprite {
 
+typedef size_t ID;
+
 //--------------------------------------------------------------------------------
 
-sf::Texture& get( string path );
+ID get( string path );
+sf::Texture& get( ID id );
 
 //--------------------------------------------------------------------------------
 

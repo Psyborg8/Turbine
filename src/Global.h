@@ -7,6 +7,8 @@
 #pragma warning( disable : 26812 )
 #define NOMINMAX
 
+#define _CRT_SECURE_NO_WARNINGS
+
 //================================================================================
 
 /* Includes */
@@ -60,6 +62,7 @@ using std::function;
 using std::pair;
 using std::make_pair;
 using std::array;
+using std::list;
 
 using std::chrono::hours;
 using std::chrono::minutes;
@@ -184,6 +187,23 @@ enum class DebugType {
 	Error,
 	Input,
 	Performance,
+};
+
+//--------------------------------------------------------------------------------
+
+enum class InheritanceType {
+	None,
+	Copy,
+	Offset,
+	Multiply
+};
+
+//--------------------------------------------------------------------------------
+
+enum class EmitterType {
+	Set,
+	Random,
+	Sequence
 };
 
 //================================================================================

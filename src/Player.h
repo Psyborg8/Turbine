@@ -29,7 +29,7 @@ public:
 	void onProcessCollisions() override;
 	void onDestroy() override;
 	void onEvent( sf::Event e ) override;
-	void onRender( sf::RenderTarget* target ) override;
+	void onRender() override;
 	void onCollision( Collision::CollisionResult collision, shared_ptr< Object > target ) override;
 
 	// Keybinds

@@ -8,8 +8,8 @@
 
 #include "system.h"
 #include "player.h"
-#include "particle.h"
-#include "particle-emitter.h"
+#include "particle-manager.h"
+#include "string-utils.h"
 
 //================================================================================
 
@@ -20,9 +20,8 @@ namespace Debug {
 struct Timer {
 	string name;
 	sf::Clock clock;
-	array< sf::Time, 100u > times;
-	size_t nextPosition{ 0u };
-	bool init = false;
+	list< sf::Time > times;
+	sf::Time currentTime;
 };
 
 //--------------------------------------------------------------------------------
@@ -288,13 +287,14 @@ public:
 public:
 	void onSpawnChildren() override;
 	void onUpdate( sf::Time deltaTime ) override;
-	void onRender() override;
+	void onRender( sf::RenderTarget* target ) override;
 	void onEvent( sf::Event e ) override;
 
 public:
 	void show() { menu.open = true; }
 	void hide() { menu.open = false; }
 	void incDrawCall() { performance.draws++; }
+	void addPerformancePage( string name, function< string() > func );
 
 private:
 	struct {
@@ -307,10 +307,6 @@ private:
 		std::array< char, 1024u > buffer;
 	} console;
 
-	enum class PerformanceTab {
-		FPS,
-		Timers,
-	};
 
 	struct {
 		bool open{ false };
@@ -327,10 +323,11 @@ private:
 		float renderGroupsMax{ 0.f };
 		vector< float > particles;
 		float particlesMax{ 0.f };
+
 		vector< float > emitters;
 		float emittersMax{ 0.f };
 
-		PerformanceTab tab{ PerformanceTab::FPS };
+		vector < pair< string, function< string() > > > pages;
 	} performance;
 };
 
@@ -380,31 +377,28 @@ void DebugHandler::onUpdate( sf::Time deltaTime ) {
 	if( performance.drawCalls.size() > 1000u )
 		performance.drawCalls.erase( performance.drawCalls.begin() );
 
-	const float renderGroups = float( Gfx::Particle::getRenderGroups() );
-	if( renderGroups > performance.renderGroupsMax )
-		performance.renderGroupsMax = renderGroups;
-	performance.renderGroups.push_back( renderGroups );
-	if( performance.renderGroups.size() > 1000u )
-		performance.renderGroups.erase( performance.renderGroups.begin() );
-
-	const float particles = float( Gfx::Particle::getAll().size() );
+	const float particles = float( Gfx::Particle::Manager::getParticleCount() );
+	performance.particles.push_back( particles );
 	if( particles > performance.particlesMax )
 		performance.particlesMax = particles;
-	performance.particles.push_back( particles );
 	if( performance.particles.size() > 1000u )
 		performance.particles.erase( performance.particles.begin() );
 
-	const float emitters = float( Gfx::Emitter::getAll().size() );
-	if( emitters > performance.emittersMax )
-		performance.emittersMax = emitters;
-	performance.emitters.push_back( emitters );
-	if( performance.emitters.size() > 1000u )
-		performance.emitters.erase( performance.emitters.begin() );
+	for( Timer& timer : timers ) {
+		if( timer.currentTime == sf::Time::Zero )
+			continue;
+
+		timer.times.push_back( timer.currentTime );
+		if( timer.times.size() >= 100u )
+			timer.times.erase( timer.times.begin() );
+
+		timer.currentTime = sf::Time::Zero;
+	}
 }
 
 //--------------------------------------------------------------------------------
 
-void DebugHandler::onRender() {
+void DebugHandler::onRender( sf::RenderTarget* target ) {
 	ImGui::PushID( "DebugHandler" );
 
 	if( menu.open ) {
@@ -441,6 +435,7 @@ void DebugHandler::onRender() {
 
 		ImGui::SetWindowSize( ImVec2( 1200.f, 537.f ) );
 		ImGui::SetWindowPos( ImVec2( ( System::getSystemInfo().width / 2.f ) - ( ImGui::GetWindowSize().x / 2.f ), .0f ) );
+		ImGui::SetWindowFocus();
 
 		ImGui::BeginChild( "Message Box", ImVec2( 0.f, 500.f ), true,
 						   ImGuiWindowFlags_NoResize
@@ -468,10 +463,15 @@ void DebugHandler::onRender() {
 
 		ImGui::EndChild();
 
+		if( ImGui::IsWindowAppearing() )
+			ImGui::SetKeyboardFocusHere();
+
+		ImGui::PushItemWidth( 1183 );
 		if( ImGui::InputText( "##Input", console.buffer.data(), std::numeric_limits< uint16_t >::max(), ImGuiInputTextFlags_EnterReturnsTrue ) ) {
 			callCommand( string( console.buffer.data() ) );
 			console.buffer.fill( '\0' );
 		}
+		ImGui::PopItemWidth();
 
 		ImGui::End();
 		ImGui::PopID();
@@ -487,74 +487,48 @@ void DebugHandler::onRender() {
 		ImGui::SetWindowFontScale( 1.1f );
 		//ImGui::SetWindowPos( ImVec2( 0.f, 0.f ) );
 
-		if( ImGui::Button( "FPS" ) )
-			performance.tab = PerformanceTab::FPS;
-		ImGui::SameLine();
-		if( ImGui::Button( "Timers" ) )
-			performance.tab = PerformanceTab::Timers;
+		ImGui::BeginTabBar( "Performance Tab Bar" );
 
-		ImGui::Spacing();
-		ImGui::Spacing();
-
-		char buffer[ 1024 ];
-
-		if( performance.tab == PerformanceTab::FPS ) {
+		if( ImGui::BeginTabItem( "FPS" ) ) {
 			float totalTime = .0f;
 			for( sf::Time dt : performance.deltaTimes )
 				totalTime += dt.asSeconds();
 
 			const float averageTime = totalTime / performance.deltaTimes.size();
 			const int fps = int( 1.f / averageTime );
-			sprintf_s( buffer, "FPS: %i", fps );
-			ImGui::Text( buffer );
+			string text = Utils::format( "FPS: %i", fps );
+			ImGui::Text( text.c_str() );
 
-			ImGui::PlotLines( "", performance.framerates.data(), int( performance.framerates.size() ), 0, (const char *)0, 0.f, performance.frameRatesMax, ImVec2( 0.f, 100.f ) );
+			ImGui::PlotLines( "", performance.framerates.data(), int( performance.framerates.size() ), 0, ( const char* )0, 0.f, performance.frameRatesMax, ImVec2( 0.f, 100.f ) );
 
 			if( performance.drawCalls.size() > 0u ) {
 				ImGui::Spacing();
 				ImGui::Spacing();
-				sprintf_s( buffer, "Draw Calls: %i", int( *performance.drawCalls.rbegin() ) );
-				ImGui::Text( buffer );
+				text = Utils::format( "Draw Calls: %i", int( *performance.drawCalls.rbegin() ) );
+				ImGui::Text( text.c_str() );
 				ImGui::PlotHistogram( "", performance.drawCalls.data(), int( performance.drawCalls.size() ), 0, ( const char* )0, 0.f, performance.drawCallsMax, ImVec2( 0.f, 100.f ) );
 			}
 
-			if( performance.renderGroups.size() > 0u ) {
-				ImGui::Spacing();
-				ImGui::Spacing();
-				sprintf_s( buffer, "Render Groups: %i", int( *performance.renderGroups.rbegin() ) );
-				ImGui::Text( buffer );
-				ImGui::PlotHistogram( "", performance.renderGroups.data(), int( performance.renderGroups.size() ), 0, ( const char* )0, 0.f, performance.renderGroupsMax, ImVec2( 0.f, 100.f ) );
-			}
-
-			if( performance.particles.size() > 0u ) {
-				ImGui::Spacing();
-				ImGui::Spacing();
-				sprintf_s( buffer, "Particles: %i", int( *performance.particles.rbegin() ) );
-				ImGui::Text( buffer );
-				ImGui::PlotHistogram( "", performance.particles.data(), int( performance.particles.size() ), 0, ( const char* )0, 0.f, performance.particlesMax, ImVec2( 0.f, 100.f ) );
-			}
-
-			if( performance.emitters.size() > 0u ) {
-				ImGui::Spacing();
-				ImGui::Spacing();
-				sprintf_s( buffer, "Emitters: %i", int( *performance.emitters.rbegin() ) );
-				ImGui::Text( buffer );
-				ImGui::PlotHistogram( "", performance.emitters.data(), int( performance.emitters.size() ), 0, ( const char* )0, 0.f, performance.emittersMax, ImVec2( 0.f, 100.f ) );
-			}
+			ImGui::EndTabItem();
 		}
 
-		if( performance.tab == PerformanceTab::Timers )
-		{
+		if( ImGui::BeginTabItem( "Timers" ) ) {
 			string format;
-			for( Timer timer : timers ) {
-				sprintf_s( buffer, "\n%s: %.2fms", timer.name.c_str(), getAverageTime( timer.name ) * 1000.f );
-				format += string( buffer );
-			}
+			for( Timer timer : timers )
+				format += Utils::format( "\n%s: %.3fms", timer.name.c_str(), getAverageTime( timer.name ) * 1000.f );
 
 			ImGui::Text( format.c_str() );
+			ImGui::EndTabItem();
 		}
 
+		for( const pair< string, function< string() > > page : performance.pages ) {
+			if( ImGui::BeginTabItem( page.first.c_str() ) ) {
+				ImGui::Text( page.second().c_str() );
+				ImGui::EndTabItem();
+			}
+		}
 
+		ImGui::EndTabBar();
 		ImGui::End();
 		ImGui::PopID();
 	}
@@ -583,8 +557,20 @@ void DebugHandler::onEvent( sf::Event e ) {
 
 //--------------------------------------------------------------------------------
 
+void DebugHandler::addPerformancePage( string name, function< string() > func ) {
+	performance.pages.push_back( make_pair( name, func ) );
+}
+
+//--------------------------------------------------------------------------------
+
 void incDrawCall() {
 	handler->incDrawCall();
+}
+
+//--------------------------------------------------------------------------------
+
+void addPerformancePage( string name, function< string() > func ) {
+	handler->addPerformancePage( name, func );
 }
 
 //================================================================================
@@ -648,26 +634,9 @@ void stopTimer( string name ) {
 	if( it == timers.end() )
 		return;
 
-	if( !it->init ) {
-		it->init = true;
-		std::fill( it->times.begin(), it->times.end(), it->clock.restart() );
-		return;
-	}
-
-	sf::Time& time = it->times.at( it->nextPosition++ );
-
-	if( it->nextPosition == it->times.size() )
-		it->nextPosition = 0u;
-	time = it->clock.restart();
-
-	const float t = time.asSeconds() * 1000.0f;
-	const float average = getAverageTime( name ) * 1000.0f;
-	const float threshold = average * 15.0f;
-	if( t > threshold && average > 1.0f ) {
-		char buffer[ 128 ];
-		sprintf_s( buffer, "%s spiked at %.3fms(%.3fms average)", name.c_str(), t, average );
-		addMessage( buffer, DebugType::Performance );
-	}
+	
+	sf::Time time = it->clock.restart();
+	it->currentTime += time;
 }
 
 //--------------------------------------------------------------------------------
@@ -680,10 +649,8 @@ float getAverageTime( string name ) {
 
 	if( it == timers.end() )
 		return 0.0f;
-	if( !it->init )
-		return 0.0f;
 
-	const std::array< sf::Time, 100 >& vt = it->times;
+	const list< sf::Time >& vt = it->times;
 
 	float total = 0.0f;
 	for( const sf::Time& time : vt )
@@ -709,113 +676,14 @@ void addMessage( string message, DebugType type ) {
 
 //--------------------------------------------------------------------------------
 
+string getLastMessage() {
+	if( messages.empty() )
+		return string();
+	return messages.rbegin()->text;
 }
-
-//================================================================================
-
-
-
-/*
 
 //--------------------------------------------------------------------------------
 
-void PhysicsWindow::onUpdate( sf::Time deltaTime ) {
-	shared_ptr< Game::Player > player = System::getWorld()->getPlayer();
-	if( player == nullptr )
-		return;
-
-	const Math::Vec2 position = player->getPosition();
-	const Math::Vec2 velocity = player->getVelocity();
-	const auto& spriteData = player->spriteData;
-	const auto& movementData = player->movementData;
-	const auto& gravityData = player->gravityData;
-	const auto& frictionData = player->frictionData;
-	const auto& jumpData = player->jumpData;
-	const auto& doubleJumpData = player->doubleJumpData;
-	const auto& dashData = player->dashData;
-	const auto& wallClingData = player->wallClingData;
-	const auto& wallJumpData = player->wallJumpData;
-
-	char format[] = "Player\n"
-		"  Physics Data\n"
-		"    Position: { %.2f, %.2f }\n"
-		"    Velocity: { %.2f, %.2f }\n"
-		"  Sprite Data\n"
-		"    Size: { %.0f, %.0f }\n"
-		"    Dash Shadows: %i\n"
-		"  Movement Data\n"
-		"    Enabled: %s\n"
-		"    Acceleration: %.0f\n"
-		"    Max Speed: %.0f\n"
-		"    Air Multiplier: %.2f\n"
-		"  Gravity Data\n"
-		"    Enabled: %s\n"
-		"    Power: %.0f\n"
-		"    Max: %.0f\n"
-		"  Friction Data\n"
-		"    Enabled: %s\n"
-		"    Power: %.0f\n"
-		"    Min: %.0f\n"
-		"    Max: %.0f\n"
-		"    Air Multiplier: %.2f\n"
-		"  Jump Data\n"
-		"    Enabled: %s\n"
-		"    Can Jump: %s\n"
-		"    Can Jump Down: %s\n"
-		"    Is Jumping Down: %s\n"
-		"  Double Jump Data\n"
-		"    Enabled: %s\n"
-		"    Can Double Jump: %s\n"
-		"    Power: %.0f\n"
-		"  Dash Data\n"
-		"    Enabled: %s\n"
-		"    Can Dash: %s\n"
-		"    Is Dashing: %s\n"
-		"    Power: %.0f\n"
-		"    Release: { %.0f, %.0f }\n"
-		"    Cooldown: %ims\n"
-		"    Duration: %ims\n"
-		"    Animation Step: %ims\n"
-		"  Wall Cling Data\n"
-		"    Enabled: %s\n"
-		"    Is Clinging: %s\n"
-		"    Leniency: %.2f\n"
-		"    Multiplier: %.2f\n"
-		"    Min: %.0f\n"
-		"    Max: %.0f\n"
-		"  Wall Jump Data\n"
-		"    Enabled: %s\n"
-		"    Normal: %.2f\n"
-		"    Power: %.0f\n"
-		"    Direction: { %.2f, %.2f }\n"
-		"    Duration: %ims";
-
-	char buffer[ 2048 ];
-	sprintf_s( buffer, format,
-			   position.x, position.y,
-			   velocity.x, velocity.y,
-			   spriteData.size.x, spriteData.size.y, spriteData.dashShadows.size(),
-			   movementData.enabled ? "True" : "False", movementData.acceleration, movementData.maxSpeed, movementData.airMultiplier,
-			   gravityData.enabled ? "True" : "False", gravityData.power, gravityData.max,
-			   frictionData.enabled ? "True" : "False", frictionData.power, frictionData.min, frictionData.max, frictionData.airMultiplier,
-			   jumpData.enabled ? "True" : "False", jumpData.canJump ? "True" : "False", jumpData.canJumpDown ? "True" : "False", jumpData.isJumpingDown ? "True" : "False",
-			   doubleJumpData.enabled ? "True" : "False", doubleJumpData.canDoubleJump ? "True" : "False", doubleJumpData.power,
-			   dashData.enabled ? "True" : "False", dashData.canDash ? "True" : "False", dashData.isDashing ? "True" : "False", dashData.power, dashData.release.x, dashData.release.y, dashData.cooldown.count(), dashData.duration.count(), dashData.animationStep.count(),
-			   wallClingData.enabled ? "True" : "False", wallClingData.isClinging ? "True" : "False", wallClingData.leniency, wallClingData.power, wallClingData.min, wallClingData.max,
-			   wallJumpData.enabled ? "True" : "False", wallJumpData.normal, wallJumpData.power, wallJumpData.direction.x, wallJumpData.direction.y, wallJumpData.duration.count() );
-
-	m_text.setString( sf::String( buffer ) );
-
-	m_text.setScale( getWorld()->getCamera().scale( Math::Vec2( 0.125f, 0.125f ) ).sf() );
-
-	sf::RenderWindow* window = System::getWindow();
-	sf::Vector2f pos = window->mapPixelToCoords( sf::Vector2i( 3, 0 ) );
-	m_text.setPosition( pos );
-}
-
-}
 }
 
 //================================================================================
-
-*/

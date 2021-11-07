@@ -42,6 +42,11 @@ Math::Vec2 getVec2( Math::Vec2 min, Math::Vec2 max );
 Math::Color getColor( Math::Color a, Math::Color b, RandomColorType type );
 RandomNumbers< Math::Color > getColor( Math::Color a, Math::Color b, RandomColorType type, size_t count );
 
+template< class T >
+T getElement( const vector< T >& vec ) {
+	return vec.at( getInt( 0, ( int )vec.size() ) );
+}
+
 //--------------------------------------------------------------------------------
 
 uint16_t getSeed();

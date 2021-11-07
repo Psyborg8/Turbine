@@ -16,16 +16,51 @@ namespace Sprite {
 
 //--------------------------------------------------------------------------------
 
-map< string, sf::Texture > textures;
+struct Texture {
+	string path;
+	size_t ID;
+	sf::Texture texture;
+};
 
 //--------------------------------------------------------------------------------
 
-sf::Texture& get( string path ) {
-	if( !textures.count( path ) )
-		if( !textures[ path ].loadFromFile( path ) )
-			Debug::addMessage( "Texture " + path + " doesn't exist", DebugType::Error );
+vector< Texture > textures;
+sf::Texture defaultTexture;
 
-	return textures.at( path );
+//--------------------------------------------------------------------------------
+
+ID get( string path ) {
+	auto it = std::find_if( textures.begin(), textures.end(),
+								  [path] ( const Texture& rh ) {
+									  return rh.path == path;
+								  } );
+	if( it == textures.end() ) {
+		Texture texture;
+		texture.path = path;
+		texture.ID = textures.size();
+		if( !texture.texture.loadFromFile( path ) ) {
+			Debug::addMessage( "Texture " + path + " failed to load", DebugType::Error );
+			texture.texture = defaultTexture;
+		}
+		
+		textures.push_back( texture );
+		it = textures.end() - 1u;
+	}
+
+	return it->ID;
+}
+
+//--------------------------------------------------------------------------------
+
+sf::Texture& get( ID id ) {
+	const auto it = std::find_if( textures.begin(), textures.end(),
+								  [id]( const Texture& rh ) {
+									  return rh.ID == id;
+								  } );
+	if( it == textures.end() )
+		return defaultTexture;
+
+	return it->texture;
 }
 
 //================================================================================

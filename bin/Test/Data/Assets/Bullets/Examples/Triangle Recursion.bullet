@@ -237,6 +237,6 @@
                 "random": false
             },
             "onDeath": true,
-            "patterns": ["./Data/Assets/Bullets/New Pattern.bullet"]
+            "patterns": ["./Data/Assets/Bullets/Examples/Triangle Recursion.bullet"]
         }]
 }

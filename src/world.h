@@ -31,6 +31,8 @@ public:
 	void update( sf::Time deltaTime );
 	void postUpdate( sf::Time deltaTime );
 
+	void render( sf::RenderTarget* target );
+
 public:
 	inline Gfx::Camera& getCamera() { return m_camera; }
 	inline Math::Color getBackgroundColor() const { return m_backgroundColor; }

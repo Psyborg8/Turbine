@@ -310,13 +310,13 @@ void Player::onEvent( sf::Event e ) {
 
 //--------------------------------------------------------------------------------
 
-void Player::onRender() {
+void Player::onRender( sf::RenderTarget* target ) {
 	Debug::startTimer( "Player::Render" );
 
-	m_attackCollider->render();
-	m_wallAttackCollider->render();
+	m_attackCollider->render( target );
+	m_wallAttackCollider->render( target );
 
-	System::getWindow()->draw( m_rect );
+	target->draw( m_rect );
 	Debug::incDrawCall();
 
 	Debug::stopTimer( "Player::Render" );

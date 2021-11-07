@@ -30,8 +30,8 @@ RigidRect::RigidRect( Math::Vec2 position, Math::Vec2 size, Math::Color color = 
 
 //--------------------------------------------------------------------------------
 
-void RigidRect::onRender() {
-	System::getWindow()->draw( m_rect );
+void RigidRect::onRender( sf::RenderTarget* target ) {
+	target->draw( m_rect );
 	Debug::incDrawCall();
 }
 

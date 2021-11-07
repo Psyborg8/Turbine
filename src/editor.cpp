@@ -76,7 +76,7 @@ void Editor::onRender( sf::RenderTarget* target ) {
 	ImGui::EndMainMenuBar();
 
 	// Message Bar
-	ImGui::Begin( "Message Bar", 0, ImGuiWindowFlags_NoDecoration );
+	ImGui::Begin( "Message Bar", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove );
 
 	ImGui::SetWindowSize( ImVec2( System::getSystemInfo().width, 25 ) );
 	ImGui::SetWindowPos( ImVec2( 0, System::getSystemInfo().height - ImGui::GetWindowHeight() ) );
@@ -87,7 +87,7 @@ void Editor::onRender( sf::RenderTarget* target ) {
 
 	// Rename Window
 	if( m_renameWindowOpen ) {
-		ImGui::Begin( "Rename", 0, ImGuiWindowFlags_NoDecoration );
+		ImGui::Begin( "Rename", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove );
 
 		ImGui::SetWindowSize( ImVec2( 200, 75 ) );
 		ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width / 2.f - ImGui::GetWindowWidth() / 2.f,
@@ -127,7 +127,8 @@ void Editor::onRender( sf::RenderTarget* target ) {
 					   ImGuiWindowFlags_NoTitleBar 
 					   | ImGuiWindowFlags_NoScrollbar 
 					   | ImGuiWindowFlags_NoResize 
-					   | ImGuiWindowFlags_NoBackground );
+					   | ImGuiWindowFlags_NoBackground
+					   | ImGuiWindowFlags_NoMove );
 
 	ImGui::SetWindowSize( ImVec2( System::getSystemInfo().width, 0 ) );
 	ImGui::SetWindowPos( ImVec2( 0, 20 ) );
@@ -167,7 +168,8 @@ void Editor::onRender( sf::RenderTarget* target ) {
 	ImGui::Begin( "Left Window", ( bool* )0,
 				  ImGuiWindowFlags_NoCollapse
 				  | ImGuiWindowFlags_NoTitleBar
-				  | ImGuiWindowFlags_NoResize );
+				  | ImGuiWindowFlags_NoResize
+				  | ImGuiWindowFlags_NoMove );
 
 	ImGui::SetWindowSize( ImVec2( 300, System::getSystemInfo().height - 82.f ) );
 	ImGui::SetWindowPos( ImVec2( 0, 50 ) );
@@ -180,7 +182,8 @@ void Editor::onRender( sf::RenderTarget* target ) {
 	ImGui::Begin( "Right Window", ( bool* )0,
 				  ImGuiWindowFlags_NoCollapse
 				  | ImGuiWindowFlags_NoTitleBar
-				  | ImGuiWindowFlags_NoResize );
+				  | ImGuiWindowFlags_NoResize
+				  | ImGuiWindowFlags_NoMove );
 
 	ImGui::SetWindowSize( ImVec2( 300, ( System::getSystemInfo().height - 82.f ) ) );
 	ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width - ImGui::GetWindowWidth(), 50 ) );

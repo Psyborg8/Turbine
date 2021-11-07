@@ -139,7 +139,7 @@ string patternSelectorBuffer;
 bool renderPatternSelector( string& target ) {
 	bool out = false;
 
-	ImGui::Begin( "Pattern Selector", 0, ImGuiWindowFlags_NoDecoration );
+	ImGui::Begin( "Pattern Selector", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove );
 
 	ImGui::SetWindowSize( ImVec2( 600, 600 ) );
 	ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width / 2.f - ImGui::GetWindowWidth() / 2.f,

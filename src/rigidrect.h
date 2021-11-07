@@ -21,7 +21,7 @@ public:
 	RigidRect( Math::Vec2 position, Math::Vec2 size, Math::Color color );
 
 public:
-	virtual void onRender() override;
+	virtual void onRender( sf::RenderTarget* target ) override;
 	virtual Collision::CollisionResult isColliding( shared_ptr< Object > target ) override;
 
 	inline Math::Vec2 getPosition() const override { return Math::Vec2( m_rect.getPosition() ); }

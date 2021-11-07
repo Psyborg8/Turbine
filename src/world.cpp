@@ -17,7 +17,7 @@ World::World() : Object() {
 //--------------------------------------------------------------------------------
 
 void World::onSpawnChildren() {
-	m_camera = Gfx::Camera();
+
 }
 
 //--------------------------------------------------------------------------------
@@ -50,6 +50,21 @@ void World::postUpdate( sf::Time deltaTime ) {
 	const size_t size = m_children.size();
 	for( size_t i = 0u; i < size; ++i )
 		m_children.at( i )->postUpdate( dt );
+}
+
+//--------------------------------------------------------------------------------
+
+void World::render( sf::RenderTarget* target ) {
+	if( isMarkedForRemoval() )
+		return;
+
+	m_camera.calculate( target );
+
+	onRender( target );
+
+	const size_t size = m_children.size();
+	for( size_t i = 0u; i < size; ++i )
+		m_children.at( i )->render( target );
 }
 
 //================================================================================

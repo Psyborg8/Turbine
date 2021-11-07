@@ -48,11 +48,11 @@ struct DynamicCollision {
 //--------------------------------------------------------------------------------
 
 struct CollisionResult {
-	bool success = false;
+	bool success{ false };
 	Math::Vec2 normal;
 	Math::Vec2 point;
 	Math::Vec2 velocity;
-	float distance;
+	float distance{ 0.f };
 	DynamicCollision dynamic;
 };
 

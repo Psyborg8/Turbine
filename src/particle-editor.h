@@ -6,11 +6,14 @@
 
 #include "global.h"
 
-#include "world.h"
-#include "random.h"
-
 #include "particle.h"
 #include "particle-emitter.h"
+#include "particle-system.h"
+#include "particle-affector.h"
+#include "particle-manager.h"
+
+#include "world.h"
+#include "editor-window-base.h"
 
 //================================================================================
 
@@ -18,66 +21,36 @@ namespace Editor {
 
 //--------------------------------------------------------------------------------
 
-struct Tab {
-	bool emitter{ false };
-	void* pattern;
-};
-
-//--------------------------------------------------------------------------------
-
-class BulletPatternEditor : public World {
+class ParticleEditor : public EditorWindow {
 public:
-	BulletPatternEditor() = default;
+	ParticleEditor();
+	ParticleEditor( string path );
 
-public:
-	void onSpawnChildren() override;
-	void onUpdate( sf::Time deltaTime ) override;
-	void onRender() override;
+	void init( World* world ) override;
+	void open() override;
+	void update( sf::Time delta ) override;
+	void renderLeftWindow() override;
+	void renderRightWindow() override;
+	void close() override;
+	void rename( string name ) override;
 	void onEvent( sf::Event e ) override;
-	void onDestroy() override;
 
-public:
-	void renderPattern( Gfx::Particle::Pattern& pattern );
-	void renderEmitter( Gfx::Emitter::Pattern& emitter );
-
-	void renderVelocitySet( Gfx::Particle::VelocitySet& set );
-	void renderPositionSet( Gfx::Particle::PositionSet& set );
-
-	void renderPatternTreeView();
-	void renderPatternTreeNode( Gfx::Particle::Pattern& pattern, vector< Tab > stack );
-	void renderEmitterTreeNode( Gfx::Emitter::Pattern& pattern, vector< Tab > stack );
-
-	void renderLoadWindow();
+	string getName() const override;
 
 private:
-	sf::VertexArray m_grid;
+	void reset();
+	void renderTextureWindow();
+	void renderAffectorWindow();
+	void save();
 
-	bool m_emitter{ true };
-	Gfx::Particle::Pattern m_basePattern;
-	Gfx::Emitter::Pattern m_baseEmitter;
-
-	bool m_useMouse{ false };
-	bool m_mouseDown{ false };
-	Math::Vec2 m_mouseOrigin{ 0.0f, 0.0f };
+private:
+	Gfx::Particle::ParticlePattern m_pattern;
+	Gfx::Particle::EmitterPattern m_emitter;
+	shared_ptr< Gfx::Particle::System > m_system;
 
 	bool m_changed{ false };
-
-	int m_patternID{ 0 };
-	int m_patternTreeID{ 0 };
-
-	vector< Tab > m_tabs;
-
-	enum class FileBrowserType {
-		Pattern = 0,
-		Emitter,
-		Texture,
-	} m_loadWindowType{ FileBrowserType::Pattern }, m_openWindowType{ FileBrowserType::Pattern };
-	bool m_loadWindowOpen{ false };
-	function< void( string ) > m_loadWindowCallback{ nullptr };
-
-
-	char* m_renameBuffer{ nullptr };
-	bool m_styleEditorOpen{ false };
+	bool m_unsaved{ false };
+	bool m_saved{ false };
 };
 
 //--------------------------------------------------------------------------------

@@ -34,8 +34,6 @@ SystemInfo& getSystemInfo();
 
 shared_ptr< World > getWorld();
 
-sf::RenderWindow* getWindow();
-
 sf::Time getDeltaTime();
 
 

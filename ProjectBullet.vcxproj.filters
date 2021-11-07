@@ -19,26 +19,32 @@
     <Filter Include="Turbine\Input">
       <UniqueIdentifier>{af0b66b1-cf2c-43db-9433-9ceef2b6b644}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Turbine\Objects">
-      <UniqueIdentifier>{abc69a04-4206-410a-9a57-b899d8d37494}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Turbine\Gfx">
       <UniqueIdentifier>{12a91a57-e64a-478c-b020-ab3bc0465dfc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Turbine\Game">
       <UniqueIdentifier>{26351a8f-7d6c-4536-9702-2687f7880e10}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Turbine\Source">
-      <UniqueIdentifier>{2f621186-3722-4f6a-87c3-e49dc7463bdc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Turbine\Gfx\Particles">
       <UniqueIdentifier>{54baa74d-d6cf-46b2-ae1d-6f6112ab5fd4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Turbine\Gfx\Level">
-      <UniqueIdentifier>{39bdfcca-227b-491f-9fbe-59117d2b81d4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Turbine\Gfx\Camera">
       <UniqueIdentifier>{d49e2232-1a63-477d-bfa8-16df63b99001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Turbine\Debug\Worlds">
+      <UniqueIdentifier>{b39136a4-0003-4afc-af1b-d3ca9f005568}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Turbine\Utils">
+      <UniqueIdentifier>{594d79bd-4efc-48be-8398-fdacdd59c12c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Turbine\Editor">
+      <UniqueIdentifier>{b83d3379-e046-401c-b449-fa5981eb5108}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Turbine\Objects">
+      <UniqueIdentifier>{abc69a04-4206-410a-9a57-b899d8d37494}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{2f621186-3722-4f6a-87c3-e49dc7463bdc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -57,80 +63,98 @@
     <ClCompile Include="deps\ImGui\imgui_demo.cpp">
       <Filter>Deps\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="src\particle.cpp">
-      <Filter>Turbine\Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\camera.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\collision.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\debug.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\input.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\object.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\player.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\random.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\rigidrect.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\shader.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\sprite.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\system.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\tileset.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\timer.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\world.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Turbine.cpp">
       <Filter>Turbine</Filter>
     </ClCompile>
     <ClCompile Include="src\camera-volume.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\input-controller.cpp">
-      <Filter>Turbine\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="src\level-editor.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\mathtypes.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\particle-editor.cpp">
-      <Filter>Turbine\Source</Filter>
+    <ClCompile Include="src\particle-sequence.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\particle-emitter.cpp">
-      <Filter>Turbine\Source</Filter>
+    <ClCompile Include="src\particle-system.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\particle-pattern.cpp">
-      <Filter>Turbine\Source</Filter>
+    <ClCompile Include="src\world-particle-test.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\json.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\particle-manager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imgui-utils.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\particle-editor.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\editor.cpp">
-      <Filter>Turbine\Source</Filter>
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\particle-affector-manager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\string-utils.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\editor-window-base.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\particle-affector.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\particle-loader.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -157,12 +181,6 @@
     </ClInclude>
     <ClInclude Include="deps\ImGui\imgui.h">
       <Filter>Deps\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\particle.h">
-      <Filter>Turbine\Gfx\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="src\level.h">
-      <Filter>Turbine\Gfx\Level</Filter>
     </ClInclude>
     <ClInclude Include="src\debug.h">
       <Filter>Turbine\Debug</Filter>
@@ -206,23 +224,8 @@
     <ClInclude Include="src\system.h">
       <Filter>Turbine</Filter>
     </ClInclude>
-    <ClInclude Include="src\particle-editor.h">
-      <Filter>Turbine\Gfx\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="src\particle-emitter.h">
-      <Filter>Turbine\Gfx\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="src\particle-pattern.h">
-      <Filter>Turbine\Gfx\Particles</Filter>
-    </ClInclude>
     <ClInclude Include="src\mathtypes.h">
       <Filter>Turbine\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\level-editor.h">
-      <Filter>Turbine\Gfx\Level</Filter>
-    </ClInclude>
-    <ClInclude Include="src\level-pattern.h">
-      <Filter>Turbine\Gfx\Level</Filter>
     </ClInclude>
     <ClInclude Include="src\camera-volume.h">
       <Filter>Turbine\Gfx\Camera</Filter>
@@ -233,11 +236,50 @@
     <ClInclude Include="src\input-controller.h">
       <Filter>Turbine\Input</Filter>
     </ClInclude>
+    <ClInclude Include="src\particle.h">
+      <Filter>Turbine\Gfx\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\particle-system.h">
+      <Filter>Turbine\Gfx\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\particle-emitter.h">
+      <Filter>Turbine\Gfx\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\particle-sequence.h">
+      <Filter>Turbine\Gfx\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\world-particle-test.h">
+      <Filter>Turbine\Debug\Worlds</Filter>
+    </ClInclude>
     <ClInclude Include="src\json.h">
-      <Filter>Turbine\Gfx</Filter>
+      <Filter>Turbine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imgui-utils.h">
+      <Filter>Turbine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\particle-manager.h">
+      <Filter>Turbine\Gfx\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\string-utils.h">
+      <Filter>Turbine\Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\editor.h">
-      <Filter>Turbine</Filter>
+      <Filter>Turbine\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\particle-editor.h">
+      <Filter>Turbine\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor-window-base.h">
+      <Filter>Turbine\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\particle-affector-manager.h">
+      <Filter>Turbine\Gfx\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\particle-affector.h">
+      <Filter>Turbine\Gfx\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\particle-loader.h">
+      <Filter>Turbine\Gfx\Particles</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

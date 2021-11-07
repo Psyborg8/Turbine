@@ -9,10 +9,12 @@
 #include "timer.h"
 #include "debug.h"
 #include "input.h"
-#include "particle.h"
-#include "particle-emitter.h"
+
+#include "particle-manager.h"
+#include "particle-affector.h"
 
 // Worlds
+#include "world-particle-test.h"
 #include "editor.h"
 
 //================================================================================
@@ -58,15 +60,14 @@ bool init( int argc, char** argv ) {
 	Timers::init();
 
 	// Load World
-	Debug::startTimer( "System::Make World" );
-	world = Object::makeObject< Editor::TurbineEditor >( nullptr );
-	Debug::stopTimer( "System::Make World" );
+	world = Object::makeObject< Editor::Editor >( nullptr );
 
 	// Init debug handler
 	Debug::init( world.get() );
 
-	// Init Particle System
-	Gfx::Particle::init( world.get() );
+	// Init particles
+	Gfx::Particle::Manager::init();
+	Gfx::Particle::Affector::init();
 
 	Debug::addSetCommand( "draw_debug", systemInfo.drawDebug );
 	Debug::addSetCommand( "system_width", systemInfo.width );
@@ -81,9 +82,7 @@ bool init( int argc, char** argv ) {
 int start() {
 	Input::start( world.get() );
 	
-	Debug::startTimer( "System::Start" );
 	world->start();
-	Debug::stopTimer( "System::Start" );
 
 	while( window.isOpen() )
 		update();
@@ -138,7 +137,7 @@ void update() {
 
 	// Update the current world
 	// Event handling
-	Debug::startTimer( "System::Event Handling" );
+	Debug::startTimer( "System - Event Handling" );
 	sf::Event e;
 	while( window.pollEvent( e ) ) {
 		ImGui::SFML::ProcessEvent( e );
@@ -161,52 +160,56 @@ void update() {
 			systemInfo.width = e.size.width;
 			systemInfo.height = e.size.height;
 			window.setSize( sf::Vector2u( systemInfo.width, systemInfo.height ) );
-			world->getCamera().calculate();
 		}
 		if( e.type == sf::Event::Closed )
 			window.close();
 	}
-	Debug::stopTimer( "System::Event Handling" );
+	Debug::stopTimer( "System - Event Handling" );
 
+	Debug::startTimer( "System - Update" );
 	// Update physics
-	Debug::startTimer( "System::Update" );
+	Gfx::Particle::Manager::update( deltaTime );
 	ImGui::SFML::Update( window, deltaTime );
-	world->update( time );
-	Debug::stopTimer( "System::Update" );
-	Debug::startTimer( "System::Process Collisions" );
+	world->update( deltaTime );
+	Debug::stopTimer( "System - Update" );
+
+	Debug::startTimer( "System - Process Collisions" );
 	world->processCollisions();
-	Debug::stopTimer( "System::Process Collisions" );
-	Debug::startTimer( "System::Post Update" );
-	world->postUpdate( time );
-	Debug::stopTimer( "System::Post Update" );
+	Debug::stopTimer( "System - Process Collisions" );
 
+	Debug::startTimer( "System - Post Update" );
+	Gfx::Particle::Manager::postUpdate( deltaTime );
+	world->postUpdate( deltaTime );
+	Debug::stopTimer( "System - Post Update" );
+
+	Debug::startTimer( "System - Cleanup" );
 	// Cleanup
-	Debug::startTimer( "System::Cleanup" );
-	Gfx::Emitter::cleanup();
-	Gfx::Particle::cleanup();
 	Object::cleanupObjects();
-	Debug::stopTimer( "System::Cleanup" );
+	Debug::stopTimer( "System - Cleanup" );
 
+	Debug::startTimer( "System - Render" );
 	// Render
 	window.clear( world->getBackgroundColor().sf() );
 
-	Debug::startTimer( "System::Render" );
 	window.resetGLStates();
-	world->render();
+	Gfx::Particle::Manager::render( &window );
+	world->render( &window );
 	window.resetGLStates();
 	ImGui::SFML::Render();
 	window.resetGLStates();
+	Debug::stopTimer( "System - Render" );
 
-	Debug::stopTimer( "System::Render" );
-	Debug::startTimer( "System::Post Render" );
-	world->postRender();
-	Debug::stopTimer( "System::Post Render" );
+	Debug::startTimer( "System - Post Render" );
+	world->postRender( &window );
+	Debug::stopTimer( "System - Post Render" );
 
-	Debug::startTimer( "System::Display" );
+	Debug::startTimer( "System - Display" );
 	window.display();
-	Debug::stopTimer( "System::Display" );
+	Debug::stopTimer( "System - Display" );
 }
 
-//================================================================================
+//--------------------------------------------------------------------------------
 
 } // System
+
+//================================================================================

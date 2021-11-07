@@ -11,6 +11,7 @@
 
 #include "particle.h"
 #include "world.h"
+#include "camera.h"
 
 //================================================================================
 
@@ -150,8 +151,6 @@ void Player::onSpawnChildren() {
 //--------------------------------------------------------------------------------
 
 void Player::onUpdate( sf::Time deltaTime ) {
-
-	Debug::startTimer( "Player::Update Physics" );
 	// Ignore physics while dashing
 	if( !dashData.isDashing ) {
 		// Horizontal
@@ -223,7 +222,6 @@ void Player::onUpdate( sf::Time deltaTime ) {
 			}
 		}
 	}
-	Debug::stopTimer( "Player::Update Physics" );
 }
 
 //--------------------------------------------------------------------------------
@@ -231,7 +229,6 @@ void Player::onUpdate( sf::Time deltaTime ) {
 void Player::onProcessCollisions()
 {
 	// Find relevant colliders
-	Debug::startTimer( "Player::Find Colliders" );
 	World* world = getWorld();
 	if( world == nullptr )
 		return;
@@ -241,12 +238,10 @@ void Player::onProcessCollisions()
 	const vector< shared_ptr< Object > > traps;
 	const vector< shared_ptr< Object > > platforms;
 	const vector< shared_ptr< Object > > checkpoints;
-	Debug::stopTimer( "Player::Find Colliders" );
 
 	vector< shared_ptr< Object > > targets;
 
 	// Check if we're supposed to collide with platforms
-	Debug::startTimer( "Player::Platform Detection" );
 	bool collision = false;
 	for( shared_ptr< Object > platform : platforms ) {
 		Collision::CollisionResult result = isColliding( platform );
@@ -262,37 +257,28 @@ void Player::onProcessCollisions()
 			targets.insert( targets.end(), platforms.begin(), platforms.end() );
 		else if( collision )
 			jumpData.isJumpingDown = true;
-	Debug::stopTimer( "Player::Platform Detection" );
 
 	// Physics resolution
-	Debug::startTimer( "Player::Resolve Collisions" );
 	targets.insert( targets.end(), walls.begin(), walls.end() );
 	targets = sortObjectsByDistance( targets, getPosition(), 64.0f );
 	resolveCollisions( targets, true );
-	Debug::stopTimer( "Player::Resolve Collisions" );
 
 	// Extended hitbox detection
-	Debug::startTimer( "Player::Extended Hitbox Detection" );
 	extendedHitbox( targets );
-	Debug::stopTimer( "Player::Extended Hitbox Detection" );
 
 	// Checkpoint detection
-	Debug::startTimer( "Player::Checkpoint Detection" );
 	targets.clear();
 	targets.insert( targets.end(), checkpoints.begin(), checkpoints.end() );
 	targets.insert( targets.end(), traps.begin(), traps.end() );
 	targets = sortObjectsByDistance( targets, getPosition(), 64.0f );
 	processCollisions( targets );
-	Debug::stopTimer( "Player::Checkpoint Detection" );
 
 	// Attack detection
 	if( attackData.isAttacking ) {
-		Debug::startTimer( "Player::Attack Detection" );
 		targets.clear();
 		targets.insert( targets.end(), walls.begin(), walls.end() );
 		targets = sortObjectsByDistance( targets, getPosition(), 64.0f );
 		attackHitbox( targets );
-		Debug::stopTimer( "Player::Attack Detection" );
 	}
 }
 
@@ -310,16 +296,12 @@ void Player::onEvent( sf::Event e ) {
 
 //--------------------------------------------------------------------------------
 
-void Player::onRender() {
-	Debug::startTimer( "Player::Render" );
+void Player::onRender( sf::RenderTarget* target ) {
+	m_attackCollider->render( target );
+	m_wallAttackCollider->render( target );
 
-	m_attackCollider->render();
-	m_wallAttackCollider->render();
-
-	System::getWindow()->draw( m_rect );
+	target->draw( m_rect );
 	Debug::incDrawCall();
-
-	Debug::stopTimer( "Player::Render" );
 }
 
 //--------------------------------------------------------------------------------
@@ -782,6 +764,13 @@ void Player::attackHitbox( vector< shared_ptr< Object > > targets, bool firstPas
 				m_velocity.x = attackData.min.x / 3.0f * ( m_velocity.x / abs( m_velocity.x ) );
 		}
 	}
+
+	Gfx::CameraShake shake;
+	shake.distance = 8.f;
+	shake.intensity = 5.f;
+	shake.duration = 250ms;
+
+	getWorld()->getCamera().shake( shake );
 
 	jumpData.isJumping = false;
 	dashData.isDashing = false;

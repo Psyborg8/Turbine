@@ -76,9 +76,7 @@ public:
 	}
 
 	void onEvent( sf::Event e ) override {
-		Debug::startTimer( "Input::Process Event" );
 		processEvent( e );
-		Debug::stopTimer( "Input::Process Event" );
 	}
 };
 

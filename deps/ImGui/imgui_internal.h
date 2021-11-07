@@ -27,6 +27,8 @@ Index of this file:
 // Header mess
 //-----------------------------------------------------------------------------
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #ifndef IMGUI_VERSION
 #error Must include imgui.h before imgui_internal.h
 #endif

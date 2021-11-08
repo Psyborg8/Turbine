@@ -135,11 +135,27 @@ bool render( Math::ValueSet< int >& value, const char* id ) {
 
 //--------------------------------------------------------------------------------
 
-string patternSelectorBuffer;
-bool renderPatternSelector( string& target ) {
-	bool out = false;
+bool patternSelectorOpen{ false };
+function< void( string ) > patternSelectorCallback{ nullptr };
 
-	ImGui::Begin( "Pattern Selector", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove );
+//--------------------------------------------------------------------------------
+
+void openPatternSelector( function< void( string ) > callback ) {
+	if( callback == nullptr )
+		return;
+
+	patternSelectorCallback = callback;
+	patternSelectorOpen = true;
+}
+
+//--------------------------------------------------------------------------------
+
+void renderPatternSelector() {
+	if( !patternSelectorOpen )
+		return;
+
+	ImGui::OpenPopup( "Pattern Selector" );
+	ImGui::BeginPopupModal( "Pattern Selector", &patternSelectorOpen, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove );
 
 	ImGui::SetWindowSize( ImVec2( 600, 600 ) );
 	ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width / 2.f - ImGui::GetWindowWidth() / 2.f,
@@ -147,8 +163,9 @@ bool renderPatternSelector( string& target ) {
 
 	using namespace std::filesystem;
 	
-	function< void( path directory ) > iterate;
-	iterate = [&iterate, target, &out]( path directory ) {
+	function< bool( path directory ) > iterate;
+	iterate = [&iterate]( path directory ) {
+		bool out = false;
 		directory_iterator iterator{ directory };
 
 		for( directory_entry element : iterator ) {
@@ -159,7 +176,7 @@ bool renderPatternSelector( string& target ) {
 			string dir = directory.string();
 			string id = Utils::format( "%s##%s", name.c_str(), dir.c_str() );
 			if( ImGui::TreeNodeEx( id.c_str(), ImGuiTreeNodeFlags_Framed ) ) {
-				iterate( element.path() );
+				out |= iterate( element.path() );
 				ImGui::TreePop();
 			}
 			ImGui::Spacing();
@@ -171,22 +188,78 @@ bool renderPatternSelector( string& target ) {
 				continue;
 
 			if( ImGui::Selectable( Utils::format( "%s##%s", element.path().filename().string().c_str(), directory.string().c_str() ).c_str() ) ) {
-				patternSelectorBuffer = element.path().string();
+				string str = element.path().string();
+				std::replace( str.begin(), str.end(), '\\', '/' );
+				patternSelectorCallback( str );
 				out = true;
 			}
 		}
+
+		return out;
 	};
 
-	iterate( path( Folders::Bullets ) );
+	bool done = iterate( path( Folders::Bullets ) );
 
-	if( out ) {
-		std::replace( patternSelectorBuffer.begin(), patternSelectorBuffer.end(), '\\', '/' );
-		target = patternSelectorBuffer;
+	if( patternSelectorOpen )
+		ImGui::EndPopup();
+
+	patternSelectorOpen &= !done;
+}
+
+//--------------------------------------------------------------------------------
+
+bool renameWindowOpen{ false };
+function< void( string ) > renameWindowCallback{ nullptr };
+string renameWindowBuffer;
+
+//--------------------------------------------------------------------------------
+
+void openRenamePopup( function< void( string ) > callback, string current ) {
+	if( callback == nullptr )
+		return;
+
+	renameWindowBuffer = current;
+	renameWindowBuffer.resize( 256u );
+	renameWindowOpen = true;
+	renameWindowCallback = callback;
+}
+
+//--------------------------------------------------------------------------------
+
+void renderRenamePopup() {
+	if( !renameWindowOpen )
+		return;
+
+	ImGui::OpenPopup( "Rename" );
+	ImGui::BeginPopupModal( "Rename", &renameWindowOpen, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar );
+	ImGui::SetWindowSize( ImVec2( 200, 80 ) );
+	ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width / 2.f - ImGui::GetWindowWidth() / 2.f,
+								 System::getSystemInfo().height / 2.f - ImGui::GetWindowHeight() / 2.f ) );
+
+	bool done = false;
+
+	if( ImGui::IsWindowAppearing() )
+		ImGui::SetKeyboardFocusHere();
+
+	ImGui::PushItemWidth( 183 );
+	if( ImGui::InputText( "##RenameText", renameWindowBuffer.data(), 256u,
+						  ImGuiInputTextFlags_EnterReturnsTrue
+						  | ImGuiInputTextFlags_AutoSelectAll ) ) {
+
+		renameWindowCallback( renameWindowBuffer );
+		done = true;
+	}
+	ImGui::PopItemWidth();
+
+	if( ImGui::Button( "Apply" ) ) {
+		renameWindowCallback( renameWindowBuffer );
+		done = true;
 	}
 
-	ImGui::End();
+	if( renameWindowOpen )
+		ImGui::EndPopup();
 
-	return out;
+	renameWindowOpen &= !done;
 }
 
 //--------------------------------------------------------------------------------

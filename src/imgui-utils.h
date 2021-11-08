@@ -18,7 +18,11 @@ bool render( Math::ValueSet< Math::Color >& value, const char* id );
 bool render( Math::ValueSet< float >& value, const char* id );
 bool render( Math::ValueSet< int >& value, const char* id );
 
-bool renderPatternSelector( string& target );
+void openPatternSelector( function< void( string ) > callback );
+void renderPatternSelector();
+
+void openRenamePopup( function< void( string ) > callback, string current );
+void renderRenamePopup();
 
 //--------------------------------------------------------------------------------
 

@@ -44,7 +44,7 @@ void Editor::onRender( sf::RenderTarget* target ) {
 			ImGui::CloseCurrentPopup();
 		}
 		if( ImGui::Selectable( "Open Particle (Ctrl+Shift+P)" ) ) {
-			m_loadWindowOpen = true;
+			ImGui::openPatternSelector( [this]( string path ) { openParticle( path ); } );
 
 			ImGui::CloseCurrentPopup();
 		}
@@ -63,10 +63,7 @@ void Editor::onRender( sf::RenderTarget* target ) {
 		}
 		ImGui::Separator();
 		if( ImGui::Selectable( "Rename (Ctrl+R)" ) && m_currentTab != nullptr ) {
-			m_renameWindowBuffer = m_currentTab->getName();
-			m_renameWindowBuffer.resize( 256u );
-			m_renameWindowOpen = true;
-
+			ImGui::openRenamePopup( [this]( string name ) { m_currentTab->rename( name ); }, m_currentTab->getName() );
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -84,43 +81,6 @@ void Editor::onRender( sf::RenderTarget* target ) {
 	ImGui::Text( Debug::getLastMessage().c_str() );
 
 	ImGui::End();
-
-	// Rename Window
-	if( m_renameWindowOpen ) {
-		ImGui::Begin( "Rename", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove );
-
-		ImGui::SetWindowSize( ImVec2( 200, 75 ) );
-		ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width / 2.f - ImGui::GetWindowWidth() / 2.f,
-									 System::getSystemInfo().height / 2.f - ImGui::GetWindowHeight() / 2.f ) );
-
-		ImGui::Text( "Rename" );
-
-		if( ImGui::IsWindowAppearing() )
-			ImGui::SetKeyboardFocusHere();
-
-		ImGui::PushItemWidth( 183 );
-		if( ImGui::InputText( "##RenameText", m_renameWindowBuffer.data(), 256u, 
-							  ImGuiInputTextFlags_EnterReturnsTrue 
-							  | ImGuiInputTextFlags_AutoSelectAll ) ) {
-
-			if( m_currentTab != nullptr )
-				m_currentTab->rename( string( m_renameWindowBuffer.data() ) );
-			m_renameWindowOpen = false;
-		}
-		ImGui::PopItemWidth();
-
-		if( ImGui::Button( "Apply" ) ) {
-			if( m_currentTab != nullptr )
-				m_currentTab->rename( string( m_renameWindowBuffer.data() ) );
-			m_renameWindowOpen = false;
-		}
-		ImGui::SameLine();
-		if( ImGui::Button( "Cancel" ) ) {
-			m_renameWindowOpen = false;
-		}
-
-		ImGui::End();
-	}
 
 	// Tab Bar
 	ImGui::Begin( "Tab Bar", ( bool* )0,
@@ -193,10 +153,9 @@ void Editor::onRender( sf::RenderTarget* target ) {
 
 	ImGui::End();
 
-	// Load Window
-	if( m_loadWindowOpen )
-		if( ImGui::renderPatternSelector( m_loadWindowBuffer ) )
-			openParticle( m_loadWindowBuffer );
+	// Popups
+	ImGui::renderPatternSelector();
+	ImGui::renderRenamePopup();
 }
 
 //--------------------------------------------------------------------------------
@@ -217,16 +176,13 @@ void Editor::onEvent( sf::Event e ) {
 		}
 
 		if( e.key.code == sf::Keyboard::R && e.key.control && m_currentTab != nullptr ) {
-			m_renameWindowBuffer = m_currentTab->getName();
-			m_renameWindowBuffer.resize( 256u );
-			m_renameWindowOpen = true;
-			
+			ImGui::openRenamePopup( [this]( string name ) { m_currentTab->rename( name ); }, m_currentTab->getName() );
 			return;
 		}
 
 		if( e.key.code == sf::Keyboard::P && e.key.control ) {
 			if( e.key.shift ) {
-				m_loadWindowOpen = true;
+				ImGui::openPatternSelector( [this]( string path ) { openParticle( path ); } );
 				return;
 			}
 
@@ -260,7 +216,6 @@ void Editor::openParticle( string path ) {
 
 	m_tabs.push_back( make_unique< ParticleEditor >( path ) );
 	m_tabs.rbegin()->get()->init( this );
-	m_loadWindowOpen = false;
 }
 
 //--------------------------------------------------------------------------------

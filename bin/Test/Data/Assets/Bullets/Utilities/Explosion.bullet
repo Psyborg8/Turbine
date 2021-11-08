@@ -134,7 +134,7 @@
         },
         "color": {
             "type": 0,
-            "attach": false
+            "attach": true
         },
         "alpha": {
             "type": 0,

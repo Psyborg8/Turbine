@@ -248,9 +248,6 @@ struct ParticleEmitter {
 
 	bool onDeath{ false };
 
-	size_t selectorIdx{ 0 };
-	bool selectorOpen{ false };
-
 	shared_ptr< Affector::Affector > process() {
 		vector< ParticlePattern* > vPatterns;
 		for( string pattern : patterns )
@@ -365,10 +362,9 @@ struct ParticleEmitter {
 			string name = tokens.size() > 0 ? tokens.at( 0 ) : patterns.at( i );
 			ImGui::Text( name.c_str() );
 
-			if( ImGui::Button( "Change" ) ) {
-				selectorIdx = i;
-				selectorOpen = true;
-			}
+			if( ImGui::Button( "Change" ) )
+				ImGui::openPatternSelector( [this, i]( string pattern ) { patterns.at( i ) = pattern; } );
+
 			ImGui::SameLine();
 			if( ImGui::Button( "Remove" ) ) {
 				out = true;
@@ -394,18 +390,8 @@ struct ParticleEmitter {
 			ImGui::PopID();
 		}
 
-		if( selectorOpen && selectorIdx < patterns.size() ) {
-			if( ImGui::renderPatternSelector( patterns.at( selectorIdx ) ) ) {
-				selectorOpen = false;
-				out = true;
-			}
-		}
-
-		if( ImGui::Button( "Add Pattern" ) ) {
-			patterns.push_back( string() );
-			selectorOpen = true;
-			selectorIdx = patterns.size() - 1u;
-		}
+		if( ImGui::Button( "Add Pattern" ) )
+			ImGui::openPatternSelector( [this]( string pattern ) { patterns.push_back( pattern ); } );
 
 		return out;
 	}

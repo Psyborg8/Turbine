@@ -34,12 +34,6 @@ public:
 private:
 	vector< unique_ptr< EditorWindow > > m_tabs;
 	EditorWindow* m_currentTab;
-
-	string m_renameWindowBuffer;
-	bool m_renameWindowOpen{ false };
-
-	string m_loadWindowBuffer;
-	bool m_loadWindowOpen{ false };
 };
 
 //--------------------------------------------------------------------------------

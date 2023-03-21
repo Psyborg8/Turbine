@@ -10,36 +10,61 @@ set( PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/src )
 project( turbine VERSION 0.0.1 LANGUAGES CXX )
 
 file( GLOB SRC ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp )
-file( GLOB IMGUI_SRC ${CMAKE_CURRENT_LIST_DIR}/deps/imgui/*.cpp )
-file( GLOB IMGUI_SFML_SRC ${CMAKE_CURRENT_LIST_DIR}/deps/imgui-sfml/*.cpp )
-add_library( turbine ${SRC} ${IMGUI_SRC} ${IMGUI_SFML_SRC} )
+add_library( turbine ${SRC} )
 
 target_include_directories( turbine
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/src
     PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/src/editor
-        ${CMAKE_CURRENT_LIST_DIR}/deps/imgui/
-        ${CMAKE_CURRENT_LIST_DIR}/deps/rapidjson/include/
-        ${CMAKE_CURRENT_LIST_DIR}/deps/imgui-sfml/
+)
+
+# Dependencies
+include( FetchContent )
+FetchContent_Declare(
+    sfml
+    GIT_REPOSITORY "https://github.com/SFML/SFML.git"
+    GIT_TAG 2.5.1
+)
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
+    GIT_TAG master
+)
+FetchContent_Declare(
+    imgui-sfml
+    GIT_REPOSITORY "https://github.com/SFML/imgui-sfml.git"
+    GIT_TAG master
+)
+FetchContent_Declare(
+    rapidjson
+    GIT_REPOSITORY "https://github.com/Tencent/rapidjson.git"
 )
 
 # SFML
-include( FetchContent )
-FetchContent_Declare(
-    SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 2.5.1
-)
-FetchContent_MakeAvailable( SFML )
+option( SFML_BUILD_NETWORK "Build network" OFF )
+FetchContent_MakeAvailable( sfml )
 
+# ImGui
+FetchContent_MakeAvailable( imgui )
+
+# ImGui-SFML
+set( IMGUI_DIR ${imgui_SOURCE_DIR} )
+option( IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF )
+FetchContent_MakeAvailable( imgui-sfml )
+
+# rapidjson
+FetchContent_MakeAvailable( rapidjson )
+
+#fmt
 find_package( fmt )
+
+
 target_link_libraries(
     turbine
-    sfml-graphics
-    sfml-audio
-    sfml-system
-    sfml-window
+
+    ImGui-SFML::ImGui-SFML
+    rapidjson
     fmt::fmt
 )
 

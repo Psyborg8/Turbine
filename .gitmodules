@@ -1,9 +1,0 @@
-[submodule "deps/imgui"]
-	path = deps/imgui
-	url = git@github.com:ocornut/imgui
-[submodule "deps/imgui-sfml"]
-	path = deps/imgui-sfml
-	url = git@github.com:SFML/imgui-sfml
-[submodule "deps/rapidjson"]
-	path = deps/rapidjson
-	url = git@github.com:Tencent/rapidjson

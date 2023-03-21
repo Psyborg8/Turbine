@@ -4,19 +4,17 @@
 
 //================================================================================
 
-#include "global.h"
-
-#include "sprite.h"
-#include "random.h"
-#include "imgui-utils.h"
-#include "string-utils.h"
-#include "json.h"
-#include "system.h"
 #include "editor.h"
-
+#include "global.h"
+#include "imgui-utils.h"
+#include "json.h"
 #include "particle-affector-manager.h"
 #include "particle-affector.h"
 #include "particle-loader.h"
+#include "random.h"
+#include "sprite.h"
+#include "string-utils.h"
+#include "system.h"
 
 //================================================================================
 
@@ -65,8 +63,7 @@ struct RenderProperties {
 	int priority{ 0 };
 
 	bool operator==( const RenderProperties& rh ) {
-		return rh.priority == priority
-			&& rh.texture == texture;
+		return rh.priority == priority && rh.texture == texture;
 	}
 };
 
@@ -74,7 +71,7 @@ struct RenderProperties {
 
 struct Inheritance {
 	struct Value {
-		Value( InheritanceType _type ) : type( _type ){}
+		Value( InheritanceType _type ) : type( _type ) {}
 
 		InheritanceType type;
 		bool attach{ false };
@@ -83,7 +80,7 @@ struct Inheritance {
 			rapidjson::Value out;
 			out.SetObject();
 
-			out.AddMember( "type", json::getValue( ( int& )type ), json::getAllocator() );
+			out.AddMember( "type", json::getValue( ( int& ) type ), json::getAllocator() );
 			out.AddMember( "attach", json::getValue( attach ), json::getAllocator() );
 
 			return out;
@@ -94,9 +91,9 @@ struct Inheritance {
 				return;
 
 			if( value.HasMember( "type" ) )
-				json::getValue( value[ "type" ], ( int& )type );
+				json::getValue( value["type"], ( int& ) type );
 			if( value.HasMember( "attach" ) )
-				json::getValue( value[ "attach" ], attach );
+				json::getValue( value["attach"], attach );
 		}
 
 		bool render( string name ) {
@@ -106,36 +103,36 @@ struct Inheritance {
 
 			string typeString;
 			switch( type ) {
-			case InheritanceType::None: typeString = "None"; break;
-			case InheritanceType::Copy: typeString = "Copy"; break;
-			case InheritanceType::Offset: typeString = "Offset"; break;
-			case InheritanceType::Multiply: typeString = "Multiply"; break;
+				case InheritanceType::None: typeString = "None"; break;
+				case InheritanceType::Copy: typeString = "Copy"; break;
+				case InheritanceType::Offset: typeString = "Offset"; break;
+				case InheritanceType::Multiply: typeString = "Multiply"; break;
 			}
 
-			ImGui::Text( name.c_str() );
+			ImGui::Text( "%s", name.c_str() );
 
-			if( ImGui::Button( Utils::format( "Type: %s", typeString ).c_str() ) )
+			if( ImGui::Button( Utils::format( "Type: %s", typeString.c_str() ).c_str() ) )
 				ImGui::OpenPopup( name.c_str() );
 
 			if( ImGui::BeginPopup( name.c_str(), ImGuiWindowFlags_NoDecoration ) ) {
 				if( ImGui::Selectable( "None" ) ) {
 					type = InheritanceType::None;
-					out = true;
+					out	 = true;
 					ImGui::CloseCurrentPopup();
 				}
 				if( ImGui::Selectable( "Copy" ) ) {
 					type = InheritanceType::Copy;
-					out = true;
+					out	 = true;
 					ImGui::CloseCurrentPopup();
 				}
 				if( ImGui::Selectable( "Offset" ) ) {
 					type = InheritanceType::Offset;
-					out = true;
+					out	 = true;
 					ImGui::CloseCurrentPopup();
 				}
 				if( ImGui::Selectable( "Multiply" ) ) {
 					type = InheritanceType::Multiply;
-					out = true;
+					out	 = true;
 					ImGui::CloseCurrentPopup();
 				}
 
@@ -175,7 +172,8 @@ struct Inheritance {
 		out.AddMember( "velocity", velocity.getValue(), json::getAllocator() );
 		out.AddMember( "acceleration", acceleration.getValue(), json::getAllocator() );
 		out.AddMember( "scaleVelocity", json::getValue( scaleVelocity ), json::getAllocator() );
-		out.AddMember( "rotateVelocity", json::getValue( rotateVelocity ), json::getAllocator() );
+		out.AddMember(
+			"rotateVelocity", json::getValue( rotateVelocity ), json::getAllocator() );
 
 		return out;
 	}
@@ -185,27 +183,27 @@ struct Inheritance {
 			return;
 
 		if( value.HasMember( "lifetime" ) )
-			lifetime.setValue( value[ "lifetime" ] );
+			lifetime.setValue( value["lifetime"] );
 		if( value.HasMember( "position" ) )
-			position.setValue( value[ "position" ] );
+			position.setValue( value["position"] );
 		if( value.HasMember( "rotation" ) )
-			rotation.setValue( value[ "rotation" ] );
+			rotation.setValue( value["rotation"] );
 		if( value.HasMember( "spin" ) )
-			spin.setValue( value[ "spin" ] );
+			spin.setValue( value["spin"] );
 		if( value.HasMember( "scale" ) )
-			scale.setValue( value[ "scale" ] );
+			scale.setValue( value["scale"] );
 		if( value.HasMember( "color" ) )
-			color.setValue( value[ "color" ] );
+			color.setValue( value["color"] );
 		if( value.HasMember( "alpha" ) )
-			alpha.setValue( value[ "alpha" ] );
+			alpha.setValue( value["alpha"] );
 		if( value.HasMember( "velocity" ) )
-			velocity.setValue( value[ "velocity" ] );
+			velocity.setValue( value["velocity"] );
 		if( value.HasMember( "acceleration" ) )
-			acceleration.setValue( value[ "acceleration" ] );
+			acceleration.setValue( value["acceleration"] );
 		if( value.HasMember( "scaleVelocity" ) )
-			json::getValue( value[ "scaleVelocity" ], scaleVelocity );
+			json::getValue( value["scaleVelocity"], scaleVelocity );
 		if( value.HasMember( "rotateVelocity" ) )
-			json::getValue( value[ "rotateVelocity" ], rotateVelocity );
+			json::getValue( value["rotateVelocity"], rotateVelocity );
 	}
 
 	bool render() {
@@ -240,16 +238,15 @@ struct Inheritance {
 struct ParticleEmitter {
 	EmitterType type;
 
-	Math::ValueSet< int > duration{ 0.f };
-	Math::ValueSet< int > delay{ 0.f };
+	Math::ValueSet< int > duration{ 0 };
+	Math::ValueSet< int > delay{ 0 };
 	Math::ValueSet< float > rate{ 0.f };
 
 	vector< string > patterns;
 
-	bool onDeath{ false };
+	bool changed{ false };
 
-	size_t selectorIdx{ 0 };
-	bool selectorOpen{ false };
+	bool onDeath{ false };
 
 	shared_ptr< Affector::Affector > process() {
 		vector< ParticlePattern* > vPatterns;
@@ -261,8 +258,9 @@ struct ParticleEmitter {
 		else {
 			Math::processSet( duration );
 			Math::processSet( delay );
-			
-			return make_shared< Affector::EmitterAffector >( type, milliseconds( delay.value ), milliseconds( duration.value ), rate, vPatterns );
+
+			return make_shared< Affector::EmitterAffector >(
+				type, milliseconds( delay.value ), milliseconds( duration.value ), rate, vPatterns );
 		}
 	}
 
@@ -270,7 +268,7 @@ struct ParticleEmitter {
 		rapidjson::Value out;
 		out.SetObject();
 
-		out.AddMember( "type", json::getValue( ( int& )type ), json::getAllocator() );
+		out.AddMember( "type", json::getValue( ( int& ) type ), json::getAllocator() );
 		out.AddMember( "duration", json::getValue( duration ), json::getAllocator() );
 		out.AddMember( "delay", json::getValue( delay ), json::getAllocator() );
 		out.AddMember( "rate", json::getValue( rate ), json::getAllocator() );
@@ -291,18 +289,18 @@ struct ParticleEmitter {
 			return;
 
 		if( value.HasMember( "type" ) )
-			json::getValue( value[ "type" ], ( int& )type );
+			json::getValue( value["type"], ( int& ) type );
 		if( value.HasMember( "duration" ) )
-			json::getValue( value[ "duration" ], duration );
+			json::getValue( value["duration"], duration );
 		if( value.HasMember( "delay" ) )
-			json::getValue( value[ "delay" ], delay );
+			json::getValue( value["delay"], delay );
 		if( value.HasMember( "rate" ) )
-			json::getValue( value[ "rate" ], rate );
+			json::getValue( value["rate"], rate );
 		if( value.HasMember( "onDeath" ) )
-			json::getValue( value[ "onDeath" ], onDeath );
+			json::getValue( value["onDeath"], onDeath );
 
-		if( value.HasMember( "patterns" ) && value[ "patterns" ].IsArray() ) {
-			for( const rapidjson::Value& pattern : value[ "patterns" ].GetArray() ) {
+		if( value.HasMember( "patterns" ) && value["patterns"].IsArray() ) {
+			for( const rapidjson::Value& pattern : value["patterns"].GetArray() ) {
 				string s;
 				json::getValue( pattern, s );
 				patterns.push_back( s );
@@ -315,9 +313,9 @@ struct ParticleEmitter {
 
 		string typeString;
 		switch( type ) {
-		case EmitterType::Set: typeString = "Type: Set"; break;
-		case EmitterType::Random: typeString = "Type: Random"; break;
-		case EmitterType::Sequence: typeString = "Type: Sequence"; break;
+			case EmitterType::Set: typeString = "Type: Set"; break;
+			case EmitterType::Random: typeString = "Type: Random"; break;
+			case EmitterType::Sequence: typeString = "Type: Sequence"; break;
 		}
 
 		if( ImGui::Button( typeString.c_str() ) )
@@ -326,17 +324,17 @@ struct ParticleEmitter {
 		if( ImGui::BeginPopup( "Type Popup", ImGuiWindowFlags_NoDecoration ) ) {
 			if( ImGui::Selectable( "Set" ) ) {
 				type = EmitterType::Set;
-				out = true;
+				out	 = true;
 				ImGui::CloseCurrentPopup();
 			}
 			if( ImGui::Selectable( "Random" ) ) {
 				type = EmitterType::Random;
-				out = true;
+				out	 = true;
 				ImGui::CloseCurrentPopup();
 			}
 			if( !onDeath && ImGui::Selectable( "Sequence" ) ) {
 				type = EmitterType::Sequence;
-				out = true;
+				out	 = true;
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -359,15 +357,18 @@ struct ParticleEmitter {
 		ImGui::Text( "Patterns" );
 		ImGui::Separator();
 		for( size_t i = 0; i < patterns.size(); ++i ) {
-			ImGui::PushID( ( int )i );
+			ImGui::PushID( ( int ) i );
 
-			vector< string > tokens = Utils::tokenize( patterns.at( i ), Folders::Bullets, true );
+			vector< string > tokens
+				= Utils::tokenize( patterns.at( i ), Folders::Bullets, true );
 			string name = tokens.size() > 0 ? tokens.at( 0 ) : patterns.at( i );
-			ImGui::Text( name.c_str() );
+			ImGui::Text( "%s", name.c_str() );
 
 			if( ImGui::Button( "Change" ) ) {
-				selectorIdx = i;
-				selectorOpen = true;
+				ImGui::openPatternSelector( [this, i]( std::string path ) {
+					patterns.at( i ) = path;
+					changed			 = true;
+				} );
 			}
 			ImGui::SameLine();
 			if( ImGui::Button( "Remove" ) ) {
@@ -377,7 +378,8 @@ struct ParticleEmitter {
 			}
 			ImGui::SameLine();
 			if( ImGui::Button( "Open" ) ) {
-				shared_ptr< Editor::Editor > editor = std::dynamic_pointer_cast< Editor::Editor >( ::System::getWorld() );
+				shared_ptr< Editor::Editor > editor
+					= std::dynamic_pointer_cast< Editor::Editor >( ::System::getWorld() );
 				if( editor != nullptr )
 					editor->openParticle( patterns.at( i ) );
 			}
@@ -394,17 +396,18 @@ struct ParticleEmitter {
 			ImGui::PopID();
 		}
 
-		if( selectorOpen && selectorIdx < patterns.size() ) {
-			if( ImGui::renderPatternSelector( patterns.at( selectorIdx ) ) ) {
-				selectorOpen = false;
-				out = true;
-			}
+		if( ImGui::Button( "Add Pattern" ) ) {
+			ImGui::openPatternSelector( [this]( std::string path ) {
+				patterns.push_back( path );
+				changed = true;
+			} );
 		}
 
-		if( ImGui::Button( "Add Pattern" ) ) {
-			patterns.push_back( string() );
-			selectorOpen = true;
-			selectorIdx = patterns.size() - 1u;
+		ImGui::renderPatternSelector();
+
+		if( changed ) {
+			out		= true;
+			changed = false;
 		}
 
 		return out;
@@ -443,7 +446,7 @@ struct ParticlePattern {
 		Math::processSet( spin );
 
 		ParticleProperties properties;
-		properties.color = color.value;
+		properties.color	 = color.value;
 		properties.remaining = milliseconds( lifetime.value );
 
 		Math::Vec2 pos = position.process( index, total );
@@ -453,13 +456,13 @@ struct ParticlePattern {
 		properties.transform.setRotation( rotation.value );
 		properties.spin = spin.value;
 
-		properties.velocity = velocity.process( pos );
+		properties.velocity		= velocity.process( pos );
 		properties.acceleration = acceleration.process( pos );
 
 		Particle out;
 		out.initial = properties;
 		out.current = properties;
-		out.frame   = properties;
+		out.frame	= properties;
 
 		for( shared_ptr< Affector::AffectorCreator > affector : affectors )
 			out.affectors.push_back( affector->get() );
@@ -475,7 +478,7 @@ struct ParticlePattern {
 			return process( index, total );
 
 		Particle out = process( index, total );
-		out.parent = parent;
+		out.parent	 = parent;
 		if( parent->emitter != nullptr )
 			out.emitter = parent->emitter;
 
@@ -484,103 +487,141 @@ struct ParticlePattern {
 		// Lifetime
 		if( !inheritance.lifetime.attach ) {
 			switch( inheritance.lifetime.type ) {
-			case InheritanceType::None: break;
-			case InheritanceType::Copy: out.initial.remaining = parent->initial.remaining; break;
-			case InheritanceType::Offset: out.initial.remaining += parent->initial.remaining; break;
-			case InheritanceType::Multiply: out.initial.remaining = microseconds( out.initial.remaining.count() * parent->initial.remaining.count() ); break;
+				case InheritanceType::None: break;
+				case InheritanceType::Copy:
+					out.initial.remaining = parent->initial.remaining;
+					break;
+				case InheritanceType::Offset:
+					out.initial.remaining += parent->initial.remaining;
+					break;
+				case InheritanceType::Multiply:
+					out.initial.remaining
+						= microseconds( out.initial.remaining.count()
+										* parent->initial.remaining.count() );
+					break;
 			}
 		}
 
 		// Position
 		if( !inheritance.position.attach ) {
 			switch( inheritance.position.type ) {
-			case InheritanceType::None: break;
-			case InheritanceType::Copy: out.initial.transform.setPosition( parent->frame.transform.getPosition() ); break;
-			case InheritanceType::Offset: out.initial.transform.move( parent->frame.transform.getPosition() ); break;
-			case InheritanceType::Multiply:
-				Math::Vec2 pos = out.initial.transform.getPosition();
-				pos *= parent->frame.transform.getPosition();
-				out.initial.transform.setPosition( pos.sf() );
-				break;
+				case InheritanceType::None: break;
+				case InheritanceType::Copy:
+					out.initial.transform.setPosition( parent->frame.transform.getPosition() );
+					break;
+				case InheritanceType::Offset:
+					out.initial.transform.move( parent->frame.transform.getPosition() );
+					break;
+				case InheritanceType::Multiply:
+					Math::Vec2 pos = out.initial.transform.getPosition();
+					pos *= parent->frame.transform.getPosition();
+					out.initial.transform.setPosition( pos.sf() );
+					break;
 			}
 		}
 
 		// Rotation
 		if( !inheritance.rotation.attach ) {
 			switch( inheritance.rotation.type ) {
-			case InheritanceType::None: break;
-			case InheritanceType::Copy: out.initial.transform.setRotation( parent->frame.transform.getRotation() ); break;
-			case InheritanceType::Offset: out.initial.transform.rotate( parent->frame.transform.getRotation() ); break;
-			case InheritanceType::Multiply:
-				float rot = out.initial.transform.getRotation();
-				rot *= parent->frame.transform.getRotation();
-				out.initial.transform.setRotation( rot );
+				case InheritanceType::None: break;
+				case InheritanceType::Copy:
+					out.initial.transform.setRotation( parent->frame.transform.getRotation() );
+					break;
+				case InheritanceType::Offset:
+					out.initial.transform.rotate( parent->frame.transform.getRotation() );
+					break;
+				case InheritanceType::Multiply:
+					float rot = out.initial.transform.getRotation();
+					rot *= parent->frame.transform.getRotation();
+					out.initial.transform.setRotation( rot );
 			}
 		}
 
 		// Spin
 		if( !inheritance.spin.attach ) {
 			switch( inheritance.spin.type ) {
-			case InheritanceType::None: break;
-			case InheritanceType::Copy: out.initial.spin = parent->frame.spin; break;
-			case InheritanceType::Offset: out.initial.spin += parent->frame.spin; break;
-			case InheritanceType::Multiply: out.initial.spin *= parent->frame.spin; break;
+				case InheritanceType::None: break;
+				case InheritanceType::Copy:
+					out.initial.spin = parent->frame.spin;
+					break;
+				case InheritanceType::Offset:
+					out.initial.spin += parent->frame.spin;
+					break;
+				case InheritanceType::Multiply:
+					out.initial.spin *= parent->frame.spin;
+					break;
 			}
 		}
 
 		// Scale
 		if( !inheritance.scale.attach ) {
 			switch( inheritance.scale.type ) {
-			case InheritanceType::None: break;
-			case InheritanceType::Copy: out.initial.transform.setScale( parent->frame.transform.getScale() ); break;
-			case InheritanceType::Offset: out.initial.transform.scale( parent->frame.transform.getScale() ); break;
-			case InheritanceType::Multiply:
-				Math::Vec2 s = out.initial.transform.getScale();
-				s *= parent->frame.transform.getScale();
-				out.initial.transform.setScale( s.sf() );
-				break;
+				case InheritanceType::None: break;
+				case InheritanceType::Copy:
+					out.initial.transform.setScale( parent->frame.transform.getScale() );
+					break;
+				case InheritanceType::Offset:
+					out.initial.transform.scale( parent->frame.transform.getScale() );
+					break;
+				case InheritanceType::Multiply:
+					Math::Vec2 s = out.initial.transform.getScale();
+					s *= parent->frame.transform.getScale();
+					out.initial.transform.setScale( s.sf() );
+					break;
 			}
 		}
 
 		// Color
 		if( !inheritance.color.attach ) {
 			switch( inheritance.color.type ) {
-			case InheritanceType::None: break;
-			case InheritanceType::Copy:
-				out.initial.color.r = parent->frame.color.r;
-				out.initial.color.g = parent->frame.color.g;
-				out.initial.color.b = parent->frame.color.b;
-				break;
-			case InheritanceType::Offset:
-				out.initial.color.r += parent->frame.color.r;
-				out.initial.color.g += parent->frame.color.g;
-				out.initial.color.b += parent->frame.color.b;
-				break;
-			case InheritanceType::Multiply:
-				out.initial.color.r *= parent->frame.color.r;
-				out.initial.color.g *= parent->frame.color.g;
-				out.initial.color.b *= parent->frame.color.b;
-				break;
+				case InheritanceType::None: break;
+				case InheritanceType::Copy:
+					out.initial.color.r = parent->frame.color.r;
+					out.initial.color.g = parent->frame.color.g;
+					out.initial.color.b = parent->frame.color.b;
+					break;
+				case InheritanceType::Offset:
+					out.initial.color.r += parent->frame.color.r;
+					out.initial.color.g += parent->frame.color.g;
+					out.initial.color.b += parent->frame.color.b;
+					break;
+				case InheritanceType::Multiply:
+					out.initial.color.r *= parent->frame.color.r;
+					out.initial.color.g *= parent->frame.color.g;
+					out.initial.color.b *= parent->frame.color.b;
+					break;
 			}
 		}
 
 		// Alpha
 		if( !inheritance.alpha.attach ) {
 			switch( inheritance.alpha.type ) {
-			case InheritanceType::None: break;
-			case InheritanceType::Copy: out.initial.color.a = parent->frame.color.a; break;
-			case InheritanceType::Offset: out.initial.color.a += parent->frame.color.a; break;
-			case InheritanceType::Multiply: out.initial.color.a *= parent->frame.color.a; break;
+				case InheritanceType::None: break;
+				case InheritanceType::Copy:
+					out.initial.color.a = parent->frame.color.a;
+					break;
+				case InheritanceType::Offset:
+					out.initial.color.a += parent->frame.color.a;
+					break;
+				case InheritanceType::Multiply:
+					out.initial.color.a *= parent->frame.color.a;
+					break;
 			}
 		}
 
 		// Velocity
 		if( !inheritance.velocity.attach ) {
 			switch( inheritance.velocity.type ) {
-			case InheritanceType::None: break;
-			case InheritanceType::Copy: out.initial.velocity = parent->frame.velocity; break;
-			case InheritanceType::Offset: out.initial.velocity += parent->frame.velocity; break;
-			case InheritanceType::Multiply: out.initial.velocity *= parent->frame.velocity; break;
+				case InheritanceType::None: break;
+				case InheritanceType::Copy:
+					out.initial.velocity = parent->frame.velocity;
+					break;
+				case InheritanceType::Offset:
+					out.initial.velocity += parent->frame.velocity;
+					break;
+				case InheritanceType::Multiply:
+					out.initial.velocity *= parent->frame.velocity;
+					break;
 			}
 
 			if( inheritance.scaleVelocity ) {
@@ -598,35 +639,52 @@ struct ParticlePattern {
 		// Acceleration
 		if( !inheritance.acceleration.attach ) {
 			switch( inheritance.acceleration.type ) {
-			case InheritanceType::None: break;
-			case InheritanceType::Copy: out.initial.acceleration = parent->frame.acceleration; break;
-			case InheritanceType::Offset: out.initial.acceleration += parent->frame.acceleration; break;
-			case InheritanceType::Multiply: out.initial.acceleration *= parent->frame.acceleration; break;
+				case InheritanceType::None: break;
+				case InheritanceType::Copy:
+					out.initial.acceleration = parent->frame.acceleration;
+					break;
+				case InheritanceType::Offset:
+					out.initial.acceleration += parent->frame.acceleration;
+					break;
+				case InheritanceType::Multiply:
+					out.initial.acceleration *= parent->frame.acceleration;
+					break;
 			}
 		}
 
 		if( inheritance.lifetime.attach )
-			out.affectors.push_back( make_shared< Affector::InheritLifetimeAffector >( inheritance.lifetime.type ) );
+			out.affectors.push_back( make_shared< Affector::InheritLifetimeAffector >(
+				inheritance.lifetime.type ) );
 		if( inheritance.position.attach )
-			out.affectors.push_back( make_shared< Affector::InheritPositionAffector >( inheritance.position.type ) );
+			out.affectors.push_back( make_shared< Affector::InheritPositionAffector >(
+				inheritance.position.type ) );
 		if( inheritance.rotation.attach )
-			out.affectors.push_back( make_shared< Affector::InheritRotationAffector >( inheritance.rotation.type ) );
+			out.affectors.push_back( make_shared< Affector::InheritRotationAffector >(
+				inheritance.rotation.type ) );
 		if( inheritance.spin.attach )
-			out.affectors.push_back( make_shared< Affector::InheritSpinAffector >( inheritance.spin.type ) );
+			out.affectors.push_back(
+				make_shared< Affector::InheritSpinAffector >( inheritance.spin.type ) );
 		if( inheritance.scale.attach )
-			out.affectors.push_back( make_shared< Affector::InheritScaleAffector >( inheritance.scale.type ) );
+			out.affectors.push_back( make_shared< Affector::InheritScaleAffector >(
+				inheritance.scale.type ) );
 		if( inheritance.color.attach )
-			out.affectors.push_back( make_shared< Affector::InheritColorAffector >( inheritance.color.type ) );
+			out.affectors.push_back( make_shared< Affector::InheritColorAffector >(
+				inheritance.color.type ) );
 		if( inheritance.alpha.attach )
-			out.affectors.push_back( make_shared< Affector::InheritAlphaAffector >( inheritance.alpha.type ) );
+			out.affectors.push_back( make_shared< Affector::InheritAlphaAffector >(
+				inheritance.alpha.type ) );
 		if( inheritance.velocity.attach )
-			out.affectors.push_back( make_shared< Affector::InheritVelocityAffector >( inheritance.velocity.type, inheritance.scaleVelocity, inheritance.rotateVelocity ) );
+			out.affectors.push_back( make_shared< Affector::InheritVelocityAffector >(
+				inheritance.velocity.type,
+				inheritance.scaleVelocity,
+				inheritance.rotateVelocity ) );
 		if( inheritance.acceleration.attach )
-			out.affectors.push_back( make_shared< Affector::InheritAccelerationAffector >( inheritance.acceleration.type ) );
+			out.affectors.push_back( make_shared< Affector::InheritAccelerationAffector >(
+				inheritance.acceleration.type ) );
 
 
 		out.current = out.initial;
-		out.frame   = out.initial;
+		out.frame	= out.initial;
 
 		return out;
 	}
@@ -669,36 +727,36 @@ struct ParticlePattern {
 			return false;
 
 		if( v.HasMember( "name" ) )
-			json::getValue( v[ "name" ], name );
+			json::getValue( v["name"], name );
 		if( v.HasMember( "lifetime" ) )
-			json::getValue( v[ "lifetime" ], lifetime );
+			json::getValue( v["lifetime"], lifetime );
 		if( v.HasMember( "number" ) )
-			json::getValue( v[ "number" ], number );
+			json::getValue( v["number"], number );
 		if( v.HasMember( "color" ) )
-			json::getValue( v[ "color" ], color );
+			json::getValue( v["color"], color );
 		if( v.HasMember( "rotation" ) )
-			json::getValue( v[ "rotation" ], rotation );
+			json::getValue( v["rotation"], rotation );
 		if( v.HasMember( "scale" ) )
-			json::getValue( v[ "scale" ], scale );
+			json::getValue( v["scale"], scale );
 		if( v.HasMember( "position" ) )
-			position.setValue( v[ "position" ] );
+			position.setValue( v["position"] );
 		if( v.HasMember( "velocity" ) )
-			velocity.setValue( v[ "velocity" ] );
+			velocity.setValue( v["velocity"] );
 		if( v.HasMember( "acceleration" ) )
-			acceleration.setValue( v[ "acceleration" ] );
+			acceleration.setValue( v["acceleration"] );
 		if( v.HasMember( "spin" ) )
-			json::getValue( v[ "spin" ], spin );
+			json::getValue( v["spin"], spin );
 		if( v.HasMember( "inheritance" ) )
-			inheritance.setValue( v[ "inheritance" ] );
+			inheritance.setValue( v["inheritance"] );
 		if( v.HasMember( "texture" ) )
-			json::getValue( v[ "texture" ], texture );
+			json::getValue( v["texture"], texture );
 		if( v.HasMember( "priority" ) )
-			json::getValue( v[ "priority" ], priority );
+			json::getValue( v["priority"], priority );
 		if( v.HasMember( "affectors" ) )
-			for( const rapidjson::Value& value : v[ "affectors" ].GetArray() )
+			for( const rapidjson::Value& value : v["affectors"].GetArray() )
 				affectors.push_back( Affector::setValue( value ) );
 		if( v.HasMember( "emitters" ) ) {
-			for( const rapidjson::Value& value : v[ "emitters" ].GetArray() ) {
+			for( const rapidjson::Value& value : v["emitters"].GetArray() ) {
 				ParticleEmitter emitter;
 				emitter.setValue( value );
 				emitters.push_back( emitter );
@@ -789,7 +847,7 @@ struct ParticlePattern {
 			ImGui::PushID( "Emitters" );
 
 			for( size_t i = 0; i < emitters.size(); ++i ) {
-				ImGui::PushID( ( int )i );
+				ImGui::PushID( ( int ) i );
 
 				out |= emitters.at( i ).render();
 
@@ -824,6 +882,6 @@ struct ParticlePattern {
 
 //--------------------------------------------------------------------------------
 
-}
+}	 // namespace Gfx::Particle
 
 //================================================================================

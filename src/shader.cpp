@@ -4,9 +4,10 @@
 
 //--------------------------------------------------------------------------------
 
-#include <filesystem>
-
 #include "debug.h"
+
+#include <filesystem>
+#include <fmt/format.h>
 
 //================================================================================
 
@@ -23,19 +24,16 @@ sf::Shader& get( string name ) {
 	if( shaders.count( name ) )
 		return shaders.at( name );
 
-	char path[ 2048 ];
-	char message[ 2048 ];
-	sprintf_s( path, "%s%s.fs", Folders::FragmentShader.c_str(), name.c_str() );
+	std::string path = fmt::format( "{}{}.fs", Folders::FragmentShader, name );
 	if( !std::filesystem::exists( std::filesystem::path( path ) ) ) {
-		sprintf_s( message, "Shader %s doesn't exist.", path );
-		Debug::addMessage( message, DebugType::Error );
-		return shaders[ "default" ];
+		Debug::addMessage( fmt::format( "Shader {} doesn't exist.", path ), DebugType::Error );
+		return shaders["default"];
 	}
 
-	sf::Shader& shader = shaders[ name ];
+	sf::Shader& shader = shaders[name];
 	if( !shader.loadFromFile( path, sf::Shader::Type::Fragment ) ) {
-		sprintf_s( message, "Shader %s failed to compile.", path );
-		Debug::addMessage( message, DebugType::Error );
+		Debug::addMessage( fmt::format( "Shader {} failed to compile.", path ),
+						   DebugType::Error );
 	}
 
 	return shader;
@@ -43,7 +41,7 @@ sf::Shader& get( string name ) {
 
 //--------------------------------------------------------------------------------
 
-}
-}
+}	 // namespace Shader
+}	 // namespace Gfx
 
 //================================================================================

@@ -1,0 +1,206 @@
+{
+    "name": "Smoke.bullet\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "lifetime": {
+        "min": 5000,
+        "max": 0,
+        "hsv": false,
+        "lock": false,
+        "inverse": false,
+        "random": false
+    },
+    "number": {
+        "min": 5,
+        "max": 0,
+        "hsv": false,
+        "lock": false,
+        "inverse": false,
+        "random": false
+    },
+    "color": {
+        "min": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 0.3
+        },
+        "max": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "a": 1.0
+        },
+        "hsv": false,
+        "lock": false,
+        "inverse": false,
+        "random": false
+    },
+    "rotation": {
+        "min": 0.0,
+        "max": 360.0,
+        "hsv": false,
+        "lock": false,
+        "inverse": false,
+        "random": true
+    },
+    "scale": {
+        "min": {
+            "x": 50.0,
+            "y": 50.0
+        },
+        "max": {
+            "x": 20.0,
+            "y": 20.0
+        },
+        "hsv": false,
+        "lock": true,
+        "inverse": false,
+        "random": true
+    },
+    "position": {
+        "type": 0,
+        "value": {
+            "value": {
+                "x": 0.0,
+                "y": 0.0
+            }
+        }
+    },
+    "velocity": {
+        "type": 0,
+        "value": {
+            "value": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "hsv": false,
+                "lock": false,
+                "inverse": false,
+                "random": false
+            }
+        }
+    },
+    "acceleration": {
+        "type": 0,
+        "value": {
+            "value": {
+                "min": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "max": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "hsv": false,
+                "lock": false,
+                "inverse": false,
+                "random": false
+            }
+        }
+    },
+    "spin": {
+        "min": 0.0,
+        "max": 0.0,
+        "hsv": false,
+        "lock": false,
+        "inverse": false,
+        "random": false
+    },
+    "inheritance": {
+        "lifetime": {
+            "type": 0,
+            "attach": false
+        },
+        "position": {
+            "type": 2,
+            "attach": false
+        },
+        "rotation": {
+            "type": 0,
+            "attach": false
+        },
+        "spin": {
+            "type": 0,
+            "attach": false
+        },
+        "scale": {
+            "type": 0,
+            "attach": false
+        },
+        "color": {
+            "type": 0,
+            "attach": false
+        },
+        "alpha": {
+            "type": 0,
+            "attach": false
+        },
+        "velocity": {
+            "type": 0,
+            "attach": false
+        },
+        "acceleration": {
+            "type": 0,
+            "attach": false
+        },
+        "scaleVelocity": false,
+        "rotateVelocity": false
+    },
+    "texture": "./Data/Assets/Particles/smoke_07.png",
+    "priority": 0,
+    "affectors": [{
+            "name": "Fade Scale",
+            "value": {
+                "start": {
+                    "min": 1.0,
+                    "max": 1.0,
+                    "hsv": false,
+                    "lock": false,
+                    "inverse": false,
+                    "random": false
+                },
+                "end": {
+                    "min": 25.0,
+                    "max": 50.0,
+                    "hsv": false,
+                    "lock": false,
+                    "inverse": false,
+                    "random": true
+                },
+                "exponent": {
+                    "min": 1.0,
+                    "max": 1.0,
+                    "hsv": false,
+                    "lock": false,
+                    "inverse": false,
+                    "random": false
+                }
+            }
+        }, {
+            "name": "Fade Alpha",
+            "value": {
+                "target": {
+                    "min": 0.0,
+                    "max": 0.0,
+                    "hsv": false,
+                    "lock": false,
+                    "inverse": false,
+                    "random": false
+                },
+                "exponent": {
+                    "min": 1.0,
+                    "max": 1.0,
+                    "hsv": false,
+                    "lock": false,
+                    "inverse": false,
+                    "random": false
+                }
+            }
+        }],
+    "emitters": []
+}

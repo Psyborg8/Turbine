@@ -4,14 +4,13 @@
 
 //--------------------------------------------------------------------------------
 
-#include <rapidjson/filewritestream.h>
-#include <rapidjson/filereadstream.h>
-#include <rapidjson/prettywriter.h>
-
-#include <filesystem>
-
 #include "debug.h"
 #include "string-utils.h"
+
+#include <filesystem>
+#include <rapidjson/filereadstream.h>
+#include <rapidjson/filewritestream.h>
+#include <rapidjson/prettywriter.h>
 
 //================================================================================
 
@@ -43,13 +42,14 @@ bool save( function< rapidjson::Value() > func, string path ) {
 	allocator = &document.GetAllocator();
 	document.CopyFrom( func(), *allocator );
 
-	FILE* file;
-	if( fopen_s( &file, path.c_str(), "wb" ) ) {
-		Debug::addMessage( Utils::format( "File %s failed to open", path.c_str() ), DebugType::Error );
+	FILE* file = fopen( path.c_str(), "wb" );
+	if( file == nullptr ) {
+		Debug::addMessage( Utils::format( "File %s failed to open", path.c_str() ),
+						   DebugType::Error );
 		return false;
 	}
 
-	char writeBuffer[ 65536 ];
+	char writeBuffer[65536];
 	FileWriteStream stream( file, writeBuffer, sizeof( writeBuffer ) );
 	PrettyWriter< FileWriteStream > writer( stream );
 	writer.SetMaxDecimalPlaces( 2 );
@@ -58,7 +58,8 @@ bool save( function< rapidjson::Value() > func, string path ) {
 	document.Accept( writer );
 
 	if( document.HasParseError() ) {
-		Debug::addMessage( Utils::format( "File %s has parse error", path.c_str() ), DebugType::Error );
+		Debug::addMessage( Utils::format( "File %s has parse error", path.c_str() ),
+						   DebugType::Error );
 		return false;
 	}
 
@@ -72,21 +73,21 @@ bool load( function< bool( const rapidjson::Value& ) > func, string path ) {
 	using namespace rapidjson;
 
 	// Parse JSON
-	path;
-	FILE* pFile;
-	if( fopen_s( &pFile, path.c_str(), "rb" ) )
+	FILE* pFile = fopen( path.c_str(), "rb" );
+	if( pFile == nullptr )
 		return false;
 
-	char* buffer = new char[ 65536 ];
+	char* buffer = new char[65536];
 	FileReadStream is( pFile, buffer, sizeof( buffer ) );
 	Document document;
-	document.ParseStream<0, UTF8<>, FileReadStream>( is );
+	document.ParseStream< 0, UTF8<>, FileReadStream >( is );
 
 	if( pFile != NULL )
 		fclose( pFile );
 
 	if( document.HasParseError() ) {
-		Debug::addMessage( "Document \"" + path + "\" has JSON parse error", DebugType::Error );
+		Debug::addMessage(
+			"Document \"" + path + "\" has JSON parse error", DebugType::Error );
 		return false;
 	}
 
@@ -249,17 +250,17 @@ void getValue( const rapidjson::Value& value, Math::ValueSet< int >& out ) {
 		return;
 
 	if( value.HasMember( "min" ) )
-		getValue( value[ "min" ], out.min );
+		getValue( value["min"], out.min );
 	if( value.HasMember( "max" ) )
-		getValue( value[ "max" ], out.max );
+		getValue( value["max"], out.max );
 	if( value.HasMember( "random" ) )
-		getValue( value[ "random" ], out.random );
+		getValue( value["random"], out.random );
 	if( value.HasMember( "lock" ) )
-		getValue( value[ "lock" ], out.lock );
+		getValue( value["lock"], out.lock );
 	if( value.HasMember( "inverse" ) )
-		getValue( value[ "inverse" ], out.inverse );
+		getValue( value["inverse"], out.inverse );
 	if( value.HasMember( "hsv" ) )
-		getValue( value[ "hsv" ], out.hsv );
+		getValue( value["hsv"], out.hsv );
 }
 
 //--------------------------------------------------------------------------------
@@ -269,37 +270,37 @@ void getValue( const rapidjson::Value& value, Math::ValueSet< float >& out ) {
 		return;
 
 	if( value.HasMember( "min" ) )
-		getValue( value[ "min" ], out.min );
+		getValue( value["min"], out.min );
 	if( value.HasMember( "max" ) )
-		getValue( value[ "max" ], out.max );
+		getValue( value["max"], out.max );
 	if( value.HasMember( "random" ) )
-		getValue( value[ "random" ], out.random );
+		getValue( value["random"], out.random );
 	if( value.HasMember( "lock" ) )
-		getValue( value[ "lock" ], out.lock );
+		getValue( value["lock"], out.lock );
 	if( value.HasMember( "inverse" ) )
-		getValue( value[ "inverse" ], out.inverse );
+		getValue( value["inverse"], out.inverse );
 	if( value.HasMember( "hsv" ) )
-		getValue( value[ "hsv" ], out.hsv );
+		getValue( value["hsv"], out.hsv );
 }
 
 //--------------------------------------------------------------------------------
 
-void getValue( const rapidjson::Value& value, Math::ValueSet< Math::Vec2 > & out ) {
+void getValue( const rapidjson::Value& value, Math::ValueSet< Math::Vec2 >& out ) {
 	if( !value.IsObject() )
 		return;
 
 	if( value.HasMember( "min" ) )
-		getValue( value[ "min" ], out.min );
+		getValue( value["min"], out.min );
 	if( value.HasMember( "max" ) )
-		getValue( value[ "max" ], out.max );
+		getValue( value["max"], out.max );
 	if( value.HasMember( "random" ) )
-		getValue( value[ "random" ], out.random );
+		getValue( value["random"], out.random );
 	if( value.HasMember( "lock" ) )
-		getValue( value[ "lock" ], out.lock );
+		getValue( value["lock"], out.lock );
 	if( value.HasMember( "inverse" ) )
-		getValue( value[ "inverse" ], out.inverse );
+		getValue( value["inverse"], out.inverse );
 	if( value.HasMember( "hsv" ) )
-		getValue( value[ "hsv" ], out.hsv );
+		getValue( value["hsv"], out.hsv );
 }
 
 //--------------------------------------------------------------------------------
@@ -309,17 +310,17 @@ void getValue( const rapidjson::Value& value, Math::ValueSet< Math::Color >& out
 		return;
 
 	if( value.HasMember( "min" ) )
-		getValue( value[ "min" ], out.min );
+		getValue( value["min"], out.min );
 	if( value.HasMember( "max" ) )
-		getValue( value[ "max" ], out.max );
+		getValue( value["max"], out.max );
 	if( value.HasMember( "random" ) )
-		getValue( value[ "random" ], out.random );
+		getValue( value["random"], out.random );
 	if( value.HasMember( "lock" ) )
-		getValue( value[ "lock" ], out.lock );
+		getValue( value["lock"], out.lock );
 	if( value.HasMember( "inverse" ) )
-		getValue( value[ "inverse" ], out.inverse );
+		getValue( value["inverse"], out.inverse );
 	if( value.HasMember( "hsv" ) )
-		getValue( value[ "hsv" ], out.hsv );
+		getValue( value["hsv"], out.hsv );
 }
 
 //--------------------------------------------------------------------------------
@@ -369,9 +370,9 @@ void getValue( const rapidjson::Value& value, Math::Vec2& out ) {
 		return;
 
 	if( value.HasMember( "x" ) )
-		getValue( value[ "x" ], out.x );
+		getValue( value["x"], out.x );
 	if( value.HasMember( "y" ) )
-		getValue( value[ "y" ], out.y );
+		getValue( value["y"], out.y );
 }
 
 //--------------------------------------------------------------------------------
@@ -381,17 +382,17 @@ void getValue( const rapidjson::Value& value, Math::Color& out ) {
 		return;
 
 	if( value.HasMember( "r" ) )
-		getValue( value[ "r" ], out.r );
+		getValue( value["r"], out.r );
 	if( value.HasMember( "g" ) )
-		getValue( value[ "g" ], out.g );
+		getValue( value["g"], out.g );
 	if( value.HasMember( "b" ) )
-		getValue( value[ "b" ], out.b );
+		getValue( value["b"], out.b );
 	if( value.HasMember( "a" ) )
-		getValue( value[ "a" ], out.a );
+		getValue( value["a"], out.a );
 }
 
 //--------------------------------------------------------------------------------
 
-}
+}	 // namespace json
 
 //================================================================================

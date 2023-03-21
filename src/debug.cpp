@@ -4,12 +4,12 @@
 
 //--------------------------------------------------------------------------------
 
-#include <filesystem>
-
-#include "system.h"
-#include "player.h"
 #include "particle-manager.h"
+#include "player.h"
 #include "string-utils.h"
+#include "system.h"
+
+#include <filesystem>
 
 //================================================================================
 
@@ -69,121 +69,91 @@ vector< SimpleCommand > hideCommands;
 //--------------------------------------------------------------------------------
 
 void addSetCommand( string name, bool& value, string helper ) {
-	setCommands.push_back(
-		SimpleCommand{
-			name, helper, [&value]( const string& arg ) {
-				if( arg == "true" )
-					value = true;
-				else if( arg == "false" )
-					value = false;
-				else
-					addMessage( "true/false value expected.", DebugType::Error );
-			}
-		}
-	);
+	setCommands.push_back( SimpleCommand{ name, helper, [&value]( const string& arg ) {
+											 if( arg == "true" )
+												 value = true;
+											 else if( arg == "false" )
+												 value = false;
+											 else
+												 addMessage( "true/false value expected.",
+															 DebugType::Error );
+										 } } );
 }
 
 //--------------------------------------------------------------------------------
 
 void addSetCommand( string name, float& value, string helper ) {
-	setCommands.push_back(
-		SimpleCommand{
-			name, helper, [&value]( const string& arg ) { value = std::stof( arg ); }
-		}
-	);
+	setCommands.push_back( SimpleCommand{
+		name, helper, [&value]( const string& arg ) { value = std::stof( arg ); } } );
 }
 
 //--------------------------------------------------------------------------------
 
 void addSetCommand( string name, int& value, string helper ) {
-	setCommands.push_back(
-		SimpleCommand{
-			name, helper, [&value]( const string& arg ) { value = std::stoi( arg ); }
-		}
-	);
+	setCommands.push_back( SimpleCommand{
+		name, helper, [&value]( const string& arg ) { value = std::stoi( arg ); } } );
 }
 
 //--------------------------------------------------------------------------------
 
 void addSetCommand( string name, unsigned int& value, string helper ) {
-	setCommands.push_back(
-		SimpleCommand{
-			name, helper, [&value]( const string& arg ) { value = std::stoi( arg ); }
-		}
-	);
+	setCommands.push_back( SimpleCommand{
+		name, helper, [&value]( const string& arg ) { value = std::stoi( arg ); } } );
 }
 
 //--------------------------------------------------------------------------------
 
 void addSetCommand( string name, size_t& value, string helper ) {
-	setCommands.push_back(
-		SimpleCommand{
-			name, helper, [&value]( const string& arg ) { value = std::stoi( arg ); }
-		}
-	);
+	setCommands.push_back( SimpleCommand{
+		name, helper, [&value]( const string& arg ) { value = std::stoi( arg ); } } );
 }
 
 //--------------------------------------------------------------------------------
 
-void addSetCommand( string name, Math::Vec2& value, string helper ) {
-
-}
+void addSetCommand( string name, Math::Vec2& value, string helper ) {}
 
 //--------------------------------------------------------------------------------
 
 void addSetCommand( string name, milliseconds& value, string helper ) {
-	setCommands.push_back(
-		SimpleCommand{
-			name, helper, [&value]( const string& arg ) { value = milliseconds( std::stoi( arg ) ); }
-		}
-	);
+	setCommands.push_back( SimpleCommand{ name, helper, [&value]( const string& arg ) {
+											 value = milliseconds( std::stoi( arg ) );
+										 } } );
 }
 
 //--------------------------------------------------------------------------------
 
 void addShowCommand( string name, function< void() > callback, string helper ) {
-	showCommands.push_back(
-		SimpleCommand{
-			name, helper, [callback]( const string& arg ) { callback(); }
-		}
-	);
+	showCommands.push_back( SimpleCommand{
+		name, helper, [callback]( const string& arg ) { callback(); } } );
 }
 
 //--------------------------------------------------------------------------------
 
 void addHideCommand( string name, function< void() > callback, string helper ) {
-	hideCommands.push_back(
-		SimpleCommand{
-			name, helper, [callback]( const string& arg ) { callback(); }
-		}
-	);
+	hideCommands.push_back( SimpleCommand{
+		name, helper, [callback]( const string& arg ) { callback(); } } );
 }
 
 //--------------------------------------------------------------------------------
 
-void addCommand( string command, size_t args, function< void( vector< string > args ) > func, string helper ) {
+void addCommand( string command,
+				 size_t args,
+				 function< void( vector< string > args ) > func,
+				 string helper ) {
 	commands.push_back( Command{ command, args, func } );
 }
 
 //--------------------------------------------------------------------------------
 
 void addCommand( string command, function< void() > func, string helper ) {
-	commands.push_back( Command{ command, 0u, [func]( const vector< string >& args ) { func(); } } );
+	commands.push_back(
+		Command{ command, 0u, [func]( const vector< string >& args ) { func(); } } );
 }
 
 //--------------------------------------------------------------------------------
 
 void callCommand( string command ) {
-	vector< string > args;
-
-	// Args
-	char* arg;
-	char* context;
-	arg = strtok_s( command.data(), " ", &context );
-	while( arg ) {
-		args.push_back( string( arg ) );
-		arg = strtok_s( NULL, " ", &context );
-	}
+	vector< string > args = Utils::tokenize( command, " " );
 
 	if( args.empty() )
 		return;
@@ -193,10 +163,10 @@ void callCommand( string command ) {
 		if( args.size() <= 1u )
 			goto error_argument;
 
-		const auto it = std::find_if( showCommands.begin(), showCommands.end(),
-								   [args]( const SimpleCommand& command ) {
-									   return command.name == args.at( 1 );
-								   } );
+		const auto it = std::find_if(
+			showCommands.begin(), showCommands.end(), [args]( const SimpleCommand& command ) {
+				return command.name == args.at( 1 );
+			} );
 
 		if( it == showCommands.end() )
 			goto error_argument_missing;
@@ -210,10 +180,10 @@ void callCommand( string command ) {
 		if( args.size() <= 1u )
 			goto error_argument;
 
-		const auto it = std::find_if( hideCommands.begin(), hideCommands.end(),
-								   [args]( const SimpleCommand& command ) {
-									   return command.name == args.at( 1 );
-								   } );
+		const auto it = std::find_if(
+			hideCommands.begin(), hideCommands.end(), [args]( const SimpleCommand& command ) {
+				return command.name == args.at( 1 );
+			} );
 
 		if( it == hideCommands.end() )
 			goto error_argument_missing;
@@ -229,10 +199,10 @@ void callCommand( string command ) {
 		if( args.size() <= 2u )
 			goto error_argument;
 
-		const auto it = std::find_if( setCommands.begin(), setCommands.end(),
-								   [args]( const SimpleCommand& command ) {
-									   return command.name == args.at( 1 );
-								   } );
+		const auto it = std::find_if(
+			setCommands.begin(), setCommands.end(), [args]( const SimpleCommand& command ) {
+				return command.name == args.at( 1 );
+			} );
 
 		if( it == setCommands.end() )
 			goto error_argument_missing;
@@ -243,10 +213,10 @@ void callCommand( string command ) {
 
 	// Commands
 	{
-		const auto it = std::find_if( commands.begin(), commands.end(),
-									  [args]( const Command& command ) {
-										  return command.command == args.at( 0 );
-									  } );
+		const auto it = std::find_if(
+			commands.begin(), commands.end(), [args]( const Command& command ) {
+				return command.command == args.at( 0 );
+			} );
 
 		if( it == commands.end() )
 			goto error_missing;
@@ -280,7 +250,6 @@ error_argument_missing:
 
 class DebugHandler : public Object {
 private:
-
 public:
 	DebugHandler() = default;
 
@@ -327,7 +296,7 @@ private:
 		vector< float > emitters;
 		float emittersMax{ 0.f };
 
-		vector < pair< string, function< string() > > > pages;
+		vector< pair< string, function< string() > > > pages;
 	} performance;
 };
 
@@ -362,7 +331,7 @@ void DebugHandler::onUpdate( sf::Time deltaTime ) {
 		totalTime += dt.asSeconds();
 
 	const float averageTime = totalTime / performance.deltaTimes.size();
-	const float fps = 1.f / averageTime;
+	const float fps			= 1.f / averageTime;
 
 	if( fps > performance.frameRatesMax )
 		performance.frameRatesMax = fps;
@@ -403,12 +372,10 @@ void DebugHandler::onRender( sf::RenderTarget* target ) {
 
 	if( menu.open ) {
 		ImGui::PushID( "Menu" );
-		ImGui::Begin( "Debug Menu", &menu.open,
-					  ImGuiWindowFlags_AlwaysAutoResize
-					  | ImGuiWindowFlags_NoResize
-					  | ImGuiWindowFlags_NoCollapse
-					  | ImGuiWindowFlags_NoScrollbar
-					  | ImGuiWindowFlags_NoMove );
+		ImGui::Begin( "Debug Menu",
+					  &menu.open,
+					  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse
+						  | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove );
 
 		if( ImGui::Button( "Console" ) )
 			console.open = !console.open;
@@ -417,7 +384,8 @@ void DebugHandler::onRender( sf::RenderTarget* target ) {
 		if( ImGui::Button( "Draw Debug" ) )
 			System::getSystemInfo().drawDebug = !System::getSystemInfo().drawDebug;
 
-		ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width - ImGui::GetWindowSize().x, 400.f ) );
+		ImGui::SetWindowPos( ImVec2(
+			System::getSystemInfo().width - ImGui::GetWindowSize().x, 400.f ) );
 
 		ImGui::End();
 		ImGui::PopID();
@@ -425,23 +393,21 @@ void DebugHandler::onRender( sf::RenderTarget* target ) {
 
 	if( console.open ) {
 		ImGui::PushID( "Console" );
-		ImGui::Begin( "Console", &console.open,
-					  ImGuiWindowFlags_NoResize
-					  | ImGuiWindowFlags_NoTitleBar
-					  | ImGuiWindowFlags_NoCollapse
-					  | ImGuiWindowFlags_NoScrollbar
-					  | ImGuiWindowFlags_NoMove
-					 );
+		ImGui::Begin( "Console",
+					  &console.open,
+					  ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse
+						  | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove );
 
 		ImGui::SetWindowSize( ImVec2( 1200.f, 537.f ) );
-		ImGui::SetWindowPos( ImVec2( ( System::getSystemInfo().width / 2.f ) - ( ImGui::GetWindowSize().x / 2.f ), .0f ) );
+		ImGui::SetWindowPos( ImVec2(
+			( System::getSystemInfo().width / 2.f ) - ( ImGui::GetWindowSize().x / 2.f ), .0f ) );
 		ImGui::SetWindowFocus();
 
-		ImGui::BeginChild( "Message Box", ImVec2( 0.f, 500.f ), true,
-						   ImGuiWindowFlags_NoResize
-						   | ImGuiWindowFlags_NoTitleBar
-						   | ImGuiWindowFlags_NoCollapse
-						   | ImGuiWindowFlags_NoMove );
+		ImGui::BeginChild( "Message Box",
+						   ImVec2( 0.f, 500.f ),
+						   true,
+						   ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar
+							   | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove );
 
 		for( DebugMessage message : messages ) {
 			ImColor color;
@@ -458,7 +424,7 @@ void DebugHandler::onRender( sf::RenderTarget* target ) {
 			else if( message.type == DebugType::Performance )
 				color = ImColor( 225, 180, 50, int( message.alpha * 255.0f ) );
 
-			ImGui::TextColored( color, message.text.c_str() );
+			ImGui::TextColored( color, "%s", message.text.c_str() );
 		}
 
 		ImGui::EndChild();
@@ -467,7 +433,10 @@ void DebugHandler::onRender( sf::RenderTarget* target ) {
 			ImGui::SetKeyboardFocusHere();
 
 		ImGui::PushItemWidth( 1183 );
-		if( ImGui::InputText( "##Input", console.buffer.data(), std::numeric_limits< uint16_t >::max(), ImGuiInputTextFlags_EnterReturnsTrue ) ) {
+		if( ImGui::InputText( "##Input",
+							  console.buffer.data(),
+							  std::numeric_limits< uint16_t >::max(),
+							  ImGuiInputTextFlags_EnterReturnsTrue ) ) {
 			callCommand( string( console.buffer.data() ) );
 			console.buffer.fill( '\0' );
 		}
@@ -479,13 +448,13 @@ void DebugHandler::onRender( sf::RenderTarget* target ) {
 
 	if( performance.open ) {
 		ImGui::PushID( "Performance" );
-		ImGui::Begin( "Performance##Debug", &performance.open,
-					  ImGuiWindowFlags_AlwaysAutoResize
-					  | ImGuiWindowFlags_NoTitleBar
-					  | ImGuiWindowFlags_NoCollapse );
+		ImGui::Begin( "Performance##Debug",
+					  &performance.open,
+					  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar
+						  | ImGuiWindowFlags_NoCollapse );
 
 		ImGui::SetWindowFontScale( 1.1f );
-		//ImGui::SetWindowPos( ImVec2( 0.f, 0.f ) );
+		// ImGui::SetWindowPos( ImVec2( 0.f, 0.f ) );
 
 		ImGui::BeginTabBar( "Performance Tab Bar" );
 
@@ -495,18 +464,33 @@ void DebugHandler::onRender( sf::RenderTarget* target ) {
 				totalTime += dt.asSeconds();
 
 			const float averageTime = totalTime / performance.deltaTimes.size();
-			const int fps = int( 1.f / averageTime );
-			string text = Utils::format( "FPS: %i", fps );
-			ImGui::Text( text.c_str() );
+			const int fps			= int( 1.f / averageTime );
+			string text				= Utils::format( "FPS: %i", fps );
+			ImGui::Text( "%s", text.c_str() );
 
-			ImGui::PlotLines( "", performance.framerates.data(), int( performance.framerates.size() ), 0, ( const char* )0, 0.f, performance.frameRatesMax, ImVec2( 0.f, 100.f ) );
+			ImGui::PlotLines( "",
+							  performance.framerates.data(),
+							  int( performance.framerates.size() ),
+							  0,
+							  ( const char* ) 0,
+							  0.f,
+							  performance.frameRatesMax,
+							  ImVec2( 0.f, 100.f ) );
 
 			if( performance.drawCalls.size() > 0u ) {
 				ImGui::Spacing();
 				ImGui::Spacing();
-				text = Utils::format( "Draw Calls: %i", int( *performance.drawCalls.rbegin() ) );
-				ImGui::Text( text.c_str() );
-				ImGui::PlotHistogram( "", performance.drawCalls.data(), int( performance.drawCalls.size() ), 0, ( const char* )0, 0.f, performance.drawCallsMax, ImVec2( 0.f, 100.f ) );
+				text = Utils::format(
+					"Draw Calls: %i", int( *performance.drawCalls.rbegin() ) );
+				ImGui::Text( "%s", text.c_str() );
+				ImGui::PlotHistogram( "",
+									  performance.drawCalls.data(),
+									  int( performance.drawCalls.size() ),
+									  0,
+									  ( const char* ) 0,
+									  0.f,
+									  performance.drawCallsMax,
+									  ImVec2( 0.f, 100.f ) );
 			}
 
 			ImGui::EndTabItem();
@@ -515,15 +499,17 @@ void DebugHandler::onRender( sf::RenderTarget* target ) {
 		if( ImGui::BeginTabItem( "Timers" ) ) {
 			string format;
 			for( Timer timer : timers )
-				format += Utils::format( "\n%s: %.3fms", timer.name.c_str(), getAverageTime( timer.name ) * 1000.f );
+				format += Utils::format( "\n%s: %.3fms",
+										 timer.name.c_str(),
+										 getAverageTime( timer.name ) * 1000.f );
 
-			ImGui::Text( format.c_str() );
+			ImGui::Text( "%s", format.c_str() );
 			ImGui::EndTabItem();
 		}
 
-		for( const pair< string, function< string() > > page : performance.pages ) {
+		for( const pair< string, function< string() > >& page : performance.pages ) {
 			if( ImGui::BeginTabItem( page.first.c_str() ) ) {
-				ImGui::Text( page.second().c_str() );
+				ImGui::Text( "%s", page.second().c_str() );
 				ImGui::EndTabItem();
 			}
 		}
@@ -602,10 +588,10 @@ void hide() {
 //================================================================================
 
 void startTimer( string name ) {
-	const auto it = std::find_if( timers.begin(), timers.end(),
-								  [name]( const Timer& timer ) {
-									  return timer.name == name;
-								  } );
+	const auto it
+		= std::find_if( timers.begin(), timers.end(), [name]( const Timer& timer ) {
+			  return timer.name == name;
+		  } );
 
 	if( it != timers.end() ) {
 		it->clock.restart();
@@ -617,24 +603,23 @@ void startTimer( string name ) {
 	timer.clock.restart();
 	timers.push_back( timer );
 
-	std::sort( timers.begin(), timers.end(),
-			   []( const Timer& a, const Timer& b ) {
-				   return a.name < b.name;
-			   } );
+	std::sort( timers.begin(), timers.end(), []( const Timer& a, const Timer& b ) {
+		return a.name < b.name;
+	} );
 }
 
 //--------------------------------------------------------------------------------
 
 void stopTimer( string name ) {
-	const auto it = std::find_if( timers.begin(), timers.end(),
-								  [name]( const Timer& timer ) {
-									  return timer.name == name;
-								  } );
+	const auto it
+		= std::find_if( timers.begin(), timers.end(), [name]( const Timer& timer ) {
+			  return timer.name == name;
+		  } );
 
 	if( it == timers.end() )
 		return;
 
-	
+
 	sf::Time time = it->clock.restart();
 	it->currentTime += time;
 }
@@ -642,10 +627,10 @@ void stopTimer( string name ) {
 //--------------------------------------------------------------------------------
 
 float getAverageTime( string name ) {
-	const auto it = std::find_if( timers.begin(), timers.end(),
-								  [name]( const Timer& timer ) {
-									  return timer.name == name;
-								  } );
+	const auto it
+		= std::find_if( timers.begin(), timers.end(), [name]( const Timer& timer ) {
+			  return timer.name == name;
+		  } );
 
 	if( it == timers.end() )
 		return 0.0f;
@@ -667,9 +652,9 @@ float getAverageTime( string name ) {
 
 void addMessage( string message, DebugType type ) {
 	DebugMessage out;
-	out.text = message;
+	out.text  = message;
 	out.alpha = 1.0;
-	out.type = type;
+	out.type  = type;
 
 	messages.push_back( out );
 }
@@ -684,6 +669,6 @@ string getLastMessage() {
 
 //--------------------------------------------------------------------------------
 
-}
+}	 // namespace Debug
 
 //================================================================================

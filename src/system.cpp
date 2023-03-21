@@ -5,22 +5,16 @@
 //--------------------------------------------------------------------------------
 
 // Systems
-#include "random.h"
-#include "timer.h"
 #include "debug.h"
 #include "input.h"
-
-#include "particle-manager.h"
 #include "particle-affector.h"
-
-// Worlds
-#include "world-particle-test.h"
-#include "editor.h"
+#include "particle-manager.h"
+#include "random.h"
+#include "timer.h"
 
 //================================================================================
 
-namespace System
-{
+namespace System {
 
 //================================================================================
 
@@ -43,27 +37,29 @@ sf::Clock clock;
 
 //================================================================================
 
-bool init( int argc, char** argv ) {
+bool init( shared_ptr< World > initWorld ) {
 
-	//window.create( sf::VideoMode::getFullscreenModes()[0], "Project Bullet", sf::Style::Fullscreen  );
+	// window.create( sf::VideoMode::getFullscreenModes()[0], "Project Bullet",
+	// sf::Style::Fullscreen  );
 	window.create( sf::VideoMode( systemInfo.width, systemInfo.height ), "Project Bullet" );
 	window.setVerticalSyncEnabled( false );
 	window.setKeyRepeatEnabled( false );
 
-	systemInfo.width = window.getSize().x;
+	systemInfo.width  = window.getSize().x;
 	systemInfo.height = window.getSize().y;
 
 	// Init ImGui
-	ImGui::SFML::Init( window, true, &Debug::incDrawCall );
+	if( !ImGui::SFML::Init( window, true, &Debug::incDrawCall ) )
+		return false;
 
 	// Init timers
 	Timers::init();
 
 	// Load World
-	world = Object::makeObject< Editor::Editor >( nullptr );
+	world = initWorld;
 
 	// Init debug handler
-	Debug::init( world.get() );
+	Debug::init( initWorld.get() );
 
 	// Init particles
 	Gfx::Particle::Manager::init();
@@ -73,7 +69,6 @@ bool init( int argc, char** argv ) {
 	Debug::addSetCommand( "system_width", systemInfo.width );
 	Debug::addSetCommand( "system_height", systemInfo.height );
 
-
 	return true;
 }
 
@@ -81,7 +76,7 @@ bool init( int argc, char** argv ) {
 
 int start() {
 	Input::start( world.get() );
-	
+
 	world->start();
 
 	while( window.isOpen() )
@@ -118,7 +113,7 @@ sf::RenderWindow* getWindow() {
 
 sf::Time getDeltaTime() {
 	return deltaTime;
-}                                                         
+}
 
 //================================================================================
 
@@ -157,7 +152,7 @@ void update() {
 				return;
 			}
 		if( e.type == sf::Event::Resized ) {
-			systemInfo.width = e.size.width;
+			systemInfo.width  = e.size.width;
 			systemInfo.height = e.size.height;
 			window.setSize( sf::Vector2u( systemInfo.width, systemInfo.height ) );
 		}
@@ -210,6 +205,6 @@ void update() {
 
 //--------------------------------------------------------------------------------
 
-} // System
+}	 // namespace System
 
 //================================================================================

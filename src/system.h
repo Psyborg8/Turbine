@@ -24,7 +24,7 @@ struct SystemInfo {
 
 //================================================================================
 
-bool init( int argc, char** argv );
+bool init( shared_ptr< World > world );
 
 int start();
 
@@ -39,4 +39,4 @@ sf::Time getDeltaTime();
 
 //================================================================================
 
-} // System
+}	 // namespace System

@@ -9,17 +9,18 @@ set( PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/src )
 
 project( turbine VERSION 0.0.1 LANGUAGES CXX )
 
-file( GLOB_RECURSE SRC src/*.cpp )
-file( GLOB_RECURSE IMGUI_SRC ${CMAKE_CURRENT_LIST_DIR}/deps/imgui/*.cpp )
-file( GLOB_RECURSE IMGUI_SFML_SRC ${CMAKE_CURRENT_LIST_DIR}/deps/imgui-sfml/*.cpp )
+file( GLOB SRC ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp )
+file( GLOB IMGUI_SRC ${CMAKE_CURRENT_LIST_DIR}/deps/imgui/*.cpp )
+file( GLOB IMGUI_SFML_SRC ${CMAKE_CURRENT_LIST_DIR}/deps/imgui-sfml/*.cpp )
 add_library( turbine ${SRC} ${IMGUI_SRC} ${IMGUI_SFML_SRC} )
 
 target_include_directories( turbine
     PUBLIC
-        ${PROJECT_SOURCE_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/src
     PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/src/editor
         ${CMAKE_CURRENT_LIST_DIR}/deps/imgui/
-        ${CMAKE_CURRENT_LIST_DIR}/deps/RapidJSON/include/
+        ${CMAKE_CURRENT_LIST_DIR}/deps/rapidjson/include/
         ${CMAKE_CURRENT_LIST_DIR}/deps/imgui-sfml/
 )
 
@@ -58,3 +59,17 @@ elseif( CMAKE_BUILD_TYPE STREQUAL "RELEASE" )
     target_compile_options( turbine PUBLIC -O2 )
 endif()
 
+# Editor
+file( GLOB_RECURSE EDITOR_SRC ${CMAKE_CURRENT_LIST_DIR}/src/editor/*.cpp )
+set( EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR}/editor )
+add_executable( turbine-editor ${EDITOR_SRC} )
+target_link_libraries( turbine-editor turbine )
+target_include_directories( turbine-editor 
+    PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/src/editor
+    PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/src
+        ${CMAKE_CURRENT_LIST_DIR}/deps/imgui/
+        ${CMAKE_CURRENT_LIST_DIR}/deps/rapidjson/include/
+        ${CMAKE_CURRENT_LIST_DIR}/deps/imgui-sfml/
+)

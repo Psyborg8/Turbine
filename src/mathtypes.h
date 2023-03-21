@@ -5,6 +5,8 @@
 //================================================================================
 
 #include "global.h"
+
+#include <cmath>
 #include <rapidjson/document.h>
 
 //================================================================================
@@ -14,12 +16,9 @@ namespace Math {
 //================================================================================
 
 struct Color {
-	Color( const sf::Color& color ) : 
-		r( float( color.r ) / 255.0f ), 
-		g( float( color.g ) / 255.0f ), 
-		b( float( color.b ) / 255.0f ), 
-		a( float( color.a ) / 255.0f ) 
-	{}
+	Color( const sf::Color& color ) :
+		r( float( color.r ) / 255.0f ), g( float( color.g ) / 255.0f ),
+		b( float( color.b ) / 255.0f ), a( float( color.a ) / 255.0f ) {}
 
 	float r;
 	float g;
@@ -27,7 +26,8 @@ struct Color {
 	float a;
 
 	Color() : r( 0.0f ), g( 0.0f ), b( 0.0f ), a( 1.0f ) {}
-	Color( float r, float g, float b, float a ) : r( r ), g( g ), b( b ), a( a ) {}
+	Color( float r, float g, float b, float a ) :
+		r( r ), g( g ), b( b ), a( a ) {}
 
 	Color& fromHSV( float h, float s, float v, float a );
 
@@ -52,7 +52,7 @@ struct Color {
 
 //================================================================================
 
-} // Math
+}	 // namespace Math
 namespace Colors {
 
 //================================================================================
@@ -67,7 +67,7 @@ static const Math::Color CYAN{ 0.0f, 1.0f, 1.0f, 1.0f };
 static const Math::Color MAGENTA{ 1.0f, 0.0f, 1.0f, 1.0f };
 static const Math::Color YELLOW{ 1.0f, 1.0f, 0.0f, 1.0f };
 
-}
+}	 // namespace Colors
 
 //================================================================================
 
@@ -79,7 +79,7 @@ struct Vec2 {
 	Vec2( sf::Vector2f v ) : x{ v.x }, y{ v.y } {}
 	Vec2( sf::Vector2i v ) : x{ float( v.x ) }, y{ float( v.y ) } {}
 	Vec2( sf::Vector2u v ) : x{ float( v.x ) }, y{ float( v.y ) } {}
-	Vec2( array< float, 2u > v ) : x{ v[ 0 ] }, y{ v[ 1 ] } {}
+	Vec2( array< float, 2u > v ) : x{ v[0] }, y{ v[1] } {}
 
 	float x;
 	float y;
@@ -119,7 +119,7 @@ struct Vec2 {
 
 	static Vec2 fromAngle( float angle, float length ) {
 		const float radians = ( angle * PI ) / 180.f;
-		const Math::Vec2 normal{ sin( radians ), -cos( radians ) };
+		const Math::Vec2 normal{ std::sin( radians ), -std::cos( radians ) };
 		const Math::Vec2 out = normal * length;
 		return out;
 	}
@@ -129,7 +129,7 @@ struct Vec2 {
 
 template< class T >
 struct ValueSet {
-	ValueSet( T def ) : min( def ), max( def ), value( def ){}
+	ValueSet( T def ) : min( def ), max( def ), value( def ) {}
 
 	T min;
 	T max;
@@ -140,8 +140,16 @@ struct ValueSet {
 	bool hsv{ false };
 	bool inverse{ false };
 
-	ValueSet< T >& operator+=( const T& rh ) { min += T; max += T; return *this; }
-	ValueSet< T >& operator-=( const T& rh ) { min -= T; max -= T; return *this; }
+	ValueSet< T >& operator+=( const T& rh ) {
+		min += rh;
+		max += rh;
+		return *this;
+	}
+	ValueSet< T >& operator-=( const T& rh ) {
+		min -= rh;
+		max -= rh;
+		return *this;
+	}
 };
 
 void processSet( Math::ValueSet< int >& set );
@@ -304,6 +312,6 @@ struct Position {
 
 //================================================================================
 
-} // Math
+}	 // namespace Math
 
 //================================================================================

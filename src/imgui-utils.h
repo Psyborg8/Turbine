@@ -20,12 +20,14 @@ bool render( Math::ValueSet< int >& value, const char* id );
 
 void openPatternSelector( function< void( string ) > callback );
 void renderPatternSelector();
+bool isPatternSelectorOpen();
 
 void openRenamePopup( function< void( string ) > callback, string current );
 void renderRenamePopup();
+bool isRenamePopupOpen();
 
 //--------------------------------------------------------------------------------
 
-}
+}	 // namespace ImGui
 
 //================================================================================

@@ -13,9 +13,11 @@ namespace Timers {
 //--------------------------------------------------------------------------------------------------
 
 struct Timer : public TimerID {
-	std::chrono::time_point< std::chrono::steady_clock > startTime;
+	std::chrono::time_point< std::chrono::system_clock > startTime;
 	std::chrono::milliseconds duration;
-	std::chrono::microseconds expirationTime; // ms turned out to not be accurate enough in some cases.
+	std::chrono::microseconds expirationTime;	 // ms turned out to not be
+												 // accurate enough in some
+												 // cases.
 
 	bool loop;
 
@@ -26,14 +28,16 @@ struct Timer : public TimerID {
 //==================================================================================================
 
 std::vector< Timer > timers;
-std::stack< int > freeIDs; // Recycle old IDs so nextID doesn't keep growing.
+std::stack< int > freeIDs;	  // Recycle old IDs so nextID doesn't keep growing.
 int nextID{ 0 };
-std::vector< TimerID > markedForRemoval; // Handle removal timing so timers can be safely deleted by eachothers.
+std::vector< TimerID > markedForRemoval;	// Handle removal timing so timers
+											// can be safely deleted by eachothers.
 
-bool threadLock{ false }; // Prevent unsafe functions being used during iteration.
+bool threadLock{ false };	 // Prevent unsafe functions being used during
+							 // iteration.
 
 // Used to determine a correct deltaTime that is also useable during debugging.
-std::chrono::time_point< std::chrono::steady_clock > previousUpdateTime;
+std::chrono::time_point< std::chrono::system_clock > previousUpdateTime;
 
 //==================================================================================================
 
@@ -41,41 +45,48 @@ void update( sf::Time deltaTime ) {
 	// Lock unsafe functions.
 	threadLock = true;
 
-	const std::chrono::time_point< std::chrono::steady_clock > time = std::chrono::high_resolution_clock::now();
+	const std::chrono::time_point time = std::chrono::high_resolution_clock::now();
 
 	//  This is useful for debugging, as time will 'stop' during a breakpoint.
 	std::chrono::microseconds dt = microseconds( deltaTime.asMicroseconds() );
 
 	previousUpdateTime = time;
 
-	size_t timersSize = timers.size(); // Get the size now, we don't want to process timers created during the loop.
+	size_t timersSize = timers.size();	  // Get the size now, we don't want to
+										  // process timers created during the loop.
 	for( size_t idx = 0u; idx < timersSize; ++idx ) {
-		Timer& timer = timers[ idx ];
+		Timer& timer = timers[idx];
 
 		const auto it = find( markedForRemoval.begin(), markedForRemoval.end(), timer );
 		if( it != markedForRemoval.end() )
-			continue; // This timer isn't supposed to exist, ignore it.
+			continue;	 // This timer isn't supposed to exist, ignore it.
 
 		timer.expirationTime -= dt;
 
 		if( timer.expirationTime <= std::chrono::nanoseconds( 0 ) ) {
 			if( timer.loop ) {
-				timer.expirationTime = std::chrono::duration_cast< std::chrono::microseconds >( timer.duration );
+				timer.expirationTime
+					= std::chrono::duration_cast< std::chrono::microseconds >(
+						timer.duration );
 				timer.startTime = time;
 			}
 			else
 				removeTimer( TimerID( timer ) );
 
 			if( timer.onUpdate != nullptr )
-				timer.onUpdate( 1.0f ); // onUpdate won't ever reach 1.0f otherwise
+				timer.onUpdate( 1.0f );	   // onUpdate won't ever reach 1.0f
+										   // otherwise
 			if( timer.onFinish != nullptr )
 				timer.onFinish();
 		}
 		else {
 			if( timer.onUpdate != nullptr ) {
-				const float timeLeft = static_cast< float >( timer.expirationTime.count() );
-				const float totalTime
-					= static_cast< float >( std::chrono::duration_cast< std::chrono::microseconds >( timer.duration ).count() );
+				const float timeLeft
+					= static_cast< float >( timer.expirationTime.count() );
+				const float totalTime = static_cast< float >(
+					std::chrono::duration_cast< std::chrono::microseconds >(
+						timer.duration )
+						.count() );
 				const float alpha = 1.0f - timeLeft / totalTime;
 
 				timer.onUpdate( alpha );
@@ -83,12 +94,12 @@ void update( sf::Time deltaTime ) {
 		}
 	}
 
-	// Delete all timers that were marked for removal. Including those manually deleted before this loop.
+	// Delete all timers that were marked for removal. Including those manually
+	// deleted before this loop.
 	for( TimerID ID : markedForRemoval ) {
-		const auto it = find_if( timers.begin(), timers.end(),
-									[ID]( Timer timer ) {
-										return TimerID( timer ) == ID;
-									} );
+		const auto it = find_if( timers.begin(), timers.end(), [ID]( Timer timer ) {
+			return TimerID( timer ) == ID;
+		} );
 		if( it != timers.end() )
 			timers.erase( it );
 	}
@@ -101,20 +112,19 @@ void update( sf::Time deltaTime ) {
 
 //--------------------------------------------------------------------------------------------------
 
-void init()
-{
+void init() {
 	timers = std::vector< Timer >();
 	timers.reserve( 32u );
 
 	freeIDs = std::stack< int >();
-	nextID  = 0;
+	nextID	= 0;
 
 	markedForRemoval = std::vector< TimerID >();
 	markedForRemoval.reserve( 32u );
 
 	threadLock = false;
 
-	previousUpdateTime = std::chrono::time_point< std::chrono::steady_clock >();
+	previousUpdateTime = std::chrono::time_point< std::chrono::system_clock >();
 
 	clearTimers();
 }
@@ -130,11 +140,10 @@ TimerID addTimer( int msDuration, UpdateCallback onUpdate, FinishCallback onFini
 //--------------------------------------------------------------------------------------------------
 
 TimerID addTimer( std::chrono::milliseconds duration,
-			   UpdateCallback onUpdate,
-			   FinishCallback onFinish,
-			   bool loop )
-{
-	const std::chrono::time_point< std::chrono::steady_clock > time = std::chrono::high_resolution_clock::now();
+				  UpdateCallback onUpdate,
+				  FinishCallback onFinish,
+				  bool loop ) {
+	const std::chrono::time_point time = std::chrono::high_resolution_clock::now();
 
 	Timer timer;
 
@@ -149,14 +158,15 @@ TimerID addTimer( std::chrono::milliseconds duration,
 		freeIDs.pop();
 	}
 
-	timer.ID		  = ID;
+	timer.ID		= ID;
 	timer.timeStamp = std::chrono::high_resolution_clock::now();
-	timer.duration		 = duration;
-	timer.expirationTime = std::chrono::duration_cast< std::chrono::microseconds >( duration );
-	timer.startTime		 = time;
-	timer.loop			 = loop;
-	timer.onUpdate		 = onUpdate;
-	timer.onFinish		 = onFinish;
+	timer.duration	= duration;
+	timer.expirationTime
+		= std::chrono::duration_cast< std::chrono::microseconds >( duration );
+	timer.startTime = time;
+	timer.loop		= loop;
+	timer.onUpdate	= onUpdate;
+	timer.onFinish	= onFinish;
 
 	timers.push_back( timer );
 
@@ -177,12 +187,13 @@ void removeTimer( TimerID ID ) {
 
 //--------------------------------------------------------------------------------------------------
 
-void triggerTimer( TimerID ID )
-{
+void triggerTimer( TimerID ID ) {
 	if( !ID )
 		return;
 
-	const auto it = std::find_if( timers.begin(), timers.end(), [ID]( const Timer& timer ) { return TimerID( timer ) == ID; } );
+	const auto it = std::find_if( timers.begin(), timers.end(), [ID]( const Timer& timer ) {
+		return TimerID( timer ) == ID;
+	} );
 	if( it != timers.end() ) {
 		if( it->onUpdate != nullptr )
 			it->onUpdate( 1.0f );
@@ -191,8 +202,10 @@ void triggerTimer( TimerID ID )
 			it->onFinish();
 
 		if( it->loop ) {
-			const std::chrono::time_point< std::chrono::steady_clock > time = std::chrono::high_resolution_clock::now();
-			it->expirationTime = std::chrono::duration_cast< std::chrono::microseconds >( it->duration );
+			const std::chrono::time_point time
+				= std::chrono::high_resolution_clock::now();
+			it->expirationTime
+				= std::chrono::duration_cast< std::chrono::microseconds >( it->duration );
 			it->startTime = time;
 		}
 		else
@@ -207,10 +220,9 @@ bool timerStillActive( TimerID ID ) {
 	if( !ID )
 		return false;
 
-	const auto it = find_if( timers.begin(), timers.end(), 
-							 [ID]( Timer timer ) { 
-								 return TimerID( timer ) == ID; 
-							 } );
+	const auto it = find_if( timers.begin(), timers.end(), [ID]( Timer timer ) {
+		return TimerID( timer ) == ID;
+	} );
 	return it != timers.end();
 }
 
@@ -222,11 +234,11 @@ void clearTimers() {
 
 	timers.clear();
 	freeIDs = std::stack< int >();
-	nextID  = 0;
+	nextID	= 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-} // namespace Timers
+}	 // namespace Timers
 
 //==================================================================================================

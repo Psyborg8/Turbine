@@ -4,12 +4,11 @@
 
 //================================================================================
 
-#include <rapidjson/document.h>
-
-#include "global.h"
-
-#include "mathtypes.h"
 #include "debug.h"
+#include "global.h"
+#include "mathtypes.h"
+
+#include <rapidjson/document.h>
 
 //================================================================================
 
@@ -41,10 +40,10 @@ class AffectorCreator {
 public:
 	AffectorCreator() = default;
 
-	virtual bool render() = 0;
+	virtual bool render()				 = 0;
 	virtual shared_ptr< Affector > get() = 0;
 
-	virtual rapidjson::Value getValue() = 0;
+	virtual rapidjson::Value getValue()					   = 0;
 	virtual void setValue( const rapidjson::Value& value ) = 0;
 
 	virtual string getName() const = 0;
@@ -87,6 +86,7 @@ public:
 	void setValue( const rapidjson::Value& value ) override;
 
 	string getName() const override { return "Rotate To Velocity"; }
+
 private:
 	Math::ValueSet< float > m_offset{ 0.f };
 };
@@ -112,8 +112,9 @@ public:
 
 class SinPositionAffector : public Affector {
 public:
-	SinPositionAffector( milliseconds period, Math::Vec2 target, float offset, float exponent )
-		: m_period( period ), m_target( target ), m_offset( offset ), m_exponent( exponent ) {}
+	SinPositionAffector( milliseconds period, Math::Vec2 target, float offset, float exponent ) :
+		m_period( period ), m_target( target ), m_offset( offset ),
+		m_exponent( exponent ) {}
 
 	void affect( Particle* target, sf::Time delta ) override;
 
@@ -136,6 +137,7 @@ public:
 	void setValue( const rapidjson::Value& value ) override;
 
 	string getName() const override { return "Sine Position"; }
+
 private:
 	Math::ValueSet< int > m_period{ 1000 };
 	Math::Position m_target{};
@@ -160,8 +162,9 @@ public:
 
 class SinVelocityAffector : public Affector {
 public:
-	SinVelocityAffector( milliseconds period, float min, float max, float offset, float exponent )
-		: m_period( period ), m_min( min ), m_max( max ), m_offset( offset ), m_exponent( exponent ) {}
+	SinVelocityAffector( milliseconds period, float min, float max, float offset, float exponent ) :
+		m_period( period ), m_min( min ), m_max( max ), m_offset( offset ),
+		m_exponent( exponent ) {}
 
 	void affect( Particle* target, sf::Time delta ) override;
 
@@ -185,6 +188,7 @@ public:
 	void setValue( const rapidjson::Value& value ) override;
 
 	string getName() const override { return "Sine Velocity"; }
+
 private:
 	Math::ValueSet< int > m_period{ 1000 };
 	Math::ValueSet< float > m_min{ 0.f };
@@ -210,8 +214,9 @@ public:
 
 class SinAlphaAffector : public Affector {
 public:
-	SinAlphaAffector( milliseconds period, float target, float offset, float exponent )
-		: m_period( period ), m_target( target ), m_offset( offset ), m_exponent( exponent ) {}
+	SinAlphaAffector( milliseconds period, float target, float offset, float exponent ) :
+		m_period( period ), m_target( target ), m_offset( offset ),
+		m_exponent( exponent ) {}
 
 	void affect( Particle* target, sf::Time delta ) override;
 
@@ -234,6 +239,7 @@ public:
 	void setValue( const rapidjson::Value& value ) override;
 
 	string getName() const override { return "Sine Alpha"; }
+
 private:
 	Math::ValueSet< int > m_period{ 1000 };
 	Math::ValueSet< float > m_target{ 0.f };
@@ -258,8 +264,9 @@ public:
 
 class SinColorAffector : public Affector {
 public:
-	SinColorAffector( milliseconds period, Math::Color target, float offset, float exponent )
-		: m_period( period ), m_target( target ), m_offset( offset ), m_exponent( exponent ) {}
+	SinColorAffector( milliseconds period, Math::Color target, float offset, float exponent ) :
+		m_period( period ), m_target( target ), m_offset( offset ),
+		m_exponent( exponent ) {}
 
 	void affect( Particle* target, sf::Time delta ) override;
 
@@ -282,6 +289,7 @@ public:
 	void setValue( const rapidjson::Value& value ) override;
 
 	string getName() const override { return "Sine Color"; }
+
 private:
 	Math::ValueSet< int > m_period{ 1000 };
 	Math::ValueSet< Math::Color > m_target{ Math::Color() };
@@ -306,8 +314,9 @@ public:
 
 class SinSpinAffector : public Affector {
 public:
-	SinSpinAffector( milliseconds period, float min, float max, float offset, float exponent )
-		: m_period( period ), m_min( min ), m_max( max ), m_offset( offset ), m_exponent( exponent ) {}
+	SinSpinAffector( milliseconds period, float min, float max, float offset, float exponent ) :
+		m_period( period ), m_min( min ), m_max( max ), m_offset( offset ),
+		m_exponent( exponent ) {}
 
 	void affect( Particle* target, sf::Time delta ) override;
 
@@ -331,8 +340,9 @@ public:
 	void setValue( const rapidjson::Value& value ) override;
 
 	string getName() const override { return "Sine Spin"; }
+
 private:
-	Math::ValueSet< int > m_period{ 100.f };
+	Math::ValueSet< int > m_period{ 100 };
 	Math::ValueSet< float > m_min{ 1.f };
 	Math::ValueSet< float > m_max{ 0.f };
 	Math::ValueSet< float > m_offset{ 0.f };
@@ -360,7 +370,8 @@ public:
 
 class FadeVelocityAffector : public Affector {
 public:
-	FadeVelocityAffector( float start, float end, float exponent ) : m_start( start ), m_end( end ), m_exponent( exponent ) {}
+	FadeVelocityAffector( float start, float end, float exponent ) :
+		m_start( start ), m_end( end ), m_exponent( exponent ) {}
 
 	void affect( Particle* target, sf::Time delta ) override;
 
@@ -382,6 +393,7 @@ public:
 	void setValue( const rapidjson::Value& value ) override;
 
 	string getName() const override { return "Fade Velocity"; }
+
 private:
 	Math::ValueSet< float > m_start{ 1.f };
 	Math::ValueSet< float > m_end{ 0.f };
@@ -405,7 +417,8 @@ public:
 
 class FadeScaleAffector : public Affector {
 public:
-	FadeScaleAffector( float start, float end, float exponent ) : m_start( start ), m_end( end ), m_exponent( exponent ) {}
+	FadeScaleAffector( float start, float end, float exponent ) :
+		m_start( start ), m_end( end ), m_exponent( exponent ) {}
 
 	void affect( Particle* target, sf::Time delta ) override;
 
@@ -427,6 +440,7 @@ public:
 	void setValue( const rapidjson::Value& value ) override;
 
 	string getName() const override { return "Fade Scale"; }
+
 private:
 	Math::ValueSet< float > m_start{ 1.f };
 	Math::ValueSet< float > m_end{ 0.f };
@@ -450,7 +464,8 @@ public:
 
 class FadeAlphaAffector : public Affector {
 public:
-	FadeAlphaAffector( float target, float exponent ) : m_target( target ), m_exponent( exponent ) {}
+	FadeAlphaAffector( float target, float exponent ) :
+		m_target( target ), m_exponent( exponent ) {}
 	void affect( Particle* target, sf::Time delta ) override;
 
 private:
@@ -470,6 +485,7 @@ public:
 	void setValue( const rapidjson::Value& value ) override;
 
 	string getName() const override { return "Fade Alpha"; }
+
 private:
 	Math::ValueSet< float > m_target{ 0.f };
 	Math::ValueSet< float > m_exponent{ 1.f };
@@ -492,7 +508,8 @@ public:
 
 class FadeColorAffector : public Affector {
 public:
-	FadeColorAffector( Math::Color target, float exponent ) : m_target( target ), m_exponent( exponent ) {}
+	FadeColorAffector( Math::Color target, float exponent ) :
+		m_target( target ), m_exponent( exponent ) {}
 
 	void affect( Particle* target, sf::Time delta ) override;
 
@@ -513,6 +530,7 @@ public:
 	void setValue( const rapidjson::Value& value ) override;
 
 	string getName() const override { return "Fade Color"; }
+
 private:
 	Math::ValueSet< Math::Color > m_target{ Math::Color() };
 	Math::ValueSet< float > m_exponent{ 1.f };
@@ -539,7 +557,8 @@ public:
 
 class OnDeathEmitterAffector : public Affector {
 public:
-	OnDeathEmitterAffector( EmitterType type, vector< ParticlePattern* > patterns ) : Affector(), m_patterns( patterns ), m_type( type ) {}
+	OnDeathEmitterAffector( EmitterType type, vector< ParticlePattern* > patterns ) :
+		Affector(), m_patterns( patterns ), m_type( type ) {}
 
 	void affect( Particle* target, sf::Time delta );
 
@@ -552,18 +571,24 @@ private:
 
 class EmitterAffector : public Affector {
 public:
-	EmitterAffector( EmitterType type, milliseconds delay, milliseconds duration, Math::ValueSet< float > spawnRate, vector< ParticlePattern* > patterns ) 
-		: Affector(), m_type( type ), m_duration( duration ), m_elapsed( 0ms ), m_next( delay ), m_spawnRate( spawnRate ), m_patterns( patterns ) {}
+	EmitterAffector( EmitterType type,
+					 milliseconds delay,
+					 milliseconds duration,
+					 Math::ValueSet< float > spawnRate,
+					 vector< ParticlePattern* > patterns ) :
+		Affector(),
+		m_type( type ), m_duration( duration ), m_elapsed( 0ms ),
+		m_next( delay ), m_spawnRate( spawnRate ), m_patterns( patterns ) {}
 
 	void affect( Particle* target, sf::Time delta );
 
 private:
+	EmitterType m_type;
 	microseconds m_duration;
 	microseconds m_elapsed;
 	microseconds m_next;
 	Math::ValueSet< float > m_spawnRate;
 	vector< ParticlePattern* > m_patterns;
-	EmitterType m_type;
 
 	bool m_finished{ false };
 	size_t m_index{ 0 };
@@ -661,7 +686,8 @@ private:
 
 class InheritVelocityAffector : public Affector {
 public:
-	InheritVelocityAffector( InheritanceType type, bool scale, bool rotate ) : m_type( type ), m_scale( scale ), m_rotate( rotate ) {}
+	InheritVelocityAffector( InheritanceType type, bool scale, bool rotate ) :
+		m_type( type ), m_scale( scale ), m_rotate( rotate ) {}
 
 	void affect( Particle* target, sf::Time delta );
 
@@ -685,7 +711,7 @@ private:
 
 //--------------------------------------------------------------------------------
 
-}
-}
+}	 // namespace Affector
+}	 // namespace Gfx::Particle
 
 //================================================================================

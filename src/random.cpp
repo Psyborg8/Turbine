@@ -34,7 +34,7 @@ int getInt( int min, int max, function< int( int ) > func ) {
 		return func( min );
 
 	int out = getInt( min, max );
-	out = func( out );
+	out		= func( out );
 
 	return out;
 }
@@ -82,7 +82,7 @@ float getFloat( float min, float max, function< float( float ) > func ) {
 		return func( min );
 
 	float out = getFloat( min, max );
-	out = func( out );
+	out		  = func( out );
 
 	return out;
 }
@@ -90,7 +90,7 @@ float getFloat( float min, float max, function< float( float ) > func ) {
 //--------------------------------------------------------------------------------
 
 RandomNumbers< float > getFloat( float min, float max, size_t count ) {
-	RandomNumbers < float > out;
+	RandomNumbers< float > out;
 
 	for( size_t i = 0u; i < count; ++i )
 		out.push( getFloat( min, max ) );
@@ -100,7 +100,8 @@ RandomNumbers< float > getFloat( float min, float max, size_t count ) {
 
 //--------------------------------------------------------------------------------
 
-RandomNumbers< float > getFloat( float min, float max, size_t count, function< float( float ) > func ) {
+RandomNumbers< float >
+	getFloat( float min, float max, size_t count, function< float( float ) > func ) {
 	RandomNumbers< float > out;
 
 	for( size_t i = 0u; i < count; ++i )
@@ -138,19 +139,19 @@ Math::Color getColor( Math::Color a, Math::Color b, RandomColorType type ) {
 
 	if( type == RandomColorType::MixRGB ) {
 		const float alpha = getFloat( 0.0f, 1.0f );
-		out.r = a.r + ( b.r - a.r ) * alpha;
-		out.g = a.g + ( b.g - a.g ) * alpha;
-		out.b = a.b + ( b.b - a.b ) * alpha;
-		out.a = a.a + ( b.a - a.a ) * alpha;
+		out.r			  = a.r + ( b.r - a.r ) * alpha;
+		out.g			  = a.g + ( b.g - a.g ) * alpha;
+		out.b			  = a.b + ( b.b - a.b ) * alpha;
+		out.a			  = a.a + ( b.a - a.a ) * alpha;
 		return out;
 	}
 
 	if( type == RandomColorType::ShuffleHSV ) {
 		float hA = a.hue();
 		float hB = b.hue();
-		if( isnan( hA ) )
+		if( std::isnan( hA ) )
 			hA = hB;
-		if( isnan( hB ) )
+		if( std::isnan( hB ) )
 			hB = hA;
 
 		const float sA = a.saturation();
@@ -160,7 +161,7 @@ Math::Color getColor( Math::Color a, Math::Color b, RandomColorType type ) {
 		const float bB = b.brightness();
 
 		float hO = getFloat( hA, hB );
-		if( isnan( hO ) )
+		if( std::isnan( hO ) )
 			hO = 0.0f;
 
 		const float sO = getFloat( sA, sB );
@@ -175,9 +176,9 @@ Math::Color getColor( Math::Color a, Math::Color b, RandomColorType type ) {
 		float hA = a.hue();
 		float hB = b.hue();
 
-		if( isnan( hA ) )
+		if( std::isnan( hA ) )
 			hA = hB;
-		if( isnan( hB ) )
+		if( std::isnan( hB ) )
 			hB = hA;
 
 		const float sA = a.saturation();
@@ -189,7 +190,7 @@ Math::Color getColor( Math::Color a, Math::Color b, RandomColorType type ) {
 		const float alpha = getFloat( 0.0f, 1.0f );
 
 		float hO = hA + ( hB - hA ) * alpha;
-		if( isnan( hO ) )
+		if( std::isnan( hO ) )
 			hO = 0.0f;
 		const float sO = sA + ( sB - sA ) * alpha;
 		const float bO = bA + ( bB - bA ) * alpha;
@@ -204,7 +205,8 @@ Math::Color getColor( Math::Color a, Math::Color b, RandomColorType type ) {
 
 //--------------------------------------------------------------------------------
 
-RandomNumbers< Math::Color > getColor( Math::Color a, Math::Color b, RandomColorType type, size_t count ) {
+RandomNumbers< Math::Color >
+	getColor( Math::Color a, Math::Color b, RandomColorType type, size_t count ) {
 	return RandomNumbers< Math::Color >();
 }
 
@@ -230,6 +232,6 @@ void setSeed( uint16_t number ) {
 
 //--------------------------------------------------------------------------------
 
-} // Random
+}	 // namespace Random
 
 //================================================================================

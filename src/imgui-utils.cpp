@@ -4,10 +4,10 @@
 
 //--------------------------------------------------------------------------------
 
-#include <filesystem>
-
-#include "system.h"
 #include "string-utils.h"
+#include "system.h"
+
+#include <filesystem>
 
 //================================================================================
 
@@ -20,8 +20,8 @@ bool render( Math::ValueSet< Math::Vec2 >& value, const char* id ) {
 
 	ImGui::PushID( id );
 
-	if( id[ 0 ] != '#' ) {
-		ImGui::Text( id );
+	if( id[0] != '#' ) {
+		ImGui::Text( "%s", id );
 		ImGui::Spacing();
 	}
 
@@ -34,11 +34,11 @@ bool render( Math::ValueSet< Math::Vec2 >& value, const char* id ) {
 	out |= Checkbox( "Inverse", &value.inverse );
 
 	if( value.random ) {
-		out |= ImGui::InputFloat2( "Min", &value.min.x, 3 );
-		out |= ImGui::InputFloat2( "Max", &value.max.x, 3 );
+		out |= ImGui::InputFloat2( "Min", &value.min.x, "%.3f" );
+		out |= ImGui::InputFloat2( "Max", &value.max.x, "%.3f" );
 	}
 	else
-		out |= ImGui::InputFloat2( "Value", &value.min.x, 3 );
+		out |= ImGui::InputFloat2( "Value", &value.min.x, "%.3f" );
 
 	ImGui::PopID();
 
@@ -52,8 +52,8 @@ bool render( Math::ValueSet< Math::Color >& value, const char* id ) {
 
 	ImGui::PushID( id );
 
-	if( id[ 0 ] != '#' ) {
-		ImGui::Text( id );
+	if( id[0] != '#' ) {
+		ImGui::Text( "%s", id );
 		ImGui::Spacing();
 	}
 
@@ -84,8 +84,8 @@ bool render( Math::ValueSet< float >& value, const char* id ) {
 
 	ImGui::PushID( id );
 
-	if( id[ 0 ] != '#' ) {
-		ImGui::Text( id );
+	if( id[0] != '#' ) {
+		ImGui::Text( "%s", id );
 		ImGui::Spacing();
 	}
 
@@ -112,8 +112,8 @@ bool render( Math::ValueSet< int >& value, const char* id ) {
 
 	ImGui::PushID( id );
 
-	if( id[ 0 ] != '#' ) {
-		ImGui::Text( id );
+	if( id[0] != '#' ) {
+		ImGui::Text( "%s", id );
 		ImGui::Spacing();
 	}
 
@@ -145,7 +145,7 @@ void openPatternSelector( function< void( string ) > callback ) {
 		return;
 
 	patternSelectorCallback = callback;
-	patternSelectorOpen = true;
+	patternSelectorOpen		= true;
 }
 
 //--------------------------------------------------------------------------------
@@ -155,14 +155,17 @@ void renderPatternSelector() {
 		return;
 
 	ImGui::OpenPopup( "Pattern Selector" );
-	ImGui::BeginPopupModal( "Pattern Selector", &patternSelectorOpen, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove );
+	ImGui::BeginPopupModal( "Pattern Selector",
+							&patternSelectorOpen,
+							ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove );
 
 	ImGui::SetWindowSize( ImVec2( 600, 600 ) );
-	ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width / 2.f - ImGui::GetWindowWidth() / 2.f,
-								 System::getSystemInfo().height / 2.f - ImGui::GetWindowHeight() / 2.f ) );
+	ImGui::SetWindowPos( ImVec2(
+		System::getSystemInfo().width / 2.f - ImGui::GetWindowWidth() / 2.f,
+		System::getSystemInfo().height / 2.f - ImGui::GetWindowHeight() / 2.f ) );
 
 	using namespace std::filesystem;
-	
+
 	function< bool( path directory ) > iterate;
 	iterate = [&iterate]( path directory ) {
 		bool out = false;
@@ -173,8 +176,8 @@ void renderPatternSelector() {
 				continue;
 
 			string name = element.path().filename().string();
-			string dir = directory.string();
-			string id = Utils::format( "%s##%s", name.c_str(), dir.c_str() );
+			string dir	= directory.string();
+			string id	= Utils::format( "%s##%s", name.c_str(), dir.c_str() );
 			if( ImGui::TreeNodeEx( id.c_str(), ImGuiTreeNodeFlags_Framed ) ) {
 				out |= iterate( element.path() );
 				ImGui::TreePop();
@@ -187,7 +190,11 @@ void renderPatternSelector() {
 			if( !element.is_regular_file() || !( element.path().extension() == ".bullet" ) )
 				continue;
 
-			if( ImGui::Selectable( Utils::format( "%s##%s", element.path().filename().string().c_str(), directory.string().c_str() ).c_str() ) ) {
+			if( ImGui::Selectable(
+					Utils::format( "%s##%s",
+								   element.path().filename().string().c_str(),
+								   directory.string().c_str() )
+						.c_str() ) ) {
 				string str = element.path().string();
 				std::replace( str.begin(), str.end(), '\\', '/' );
 				patternSelectorCallback( str );
@@ -206,6 +213,12 @@ void renderPatternSelector() {
 	patternSelectorOpen &= !done;
 }
 
+// -------------------------------------------------------------------------------
+
+bool isPatternSelectorOpen() {
+	return patternSelectorOpen;
+}
+
 //--------------------------------------------------------------------------------
 
 bool renameWindowOpen{ false };
@@ -220,7 +233,7 @@ void openRenamePopup( function< void( string ) > callback, string current ) {
 
 	renameWindowBuffer = current;
 	renameWindowBuffer.resize( 256u );
-	renameWindowOpen = true;
+	renameWindowOpen	 = true;
 	renameWindowCallback = callback;
 }
 
@@ -231,10 +244,14 @@ void renderRenamePopup() {
 		return;
 
 	ImGui::OpenPopup( "Rename" );
-	ImGui::BeginPopupModal( "Rename", &renameWindowOpen, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar );
+	ImGui::BeginPopupModal( "Rename",
+							&renameWindowOpen,
+							ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+								| ImGuiWindowFlags_NoScrollbar );
 	ImGui::SetWindowSize( ImVec2( 200, 80 ) );
-	ImGui::SetWindowPos( ImVec2( System::getSystemInfo().width / 2.f - ImGui::GetWindowWidth() / 2.f,
-								 System::getSystemInfo().height / 2.f - ImGui::GetWindowHeight() / 2.f ) );
+	ImGui::SetWindowPos( ImVec2(
+		System::getSystemInfo().width / 2.f - ImGui::GetWindowWidth() / 2.f,
+		System::getSystemInfo().height / 2.f - ImGui::GetWindowHeight() / 2.f ) );
 
 	bool done = false;
 
@@ -242,9 +259,11 @@ void renderRenamePopup() {
 		ImGui::SetKeyboardFocusHere();
 
 	ImGui::PushItemWidth( 183 );
-	if( ImGui::InputText( "##RenameText", renameWindowBuffer.data(), 256u,
+	if( ImGui::InputText( "##RenameText",
+						  renameWindowBuffer.data(),
+						  256u,
 						  ImGuiInputTextFlags_EnterReturnsTrue
-						  | ImGuiInputTextFlags_AutoSelectAll ) ) {
+							  | ImGuiInputTextFlags_AutoSelectAll ) ) {
 
 		renameWindowCallback( renameWindowBuffer );
 		done = true;
@@ -262,8 +281,14 @@ void renderRenamePopup() {
 	renameWindowOpen &= !done;
 }
 
+// -------------------------------------------------------------------------------
+
+bool isRenamePopupOpen() {
+	return renameWindowOpen;
+}
+
 //--------------------------------------------------------------------------------
 
-}
+}	 // namespace ImGui
 
 //================================================================================

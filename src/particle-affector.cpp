@@ -1,21 +1,21 @@
 //================================================================================
 
-#include "particle-affector.h"
+#include <cmath>
+
+// -------------------------------------------------------------------------------
 
 #include "debug.h"
-#include "mathtypes.h"
-
-#include "json.h"
-#include "string-utils.h"
-#include "imgui-utils.h"
-
-#include "particle.h"
-#include "particle-emitter.h"
-#include "particle-system.h"
-#include "particle-loader.h"
-
-#include "system.h"
 #include "editor.h"
+#include "imgui-utils.h"
+#include "json.h"
+#include "mathtypes.h"
+#include "particle-affector.h"
+#include "particle-emitter.h"
+#include "particle-loader.h"
+#include "particle-system.h"
+#include "particle.h"
+#include "string-utils.h"
+#include "system.h"
 
 //================================================================================
 
@@ -87,7 +87,7 @@ void RotateToVelocityAffectorCreator::setValue( const rapidjson::Value& value ) 
 		return;
 
 	if( value.HasMember( "offset" ) )
-		json::getValue( value[ "offset" ], m_offset );
+		json::getValue( value["offset"], m_offset );
 }
 
 //================================================================================
@@ -97,9 +97,10 @@ void RotateToVelocityAffectorCreator::setValue( const rapidjson::Value& value ) 
 //================================================================================
 
 void SinPositionAffector::affect( Particle* target, sf::Time delta ) {
-	const float alpha = ( float )target->frame.duration.count() / ( float )m_period.count() + m_offset;
-	const float sin = ( cosf( ( alpha + 1.f ) * PI ) + 1.f ) / 2.f;
-	const float amp = std::powf( sin, m_exponent );
+	const float alpha
+		= ( float ) target->frame.duration.count() / ( float ) m_period.count() + m_offset;
+	const float sin		   = ( cosf( ( alpha + 1.f ) * PI ) + 1.f ) / 2.f;
+	const float amp		   = powf( sin, m_exponent );
 	const sf::Vector2f pos = Math::mix( sf::Vector2f(), m_target.sf(), amp );
 
 	target->frame.transform.move( pos );
@@ -130,7 +131,10 @@ shared_ptr< Affector > SinPositionAffectorCreator::get() {
 	Math::processSet( m_offset );
 	Math::processSet( m_exponent );
 
-	return make_unique< SinPositionAffector >( milliseconds( m_period.value ), m_target.process( 1, 1 ), m_offset.value, m_exponent.value );
+	return make_unique< SinPositionAffector >( milliseconds( m_period.value ),
+											   m_target.process( 1, 1 ),
+											   m_offset.value,
+											   m_exponent.value );
 }
 
 //--------------------------------------------------------------------------------
@@ -154,23 +158,24 @@ void SinPositionAffectorCreator::setValue( const rapidjson::Value& value ) {
 		return;
 
 	if( value.HasMember( "period" ) )
-		json::getValue( value[ "period" ], m_period );
+		json::getValue( value["period"], m_period );
 	if( value.HasMember( "offset" ) )
-		json::getValue( value[ "offset" ], m_offset );
+		json::getValue( value["offset"], m_offset );
 	if( value.HasMember( "exponent" ) )
-		json::getValue( value[ "exponent" ], m_exponent );
+		json::getValue( value["exponent"], m_exponent );
 	if( value.HasMember( "target" ) )
-		m_target.setValue( value[ "target" ] );
+		m_target.setValue( value["target"] );
 }
 
 //================================================================================
 
 void SinVelocityAffector::affect( Particle* target, sf::Time delta ) {
-	const float alpha = ( float )target->frame.duration.count() / ( float )m_period.count() + m_offset;
+	const float alpha
+		= ( float ) target->frame.duration.count() / ( float ) m_period.count() + m_offset;
 	const float sin = ( cosf( ( alpha + 1.f ) * PI ) + 1.f ) / 2.f;
-	const float amp = Math::mix( m_min, m_max, std::powf( sin, m_exponent ) );
+	const float amp = Math::mix( m_min, m_max, powf( sin, m_exponent ) );
 
-	Math::Vec2 vel = target->frame.velocity * amp;
+	Math::Vec2 vel		   = target->frame.velocity * amp;
 	target->frame.velocity = vel;
 }
 
@@ -202,7 +207,11 @@ shared_ptr< Affector > SinVelocityAffectorCreator::get() {
 	Math::processSet( m_offset );
 	Math::processSet( m_exponent );
 
-	return make_unique< SinVelocityAffector >( milliseconds( m_period.value ), m_min.value, m_max.value, m_offset.value, m_exponent.value );
+	return make_unique< SinVelocityAffector >( milliseconds( m_period.value ),
+											   m_min.value,
+											   m_max.value,
+											   m_offset.value,
+											   m_exponent.value );
 }
 
 //--------------------------------------------------------------------------------
@@ -227,15 +236,15 @@ void SinVelocityAffectorCreator::setValue( const rapidjson::Value& value ) {
 		return;
 
 	if( value.HasMember( "period" ) )
-		json::getValue( value[ "period" ], m_period );
+		json::getValue( value["period"], m_period );
 	if( value.HasMember( "offset" ) )
-		json::getValue( value[ "offset" ], m_offset );
+		json::getValue( value["offset"], m_offset );
 	if( value.HasMember( "exponent" ) )
-		json::getValue( value[ "exponent" ], m_exponent );
+		json::getValue( value["exponent"], m_exponent );
 	if( value.HasMember( "min" ) )
-		json::getValue( value[ "min" ], m_min );
+		json::getValue( value["min"], m_min );
 	if( value.HasMember( "max" ) )
-		json::getValue( value[ "max" ], m_max );
+		json::getValue( value["max"], m_max );
 }
 
 //================================================================================
@@ -244,9 +253,10 @@ void SinAlphaAffector::affect( Particle* target, sf::Time delta ) {
 	if( m_period == 0ms )
 		return;
 
-	const float alpha = ( float )target->frame.duration.count() / ( float )m_period.count() + m_offset;
+	const float alpha
+		= ( float ) target->frame.duration.count() / ( float ) m_period.count() + m_offset;
 	const float sin = ( cosf( ( alpha + 1.f ) * PI ) + 1.f ) / 2.f;
-	const float a = Math::mix( target->frame.color.a, m_target, std::powf( sin, m_exponent ) );
+	const float a = Math::mix( target->frame.color.a, m_target, powf( sin, m_exponent ) );
 
 	target->frame.color.a = a;
 }
@@ -277,7 +287,10 @@ shared_ptr< Affector > SinAlphaAffectorCreator::get() {
 	Math::processSet( m_offset );
 	Math::processSet( m_exponent );
 
-	return make_unique< SinAlphaAffector >( milliseconds( m_period.value ), m_target.value, m_offset.value, m_exponent.value );
+	return make_unique< SinAlphaAffector >( milliseconds( m_period.value ),
+											m_target.value,
+											m_offset.value,
+											m_exponent.value );
 }
 
 //--------------------------------------------------------------------------------
@@ -301,21 +314,23 @@ void SinAlphaAffectorCreator::setValue( const rapidjson::Value& value ) {
 		return;
 
 	if( value.HasMember( "period" ) )
-		json::getValue( value[ "period" ], m_period );
+		json::getValue( value["period"], m_period );
 	if( value.HasMember( "offset" ) )
-		json::getValue( value[ "offset" ], m_offset );
+		json::getValue( value["offset"], m_offset );
 	if( value.HasMember( "exponent" ) )
-		json::getValue( value[ "exponent" ], m_exponent );
+		json::getValue( value["exponent"], m_exponent );
 	if( value.HasMember( "target" ) )
-		json::getValue( value[ "target" ], m_target );
+		json::getValue( value["target"], m_target );
 }
 
 //================================================================================
 
 void SinColorAffector::affect( Particle* target, sf::Time delta ) {
-	const float alpha = ( float )target->frame.duration.count() / ( float )m_period.count() + m_offset;
+	const float alpha
+		= ( float ) target->frame.duration.count() / ( float ) m_period.count() + m_offset;
 	const float sin = ( cosf( ( alpha + 1.f ) * PI ) + 1.f ) / 2.f;
-	const Math::Color color = Math::mix( target->frame.color, m_target, std::powf( sin, m_exponent ) );
+	const Math::Color color
+		= Math::mix( target->frame.color, m_target, powf( sin, m_exponent ) );
 
 	target->frame.color = color;
 }
@@ -346,7 +361,10 @@ shared_ptr< Affector > SinColorAffectorCreator::get() {
 	Math::processSet( m_offset );
 	Math::processSet( m_exponent );
 
-	return make_unique< SinColorAffector >( milliseconds( m_period.value ), m_target.value, m_offset.value, m_exponent.value );
+	return make_unique< SinColorAffector >( milliseconds( m_period.value ),
+											m_target.value,
+											m_offset.value,
+											m_exponent.value );
 }
 
 //--------------------------------------------------------------------------------
@@ -370,21 +388,22 @@ void SinColorAffectorCreator::setValue( const rapidjson::Value& value ) {
 		return;
 
 	if( value.HasMember( "period" ) )
-		json::getValue( value[ "period" ], m_period );
+		json::getValue( value["period"], m_period );
 	if( value.HasMember( "offset" ) )
-		json::getValue( value[ "offset" ], m_offset );
+		json::getValue( value["offset"], m_offset );
 	if( value.HasMember( "exponent" ) )
-		json::getValue( value[ "exponent" ], m_exponent );
+		json::getValue( value["exponent"], m_exponent );
 	if( value.HasMember( "target" ) )
-		json::getValue( value[ "target" ], m_target );
+		json::getValue( value["target"], m_target );
 }
 
 //================================================================================
 
 void SinSpinAffector::affect( Particle* target, sf::Time delta ) {
-	const float alpha = ( float )target->frame.duration.count() / ( float )m_period.count() + m_offset;
+	const float alpha
+		= ( float ) target->frame.duration.count() / ( float ) m_period.count() + m_offset;
 	const float sin = ( cosf( ( alpha + 1.f ) * PI ) + 1.f ) / 2.f;
-	const float mul = Math::mix( m_min, m_max, std::powf( sin, m_exponent ) );
+	const float mul = Math::mix( m_min, m_max, powf( sin, m_exponent ) );
 
 	target->frame.spin = target->frame.spin * mul;
 }
@@ -417,7 +436,11 @@ shared_ptr< Affector > SinSpinAffectorCreator::get() {
 	Math::processSet( m_offset );
 	Math::processSet( m_exponent );
 
-	return make_unique< SinSpinAffector >( milliseconds( m_period.value ), m_min.value, m_max.value, m_offset.value, m_exponent.value );
+	return make_unique< SinSpinAffector >( milliseconds( m_period.value ),
+										   m_min.value,
+										   m_max.value,
+										   m_offset.value,
+										   m_exponent.value );
 }
 
 //--------------------------------------------------------------------------------
@@ -442,15 +465,15 @@ void SinSpinAffectorCreator::setValue( const rapidjson::Value& value ) {
 		return;
 
 	if( value.HasMember( "period" ) )
-		json::getValue( value[ "period" ], m_period );
+		json::getValue( value["period"], m_period );
 	if( value.HasMember( "offset" ) )
-		json::getValue( value[ "offset" ], m_offset );
+		json::getValue( value["offset"], m_offset );
 	if( value.HasMember( "exponent" ) )
-		json::getValue( value[ "exponent" ], m_exponent );
+		json::getValue( value["exponent"], m_exponent );
 	if( value.HasMember( "min" ) )
-		json::getValue( value[ "min" ], m_min );
+		json::getValue( value["min"], m_min );
 	if( value.HasMember( "max" ) )
-		json::getValue( value[ "max" ], m_max );
+		json::getValue( value["max"], m_max );
 }
 
 //================================================================================
@@ -460,8 +483,10 @@ void SinSpinAffectorCreator::setValue( const rapidjson::Value& value ) {
 //================================================================================
 
 void FadeVelocityAffector::affect( Particle* target, sf::Time delta ) {
-	float alpha = 1.0f - ( ( float )target->current.remaining.count() / ( float )target->initial.remaining.count() );
-	alpha = std::powf( alpha, m_exponent );
+	float alpha = 1.0f
+				  - ( ( float ) target->current.remaining.count()
+					  / ( float ) target->initial.remaining.count() );
+	alpha = powf( alpha, m_exponent );
 	target->frame.velocity = target->frame.velocity * Math::mix( m_start, m_end, alpha );
 }
 
@@ -489,7 +514,8 @@ shared_ptr< Affector > FadeVelocityAffectorCreator::get() {
 	Math::processSet( m_end );
 	Math::processSet( m_exponent );
 
-	return make_unique< FadeVelocityAffector >( m_start.value, m_end.value, m_exponent.value );
+	return make_unique< FadeVelocityAffector >(
+		m_start.value, m_end.value, m_exponent.value );
 }
 
 //--------------------------------------------------------------------------------
@@ -512,19 +538,22 @@ void FadeVelocityAffectorCreator::setValue( const rapidjson::Value& value ) {
 		return;
 
 	if( value.HasMember( "start" ) )
-		json::getValue( value[ "start" ], m_start );
+		json::getValue( value["start"], m_start );
 	if( value.HasMember( "end" ) )
-		json::getValue( value[ "end" ], m_end );
+		json::getValue( value["end"], m_end );
 	if( value.HasMember( "exponent" ) )
-		json::getValue( value[ "exponent" ], m_exponent );
+		json::getValue( value["exponent"], m_exponent );
 }
 
 //================================================================================
 
 void FadeScaleAffector::affect( Particle* target, sf::Time delta ) {
-	float alpha = 1.0f - ( ( float )target->current.remaining.count() / ( float )target->initial.remaining.count() );
-	alpha = std::powf( alpha, m_exponent );
-	target->frame.transform.setScale( target->frame.transform.getScale() * Math::mix( m_start, m_end, alpha ) );
+	float alpha = 1.0f
+				  - ( ( float ) target->current.remaining.count()
+					  / ( float ) target->initial.remaining.count() );
+	alpha = powf( alpha, m_exponent );
+	target->frame.transform.setScale( target->frame.transform.getScale()
+									  * Math::mix( m_start, m_end, alpha ) );
 }
 
 //--------------------------------------------------------------------------------
@@ -551,7 +580,8 @@ shared_ptr< Affector > FadeScaleAffectorCreator::get() {
 	Math::processSet( m_end );
 	Math::processSet( m_exponent );
 
-	return make_unique< FadeScaleAffector >( m_start.value, m_end.value, m_exponent.value );
+	return make_unique< FadeScaleAffector >(
+		m_start.value, m_end.value, m_exponent.value );
 }
 
 //--------------------------------------------------------------------------------
@@ -574,18 +604,20 @@ void FadeScaleAffectorCreator::setValue( const rapidjson::Value& value ) {
 		return;
 
 	if( value.HasMember( "start" ) )
-		json::getValue( value[ "start" ], m_start );
+		json::getValue( value["start"], m_start );
 	if( value.HasMember( "end" ) )
-		json::getValue( value[ "end" ], m_end );
+		json::getValue( value["end"], m_end );
 	if( value.HasMember( "exponent" ) )
-		json::getValue( value[ "exponent" ], m_exponent );
+		json::getValue( value["exponent"], m_exponent );
 }
 
 //================================================================================
 
 void FadeAlphaAffector::affect( Particle* target, sf::Time delta ) {
-	float alpha = 1.0f - ( ( float )target->current.remaining.count() / ( float )target->initial.remaining.count() );
-	alpha = std::powf( alpha, m_exponent );
+	float alpha = 1.0f
+				  - ( ( float ) target->current.remaining.count()
+					  / ( float ) target->initial.remaining.count() );
+	alpha				  = powf( alpha, m_exponent );
 	target->frame.color.a = Math::mix( target->frame.color.a, m_target, alpha );
 }
 
@@ -633,16 +665,18 @@ void FadeAlphaAffectorCreator::setValue( const rapidjson::Value& value ) {
 		return;
 
 	if( value.HasMember( "target" ) )
-		json::getValue( value[ "target" ], m_target );
+		json::getValue( value["target"], m_target );
 	if( value.HasMember( "exponent" ) )
-		json::getValue( value[ "exponent" ], m_exponent );
+		json::getValue( value["exponent"], m_exponent );
 }
 
 //================================================================================
 
 void FadeColorAffector::affect( Particle* target, sf::Time delta ) {
-	float alpha = 1.0f - ( ( float )target->current.remaining.count() / ( float )target->initial.remaining.count() );
-	alpha = std::powf( alpha, m_exponent );
+	float alpha = 1.0f
+				  - ( ( float ) target->current.remaining.count()
+					  / ( float ) target->initial.remaining.count() );
+	alpha				= powf( alpha, m_exponent );
 	target->frame.color = Math::mix( target->frame.color, m_target, alpha );
 	target->frame.color.a = Math::mix( target->frame.color.a, m_target.a, alpha );
 }
@@ -691,9 +725,9 @@ void FadeColorAffectorCreator::setValue( const rapidjson::Value& value ) {
 		return;
 
 	if( value.HasMember( "target" ) )
-		json::getValue( value[ "target" ], m_target );
+		json::getValue( value["target"], m_target );
 	if( value.HasMember( "exponent" ) )
-		json::getValue( value[ "exponent" ], m_exponent );
+		json::getValue( value["exponent"], m_exponent );
 }
 
 //================================================================================
@@ -726,22 +760,22 @@ void EmitterAffector::affect( Particle* target, sf::Time delta ) {
 	if( m_elapsed > m_next ) {
 		Math::processSet( m_spawnRate );
 		if( m_spawnRate.value != 0.f )
-			m_next = m_elapsed + milliseconds( ( int )( 1000.f / m_spawnRate.value ) );
+			m_next = m_elapsed + milliseconds( ( int ) ( 1000.f / m_spawnRate.value ) );
 		else
 			m_duration = -1ms;
 
 		switch( m_type ) {
-		case EmitterType::Set:
-			for( ParticlePattern* pattern : m_patterns )
-				Manager::spawnParticle( *pattern, target );
-			break;
-		case EmitterType::Random:
-			Manager::spawnParticle( *Random::getElement( m_patterns ), target );
-			break;
-		case EmitterType::Sequence:
-			Manager::spawnParticle( *m_patterns.at( m_index++ ) );
-			if( m_index == m_patterns.size() )
-				m_index = 0u;
+			case EmitterType::Set:
+				for( ParticlePattern* pattern : m_patterns )
+					Manager::spawnParticle( *pattern, target );
+				break;
+			case EmitterType::Random:
+				Manager::spawnParticle( *Random::getElement( m_patterns ), target );
+				break;
+			case EmitterType::Sequence:
+				Manager::spawnParticle( *m_patterns.at( m_index++ ) );
+				if( m_index == m_patterns.size() )
+					m_index = 0u;
 		}
 	}
 
@@ -760,11 +794,10 @@ void InheritLifetimeAffector::affect( Particle* target, sf::Time delta ) {
 		return;
 
 	switch( m_type ) {
-	case InheritanceType::None: break;
-	case InheritanceType::Copy:
-	case InheritanceType::Offset:
-	case InheritanceType::Multiply:
-		target->alive = target->parent->alive;
+		case InheritanceType::None: break;
+		case InheritanceType::Copy:
+		case InheritanceType::Offset:
+		case InheritanceType::Multiply: target->alive = target->parent->alive;
 	}
 }
 
@@ -775,14 +808,18 @@ void InheritPositionAffector::affect( Particle* target, sf::Time delta ) {
 		return;
 
 	switch( m_type ) {
-	case InheritanceType::None: break;
-	case InheritanceType::Copy: target->frame.transform.setPosition( target->parent->frame.transform.getPosition() ); break;
-	case InheritanceType::Offset: target->frame.transform.move( target->parent->frame.transform.getPosition() ); break;
-	case InheritanceType::Multiply:
-		Math::Vec2 pos = target->frame.transform.getPosition();
-		pos *= target->parent->frame.transform.getPosition();
-		target->frame.transform.move( pos.sf() );
-		break;
+		case InheritanceType::None: break;
+		case InheritanceType::Copy:
+			target->frame.transform.setPosition( target->parent->frame.transform.getPosition() );
+			break;
+		case InheritanceType::Offset:
+			target->frame.transform.move( target->parent->frame.transform.getPosition() );
+			break;
+		case InheritanceType::Multiply:
+			Math::Vec2 pos = target->frame.transform.getPosition();
+			pos *= target->parent->frame.transform.getPosition();
+			target->frame.transform.move( pos.sf() );
+			break;
 	}
 }
 
@@ -793,14 +830,18 @@ void InheritRotationAffector::affect( Particle* target, sf::Time delta ) {
 		return;
 
 	switch( m_type ) {
-	case InheritanceType::None: break;
-	case InheritanceType::Copy: target->frame.transform.setRotation( target->parent->frame.transform.getRotation() ); break;
-	case InheritanceType::Offset: target->frame.transform.rotate( target->parent->frame.transform.getRotation() ); break;
-	case InheritanceType::Multiply:
-		float rot = target->frame.transform.getRotation();
-		rot *= target->parent->frame.transform.getRotation();
-		target->frame.transform.rotate( rot );
-		break;
+		case InheritanceType::None: break;
+		case InheritanceType::Copy:
+			target->frame.transform.setRotation( target->parent->frame.transform.getRotation() );
+			break;
+		case InheritanceType::Offset:
+			target->frame.transform.rotate( target->parent->frame.transform.getRotation() );
+			break;
+		case InheritanceType::Multiply:
+			float rot = target->frame.transform.getRotation();
+			rot *= target->parent->frame.transform.getRotation();
+			target->frame.transform.rotate( rot );
+			break;
 	}
 }
 
@@ -811,10 +852,16 @@ void InheritSpinAffector::affect( Particle* target, sf::Time delta ) {
 		return;
 
 	switch( m_type ) {
-	case InheritanceType::None: break;
-	case InheritanceType::Copy: target->frame.spin = target->parent->frame.spin; break;
-	case InheritanceType::Offset: target->frame.spin += target->parent->frame.spin; break;
-	case InheritanceType::Multiply: target->frame.spin *= target->parent->frame.spin; break;
+		case InheritanceType::None: break;
+		case InheritanceType::Copy:
+			target->frame.spin = target->parent->frame.spin;
+			break;
+		case InheritanceType::Offset:
+			target->frame.spin += target->parent->frame.spin;
+			break;
+		case InheritanceType::Multiply:
+			target->frame.spin *= target->parent->frame.spin;
+			break;
 	}
 }
 
@@ -825,14 +872,18 @@ void InheritScaleAffector::affect( Particle* target, sf::Time delta ) {
 		return;
 
 	switch( m_type ) {
-	case InheritanceType::None: break;
-	case InheritanceType::Copy: target->frame.transform.setScale( target->parent->frame.transform.getScale() ); break;
-	case InheritanceType::Offset: target->frame.transform.scale( target->parent->frame.transform.getScale() ); break;
-	case InheritanceType::Multiply:
-		Math::Vec2 s = target->frame.transform.getScale();
-		s *= target->parent->frame.transform.getScale();
-		target->frame.transform.scale( s.sf() );
-		break;
+		case InheritanceType::None: break;
+		case InheritanceType::Copy:
+			target->frame.transform.setScale( target->parent->frame.transform.getScale() );
+			break;
+		case InheritanceType::Offset:
+			target->frame.transform.scale( target->parent->frame.transform.getScale() );
+			break;
+		case InheritanceType::Multiply:
+			Math::Vec2 s = target->frame.transform.getScale();
+			s *= target->parent->frame.transform.getScale();
+			target->frame.transform.scale( s.sf() );
+			break;
 	}
 }
 
@@ -843,22 +894,22 @@ void InheritColorAffector::affect( Particle* target, sf::Time delta ) {
 		return;
 
 	switch( m_type ) {
-	case InheritanceType::None: break;
-	case InheritanceType::Copy:
-		target->frame.color.r = target->parent->frame.color.r;
-		target->frame.color.g = target->parent->frame.color.g;
-		target->frame.color.b = target->parent->frame.color.b;
-		break;
-	case InheritanceType::Offset:
-		target->frame.color.r += target->parent->frame.color.r;
-		target->frame.color.g += target->parent->frame.color.g;
-		target->frame.color.b += target->parent->frame.color.b;
-		break;
-	case InheritanceType::Multiply:
-		target->frame.color.r *= target->parent->frame.color.r;
-		target->frame.color.g *= target->parent->frame.color.g;
-		target->frame.color.b *= target->parent->frame.color.b;
-		break;
+		case InheritanceType::None: break;
+		case InheritanceType::Copy:
+			target->frame.color.r = target->parent->frame.color.r;
+			target->frame.color.g = target->parent->frame.color.g;
+			target->frame.color.b = target->parent->frame.color.b;
+			break;
+		case InheritanceType::Offset:
+			target->frame.color.r += target->parent->frame.color.r;
+			target->frame.color.g += target->parent->frame.color.g;
+			target->frame.color.b += target->parent->frame.color.b;
+			break;
+		case InheritanceType::Multiply:
+			target->frame.color.r *= target->parent->frame.color.r;
+			target->frame.color.g *= target->parent->frame.color.g;
+			target->frame.color.b *= target->parent->frame.color.b;
+			break;
 	}
 }
 
@@ -869,16 +920,16 @@ void InheritAlphaAffector::affect( Particle* target, sf::Time delta ) {
 		return;
 
 	switch( m_type ) {
-	case InheritanceType::None: break;
-	case InheritanceType::Copy:
-		target->frame.color.a = target->parent->frame.color.a;
-		break;
-	case InheritanceType::Offset:
-		target->frame.color.a += target->parent->frame.color.a;
-		break;
-	case InheritanceType::Multiply:
-		target->frame.color.a *= target->parent->frame.color.a;
-		break;
+		case InheritanceType::None: break;
+		case InheritanceType::Copy:
+			target->frame.color.a = target->parent->frame.color.a;
+			break;
+		case InheritanceType::Offset:
+			target->frame.color.a += target->parent->frame.color.a;
+			break;
+		case InheritanceType::Multiply:
+			target->frame.color.a *= target->parent->frame.color.a;
+			break;
 	}
 }
 
@@ -889,10 +940,16 @@ void InheritVelocityAffector::affect( Particle* target, sf::Time delta ) {
 		return;
 
 	switch( m_type ) {
-	case InheritanceType::None: break;
-	case InheritanceType::Copy: target->frame.velocity = target->parent->frame.velocity; break;
-	case InheritanceType::Offset: target->frame.velocity += target->parent->frame.velocity; break;
-	case InheritanceType::Multiply: target->frame.velocity *= target->parent->frame.velocity; break;
+		case InheritanceType::None: break;
+		case InheritanceType::Copy:
+			target->frame.velocity = target->parent->frame.velocity;
+			break;
+		case InheritanceType::Offset:
+			target->frame.velocity += target->parent->frame.velocity;
+			break;
+		case InheritanceType::Multiply:
+			target->frame.velocity *= target->parent->frame.velocity;
+			break;
 	}
 
 	if( m_scale ) {
@@ -914,15 +971,21 @@ void InheritAccelerationAffector::affect( Particle* target, sf::Time delta ) {
 		return;
 
 	switch( m_type ) {
-	case InheritanceType::None: break;
-	case InheritanceType::Copy: target->frame.acceleration = target->parent->frame.acceleration; break;
-	case InheritanceType::Offset: target->frame.acceleration += target->parent->frame.acceleration; break;
-	case InheritanceType::Multiply: target->frame.acceleration *= target->parent->frame.acceleration; break;
+		case InheritanceType::None: break;
+		case InheritanceType::Copy:
+			target->frame.acceleration = target->parent->frame.acceleration;
+			break;
+		case InheritanceType::Offset:
+			target->frame.acceleration += target->parent->frame.acceleration;
+			break;
+		case InheritanceType::Multiply:
+			target->frame.acceleration *= target->parent->frame.acceleration;
+			break;
 	}
 }
 
 //--------------------------------------------------------------------------------
 
-}
+}	 // namespace Gfx::Particle::Affector
 
 //================================================================================

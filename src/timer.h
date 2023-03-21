@@ -15,22 +15,19 @@ namespace Timers {
 // Timer identifier used to reference timers.
 struct TimerID {
 	// Use a time stamp in addition to an ID since we reuse old IDs.
-	std::chrono::time_point< std::chrono::steady_clock > timeStamp;
+	std::chrono::time_point< std::chrono::system_clock > timeStamp;
 	int ID = -1;
 
 	bool operator==( const TimerID& rh ) const {
 		return timeStamp == rh.timeStamp && ID == rh.ID;
 	}
 
-	explicit operator bool() const {
-		return ID != -1;
-	}
+	explicit operator bool() const { return ID != -1; }
 
-	// Removing timers is fairly costly. So using this when a timer is already removed to prevent repeated removal
-	// attempts of the same timer is recommended.
-	void reset() {
-		ID = -1;
-	}
+	// Removing timers is fairly costly. So using this when a timer is already
+	// removed to prevent repeated removal attempts of the same timer is
+	// recommended.
+	void reset() { ID = -1; }
 };
 
 //==================================================================================================
@@ -53,9 +50,13 @@ void init();
 
 // Timers
 
-// Add a new timer. onUpdate and onFinish can be nullptr. Returns timer ID for removal.
+// Add a new timer. onUpdate and onFinish can be nullptr. Returns timer ID for
+// removal.
 TimerID addTimer( int msDuration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop );
-TimerID addTimer( std::chrono::milliseconds duration, UpdateCallback onUpdate, FinishCallback onFinish, bool loop );
+TimerID addTimer( std::chrono::milliseconds duration,
+				  UpdateCallback onUpdate,
+				  FinishCallback onFinish,
+				  bool loop );
 
 // Remove timer using ID given when timer is created.
 void removeTimer( TimerID ID );
@@ -71,6 +72,6 @@ void clearTimers();
 
 //--------------------------------------------------------------------------------
 
-} // Timers
+}	 // namespace Timers
 
 //==================================================================================================

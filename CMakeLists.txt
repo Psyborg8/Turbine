@@ -15,46 +15,61 @@ add_library( turbine ${SRC} )
 target_include_directories( turbine
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/src
-    PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/src/editor
 )
 
 # Dependencies
 include( FetchContent )
+
+set(FETCHCONTENT_QUIET OFF)
+
 FetchContent_Declare(
     sfml
     GIT_REPOSITORY "https://github.com/SFML/SFML.git"
     GIT_TAG 2.5.1
+    GIT_PROGRESS TRUE
 )
 FetchContent_Declare(
     imgui
     GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
     GIT_TAG master
+    GIT_PROGRESS TRUE
 )
 FetchContent_Declare(
     imgui-sfml
     GIT_REPOSITORY "https://github.com/SFML/imgui-sfml.git"
     GIT_TAG master
+    GIT_PROGRESS TRUE
 )
 FetchContent_Declare(
     rapidjson
     GIT_REPOSITORY "https://github.com/Tencent/rapidjson.git"
+    GIT_PROGRESS TRUE
 )
 
 # SFML
-option( SFML_BUILD_NETWORK "Build network" OFF )
+message("Fetching SFML...")
 FetchContent_MakeAvailable( sfml )
 
 # ImGui
+message("Fetching imgui...")
 FetchContent_MakeAvailable( imgui )
 
 # ImGui-SFML
+message("Fetching imgui-sfml...")
 set( IMGUI_DIR ${imgui_SOURCE_DIR} )
 option( IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF )
 FetchContent_MakeAvailable( imgui-sfml )
 
 # rapidjson
+set( RAPIDJSON_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE )
+set( RAPIDJSON_BUILD_TESTS OFF CACHE BOOL "" FORCE )
+set( RAPIDJSON_BUILD_THIRDPARTY_GTEST OFF CACHE BOOL "" FORCE )
+set( RAPIDJSON_BUILD_DOC OFF CACHE BOOL "" FORCE )
+message("Fetching rapidjson...")
 FetchContent_MakeAvailable( rapidjson )
+
+target_include_directories( turbine PUBLIC ${rapidjson_SOURCE_DIR}/include )
 
 #fmt
 find_package( fmt )
@@ -64,7 +79,6 @@ target_link_libraries(
     turbine
 
     ImGui-SFML::ImGui-SFML
-    rapidjson
     fmt::fmt
 )
 
@@ -89,12 +103,3 @@ file( GLOB_RECURSE EDITOR_SRC ${CMAKE_CURRENT_LIST_DIR}/src/editor/*.cpp )
 set( EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR}/editor )
 add_executable( turbine-editor ${EDITOR_SRC} )
 target_link_libraries( turbine-editor turbine )
-target_include_directories( turbine-editor 
-    PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/src/editor
-    PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/src
-        ${CMAKE_CURRENT_LIST_DIR}/deps/imgui/
-        ${CMAKE_CURRENT_LIST_DIR}/deps/rapidjson/include/
-        ${CMAKE_CURRENT_LIST_DIR}/deps/imgui-sfml/
-)

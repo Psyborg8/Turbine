@@ -49,7 +49,7 @@ bool init( shared_ptr< World > initWorld ) {
 	systemInfo.height = window.getSize().y;
 
 	// Init ImGui
-	if( !ImGui::SFML::Init( window, true, &Debug::incDrawCall ) )
+	if( !ImGui::SFML::Init( window, true ) )
 		return false;
 
 	// Init timers

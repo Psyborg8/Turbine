@@ -16,6 +16,7 @@ namespace Editor {
 class EditorWindow {
 public:
 	EditorWindow() { m_id = s_nextID++; }
+	virtual ~EditorWindow() = default;
 
 public:
 	virtual void init( World* world ) {}

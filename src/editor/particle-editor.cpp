@@ -4,6 +4,7 @@
 
 //--------------------------------------------------------------------------------
 
+#include "global.h"
 #include "object.h"
 #include "particle-loader.h"
 #include "sprite.h"

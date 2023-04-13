@@ -16,7 +16,8 @@ namespace Editor {
 
 class Editor : public World {
 public:
-	Editor() = default;
+	Editor()		  = default;
+	virtual ~Editor() = default;
 
 public:
 	void onSpawnChildren() override;

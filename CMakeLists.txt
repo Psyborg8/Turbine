@@ -9,13 +9,20 @@ set( PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/src )
 
 project( turbine VERSION 0.0.1 LANGUAGES CXX )
 
-file( GLOB SRC ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp )
+file( GLOB_RECURSE SRC ${CMAKE_CURRENT_LIST_DIR}/src *.cpp )
 add_library( turbine ${SRC} )
 
 target_include_directories( turbine
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/src
         ${CMAKE_CURRENT_LIST_DIR}/src/editor
+        ${CMAKE_CURRENT_LIST_DIR}/src/gfx
+        ${CMAKE_CURRENT_LIST_DIR}/src/input
+        ${CMAKE_CURRENT_LIST_DIR}/src/particle
+        ${CMAKE_CURRENT_LIST_DIR}/src/physics
+        ${CMAKE_CURRENT_LIST_DIR}/src/system
+        ${CMAKE_CURRENT_LIST_DIR}/src/util
+        ${CMAKE_CURRENT_LIST_DIR}/src/world
 )
 
 # Dependencies
@@ -89,6 +96,7 @@ target_compile_options( turbine
         -Wextra
         -Wno-unused-parameter
         -Wno-sign-compare
+        -Wno-invalid-pp-token
 )
 
 if( CMAKE_BUILD_TYPE STREQUAL "DEBUG" )

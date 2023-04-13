@@ -23,6 +23,7 @@ class ParticleEditor : public EditorWindow {
 public:
 	ParticleEditor();
 	ParticleEditor( string path );
+	virtual ~ParticleEditor() = default;
 
 	void init( World* world ) override;
 	void open() override;

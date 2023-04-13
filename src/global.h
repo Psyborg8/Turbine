@@ -19,6 +19,7 @@
 #include <fstream>
 #include <functional>
 #include <imgui-SFML.h>
+#undef IMGUI_USER_CONFIG
 #include <imgui.h>
 #include <iostream>
 #include <list>

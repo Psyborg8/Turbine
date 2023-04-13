@@ -172,7 +172,7 @@ void Editor::onEvent( sf::Event e ) {
 		// Saving
 		if( e.key.code == sf::Keyboard::S && e.key.control ) {
 			if( e.key.shift ) {
-				for( unique_ptr< EditorWindow >& window : m_tabs ) {
+				for( size_t i = 0u; i < m_tabs.size(); ++i ) {
 					saveAll();
 				}
 				return;

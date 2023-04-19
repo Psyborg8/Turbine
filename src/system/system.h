@@ -8,7 +8,7 @@
 
 //================================================================================
 
-class World;
+class App;
 
 //================================================================================
 
@@ -24,7 +24,7 @@ struct SystemInfo {
 
 //================================================================================
 
-bool init( shared_ptr< World > world );
+bool init( shared_ptr< App > app );
 
 int start();
 
@@ -32,7 +32,7 @@ void exit();
 
 SystemInfo& getSystemInfo();
 
-shared_ptr< World > getWorld();
+shared_ptr< App > getApp();
 
 sf::Time getDeltaTime();
 

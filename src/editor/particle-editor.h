@@ -11,7 +11,6 @@
 #include "particle-manager.h"
 #include "particle-system.h"
 #include "particle.h"
-#include "world.h"
 
 //================================================================================
 
@@ -25,13 +24,14 @@ public:
 	ParticleEditor( string path );
 	virtual ~ParticleEditor() = default;
 
-	void init( World* world ) override;
+	void init( App* _app ) override;
 	void open() override;
 	void update( sf::Time delta ) override;
 	void renderLeftWindow() override;
 	void renderRightWindow() override;
 	void close() override;
 	void rename( string name ) override;
+
 	void onEvent( sf::Event e ) override;
 
 	string getName() const override;

@@ -4,8 +4,8 @@
 
 //--------------------------------------------------------------------------------
 
+#include "app.h"
 #include "debug.h"
-#include "world.h"
 
 //================================================================================
 
@@ -40,7 +40,7 @@ void Object::start() {
 		return;
 
 	onStart();
-	
+
 	const size_t size = m_children.size();
 	for( size_t i = 0u; i < size; ++i )
 		m_children.at( i )->start();
@@ -94,7 +94,8 @@ void Object::render( sf::RenderTarget* target ) {
 	onRender( target );
 
 	vector< shared_ptr< Object > > children = m_children;
-	std::sort( children.begin(), children.end(),
+	std::sort( children.begin(),
+			   children.end(),
 			   []( shared_ptr< Object > a, shared_ptr< Object > b ) {
 				   return a->getPriority() < b->getPriority();
 			   } );
@@ -152,7 +153,7 @@ void Object::destroy() {
 	onDestroy();
 
 	const size_t size = m_children.size();
-	for( size_t i = 0u ; i < size; ++i )
+	for( size_t i = 0u; i < size; ++i )
 		m_children.at( i )->destroy();
 }
 
@@ -174,7 +175,7 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 	using collisionPair = pair< shared_ptr< Object >, Collision::CollisionResult >;
 
 	// Broad Phase
-	vector < collisionPair > results;
+	vector< collisionPair > results;
 	for( shared_ptr< Object > target : targets ) {
 		Collision::CollisionResult result = isColliding( target );
 		if( result.success )
@@ -182,14 +183,14 @@ void Object::resolveCollisions( vector< shared_ptr< Object > > targets, bool not
 	}
 
 	// Sort by distance
-	std::sort( results.begin(), results.end(),
-			   []( const collisionPair& a, const collisionPair& b ) {
-				   return a.second.distance < b.second.distance;
-			   } );
+	std::sort( results.begin(), results.end(), []( const collisionPair& a, const collisionPair& b ) {
+		return a.second.distance < b.second.distance;
+	} );
 
 	// Narrow Phase
 	for( pair< shared_ptr< Object >, Collision::CollisionResult > collision : results ) {
-		// Check again, in case a previous resolution means we aren't colliding anymore
+		// Check again, in case a previous resolution means we aren't colliding
+		// anymore
 		const Collision::CollisionResult result = isColliding( collision.first );
 		if( result.success ) {
 			// Resolve the collision
@@ -234,17 +235,17 @@ void Object::setWorldPosition( Math::Vec2 position ) {
 
 //--------------------------------------------------------------------------------
 
-World* Object::getWorld() const {
+App* Object::getApp() const {
 	if( m_parent == nullptr )
 		return nullptr;
 
-	World* world;
-	world = dynamic_cast< World* >( m_parent );
+	App* app;
+	app = dynamic_cast< App* >( m_parent );
 
-	if( world == nullptr )
-		return m_parent->getWorld();
+	if( app == nullptr )
+		return m_parent->getApp();
 	else
-		return world;
+		return app;
 }
 
 //--------------------------------------------------------------------------------

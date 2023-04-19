@@ -12,7 +12,9 @@
 template< class T, size_t depth >
 class Counter {
 public:
-	Counter() { std::fill( m_data.begin(), m_data.end(), T( 0 ) ); }
+	Counter() : m_count( 0 ) {
+		std::fill( m_data.begin(), m_data.end(), T( 0 ) );
+	}
 
 public:
 	void push( T _elem ) {
@@ -22,8 +24,8 @@ public:
 	}
 
 	T average() {
-		T total = T( 0 );
-		size_t count;
+		T total		 = T( 0 );
+		size_t count = 0u;
 
 		for( T elem : m_data ) {
 			if( elem != T( 0 ) ) {
@@ -35,11 +37,13 @@ public:
 		return total / count;
 	}
 	T max() {
-		T max = m_data[0];
+		T max = 0u;
 
-		for( T elem : m_data )
-			if( elem > max )
-				max = elem;
+		for( size_t i = 0u; i < m_data.size(); ++i )
+			if( m_data.at( i ) > max )
+				max = m_data.at( i );
+
+		return max;
 	}
 	T min() {
 		T min = m_data[0];

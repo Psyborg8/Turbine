@@ -205,6 +205,42 @@ void Editor::onEvent( sf::Event e ) {
 		m_currentTab->onEvent( e );
 }
 
+// ----------------------------------------------------------------------
+
+void Editor::onMessage( string message ) {
+	vector< string > args = Utils::tokenize( message, " " );
+
+	if( args.empty() == 0u || args.at( 0u ) != "editor" )
+		return;
+
+	args.erase( args.begin() );
+
+	if( args.empty() )
+		return;
+
+	if( args.at( 0u ) == "open" ) {
+		args.erase( args.begin() );
+
+		if( args.empty() )
+			return;
+
+		if( args.at( 0u ) == "particle" ) {
+			args.erase( args.begin() );
+
+			if( args.empty() )
+				newParticle();
+			else {
+				// Allows for spaces in paths
+				string path;
+				for( string token : args )
+					path += token;
+
+				openParticle( path );
+			}
+		}
+	}
+}
+
 //--------------------------------------------------------------------------------
 
 void Editor::newParticle() {

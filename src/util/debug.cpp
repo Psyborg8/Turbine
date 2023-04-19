@@ -4,8 +4,8 @@
 
 //--------------------------------------------------------------------------------
 
+#include "input.h"
 #include "particle-manager.h"
-#include "player.h"
 #include "string-utils.h"
 #include "system.h"
 #include "utils.h"
@@ -260,7 +260,6 @@ public:
 	void onUpdate( sf::Time deltaTime ) override;
 	void onRender( sf::RenderTarget* target ) override;
 	void onEvent( sf::Event e ) override;
-	void onDestroy() override;
 
 public:
 	void show() { menu.open = true; }
@@ -428,14 +427,11 @@ void DebugHandler::onRender( sf::RenderTarget* target ) {
 			string text	  = Utils::format( "FPS: %i", fps );
 			ImGui::Text( "%s", text.c_str() );
 
-			ImGui::PlotLines( "",
-							  performance.frame_rates_counter.data().data(),
-							  int( performance.frame_rates_counter.data().size() ),
-							  0,
-							  ( const char* ) 0,
-							  0.f,
-							  performance.frame_rates_counter.max(),
-							  ImVec2( 0.f, 100.f ) );
+			const auto data = performance.frame_rates_counter.data();
+			const auto size = data.size();
+			const auto max	= performance.frame_rates_counter.max();
+			ImGui::PlotLines(
+				"", data.data(), size, 0, ( const char* ) 0, 0.f, max, ImVec2( 0.f, 100.f ) );
 
 			if( performance.draw_calls_counter.average() > 0u ) {
 				ImGui::Spacing();
@@ -443,14 +439,12 @@ void DebugHandler::onRender( sf::RenderTarget* target ) {
 				text = Utils::format(
 					"Draw Calls: %i", int( performance.draw_calls_counter.average() ) );
 				ImGui::Text( "%s", text.c_str() );
-				ImGui::PlotHistogram( "",
-									  performance.draw_calls_counter.data().data(),
-									  int( performance.draw_calls_counter.data().size() ),
-									  0,
-									  ( const char* ) 0,
-									  0.f,
-									  performance.draw_calls_counter.max(),
-									  ImVec2( 0.f, 100.f ) );
+
+				const auto data = performance.draw_calls_counter.data();
+				const auto size = data.size();
+				const auto max	= performance.draw_calls_counter.max();
+				ImGui::PlotHistogram(
+					"", data.data(), size, 0, ( const char* ) 0, 0.f, max, ImVec2( 0.f, 100.f ) );
 			}
 
 			ImGui::EndTabItem();
@@ -518,7 +512,6 @@ void incDrawCall() {
 void addPerformancePage( string name, function< string() > func ) {
 	handler->addPerformancePage( name, func );
 }
-
 //================================================================================
 
 // UI
@@ -527,6 +520,11 @@ void addPerformancePage( string name, function< string() > func ) {
 
 void init( Object* world ) {
 	handler = Object::makeObject< DebugHandler >( world );
+
+	Input::bindButton( "Show Debug Window",
+					   ControllerButton::None,
+					   sf::Keyboard::Key::D,
+					   []( bool ) { show(); } );
 }
 
 //--------------------------------------------------------------------------------

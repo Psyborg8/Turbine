@@ -4,9 +4,9 @@
 
 //================================================================================
 
+#include "app.h"
 #include "editor-window-base.h"
 #include "global.h"
-#include "world.h"
 
 //================================================================================
 
@@ -14,7 +14,7 @@ namespace Editor {
 
 //--------------------------------------------------------------------------------
 
-class Editor : public World {
+class Editor : public App {
 public:
 	Editor()		  = default;
 	virtual ~Editor() = default;
@@ -24,6 +24,7 @@ public:
 	void onUpdate( sf::Time deltaTime ) override;
 	void onRender( sf::RenderTarget* target ) override;
 	void onEvent( sf::Event e ) override;
+	void onMessage( string message ) override;
 
 public:
 	void newParticle();

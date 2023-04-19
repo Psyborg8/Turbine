@@ -33,8 +33,8 @@ ParticleEditor::ParticleEditor( string path ) {
 
 //--------------------------------------------------------------------------------
 
-void ParticleEditor::init( World* world ) {
-	m_system = Object::makeObject< Gfx::Particle::System >( world );
+void ParticleEditor::init( App* _app ) {
+	m_system = Object::makeObject< Gfx::Particle::System >( _app );
 }
 
 //--------------------------------------------------------------------------------

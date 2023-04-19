@@ -4,8 +4,8 @@
 
 //================================================================================
 
+#include "app.h"
 #include "global.h"
-#include "world.h"
 
 //================================================================================
 
@@ -19,7 +19,7 @@ public:
 	virtual ~EditorWindow() = default;
 
 public:
-	virtual void init( World* world ) {}
+	virtual void init( App* app ) {}
 	virtual void open() {}
 	virtual void update( sf::Time delta ) {}
 	virtual void renderLeftWindow() {}

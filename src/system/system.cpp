@@ -5,6 +5,7 @@
 //--------------------------------------------------------------------------------
 
 // Systems
+#include "app.h"
 #include "debug.h"
 #include "input.h"
 #include "particle-affector.h"
@@ -22,7 +23,7 @@ void update();
 
 //--------------------------------------------------------------------------------
 
-shared_ptr< World > world;
+shared_ptr< App > app;
 sf::Time deltaTime;
 
 //--------------------------------------------------------------------------------
@@ -37,7 +38,7 @@ sf::Clock clock;
 
 //================================================================================
 
-bool init( shared_ptr< World > initWorld ) {
+bool init( shared_ptr< App > _app ) {
 
 	// window.create( sf::VideoMode::getFullscreenModes()[0], "Project Bullet",
 	// sf::Style::Fullscreen  );
@@ -56,10 +57,10 @@ bool init( shared_ptr< World > initWorld ) {
 	Timers::init();
 
 	// Load World
-	world = initWorld;
+	app = _app;
 
 	// Init debug handler
-	Debug::init( initWorld.get() );
+	Debug::init( app.get() );
 
 	// Init particles
 	Gfx::Particle::Manager::init();
@@ -75,9 +76,9 @@ bool init( shared_ptr< World > initWorld ) {
 //--------------------------------------------------------------------------------
 
 int start() {
-	Input::start( world.get() );
+	Input::start( app.get() );
 
-	world->start();
+	app->start();
 
 	while( window.isOpen() )
 		update();
@@ -99,8 +100,8 @@ SystemInfo& getSystemInfo() {
 
 //--------------------------------------------------------------------------------
 
-shared_ptr< World > getWorld() {
-	return world;
+shared_ptr< App > getApp() {
+	return app;
 }
 
 //--------------------------------------------------------------------------------
@@ -118,6 +119,8 @@ sf::Time getDeltaTime() {
 //================================================================================
 
 void update() {
+	Debug::startTimer( "Tick" );
+
 	// Get delta time
 	sf::Time time = clock.restart();
 
@@ -143,7 +146,7 @@ void update() {
 		if( e.type == sf::Event::JoystickMoved )
 			break;
 
-		world->event( e );
+		app->event( e );
 
 		if( e.type == sf::Event::KeyPressed )
 			if( e.key.code == sf::Keyboard::Escape ) {
@@ -165,16 +168,16 @@ void update() {
 	// Update physics
 	Gfx::Particle::Manager::update( deltaTime );
 	ImGui::SFML::Update( window, deltaTime );
-	world->update( deltaTime );
+	app->update( deltaTime );
 	Debug::stopTimer( "System - Update" );
 
 	Debug::startTimer( "System - Process Collisions" );
-	world->processCollisions();
+	app->processCollisions();
 	Debug::stopTimer( "System - Process Collisions" );
 
 	Debug::startTimer( "System - Post Update" );
 	Gfx::Particle::Manager::postUpdate( deltaTime );
-	world->postUpdate( deltaTime );
+	app->postUpdate( deltaTime );
 	Debug::stopTimer( "System - Post Update" );
 
 	Debug::startTimer( "System - Cleanup" );
@@ -184,23 +187,25 @@ void update() {
 
 	Debug::startTimer( "System - Render" );
 	// Render
-	window.clear( world->getBackgroundColor().sf() );
+	window.clear( app->getBackgroundColor().sf() );
 
 	window.resetGLStates();
 	Gfx::Particle::Manager::render( &window );
-	world->render( &window );
+	app->render( &window );
 	window.resetGLStates();
 	ImGui::SFML::Render();
 	window.resetGLStates();
 	Debug::stopTimer( "System - Render" );
 
 	Debug::startTimer( "System - Post Render" );
-	world->postRender( &window );
+	app->postRender( &window );
 	Debug::stopTimer( "System - Post Render" );
 
 	Debug::startTimer( "System - Display" );
 	window.display();
 	Debug::stopTimer( "System - Display" );
+
+	Debug::stopTimer( "Tick" );
 }
 
 //--------------------------------------------------------------------------------

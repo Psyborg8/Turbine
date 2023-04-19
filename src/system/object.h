@@ -10,15 +10,15 @@
 
 //================================================================================
 
-class World;
+class App;
 
-//--------------------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
 class Object : public std::enable_shared_from_this< Object > {
 public:
 	Object() : m_parent( nullptr ), m_name( "" ){};
 	Object( string name ) : m_parent( nullptr ), m_name( name ){};
-	~Object() = default;
+	virtual ~Object() = default;
 
 	// System
 public:
@@ -131,7 +131,7 @@ public:
 	inline bool getVisibility() const { return m_visibility; }
 	inline void setVisibility( bool visible ) { m_visibility = visible; }
 
-	World* getWorld() const;
+	App* getApp() const;
 
 	vector< shared_ptr< Object > > getChildren( bool recursive = false ) const;
 

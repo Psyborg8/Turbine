@@ -4,7 +4,7 @@
 
 //================================================================================
 
-#include "editor.h"
+#include "app.h"
 #include "global.h"
 #include "imgui-utils.h"
 #include "json.h"
@@ -378,10 +378,7 @@ struct ParticleEmitter {
 			}
 			ImGui::SameLine();
 			if( ImGui::Button( "Open" ) ) {
-				shared_ptr< Editor::Editor > editor
-					= std::dynamic_pointer_cast< Editor::Editor >( ::System::getWorld() );
-				if( editor != nullptr )
-					editor->openParticle( patterns.at( i ) );
+				::System::getApp()->message( "editor open particle " + patterns.at( i ) );
 			}
 
 			if( i < patterns.size() - 1u && ImGui::Button( "Move Down" ) ) {

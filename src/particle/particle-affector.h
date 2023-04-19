@@ -78,6 +78,8 @@ private:
 	float m_offset{ 0.f };
 };
 
+//--------------------------------------------------------------------------------
+
 class RotateToVelocityAffectorCreator : public AffectorCreator {
 public:
 	RotateToVelocityAffectorCreator() = default;

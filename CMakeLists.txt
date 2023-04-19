@@ -99,6 +99,8 @@ target_compile_options( turbine
         -Wno-invalid-pp-token
 )
 
+file( REMOVE_RECURSE ${imgui_SOURCE_DIR}/backends )
+
 if( CMAKE_BUILD_TYPE STREQUAL "DEBUG" )
     target_compile_options( turbine PUBLIC -ggdb3 -Og )
     target_compile_definitions( turbine PRIVATE _DEBUG=1 )
